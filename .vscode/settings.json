@@ -1,0 +1,17 @@
+{
+  "cSpell.words": [
+    "Ihand",
+    "Imove",
+    "Ipart"
+  ],
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+      "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
+      "*.jsx": "${capture}.js",
+      "*.ts": "${capture}.js",
+      "*.tsx": "${capture}.ts, ${capture}.stories.tsx",
+      "package.json": "package-lock.json",
+      "readme.md": "*.md",
+      "vitest.config.ts": "vitest.shims.d.ts",
+      "tsconfig.json": "tsconfig.*.json, jsconfig.json"  }
+}
