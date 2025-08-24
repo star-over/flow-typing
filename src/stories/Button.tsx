@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import './button.css';
 
 export interface ButtonProps {

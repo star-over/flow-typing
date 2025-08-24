@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 type KeyCapLabel = { label?: string };
 type KeyCapHomeKeyMarker = "BAR" | "DOT" | "NONE";
 type KeyCapNavigationRole = "IDLE" | "HOME" | "PATH" | "TARGET";
