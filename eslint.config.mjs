@@ -1,18 +1,18 @@
-import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import pluginNext from '@next/eslint-plugin-next';
 import { defineConfig } from "eslint/config";
 
-
 export default defineConfig([
+  tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
+  pluginReact.configs.flat['jsx-runtime'],
   {
-    name: 'ESLint Config - nextjs',
+    name: 'ESLint nextjs',
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     plugins: {
-      js,
-      pluginReact,
+      react: pluginReact,
       '@next/next': pluginNext,
     },
     languageOptions: {
@@ -28,15 +28,18 @@ export default defineConfig([
         ...globals.browser,
       },
     },
-    extends: ["js/recommended"],
     rules: {
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs['core-web-vitals'].rules,
-      ...pluginReact.configs.flat.recommended.rules,
-      ...pluginReact.configs.flat['jsx-runtime'].rules,
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "off"
-
+      "@typescript-eslint/no-unused-vars": [
+        "warn", // Используйте "warn" вместо "error" для менее строгого поведения
+        {
+          "varsIgnorePattern": "^_", // Игнорирует переменные, начинающиеся с _
+          "argsIgnorePattern": "^_", // Игнорирует аргументы, начинающиеся с _
+          "ignoreExports": true // ✅ Важно: игнорирует все экспорты
+        }
+      ],
     },
     settings: {
       react: {
@@ -44,7 +47,4 @@ export default defineConfig([
       }
     },
   },
-  tseslint.configs.recommended,
-
-
 ]);
