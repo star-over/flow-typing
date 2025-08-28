@@ -19,7 +19,7 @@ type PhysicalKeyboard = {
   }[][];
 };
 
-type FingersMap = {
+type FingerZones = {
   keyCapId: KeyEventCodes;
   fingerId: Fingers;
   navigationRole?: KeyCapNavigationRole;

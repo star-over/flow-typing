@@ -1,11 +1,4 @@
-type SymbolLayout = {
-  keyCapId: KeyEventCodes,
-  symbol: string,
-  shift: boolean
-}[]
-
-export const EN_QWERTY: SymbolLayout = [
-
+export const SymbolLayoutEnQwerty: SymbolLayout = [
   { keyCapId: "Tab", symbol: "tab", shift: false },
   { keyCapId: "Backspace", symbol: "del", shift: false },
   { keyCapId: "CapsLock", symbol: "caps", shift: false },
