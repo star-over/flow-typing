@@ -32,7 +32,11 @@ export default defineConfig([
     rules: {
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs['core-web-vitals'].rules,
-      // "react/react-in-jsx-scope": "off",
+      ...pluginReact.configs.flat.recommended.rules,
+      ...pluginReact.configs.flat['jsx-runtime'].rules,
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+
     },
     settings: {
       react: {
@@ -41,6 +45,6 @@ export default defineConfig([
     },
   },
   tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  pluginReact.configs.flat['jsx-runtime'],
+
+
 ]);

@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    label: "A",
+    symbol: "A",
     visibility: meta.argTypes.visibility.options[0],
     homeKeyMarker: meta.argTypes.homeKeyMarker.options[0],
     navigationRole: meta.argTypes.navigationRole.options[0],

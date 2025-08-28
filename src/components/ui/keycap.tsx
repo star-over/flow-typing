@@ -80,7 +80,7 @@ export function KeyCap({
   navigationRole,
   pressResult,
   homeKeyMarker,
-  label = "A",
+  symbol: label = "A",
   unitWidth,
   ...props
 }: KeyCapProps) {
