@@ -12,11 +12,16 @@ const keyboardVariants = cva(
 
 export type KeyboardProps = React.ComponentProps<"div">
   & VariantProps<typeof keyboardVariants>
+  & {
+    physicalKeyboard: PhysicalKeyboard,
+    fingerZones: FingerZones,
+    symbolLayout: SymbolLayout,
+  }
 
 export function keyboard({ }: KeyboardProps) {
   return (
     <div>
-
+      <p>hello</p>
     </div>
   )
 }
