@@ -21,6 +21,21 @@ const markerVariants = cva(
   }
 );
 
+const centerPointVariants = cva(
+  "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 rounded-full bg-red-500/80",
+  {
+    variants: {
+      centerPointVisibility: {
+        VISIBLE: "visible",
+        INVISIBLE: "invisible",
+      } satisfies Record<Visibility, string>
+    },
+    defaultVariants: {
+      centerPointVisibility: "INVISIBLE",
+    }
+  }
+);
+
 
 const keyCapVariants = cva(
   `flex flex-grow items-center justify-center relative
@@ -73,6 +88,7 @@ const keyCapVariants = cva(
 export type KeyCapProps = React.ComponentProps<"div">
   & VariantProps<typeof keyCapVariants>
   & VariantProps<typeof markerVariants>
+  & VariantProps<typeof centerPointVariants>
   & KeyCapLabel
 
 export function KeyCap({
@@ -80,6 +96,7 @@ export function KeyCap({
   navigationRole,
   pressResult,
   homeKeyMarker,
+  centerPointVisibility,
   symbol = "A",
   unitWidth,
   ...props
@@ -101,7 +118,7 @@ export function KeyCap({
 
       {/* ------- CENTER --------- */}
       <div id="center-point"
-        className="absolute w-0.5 h-0.5 rounded-full bg-red-500/60"
+        className={cn(centerPointVariants({ centerPointVisibility }))}
       />
     </div>
   )

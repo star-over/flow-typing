@@ -24,6 +24,10 @@ const meta = {
       options: ["NEUTRAL", "CORRECT", "INCORRECT"]  satisfies KeyCapPressResult[],
       control: "inline-radio",
     },
+    centerPointVisibility: {
+      options: ["VISIBLE", "INVISIBLE"] satisfies Visibility[],
+      control: "inline-radio",
+    },
   },
 } satisfies Meta<typeof KeyCap>;
 
@@ -39,6 +43,7 @@ export const Default: Story = {
     navigationRole: meta.argTypes.navigationRole.options[0],
     unitWidth: meta.argTypes.unitWidth.options[0],
     pressResult: meta.argTypes.pressResult.options[0],
+    centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
   },
   // render: (args) => <KeyCap {...args} />
 };
