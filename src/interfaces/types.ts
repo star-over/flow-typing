@@ -10,26 +10,23 @@ type Hands = "LeftHand" | "RightHand";
 
 type PhysicalKeyboardItem = {
   keyCapId: KeyEventCodes;
-  unitWith?: KeyCapUnitWidth;
-  navigationRole?: KeyCapNavigationRole;
+  unitWidth?: KeyCapUnitWidth;
   homeKeyMarker?: KeyCapHomeKeyMarker;
   colorGroup?: KeyCapColorGroup;
 };
-type PhysicalKeyboard = {
-  name: string;
-  layout: PhysicalKeyboardItem[][];
-};
+type PhysicalKeyboard =  PhysicalKeyboardItem[][];
+
 
 type FingerZoneItem = {
-    keyCapId: KeyEventCodes;
+  keyCapId: KeyEventCodes;
   fingerId: Fingers;
   navigationRole?: KeyCapNavigationRole;
 };
 type FingerZones = FingerZoneItem[];
 
 type SymbolLayoutItem = {
-    keyCapId: KeyEventCodes;
-  fingerId: Fingers;
-  navigationRole?: KeyCapNavigationRole;
+  keyCapId: KeyEventCodes;
+  symbol: string;
+  shift: boolean;
 };
 type SymbolLayout = SymbolLayoutItem[];

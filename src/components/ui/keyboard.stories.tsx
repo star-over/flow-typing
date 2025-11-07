@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { keyboard } from './keyboard';
+
 import { PhysicalKeyboardANSI } from "@/data/physical-keyboard-ansi";
 import { fingerZonesASDF } from "@/data/fingers-zones-asdf";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout";
+import { Keyboard } from "./keyboard";
 
 const meta = {
-  component: keyboard,
-} satisfies Meta<typeof keyboard>;
+  component: Keyboard,
+} satisfies Meta<typeof Keyboard>;
 
 export default meta;
 

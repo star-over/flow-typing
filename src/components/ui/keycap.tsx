@@ -62,12 +62,18 @@ const keyCapVariants = cva(
 
       unitWidth: {
         "1U": "h-8 w-8 text-2xl",
-        "1.25U": "h-8 w-10 text-xs",
-        "1.5U": "h-8 w-12 text-sm",
+        "1.25U": "h-8 w-12 text-xs",
+        "1.5U": "h-8 w-14 text-sm",
         "1.75U": "h-8 w-14 text-sm",
         "2U": "h-8 w-16 text-base",
         "5U": "h-8 w-40 text-base",
       } satisfies Record<KeyCapUnitWidth, string>,
+
+      colorGroup: {
+        PRIMARY: "bg-slate-50 text-slate-300 border-slate-200",
+        SECONDARY: "bg-slate-150 text-slate-400 border-slate-400",
+        ACCENT: "bg-orange-50 text-orange-300 border-orange-200",
+      } satisfies Record<KeyCapColorGroup, string>,
     },
 
     compoundVariants: [
@@ -81,7 +87,8 @@ const keyCapVariants = cva(
       visibility: "VISIBLE",
       navigationRole: "IDLE",
       pressResult: "NEUTRAL",
-      unitWidth: "1U"
+      unitWidth: "1U",
+      colorGroup: "PRIMARY",
     },
   });
 

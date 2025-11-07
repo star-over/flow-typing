@@ -3,47 +3,58 @@ import { cn } from "@/lib/utils"
 import { KeyCap, KeyCapProps } from "./keycap";
 import { JSX } from "react";
 
-const keyboardVariants = cva(
-  "",
-  {
-    variants: {
-
-    }
-  }
-);
+const keyboardVariants = cva("", { variants: {} });
 
 export type KeyboardProps = React.ComponentProps<"div">
   & VariantProps<typeof keyboardVariants>
   & {
     physicalKeyboard: PhysicalKeyboard,
-    fingerZones: FingerZones,  
+    fingerZones: FingerZones,
     symbolLayout: SymbolLayout,
   }
 
 type RowProps = {
-  row: KeyCapProps[];
+  row: PhysicalKeyboardItem[];
   rowIndex: number;
+  symbolLayout: SymbolLayout;
+  fingerZones: FingerZones;
 }
-function Row({ row, rowIndex }: RowProps): JSX.Element {
-  const keyCaps = row.map(({ keyCapId }) => KeyCap({ symbol: keyCapId }))
+
+function Row(props: RowProps): JSX.Element {
+  const { row, rowIndex, symbolLayout, fingerZones } = props;
+  const keyCaps = row.map((item, colIndex) => {
+    const symbolLayoutItem = symbolLayout
+      .find(({ keyCapId, shift }) => keyCapId === item.keyCapId && shift === false);
+
+    const fingerZoneItem = fingerZones
+      .find(({ keyCapId }) => keyCapId === item.keyCapId);
+
+    const keyCapProps = {
+      ...item,
+      symbol: symbolLayoutItem?.symbol,
+      navigationRole: fingerZoneItem?.navigationRole,
+      fingerId: fingerZoneItem?.fingerId,
+    };
+
+    return KeyCap(keyCapProps)
+  })
+
 
   return (
-    <div
-      className="inline-flex flex-nowrap bg-slate-50 overflow-clip"
-      id={rowIndex.toString()}
-    >
+    <div className="inline-flex flex-nowrap bg-slate-100 overflow-clip">
       {keyCaps}
     </div>
   );
 }
 
-export function keyboard({ physicalKeyboard }: KeyboardProps) {
-  const { layout } = physicalKeyboard;
-  const rows = layout.map((row, rowIndex) => Row({ row, rowIndex }))
+export function Keyboard(props: KeyboardProps) {
+  const { physicalKeyboard, symbolLayout, fingerZones } = props;
+  const keyboardGrid = physicalKeyboard
+    .map((row, rowIndex) => Row({ row, rowIndex, symbolLayout, fingerZones }))
 
   return (
     <div>
-      <p>{rows}</p>
+      {keyboardGrid}
     </div>
   )
 }
