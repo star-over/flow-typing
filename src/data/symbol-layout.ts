@@ -1,4 +1,4 @@
-export const SymbolLayoutEnQwerty: SymbolLayout = [
+export const symbolLayoutEnQwerty: SymbolLayout = [
   { keyCapId: "Tab", symbol: "tab", shift: false },
   { keyCapId: "Backspace", symbol: "del", shift: false },
   { keyCapId: "CapsLock", symbol: "caps", shift: false },

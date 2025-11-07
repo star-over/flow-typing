@@ -1,6 +1,6 @@
 export const PhysicalKeyboardANSI: PhysicalKeyboard = {
   name: "US ANSI MAC",
-  keyCaps: [
+  layout: [
     [
       { keyCapId: "Backquote" },
       { keyCapId: "Digit1" },

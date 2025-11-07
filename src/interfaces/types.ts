@@ -8,25 +8,28 @@ type Visibility = "INVISIBLE" | "VISIBLE";
 type Fingers = "L4" | "L3" | "L2" | "L1" | "L0" | "LB" | "RB" | "R0" | "R1" | "R2" | "R3" | "R4";
 type Hands = "LeftHand" | "RightHand";
 
+type PhysicalKeyboardItem = {
+  keyCapId: KeyEventCodes;
+  unitWith?: KeyCapUnitWidth;
+  navigationRole?: KeyCapNavigationRole;
+  homeKeyMarker?: KeyCapHomeKeyMarker;
+  colorGroup?: KeyCapColorGroup;
+};
 type PhysicalKeyboard = {
   name: string;
-  keyCaps: {
-    keyCapId: KeyEventCodes;
-    unitWith?: KeyCapUnitWidth;
-    navigationRole?: KeyCapNavigationRole;
-    homeKeyMarker?: KeyCapHomeKeyMarker;
-    colorGroup?: KeyCapColorGroup;
-  }[][];
+  layout: PhysicalKeyboardItem[][];
 };
 
-type FingerZones = {
-  keyCapId: KeyEventCodes;
+type FingerZoneItem = {
+    keyCapId: KeyEventCodes;
   fingerId: Fingers;
   navigationRole?: KeyCapNavigationRole;
-}[];
+};
+type FingerZones = FingerZoneItem[];
 
-type SymbolLayout = {
-  keyCapId: KeyEventCodes,
-  symbol: string,
-  shift: boolean
-}[];
+type SymbolLayoutItem = {
+    keyCapId: KeyEventCodes;
+  fingerId: Fingers;
+  navigationRole?: KeyCapNavigationRole;
+};
+type SymbolLayout = SymbolLayoutItem[];

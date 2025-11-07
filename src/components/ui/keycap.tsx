@@ -80,7 +80,7 @@ export function KeyCap({
   navigationRole,
   pressResult,
   homeKeyMarker,
-  symbol: label = "A",
+  symbol = "A",
   unitWidth,
   ...props
 }: KeyCapProps) {
@@ -91,7 +91,7 @@ export function KeyCap({
     >
       {/* ------- LABEL  --------- */}
       <span id="label">
-        {label}
+        {symbol}
       </span>
 
       {/* ------- MARKER --------- */}
