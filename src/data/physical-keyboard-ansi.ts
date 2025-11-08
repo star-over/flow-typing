@@ -68,5 +68,8 @@ export const PhysicalKeyboardANSI: PhysicalKeyboard =  [
       { keyCapId: "Space",       unitWidth: "5U",    symbolSize: "MD", },
       { keyCapId: "MetaRight",   unitWidth: "1.25U", symbolSize: "MD", colorGroup: "SECONDARY" },
       { keyCapId: "AltRight",    unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
+      { keyCapId: "ArrowLeft",   unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
+      { keyCapId: "ArrowUp",     unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
+      { keyCapId: "ArrowRight",  unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
     ],
   ];

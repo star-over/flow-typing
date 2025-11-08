@@ -13,7 +13,7 @@ export const symbolLayoutEnQwerty: SymbolLayout = [
   { keyCapId: "AltRight",     symbol: "⌥",      shift: false },
   { keyCapId: "MetaRight",    symbol: "⌘",      shift: false },
   { keyCapId: "ArrowLeft",    symbol: "\u2190", shift: false },
-  { keyCapId: "ArrowUp",      symbol: "\u2195", shift: false },
+  { keyCapId: "ArrowUp",      symbol: "\u2191", shift: false },
   { keyCapId: "ArrowRight",   symbol: "\u2192", shift: false },
   { keyCapId: "Backquote",    symbol: "`",      shift: false },
   { keyCapId: "Digit1",       symbol: "1",      shift: false },
