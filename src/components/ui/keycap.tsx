@@ -1,28 +1,39 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
-const markerVariants = cva(
-  "absolute bottom-0.5 rounded-full",
+const symbolSizeVariants = cva("",
+  {
+    variants : {
+      symbolSize: {
+        "MD": "text-xl",
+        "SM": "text-sm",
+        "XS": "text-xs",
+      } satisfies Record<KeyCapSymbolSize, string>,
+    },
+    defaultVariants: {
+      symbolSize: "MD",
+    },
+  },
+);
+
+const markerVariants = cva("absolute bottom-0.5 rounded-full",
   {
     variants: {
-      navigationRole: {
-        IDLE: "bg-slate-200",
-        HOME: "bg-slate-500",
-        PATH: "bg-slate-300",
-        TARGET: "bg-lime-600",
-      } satisfies Record<KeyCapNavigationRole, string>,
-
       homeKeyMarker: {
         BAR: "w-3 h-0.5",
         DOT: "w-1 h-1",
         NONE: "invisible",
       } satisfies Record<KeyCapHomeKeyMarker, string>,
-    }
+    },
+    defaultVariants: {
+      homeKeyMarker: "NONE",
+    },
   }
 );
 
 const centerPointVariants = cva(
-  "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 rounded-full bg-red-500/80",
+  `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+  w-0.5 h-0.5 rounded-full bg-red-500/80`,
   {
     variants: {
       centerPointVisibility: {
@@ -36,10 +47,8 @@ const centerPointVariants = cva(
   }
 );
 
-
 const keyCapVariants = cva(
-  `flex flex-grow items-center justify-center relative
-  rounded-md border-1`,
+  "flex items-center justify-center relative rounded-sm border-1 h-8",
   {
     variants: {
       visibility: {
@@ -61,12 +70,12 @@ const keyCapVariants = cva(
       } satisfies Record<KeyCapPressResult, string>,
 
       unitWidth: {
-        "1U": "h-8 w-8 text-2xl",
-        "1.25U": "h-8 w-12 text-xs",
-        "1.5U": "h-8 w-14 text-sm",
-        "1.75U": "h-8 w-14 text-sm",
-        "2U": "h-8 w-16 text-base",
-        "5U": "h-8 w-40 text-base",
+        "1U":    "w-8",
+        "1.25U": "w-11",
+        "1.5U":  "w-13",
+        "1.75U": "w-15",
+        "2U":    "w-19",
+        "5U":    "w-42",
       } satisfies Record<KeyCapUnitWidth, string>,
 
       colorGroup: {
@@ -83,44 +92,53 @@ const keyCapVariants = cva(
         class: "outline-red-300",
       },
     ],
+
     defaultVariants: {
       visibility: "VISIBLE",
       navigationRole: "IDLE",
-      pressResult: "NEUTRAL",
       unitWidth: "1U",
       colorGroup: "PRIMARY",
+      pressResult: "NEUTRAL",
     },
   });
+
+
+
 
 export type KeyCapProps = React.ComponentProps<"div">
   & VariantProps<typeof keyCapVariants>
   & VariantProps<typeof markerVariants>
   & VariantProps<typeof centerPointVariants>
+  & VariantProps<typeof symbolSizeVariants>
   & KeyCapLabel
 
 export function KeyCap({
   visibility,
   navigationRole,
+  unitWidth,
+  colorGroup,
   pressResult,
+  symbolSize,
   homeKeyMarker,
   centerPointVisibility,
   symbol = "A",
-  unitWidth,
   ...props
 }: KeyCapProps) {
   return (
     <div id="main-frame"
-      className={cn(keyCapVariants({ visibility, navigationRole, unitWidth, pressResult }))}
+      className={cn(keyCapVariants({ visibility, navigationRole, unitWidth, colorGroup, pressResult }))}
       {...props}
     >
       {/* ------- LABEL  --------- */}
-      <span id="label">
+      <span id="label"
+        className={cn(symbolSizeVariants({ symbolSize }))}
+      >
         {symbol}
       </span>
 
       {/* ------- MARKER --------- */}
       <div id="marker"
-        className={cn(markerVariants({ homeKeyMarker, navigationRole }))}
+        className={cn(markerVariants({ homeKeyMarker }))}
       />
 
       {/* ------- CENTER --------- */}

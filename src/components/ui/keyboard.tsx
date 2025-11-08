@@ -41,7 +41,7 @@ function Row(props: RowProps): JSX.Element {
 
 
   return (
-    <div className="inline-flex flex-nowrap bg-slate-100 overflow-clip">
+    <div className="flex flex-nowrap bg-slate-100 gap-0.5">
       {keyCaps}
     </div>
   );
@@ -53,7 +53,7 @@ export function Keyboard(props: KeyboardProps) {
     .map((row, rowIndex) => Row({ row, rowIndex, symbolLayout, fingerZones }))
 
   return (
-    <div>
+    <div className="flex flex-col w-fit gap-0.5">
       {keyboardGrid}
     </div>
   )

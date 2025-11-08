@@ -20,6 +20,10 @@ const meta = {
       options: ["1U", "1.25U", "1.5U", "1.75U", "2U", "5U"] satisfies KeyCapUnitWidth[],
       control: "inline-radio",
     },
+    symbolSize: {
+      options: ["MD", "SM", "XS"] satisfies KeyCapSymbolSize[],
+      control: "inline-radio",
+    },
     pressResult: {
       options: ["NEUTRAL", "CORRECT", "INCORRECT"]  satisfies KeyCapPressResult[],
       control: "inline-radio",
@@ -42,6 +46,7 @@ export const Default: Story = {
     homeKeyMarker: meta.argTypes.homeKeyMarker.options[0],
     navigationRole: meta.argTypes.navigationRole.options[0],
     unitWidth: meta.argTypes.unitWidth.options[0],
+    symbolSize: meta.argTypes.symbolSize.options[0],
     pressResult: meta.argTypes.pressResult.options[0],
     centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
   },
