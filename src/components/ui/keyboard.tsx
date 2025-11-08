@@ -41,7 +41,7 @@ function Row(props: RowProps): JSX.Element {
 
 
   return (
-    <div className="flex flex-nowrap bg-slate-100 gap-0.5">
+    <div className="flex flex-nowrap gap-0.5">
       {keyCaps}
     </div>
   );

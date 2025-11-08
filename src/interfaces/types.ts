@@ -11,6 +11,7 @@ type Hands = "LeftHand" | "RightHand";
 // todo change Hands to HandSide
 // todo change Fingers to FingerName
 // todo change FingerName from 1 to 5 instead from 0 to 4
+// todo change remove KeyCapNavigationRole from Physical-Keyboard
 
 type PhysicalKeyboardItem = {
   keyCapId: KeyEventCodes;
