@@ -1,40 +1,39 @@
-type KeyCapLabel = { symbol?: string };
-type KeyCapHomeKeyMarker = "BAR" | "DOT" | "NONE";
-type KeyCapNavigationRole = "IDLE" | "HOME" | "PATH" | "TARGET";
-type KeyCapPressResult = "NEUTRAL" | "CORRECT" | "INCORRECT";
-type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "5U";
-type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
-type KeyCapSymbolSize = "MD" | "SM" | "XS";
-type Visibility = "INVISIBLE" | "VISIBLE";
-type FingerId = "L5" | "L4" | "L3" | "L2" | "L1" | "L0" | "LB" | "RB" | "R0" | "R1" | "R2" | "R3" | "R4"| "R5";
-type HandSide = "Left" | "Right";
-// todo change FingerName from 1 to 5 instead from 0 to 4
-// todo change remove KeyCapNavigationRole from Physical-Keyboard
+import { KeyCapId } from "@/interfaces/key-cap-id";
 
-type PhysicalKey = {
+export type KeyCapLabel = { symbol?: string };
+export type KeyCapHomeKeyMarker = "BAR" | "DOT" | "NONE";
+export type KeyCapNavigationRole = "IDLE" | "HOME" | "PATH" | "TARGET";
+export type KeyCapPressResult = "NEUTRAL" | "CORRECT" | "INCORRECT";
+export type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "5U";
+export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
+export type KeyCapSymbolSize = "MD" | "SM" | "XS";
+export type Visibility = "INVISIBLE" | "VISIBLE";
+export type FingerId = "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" | "NONE";
+export type HandSide = "Left" | "Right";
+
+export type PhysicalKey = {
   keyCapId: KeyCapId;
   unitWidth?: KeyCapUnitWidth;
   symbolSize?: KeyCapSymbolSize;
   homeKeyMarker?: KeyCapHomeKeyMarker;
   colorGroup?: KeyCapColorGroup;
 };
-type KeyboardLayout =  PhysicalKey[][];
+export type KeyboardLayout =  PhysicalKey[][];
 
-type FingerKey = {
+export type FingerKey = {
   keyCapId: KeyCapId;
   fingerId: FingerId;
-  navigationRole?: KeyCapNavigationRole;
 };
-type FingerLayout = FingerKey[];
+export type FingerLayout = FingerKey[];
 
-type SymbolKey = {
+export type SymbolKey = {
   keyCapId: KeyCapId;
   symbol: string;
   shift: boolean;
 };
-type SymbolLayout = SymbolKey[];
+export type SymbolLayout = SymbolKey[];
 
-type VirtualKey = {
+export type VirtualKey = {
   // From PhysicalKey
   keyCapId: KeyCapId;
   unitWidth?: KeyCapUnitWidth;
@@ -49,8 +48,10 @@ type VirtualKey = {
   fingerId: FingerId;
 
   // UI State
+  rowIndex: number,
+  colIndex: number,
   visibility?: Visibility;
   pressResult?: KeyCapPressResult;
   navigationRole?: KeyCapNavigationRole;
 };
-type VirtualKeyboard = VirtualKey[][];
+export type VirtualLayout = VirtualKey[][];

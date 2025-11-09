@@ -1,3 +1,5 @@
+import { SymbolLayout } from "@/interfaces/types";
+
 export const symbolLayoutEnQwerty: SymbolLayout = [
   { keyCapId: "Tab",          symbol: "tab",    shift: false },
   { keyCapId: "Backspace",    symbol: "del",    shift: false },

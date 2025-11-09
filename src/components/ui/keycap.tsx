@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { Visibility, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, KeyCapNavigationRole, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel } from "@/interfaces/types";
 
 const keyCapVariants = cva(
   "flex items-center justify-center relative rounded-sm border-1 h-8 [&_#marker]:bg-slate-300",

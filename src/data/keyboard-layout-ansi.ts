@@ -1,3 +1,5 @@
+import { KeyboardLayout } from "@/interfaces/types";
+
 export const KeyboardLayoutANSI: KeyboardLayout =  [
     [
       { keyCapId: "Backquote" },

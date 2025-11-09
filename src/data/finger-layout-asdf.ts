@@ -1,8 +1,10 @@
+import { FingerLayout } from "@/interfaces/types";
+
 export const fingerLayoutASDF: FingerLayout = [
   { keyCapId: "Backquote",    fingerId: "L5" },
   { keyCapId: "Digit1",       fingerId: "L5" },
   { keyCapId: "Digit2",       fingerId: "L4" },
-  { keyCapId: "Digit3",       fingerId: "L3", navigationRole: "TARGET" },
+  { keyCapId: "Digit3",       fingerId: "L3" },
   { keyCapId: "Digit4",       fingerId: "L2" },
   { keyCapId: "Digit5",       fingerId: "L2" },
   { keyCapId: "Digit6",       fingerId: "R2" },
@@ -15,7 +17,7 @@ export const fingerLayoutASDF: FingerLayout = [
 
   { keyCapId: "KeyQ",         fingerId: "L5" },
   { keyCapId: "KeyW",         fingerId: "L4" },
-  { keyCapId: "KeyE",         fingerId: "L3", navigationRole: "PATH"  },
+  { keyCapId: "KeyE",         fingerId: "L3" },
   { keyCapId: "KeyR",         fingerId: "L2" },
   { keyCapId: "KeyT",         fingerId: "L2" },
   { keyCapId: "KeyY",         fingerId: "R2" },
@@ -27,16 +29,16 @@ export const fingerLayoutASDF: FingerLayout = [
   { keyCapId: "BracketRight", fingerId: "R5" },
   { keyCapId: "Backslash",    fingerId: "R5" },
 
-  { keyCapId: "KeyA",         fingerId: "L5",  },
-  { keyCapId: "KeyS",         fingerId: "L4",  },
-  { keyCapId: "KeyD",         fingerId: "L3", navigationRole: "HOME" },
-  { keyCapId: "KeyF",         fingerId: "L2",  },
+  { keyCapId: "KeyA",         fingerId: "L5" },
+  { keyCapId: "KeyS",         fingerId: "L4" },
+  { keyCapId: "KeyD",         fingerId: "L3" },
+  { keyCapId: "KeyF",         fingerId: "L2" },
   { keyCapId: "KeyG",         fingerId: "L2" },
   { keyCapId: "KeyH",         fingerId: "R2" },
-  { keyCapId: "KeyJ",         fingerId: "R2", navigationRole: "HOME" },
-  { keyCapId: "KeyK",         fingerId: "R3", navigationRole: "HOME" },
-  { keyCapId: "KeyL",         fingerId: "R4", navigationRole: "HOME" },
-  { keyCapId: "Semicolon",    fingerId: "R5", navigationRole: "HOME" },
+  { keyCapId: "KeyJ",         fingerId: "R2" },
+  { keyCapId: "KeyK",         fingerId: "R3" },
+  { keyCapId: "KeyL",         fingerId: "R4" },
+  { keyCapId: "Semicolon",    fingerId: "R5" },
   { keyCapId: "Quote",        fingerId: "R5" },
 
   { keyCapId: "KeyZ",         fingerId: "L5" },
@@ -50,6 +52,9 @@ export const fingerLayoutASDF: FingerLayout = [
   { keyCapId: "Period",       fingerId: "R4" },
   { keyCapId: "Slash",        fingerId: "R5" },
 
-  { keyCapId: "SpaceLeft",    fingerId: "L0" },
-  { keyCapId: "SpaceRight",   fingerId: "R0" },
+  { keyCapId: "SpaceLeft",    fingerId: "L1" },
+  { keyCapId: "SpaceRight",   fingerId: "R1" },
+
+  { keyCapId: "ShiftLeft",    fingerId: "L5" },
+  { keyCapId: "ShiftRight",   fingerId: "R5" },
 ];

@@ -2,7 +2,7 @@
 // https://www.toptal.com/developers/keycode
 
 // event.codes
-type KeyCapId =
+export type KeyCapId =
   | "AltLeft"            // Alt
   | "AltRight"           // Alt Graph
   | "ArrowDown"          // ArrowDown
