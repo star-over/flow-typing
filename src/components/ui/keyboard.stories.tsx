@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     physicalKeyboard: PhysicalKeyboardANSI,
-    fingerZones: fingerZonesASDF,
+    fingerLayout: fingerZonesASDF,
     symbolLayout: symbolLayoutEnQwerty,
   }
 };

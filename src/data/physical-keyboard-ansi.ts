@@ -1,4 +1,4 @@
-export const PhysicalKeyboardANSI: PhysicalKeyboard =  [
+export const PhysicalKeyboardANSI: KeyboardLayout =  [
     [
       { keyCapId: "Backquote" },
       { keyCapId: "Digit1" },

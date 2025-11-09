@@ -1,4 +1,4 @@
-export const fingerZonesASDF: FingerZones = [
+export const fingerZonesASDF: FingerLayout = [
   { keyCapId: "Backquote",    fingerId: "L4" },
   { keyCapId: "Digit1",       fingerId: "L4" },
   { keyCapId: "Digit2",       fingerId: "L3" },
