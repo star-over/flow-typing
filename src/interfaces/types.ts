@@ -49,8 +49,8 @@ type VirtualKey = {
   fingerId: FingerId;
 
   // UI State
-  visibility: Visibility;
-  pressResult: KeyCapPressResult;
+  visibility?: Visibility;
+  pressResult?: KeyCapPressResult;
   navigationRole?: KeyCapNavigationRole;
 };
 type VirtualKeyboard = VirtualKey[][];
