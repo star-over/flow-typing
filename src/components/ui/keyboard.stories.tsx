@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 
-import { PhysicalKeyboardANSI } from "@/data/physical-keyboard-ansi";
-import { fingerZonesASDF } from "@/data/fingers-zones-asdf";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout";
+import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-row";
 import { Keyboard } from "./keyboard";
 
 const meta = {
@@ -16,8 +16,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    physicalKeyboard: PhysicalKeyboardANSI,
-    fingerLayout: fingerZonesASDF,
+    physicalKeyboard: KeyboardLayoutANSI,
+    fingerLayout: fingerLayoutASDF,
     symbolLayout: symbolLayoutEnQwerty,
   }
 };
