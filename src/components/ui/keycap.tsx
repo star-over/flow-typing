@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils"
 import { Visibility, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, KeyCapNavigationRole, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel } from "@/interfaces/types";
 
 const keyCapVariants = cva(
-  "flex items-center justify-center relative rounded-sm border-1 h-8 [&_#marker]:bg-slate-300",
+  `flex items-center justify-center relative rounded-sm border-1 h-8 
+  [&_.keycap-marker]:bg-slate-300`,
   {
     variants: {
       visibility: {
@@ -12,8 +13,8 @@ const keyCapVariants = cva(
       } satisfies Record<Visibility, string>,
 
       centerPointVisibility: {
-        VISIBLE: "[&_#center-point]:visible",
-        INVISIBLE: "[&_#center-point]:invisible",
+        VISIBLE: "[&_.keycap-center-point]:visible",
+        INVISIBLE: "[&_.keycap-center-point]:invisible",
       } satisfies Record<Visibility, string>,
 
 
@@ -24,9 +25,9 @@ const keyCapVariants = cva(
       } satisfies Record<KeyCapPressResult, string>,
 
       symbolSize: {
-        "MD": "[&_#label]:text-xl",
-        "SM": "[&_#label]:text-sm",
-        "XS": "[&_#label]:text-xs",
+        "MD": "[&_.keycap-label]:text-xl",
+        "SM": "[&_.keycap-label]:text-sm",
+        "XS": "[&_.keycap-label]:text-xs",
       } satisfies Record<KeyCapSymbolSize, string>,
 
       unitWidth: {
@@ -39,9 +40,9 @@ const keyCapVariants = cva(
       } satisfies Record<KeyCapUnitWidth, string>,
 
       navigationRole: {
-        IDLE: "bg-slate-50 text-slate-400 border-slate-200 ",
-        HOME: "bg-lime-50 text-slate-400 border-slate-300 outline-1 outline-slate-300",
-        PATH: "bg-lime-50 text-slate-400 border-slate-300",
+        IDLE:   "bg-slate-50 text-slate-400 border-slate-200 ",
+        HOME:   "bg-lime-50 text-slate-400 border-slate-300 outline-1 outline-slate-300",
+        PATH:   "bg-lime-50 text-slate-400 border-slate-300",
         TARGET: "bg-lime-100 text-lime-700 border-lime-300 outline-1 outline-lime-300",
       } satisfies Record<KeyCapNavigationRole, string>,
 
@@ -53,8 +54,8 @@ const keyCapVariants = cva(
 
       homeKeyMarker: {
         BAR: "",
-        DOT: "[&_#marker]:w-1 [&_#marker]:h-1",
-        NONE: "[&_#marker]:invisible",
+        DOT: "[&_.keycap-marker]:w-1 [&_.keycap-marker]:h-1",
+        NONE: "[&_.keycap-marker]:invisible",
       } satisfies Record<KeyCapHomeKeyMarker, string>,
     },
 
@@ -67,13 +68,8 @@ const keyCapVariants = cva(
       {
         visibility: "INVISIBLE",
         centerPointVisibility: "VISIBLE",
-        class: "[&_#center-point]:invisible",
+        class: "[&_.keycap-center-point]:invisible",
       },
-      // {
-      //   visibility: "INVISIBLE",
-      //   homeKeyMarker: ["BAR", "DOT"],
-      //   class: "[&_#marker]:invisible",
-      // },
     ],
 
     defaultVariants: {
@@ -105,23 +101,34 @@ export function KeyCap({
   ...props
 }: KeyCapProps) {
   return (
-    <div id="main-frame"
-      className={cn(keyCapVariants({ visibility, centerPointVisibility, homeKeyMarker, navigationRole, unitWidth, symbolSize, colorGroup, pressResult }))}
+    <div 
+      className={cn(
+        keyCapVariants({
+          visibility,
+          centerPointVisibility,
+          homeKeyMarker,
+          navigationRole,
+          unitWidth,
+          symbolSize,
+          colorGroup,
+          pressResult
+        })
+      )}
       {...props}
     >
       {/* ------- LABEL  --------- */}
-      <span id="label">
+      <span className="keycap-label">
         {symbol}
       </span>
 
       {/* ------- MARKER --------- */}
-      <div id="marker"
-        className="absolute bottom-0.5 w-3 h-0.5 rounded-full"
+      <div
+        className="keycap-marker absolute bottom-0.5 w-3 h-0.5 rounded-full"
       />
 
       {/* ------- CENTER --------- */}
-      <div id="center-point"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2
+      <div
+        className="keycap-center-point absolute top-1/2 left-1/2 -translate-x-1/2
           -translate-y-1/2 w-0.5 h-0.5 rounded-full bg-red-400"
       />
     </div>
