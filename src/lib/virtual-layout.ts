@@ -1,3 +1,4 @@
+import { KeyCapId } from "@/interfaces/key-cap-id";
 import { KeyboardLayout, SymbolLayout, FingerLayout, VirtualLayout, PhysicalKey, VirtualKey, SymbolKey, FingerKey } from "@/interfaces/types";
 
 interface CreateVirtualLayoutOptions {
@@ -10,12 +11,12 @@ interface CreateVirtualLayoutOptions {
 /**
  * Creates a VirtualKeyboard by merging the physical, symbol, and finger layouts.
  *
- * @param {CreateVirtualLayoutOptions} options - The options for creating the virtual keyboard.
- * @param {KeyboardLayout} options.keyboardLayout The physical layout of the keyboard (key positions, sizes).
- * @param {SymbolLayout} options.symbolLayout The layout of symbols on the keys.
- * @param {FingerLayout} options.fingerLayout The layout of finger responsibilities for each key.
- * @param {boolean} [options.shift=false] Status of the `Shift` modifier. Defaults to `false`.
- * @returns {VirtualKeyboard} A VirtualKeyboard, which is a 2D array of VirtualKey objects ready for UI rendering.
+ * @param options - The options for creating the virtual keyboard.
+ * @param options.keyboardLayout The physical layout of the keyboard (key positions, sizes).
+ * @param options.symbolLayout The layout of symbols on the keys.
+ * @param options.fingerLayout The layout of finger responsibilities for each key.
+ * @param [options.shift=false] Status of the `Shift` modifier. Defaults to `false`.
+ * @returns A VirtualKeyboard, which is a 2D array of VirtualKey objects ready for UI rendering.
  */
 export function createVirtualLayout(
   options: CreateVirtualLayoutOptions
@@ -62,3 +63,37 @@ export function createVirtualLayout(
 
   return virtualLayout;
 }
+
+
+/**
+ * For performance-critical scenarios where this function might be called frequently,
+ * consider creating a pre-computed Map from the symbolLayout for O(1) lookups
+ * instead of using .find() which is O(n).
+ */
+export interface FindSymbolKeyBySymbolOptions {
+  symbolLayout: SymbolLayout;
+  keyboardLayout: KeyboardLayout;
+  fingerLayout: FingerLayout;
+  targetSymbol: string;
+};
+
+export function findPath(options: FindSymbolKeyBySymbolOptions) {
+  const { keyboardLayout, symbolLayout, fingerLayout, targetSymbol } = options;
+  const targetSymbolKey = symbolLayout.find((sKey) => sKey.symbol === targetSymbol)!;
+  const targetFinger = fingerLayout.find((fKey) => fKey.keyCapId === targetSymbolKey.keyCapId);
+  const targetKeyCaps = fingerLayout.filter((fKey) => fKey.fingerId === targetFinger?.fingerId);
+  const targetKeyCapIds = targetKeyCaps.map((kKey) => kKey.keyCapId);
+  const virtualLayout = createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbolKey.shift });
+  const virtualLayout2 = virtualLayout.map(
+    (row: VirtualKey[]) => row.map(
+      (vKey: VirtualKey) => ({
+        ...vKey,
+        visibility: targetKeyCapIds.includes(vKey.keyCapId)
+          ? "VISIBLE"
+          : "INVISIBLE"
+      })
+    )
+  );
+
+  return virtualLayout2;
+};

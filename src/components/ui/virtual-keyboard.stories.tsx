@@ -4,9 +4,9 @@ import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";
-import { createVirtualLayout } from "@/lib/virtual-layout";
+import { createVirtualLayout, findPath } from "@/lib/virtual-layout";
 
-type StoryArgs = VirtualKeyboardProps & { shift: boolean };
+type StoryArgs = VirtualKeyboardProps & { shift: boolean, target: string };
 
 const meta = {
   component: VirtualKeyboard,
@@ -39,5 +39,31 @@ export const Interactive: Story = {
     });
 
     return <VirtualKeyboard  {...{ virtualLayout }} />;
+  },
+};
+
+export const Interactive2: Story = {
+  args: {
+    shift: false,
+    target: "j",
+  },
+  render: ({ shift, target }) => {
+    const virtualLayout = createVirtualLayout({
+      keyboardLayout: KeyboardLayoutANSI,
+      symbolLayout: symbolLayoutEnQwerty,
+      fingerLayout: fingerLayoutASDF,
+      shift: shift,
+    });
+
+    const targetSymbolKey = findPath({
+      keyboardLayout: KeyboardLayoutANSI,
+      symbolLayout: symbolLayoutEnQwerty,
+      fingerLayout: fingerLayoutASDF,
+      targetSymbol: target
+    });
+    console.log(targetSymbolKey)
+
+
+    return <VirtualKeyboard virtualLayout={targetSymbolKey} />;
   },
 };
