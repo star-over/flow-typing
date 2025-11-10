@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { KeyCap } from './keycap';
+import { KeyCapHomeKeyMarker, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 
 const meta = {
   component: KeyCap,
