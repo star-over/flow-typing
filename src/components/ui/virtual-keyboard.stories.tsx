@@ -19,10 +19,23 @@ const virtualLayout = createVirtualLayout({
   keyboardLayout: KeyboardLayoutANSI,
   symbolLayout: symbolLayoutEnQwerty,
   fingerLayout: fingerLayoutASDF,
+});
+
+const virtualLayoutCaps = createVirtualLayout({
+  keyboardLayout: KeyboardLayoutANSI,
+  symbolLayout: symbolLayoutEnQwerty,
+  fingerLayout: fingerLayoutASDF,
+  shift: true,
 })
 
-export const Default: Story = {
+export const LowerCase: Story = {
   args: {
     virtualLayout,
+  }
+};
+
+export const UpperCase: Story = {
+  args: {
+    virtualLayout: virtualLayoutCaps,
   }
 };
