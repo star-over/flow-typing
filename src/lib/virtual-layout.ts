@@ -71,13 +71,13 @@ export function createVirtualLayout(
  * instead of using .find() which is O(n).
  */
 export interface FindSymbolKeyBySymbolOptions {
-  symbolLayout: SymbolLayout;
   keyboardLayout: KeyboardLayout;
+  symbolLayout: SymbolLayout;
   fingerLayout: FingerLayout;
   targetSymbol: string;
 };
 
-export function findPath(options: FindSymbolKeyBySymbolOptions) {
+export function findPath(options: FindSymbolKeyBySymbolOptions): VirtualLayout {
   const { keyboardLayout, symbolLayout, fingerLayout, targetSymbol } = options;
   const targetSymbolKey = symbolLayout.find((sKey) => sKey.symbol === targetSymbol)!;
   const targetFinger = fingerLayout.find((fKey) => fKey.keyCapId === targetSymbolKey.keyCapId);
@@ -86,7 +86,7 @@ export function findPath(options: FindSymbolKeyBySymbolOptions) {
   const virtualLayout = createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbolKey.shift });
   const virtualLayout2 = virtualLayout.map(
     (row: VirtualKey[]) => row.map(
-      (vKey: VirtualKey) => ({
+      (vKey: VirtualKey): VirtualKey => ({
         ...vKey,
         visibility: targetKeyCapIds.includes(vKey.keyCapId)
           ? "VISIBLE"
