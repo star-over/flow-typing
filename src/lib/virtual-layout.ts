@@ -1,4 +1,3 @@
-import { KeyCapId } from "@/interfaces/key-cap-id";
 import { KeyboardLayout, SymbolLayout, FingerLayout, VirtualLayout, PhysicalKey, VirtualKey, SymbolKey, FingerKey } from "@/interfaces/types";
 
 interface CreateVirtualLayoutOptions {
@@ -70,30 +69,71 @@ export function createVirtualLayout(
  * consider creating a pre-computed Map from the symbolLayout for O(1) lookups
  * instead of using .find() which is O(n).
  */
-export interface FindSymbolKeyBySymbolOptions {
+export interface FindPathOptions {
+  /** The physical layout of the keyboard (key positions, sizes). */
   keyboardLayout: KeyboardLayout;
+  /** The layout of symbols on the keys. */
   symbolLayout: SymbolLayout;
+  /** The layout of finger responsibilities for each key. */
   fingerLayout: FingerLayout;
+  /** The target symbol to find the path for. */
   targetSymbol: string;
-};
+}
 
-export function findPath(options: FindSymbolKeyBySymbolOptions): VirtualLayout {
+/**
+ * Creates a virtual keyboard layout where only the keys associated with the
+ * finger for the target symbol are visible.
+ *
+ * @param {FindPathOptions} options
+ * @returns {VirtualLayout} A new virtual layout with updated key visibility.
+ */
+export function findPath(options: FindPathOptions): VirtualLayout {
   const { keyboardLayout, symbolLayout, fingerLayout, targetSymbol } = options;
-  const targetSymbolKey = symbolLayout.find((sKey) => sKey.symbol === targetSymbol)!;
-  const targetFinger = fingerLayout.find((fKey) => fKey.keyCapId === targetSymbolKey.keyCapId);
-  const targetKeyCaps = fingerLayout.filter((fKey) => fKey.fingerId === targetFinger?.fingerId);
-  const targetKeyCapIds = targetKeyCaps.map((kKey) => kKey.keyCapId);
-  const virtualLayout = createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbolKey.shift });
-  const virtualLayout2 = virtualLayout.map(
-    (row: VirtualKey[]) => row.map(
-      (vKey: VirtualKey): VirtualKey => ({
-        ...vKey,
-        visibility: targetKeyCapIds.includes(vKey.keyCapId)
+  // 1. Find the key for the target symbol
+  const targetSymbolKey = symbolLayout.find(
+    (symbolKey) => symbolKey.symbol === targetSymbol
+  );
+
+  // If the target symbol doesn't exist in the layout, return a default layout.
+  if (!targetSymbolKey) {
+    console.warn(`Symbol "${targetSymbol}" not found in symbol layout.`);
+    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout });
+  }
+
+  // 2. Find the finger responsible for the target key
+  const targetFingerKey = fingerLayout.find(
+    (fingerKey) => fingerKey.keyCapId === targetSymbolKey.keyCapId
+  );
+
+  if (!targetFingerKey) {
+    console.warn(`Finger for keyCapId "${targetSymbolKey.keyCapId}" not found.`);
+    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbolKey.shift });
+  }
+
+  // 3. Get all key IDs associated with that finger
+  const keyCapIdsForTargetFinger = fingerLayout
+    .filter((fingerKey) => fingerKey.fingerId === targetFingerKey.fingerId)
+    .map((fingerKey) => fingerKey.keyCapId);
+
+  // 4. Create the base virtual layout
+  const virtualLayout = createVirtualLayout({
+    keyboardLayout,
+    symbolLayout,
+    fingerLayout,
+    shift: targetSymbolKey.shift,
+  });
+
+  // 5. Update visibility for the keys
+  const layoutWithVisibility = virtualLayout.map((row) =>
+    row.map(
+      (virtualKey): VirtualKey => ({
+        ...virtualKey,
+        visibility: keyCapIdsForTargetFinger.includes(virtualKey.keyCapId)
           ? "VISIBLE"
-          : "INVISIBLE"
+          : "INVISIBLE",
       })
     )
   );
 
-  return virtualLayout2;
+  return layoutWithVisibility;
 };
