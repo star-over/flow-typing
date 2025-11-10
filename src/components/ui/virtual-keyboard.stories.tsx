@@ -8,10 +8,8 @@ import { createVirtualLayout } from "@/lib/virtual-layout";
 
 type StoryArgs = VirtualKeyboardProps & { shift: boolean };
 
-const meta: Meta<StoryArgs> = {
-  // Утверждение типа `as any` здесь - это осознанный шаг,
-  // чтобы разрешить конфликт между расширенными StoryArgs и реальными пропами компонента.
-  component: VirtualKeyboard as any,
+const meta = {
+  component: VirtualKeyboard,
   argTypes: {
     shift: {
       name: 'Shift Modifier',
@@ -22,7 +20,7 @@ const meta: Meta<StoryArgs> = {
       control: false,
     },
   },
-};
+} satisfies Meta<StoryArgs>;
 
 export default meta;
 

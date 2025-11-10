@@ -20,6 +20,11 @@ const commonGlobals = {
 };
 
 export default defineConfig([
+  // Игнорируемые файлы и директории
+  {
+    ignores: [".next/**", "next-env.d.ts"],
+  },
+
   // Базовые конфигурации (идут первыми)
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
@@ -51,8 +56,7 @@ export default defineConfig([
         {
           "varsIgnorePattern": "^_",
           "argsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
-          "ignoreExports": true
+          "caughtErrorsIgnorePattern": "^_"
         }
       ],
 
