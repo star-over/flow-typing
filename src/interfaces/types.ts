@@ -48,8 +48,8 @@ export type VirtualKey = {
   fingerId: FingerId;
 
   // UI State
-  rowIndex: number,
-  colIndex: number,
+  rowIndex?: number,
+  colIndex?: number,
   visibility?: Visibility;
   pressResult?: KeyCapPressResult;
   navigationRole?: KeyCapNavigationRole;
