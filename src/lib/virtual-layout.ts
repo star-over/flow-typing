@@ -26,9 +26,17 @@ export function createVirtualLayout(
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         // Find the corresponding symbol by keyCapId and shift status
-        const symbolKey: SymbolKey | undefined = symbolLayout.find(
+        let symbolKey: SymbolKey | undefined = symbolLayout.find(
           (sKey) => sKey.keyCapId === physicalKey.keyCapId && sKey.shift === shift
         );
+
+        // If no symbol is found for the current shift state, fall back to the inverse shift state.
+        // This ensures that keys defined only for one state (e.g., system keys) are always found.
+        if (!symbolKey) {
+          symbolKey = symbolLayout.find(
+            (sKey) => sKey.keyCapId === physicalKey.keyCapId && sKey.shift === !shift
+          );
+        }
 
         // Find the corresponding finger
         const fingerKey: FingerKey | undefined = fingerLayout.find(
