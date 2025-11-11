@@ -23,6 +23,7 @@ export type KeyboardLayout =  PhysicalKey[][];
 export type FingerKey = {
   keyCapId: KeyCapId;
   fingerId: FingerId;
+  isHomeKey?: boolean;
 };
 export type FingerLayout = FingerKey[];
 
@@ -46,6 +47,7 @@ export type VirtualKey = {
 
   // From FingerKey
   fingerId: FingerId;
+  isHomeKey?: boolean;
 
   // UI State
   rowIndex?: number,

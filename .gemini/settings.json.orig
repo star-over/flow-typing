@@ -1,7 +1,4 @@
 {
-  "general": {
-    "preferredEditor": "zed"
-  },
   "ui": {
     "hideBanner": true,
     "showMemoryUsage": true,
@@ -15,11 +12,15 @@
   "ide": {
     "enabled": true
   },
+  "general": {
+    "preferredEditor": "vscode"
+  },
   "security": {
     "auth": {
       "selectedType": "oauth-personal"
     }
   },
+  "preferredEditor": "zed",
   "tools": {
     "shell": {
       "showColor": false

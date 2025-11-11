@@ -1,3 +1,4 @@
+import { KeyCapId } from "@/interfaces/key-cap-id";
 import { KeyboardLayout, SymbolLayout, FingerLayout, VirtualLayout, PhysicalKey, VirtualKey, SymbolKey, FingerKey } from "@/interfaces/types";
 
 interface CreateVirtualLayoutOptions {
@@ -80,6 +81,16 @@ export interface FindPathOptions {
   targetSymbol: string;
 }
 
+const findKeyInData = (layout: VirtualLayout, keyCapId: KeyCapId) => {
+  for (const row of layout) {
+    const key = row.find(k => k.keyCapId === keyCapId);
+    if (key) {
+      return key;
+    }
+  }
+  return null;
+};
+
 /**
  * Creates a virtual keyboard layout where only the keys associated with the
  * finger for the target symbol are visible.
@@ -115,6 +126,10 @@ export function findPath(options: FindPathOptions): VirtualLayout {
     .filter((fingerKey) => fingerKey.fingerId === targetFingerKey.fingerId)
     .map((fingerKey) => fingerKey.keyCapId);
 
+  const homeKeyCapId = fingerLayout.find(
+    (fingerKey) => fingerKey.isHomeKey && keyCapIdsForTargetFinger.includes(fingerKey.keyCapId)
+  )?.keyCapId
+
   // 4. Create the base virtual layout
   const virtualLayout = createVirtualLayout({
     keyboardLayout,
@@ -123,15 +138,58 @@ export function findPath(options: FindPathOptions): VirtualLayout {
     shift: targetSymbolKey.shift,
   });
 
-  // 5. Update visibility for the keys
+  // 5. Pathfinding
+  const pathKeyCapIds: KeyCapId[] = [];
+  if (homeKeyCapId) {
+    const homeKey = findKeyInData(virtualLayout, homeKeyCapId);
+    const targetKey = findKeyInData(virtualLayout, targetSymbolKey.keyCapId);
+
+    if (homeKey && targetKey && homeKey.rowIndex !== undefined && homeKey.colIndex !== undefined && targetKey.rowIndex !== undefined && targetKey.colIndex !== undefined) {
+      // Vertical path
+      const startRow = Math.min(homeKey.rowIndex, targetKey.rowIndex);
+      const endRow = Math.max(homeKey.rowIndex, targetKey.rowIndex);
+      for (let i = startRow; i <= endRow; i++) {
+        const key = virtualLayout[i][homeKey.colIndex];
+        if (key) {
+          pathKeyCapIds.push(key.keyCapId);
+        }
+      }
+
+      // Horizontal path
+      const startCol = Math.min(homeKey.colIndex, targetKey.colIndex);
+      const endCol = Math.max(homeKey.colIndex, targetKey.colIndex);
+      for (let i = startCol; i <= endCol; i++) {
+        const key = virtualLayout[targetKey.rowIndex][i];
+        if (key) {
+          pathKeyCapIds.push(key.keyCapId);
+        }
+      }
+    }
+  }
+
+
+  // 6. Update visibility and navigation roles for the keys
   const layoutWithVisibility = virtualLayout.map((row) =>
     row.map(
-      (virtualKey): VirtualKey => ({
-        ...virtualKey,
-        visibility: keyCapIdsForTargetFinger.includes(virtualKey.keyCapId)
-          ? "VISIBLE"
-          : "INVISIBLE",
-      })
+      (virtualKey): VirtualKey => {
+        const isTarget = virtualKey.keyCapId === targetSymbolKey.keyCapId;
+        const isHome = virtualKey.keyCapId === homeKeyCapId;
+        const isPath = pathKeyCapIds.includes(virtualKey.keyCapId) && !isTarget && !isHome;
+
+        return {
+          ...virtualKey,
+          visibility: keyCapIdsForTargetFinger.includes(virtualKey.keyCapId)
+            ? "VISIBLE"
+            : "INVISIBLE",
+          navigationRole: isTarget
+            ? "TARGET"
+            : isHome
+              ? "HOME"
+              : isPath
+                ? "PATH"
+                : "IDLE",
+        }
+      }
     )
   );
 
