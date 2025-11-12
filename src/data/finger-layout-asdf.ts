@@ -52,8 +52,8 @@ export const fingerLayoutASDF: FingerLayout = [
   { keyCapId: "Period",       fingerId: "R4" },
   { keyCapId: "Slash",        fingerId: "R5" },
 
-  { keyCapId: "SpaceLeft",    fingerId: "L1" },
-  { keyCapId: "SpaceRight",   fingerId: "R1" },
+  { keyCapId: "SpaceLeft",    fingerId: "L1", isHomeKey: true },
+  { keyCapId: "SpaceRight",   fingerId: "R1", isHomeKey: true },
 
   { keyCapId: "ShiftLeft",    fingerId: "L5" },
   { keyCapId: "ShiftRight",   fingerId: "R5" },
