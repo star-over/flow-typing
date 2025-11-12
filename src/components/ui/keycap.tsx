@@ -1,10 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { Visibility, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, KeyCapNavigationRole, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel } from "@/interfaces/types";
+import { Visibility, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, KeyCapNavigationRole, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel, FingerId } from "@/interfaces/types";
 
 const keyCapVariants = cva(
-  `flex items-center justify-center relative rounded-sm border-1 h-8 
-  [&_.keycap-marker]:bg-slate-300`,
+  `flex items-center justify-center relative rounded-sm h-8 
+  [&_.keycap-marker]:bg-slate-500`,
   {
     variants: {
       visibility: {
@@ -17,11 +17,10 @@ const keyCapVariants = cva(
         INVISIBLE: "[&_.keycap-center-point]:invisible",
       } satisfies Record<Visibility, string>,
 
-
       pressResult: {
         NEUTRAL: "animate-none",
         CORRECT: "animate-bounce",
-        INCORRECT: "animate-pulse bg-red-200 text-red-700 border-red-300",
+        INCORRECT: "animate-pulse bg-red-200 text-red-700",
       } satisfies Record<KeyCapPressResult, string>,
 
       symbolSize: {
@@ -39,13 +38,6 @@ const keyCapVariants = cva(
         "5U":    "w-42",
       } satisfies Record<KeyCapUnitWidth, string>,
 
-      navigationRole: {
-        IDLE:   "bg-slate-50 text-slate-400 border-slate-200 ",
-        HOME:   "bg-lime-50 text-slate-400 border-slate-300 outline-1 outline-slate-300",
-        PATH:   "bg-lime-50 text-slate-400 border-slate-300",
-        TARGET: "bg-lime-100 text-lime-700 border-lime-300 outline-1 outline-lime-300",
-      } satisfies Record<KeyCapNavigationRole, string>,
-
       colorGroup: {
         PRIMARY: "",
         SECONDARY: "bg-stone-100 text-stone-400 border-stone-300 outline-stone-300",
@@ -57,6 +49,36 @@ const keyCapVariants = cva(
         DOT: "[&_.keycap-marker]:w-1 [&_.keycap-marker]:h-1",
         NONE: "[&_.keycap-marker]:invisible",
       } satisfies Record<KeyCapHomeKeyMarker, string>,
+
+      isHomeKey: {
+        true: "border-2",
+        false: "border-0",
+      },
+
+      fingerId: {
+        NONE: "",
+        L1: "bg-stone-50 border-stone-300 outline-stone-300",
+        R1: "bg-stone-50 border-stone-300 outline-stone-300",
+
+        L5: "bg-purple-50  border-purple-300  outline-purple-300 ",
+        L4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
+        L3: "bg-sky-50     border-sky-300     outline-sky-300    ",
+        L2: "bg-rose-50    border-rose-300    outline-rose-300   ",
+        R2: "bg-amber-50   border-amber-300   outline-amber-300  ",
+        R3: "bg-sky-50     border-sky-300     outline-sky-300    ",
+        R4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
+        R5: "bg-purple-50  border-purple-300  outline-purple-300 ",
+
+        LB: "",
+        RB: "",
+      } satisfies Record<FingerId, string>,
+
+      navigationRole: {
+        IDLE:   "text-slate-300",
+        HOME:   "",
+        PATH:   "text-lime-600 bg-green-100 ",
+        TARGET: "text-lime-700  bg-green-300 outline-2 outline-green-700",
+      } satisfies Record<KeyCapNavigationRole, string>,
     },
 
     compoundVariants: [
@@ -81,6 +103,8 @@ const keyCapVariants = cva(
       colorGroup: "PRIMARY",
       pressResult: "NEUTRAL",
       homeKeyMarker: "NONE",
+      fingerId: "NONE",
+      isHomeKey: false,
     },
   });
 
@@ -97,16 +121,20 @@ export function KeyCap({
   pressResult,
   symbolSize,
   homeKeyMarker,
+  isHomeKey,
+  fingerId,
   symbol = "A",
   ...props
 }: KeyCapProps) {
   return (
-    <div 
+    <div
       className={cn(
         keyCapVariants({
           visibility,
           centerPointVisibility,
           homeKeyMarker,
+          isHomeKey,
+          fingerId,
           navigationRole,
           unitWidth,
           symbolSize,

@@ -55,6 +55,7 @@ export function createVirtualLayout(
 
           // Properties from the finger layout
           fingerId: fingerKey?.fingerId || "NONE",
+          isHomeKey: fingerKey?.isHomeKey,
         };
 
         return virtualKey;

@@ -16,6 +16,12 @@ const meta = {
       control: 'boolean',
       description: 'Toggle to switch between lower and upper case',
     },
+    target: {
+      name: 'Target symbol',
+      options: ["Q", "Z", "S", "3", "F", "G", "6", "y", "m", ",", "-", "]", "=", ".", "/"],
+      control: "inline-radio",
+      description: 'Target symbol than need to be reached by user',
+    },
     virtualLayout: {
       control: false,
     },
@@ -44,16 +50,9 @@ export const Interactive: Story = {
 
 export const Interactive2: Story = {
   args: {
-    shift: false,
-    target: "j",
+    target: meta.argTypes.target.options[0],
   },
-  render: ({ shift, target }) => {
-    const virtualLayout = createVirtualLayout({
-      keyboardLayout: KeyboardLayoutANSI,
-      symbolLayout: symbolLayoutEnQwerty,
-      fingerLayout: fingerLayoutASDF,
-      shift: shift,
-    });
+  render: ({ target }) => {
 
     const targetSymbolKey = findPath({
       keyboardLayout: KeyboardLayoutANSI,
