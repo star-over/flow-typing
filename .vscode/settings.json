@@ -9,7 +9,7 @@
   "explorer.fileNesting.patterns": {
       "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
       "*.jsx": "${capture}.js",
-      "*.ts": "${capture}.js",
+      "*.ts": "${capture}.js, ${capture}.test.ts",
       "*.tsx": "${capture}.ts, ${capture}.stories.tsx",
       "package.json": "package-lock.json",
       "readme.md": "*.md",
