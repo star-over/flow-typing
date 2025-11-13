@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { FlowLine } from "@/components/ui/flow-line";
 import { KeyCap } from "@/components/ui/keycap";
 import Image from "next/image";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <Button variant="ghost">hello</Button>
         <KeyCap />
         <br></br>
+        <FlowLine stream="This is a test stream for the FlowLine component." cursorPosition={10} />
 
 
       </main>
