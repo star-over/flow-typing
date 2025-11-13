@@ -2,17 +2,22 @@ import { Button } from "@/components/ui/button";
 import { FlowLine } from "@/components/ui/flow-line";
 import { KeyCap } from "@/components/ui/keycap";
 import { TypingStream } from "@/interfaces/types";
+import { createTypingStream } from "@/lib/stream";
 import Image from "next/image";
 
-const testStream: TypingStream = 'This is a test stream for the FlowLine component.'.split('').map(char => ({
+const fullStreamText = 'This is a test stream for the FlowLine component.';
+
+const testStreamCompleted: TypingStream = fullStreamText.split('').map(char => ({
   targetSymbol: char,
-  attempts: [{ typedChar: char, timestamp: 0 }],
+  attempts: [{ typedChar: char, startAt: 0, endAt: 100 }],
 }));
 
 // Add some errors for demonstration
-testStream[2].attempts.unshift({ typedChar: 'x', timestamp: 0 }); // 1 error
-testStream[5].attempts.unshift({ typedChar: 'y', timestamp: 0 });
-testStream[5].attempts.unshift({ typedChar: 'z', timestamp: 0 }); // 2 errors
+testStreamCompleted[2].attempts?.unshift({ typedChar: 'x', startAt: 0, endAt: 50 }); // 1 error
+testStreamCompleted[5].attempts?.unshift({ typedChar: 'y', startAt: 0, endAt: 50 });
+testStreamCompleted[5].attempts?.unshift({ typedChar: 'z', startAt: 50, endAt: 100 }); // 2 errors
+
+const testStreamPending: TypingStream = createTypingStream(fullStreamText);
 
 
 export default function Home() {
@@ -30,7 +35,8 @@ export default function Home() {
         <Button variant="ghost">hello</Button>
         <KeyCap />
         <br></br>
-        <FlowLine stream={testStream} cursorPosition={10} />
+        <FlowLine stream={testStreamCompleted} cursorPosition={10} />
+        <FlowLine stream={testStreamPending} cursorPosition={0} />
 
 
       </main>

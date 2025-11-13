@@ -12,14 +12,14 @@ export function FlowLine({ stream, cursorPosition, className }: FlowLineProps) {
   const cursorSymbol = stream[cursorPosition];
   const pendingSymbols = stream.slice(cursorPosition + 1);
 
-  const getSymbolChar = (symbol: { targetSymbol: string; }) => 
+  const getSymbolChar = (symbol: { targetSymbol: string; }) =>
     symbol.targetSymbol === ' ' ? '\u00A0' : symbol.targetSymbol;
 
   return (
     <div className={cn("flex justify-center items-center font-mono text-4xl w-full", className)}>
       <span className="text-gray-400 whitespace-pre text-right overflow-hidden flex-shrink-0">
         {completedSymbols.slice(-20).map((symbol, index) => {
-          const errorCount = symbol.attempts.length - 1;
+          const errorCount = symbol.attempts ? symbol.attempts.length - 1 : 0;
           return (
             <span
               key={index}
@@ -45,3 +45,4 @@ export function FlowLine({ stream, cursorPosition, className }: FlowLineProps) {
     </div>
   );
 }
+

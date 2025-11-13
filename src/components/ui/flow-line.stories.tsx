@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FlowLine } from './flow-line';
 import { TypingStream } from '@/interfaces/types';
+import { createTypingStream } from '@/lib/stream';
 
 const meta: Meta<typeof FlowLine> = {
   title: 'UI/FlowLine',
@@ -17,20 +18,24 @@ const meta: Meta<typeof FlowLine> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const baseStream: TypingStream = 'The quick brown fox jumps over the lazy dog.'.split('').map(char => ({
+const fullStreamText = 'The quick brown fox jumps over the lazy dog.';
+
+const baseStreamCompleted: TypingStream = fullStreamText.split('').map(char => ({
   targetSymbol: char,
-  attempts: [{ typedChar: char, timestamp: 0 }],
+  attempts: [{ typedChar: char, startAt: 0, endAt: 100 }],
 }));
+
+const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
 
 export const Default: Story = {
   args: {
-    stream: baseStream,
+    stream: baseStreamCompleted,
     cursorPosition: 10,
   },
 };
 
-const streamWithOneError: TypingStream = JSON.parse(JSON.stringify(baseStream));
-streamWithOneError[4].attempts.unshift({ typedChar: 'w', timestamp: 0 }); // 1 error on 'q'
+const streamWithOneError: TypingStream = JSON.parse(JSON.stringify(baseStreamCompleted));
+streamWithOneError[4].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 }); // 1 error on 'q'
 
 export const WithOneError: Story = {
   args: {
@@ -39,12 +44,12 @@ export const WithOneError: Story = {
   },
 };
 
-const streamWithMultipleErrors: TypingStream = JSON.parse(JSON.stringify(baseStream));
-streamWithMultipleErrors[4].attempts.unshift({ typedChar: 'w', timestamp: 0 });
-streamWithMultipleErrors[4].attempts.unshift({ typedChar: 'e', timestamp: 0 }); // 2 errors on 'q'
-streamWithMultipleErrors[6].attempts.unshift({ typedChar: 'w', timestamp: 0 });
-streamWithMultipleErrors[6].attempts.unshift({ typedChar: 'e', timestamp: 0 });
-streamWithMultipleErrors[6].attempts.unshift({ typedChar: 'r', timestamp: 0 }); // 3 errors on 'i'
+const streamWithMultipleErrors: TypingStream = JSON.parse(JSON.stringify(baseStreamCompleted));
+streamWithMultipleErrors[4].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 });
+streamWithMultipleErrors[4].attempts?.unshift({ typedChar: 'e', startAt: 50, endAt: 100 }); // 2 errors on 'q'
+streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 });
+streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'e', startAt: 50, endAt: 100 });
+streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'r', startAt: 100, endAt: 150 }); // 3 errors on 'i'
 
 
 export const WithMultipleErrors: Story = {
@@ -56,15 +61,15 @@ export const WithMultipleErrors: Story = {
 
 export const AtTheBeginning: Story = {
   args: {
-    stream: baseStream,
+    stream: baseStreamPending, // All characters are pending
     cursorPosition: 0,
   },
 };
 
 export const AtTheEnd: Story = {
   args: {
-    stream: baseStream,
-    cursorPosition: baseStream.length -1,
+    stream: baseStreamCompleted, // All characters are completed
+    cursorPosition: baseStreamCompleted.length -1,
   },
 };
 

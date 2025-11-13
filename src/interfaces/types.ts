@@ -14,12 +14,13 @@ export type FlowLineState = "AT_BEGIN" | "STREAMING" | "PAUSE" | "AT_END"
 
 export type Attempt = {
   typedChar: string;
-  timestamp: number;
+  startAt: number;
+  endAt: number;
 };
 
 export type StreamSymbol = {
   targetSymbol: string;
-  attempts: Attempt[];
+  attempts?: Attempt[];
 };
 
 export type TypingStream = StreamSymbol[];
