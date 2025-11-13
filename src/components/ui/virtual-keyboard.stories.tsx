@@ -8,8 +8,13 @@ import { createVirtualLayout, findPath } from "@/lib/virtual-layout";
 
 type StoryArgs = VirtualKeyboardProps & { shift: boolean, target: string };
 
-const meta = {
+const meta  = {
+  title: 'UI/VirtualKeyboard',
   component: VirtualKeyboard,
+  // parameters: {
+  //   layout: 'centered',
+  // },
+  // tags: ['autodocs'],
   argTypes: {
     shift: {
       name: 'Shift Modifier',
@@ -29,10 +34,9 @@ const meta = {
 } satisfies Meta<StoryArgs>;
 
 export default meta;
-
 type Story = StoryObj<StoryArgs>;
 
-export const Interactive: Story = {
+export const WholeKeyboard: Story = {
   args: {
     shift: false,
   },
@@ -48,7 +52,7 @@ export const Interactive: Story = {
   },
 };
 
-export const Interactive2: Story = {
+export const JustPath: Story = {
   args: {
     target: meta.argTypes.target.options[0],
   },

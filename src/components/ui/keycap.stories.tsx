@@ -3,7 +3,13 @@ import { KeyCap } from './keycap';
 import { KeyCapHomeKeyMarker, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 
 const meta = {
+  title: 'UI/KeyCap',
   component: KeyCap,
+  // parameters: {
+  //   layout: 'centered',
+  // },
+  // tags: ['autodocs'],
+
   argTypes: {
     visibility: {
       options: ["VISIBLE", "INVISIBLE"] satisfies Visibility[],
