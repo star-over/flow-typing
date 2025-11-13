@@ -10,7 +10,7 @@ export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
 export type FingerId = "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" | "NONE";
 export type HandSide = "Left" | "Right";
-export type FlowLineState = "AT_BEGIN" | "STREAMING" | "PAUSE" | "AT_END"
+export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 
 export type Attempt = {
   typedChar: string;

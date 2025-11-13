@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
 import { TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/stream';
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
 
 const meta: Meta<typeof FlowLine> = {
   title: 'UI/FlowLine',
@@ -13,6 +19,13 @@ const meta: Meta<typeof FlowLine> = {
   argTypes: {
     cursorPosition: { control: { type: 'number', min: 0 } },
   },
+  decorators: [
+    Story => (
+      <div className={`${geistMono.variable} font-mono`}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
