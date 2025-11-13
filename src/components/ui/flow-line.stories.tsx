@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
 import { TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/stream';
@@ -7,6 +7,11 @@ import { createTypingStream } from '@/lib/stream';
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+});
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
 });
 
 const meta: Meta<typeof FlowLine> = {
@@ -17,11 +22,12 @@ const meta: Meta<typeof FlowLine> = {
   },
   tags: ['autodocs'],
   argTypes: {
+    stream: { control: false },
     cursorPosition: { control: { type: 'number', min: 0 } },
   },
   decorators: [
     Story => (
-      <div className={`${geistMono.variable} font-mono`}>
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Story />
       </div>
     ),
@@ -31,7 +37,7 @@ const meta: Meta<typeof FlowLine> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const fullStreamText = 'The quick brown fox jumps over the lazy dog.';
+const fullStreamText = 'The quick brown foxxxxxxxxxxxxxxx jumps over the lazy dog.';
 
 const baseStreamCompleted: TypingStream = fullStreamText.split('').map(char => ({
   targetSymbol: char,
@@ -82,7 +88,6 @@ export const AtTheBeginning: Story = {
 export const AtTheEnd: Story = {
   args: {
     stream: baseStreamCompleted, // All characters are completed
-    cursorPosition: baseStreamCompleted.length -1,
+    cursorPosition: baseStreamCompleted.length - 1,
   },
 };
-

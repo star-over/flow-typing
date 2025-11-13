@@ -11,6 +11,7 @@ export type Visibility = "INVISIBLE" | "VISIBLE";
 export type FingerId = "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" | "NONE";
 export type HandSide = "Left" | "Right";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
+export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
 
 export type Attempt = {
   typedChar: string;

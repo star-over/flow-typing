@@ -1,6 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { KeyCap } from './keycap';
 import { KeyCapHomeKeyMarker, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 const meta = {
   title: 'UI/KeyCap',
@@ -39,7 +50,15 @@ const meta = {
       options: ["VISIBLE", "INVISIBLE"] satisfies Visibility[],
       control: "inline-radio",
     },
+
   },
+  decorators: [
+    Story => (
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof KeyCap>;
 
 export default meta;

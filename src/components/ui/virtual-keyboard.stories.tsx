@@ -3,10 +3,21 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { Geist, Geist_Mono } from 'next/font/google';
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";
 import { createVirtualLayout, findPath } from "@/lib/virtual-layout";
 
 type StoryArgs = VirtualKeyboardProps & { shift: boolean, target: string };
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 const meta  = {
   title: 'UI/VirtualKeyboard',
@@ -31,6 +42,13 @@ const meta  = {
       control: false,
     },
   },
+  decorators: [
+    Story => (
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<StoryArgs>;
 
 export default meta;
