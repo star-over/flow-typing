@@ -41,7 +41,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const fullStreamText = 'The quick brown foxxxxxxxxxxxxxxx jumps over the lazy dog.';
+const fullStreamText = 'The quick brown fo xxx xxx xxx xxx xxx jumps over the lazy dog.';
 
 // --- Stream Definitions ---
 

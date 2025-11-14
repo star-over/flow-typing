@@ -47,14 +47,15 @@ export function FlowLine({ stream, cursorPosition, cursorType, className }: Flow
   const completedSymbols = stream.slice(0, cursorPosition);
   const cursorSymbol = stream[cursorPosition];
   const pendingSymbols = stream.slice(cursorPosition + 1);
-  const completedCount = -10;
-  const pendingCount = 10;
+  const completedCount = -100;
+  const pendingCount = 100;
 
   return (
-    <div className={cn("flex justify-center items-center font-mono text-4xl w-fit", className)}>
+    <div className={cn(`w-screen flex justify-center items-center  
+     font-mono text-4xl`, className)}>
 
       {/* ---- Completed Symbols ---- */}
-      <span className="whitespace-pre text-right overflow-hidden flex-shrink-0">
+      <span className="flex justify-end whitespace-nowrap text-right overflow-hidden min-w-1/3 bg-amber-100">
         {completedSymbols.slice(completedCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
@@ -72,7 +73,7 @@ export function FlowLine({ stream, cursorPosition, cursorType, className }: Flow
       />
 
       {/* ---- Pending Symbols ---- */}
-      <span className="whitespace-pre flex-grow-0 overflow-hidden">
+      <span className="flex justify-start whitespace-pre text-left  overflow-hidden w-full   bg-rose-100">
         {pendingSymbols.slice(0, pendingCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
@@ -119,7 +120,7 @@ function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbo
 
 // -------- CursorSymbol --------
 const cursorSymbolVariants = cva(
-  `absolute left-0 -bottom-0.5 bg-gray-800`,
+  `absolute left-0 -bottom-0 bg-gray-800`,
   {
     variants: {
       cursorType: {
