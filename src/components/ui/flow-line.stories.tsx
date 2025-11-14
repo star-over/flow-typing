@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
-import { TypingStream } from '@/interfaces/types';
-import { createTypingStream } from '@/lib/stream';
+import { FlowLineCursorType, TypingStream } from '@/interfaces/types';
+import { createTypingStream, addAttempt } from '@/lib/stream';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -14,16 +14,20 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const meta: Meta<typeof FlowLine> = {
+const meta = {
   title: 'UI/FlowLine',
   component: FlowLine,
-  parameters: {
-    layout: 'centered',
-  },
-  tags: ['autodocs'],
+  // parameters: {
+  //   layout: 'centered',
+  // },
+  // tags: ['autodocs'],
   argTypes: {
     stream: { control: false },
     cursorPosition: { control: { type: 'number', min: 0 } },
+    cursorType: {
+      options: ["VERTICAL", "UNDERSCORE", "RECTANGLE"] satisfies FlowLineCursorType[],
+      control: "inline-radio",
+    },
   },
   decorators: [
     Story => (
@@ -32,19 +36,61 @@ const meta: Meta<typeof FlowLine> = {
       </div>
     ),
   ],
-};
+} satisfies Meta<typeof FlowLine>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const fullStreamText = 'The quick brown foxxxxxxxxxxxxxxx jumps over the lazy dog.';
 
-const baseStreamCompleted: TypingStream = fullStreamText.split('').map(char => ({
-  targetSymbol: char,
-  attempts: [{ typedChar: char, startAt: 0, endAt: 100 }],
-}));
+// --- Stream Definitions ---
 
+// 1. A stream with no attempts yet
 const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
+
+// 2. A stream where every character was typed correctly on the first attempt
+let baseStreamCompleted = createTypingStream(fullStreamText);
+for (let i = 0; i < fullStreamText.length; i++) {
+  baseStreamCompleted = addAttempt({
+    stream: baseStreamCompleted,
+    cursorPosition: i,
+    typedSymbol: fullStreamText[i],
+    startAt: 0,
+    endAt: 100,
+  });
+}
+
+// 3. A stream with one error on 'q' (index 4)
+let streamWithOneError = createTypingStream(fullStreamText);
+for (let i = 0; i < fullStreamText.length; i++) {
+  if (i === 4) { // Incorrect attempt on 'q'
+    streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
+  } else {
+    // Final correct attempt for all characters
+    streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
+  }
+}
+
+// 4. A stream with multiple errors on 'q' (index 4) and 'i' (index 6)
+let streamWithMultipleErrors = createTypingStream(fullStreamText);
+for (let i = 0; i < fullStreamText.length; i++) {
+  if (i === 0) { // Errors on 'q'
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
+  } else
+  if (i === 1) { // Errors on 'q'
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'e', startAt: 50, endAt: 100 });
+  } else
+  if (i === 2) { // Errors on 'i'
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'a', startAt: 0, endAt: 50 });
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'b', startAt: 50, endAt: 100 });
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'c', startAt: 100, endAt: 150 });
+    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 150, endAt: 200 })
+  } else
+  // Final correct attempt for all characters
+  streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
+}
+
 
 export const Default: Story = {
   args: {
@@ -53,23 +99,12 @@ export const Default: Story = {
   },
 };
 
-const streamWithOneError: TypingStream = JSON.parse(JSON.stringify(baseStreamCompleted));
-streamWithOneError[4].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 }); // 1 error on 'q'
-
 export const WithOneError: Story = {
   args: {
     stream: streamWithOneError,
     cursorPosition: 10,
   },
 };
-
-const streamWithMultipleErrors: TypingStream = JSON.parse(JSON.stringify(baseStreamCompleted));
-streamWithMultipleErrors[4].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 });
-streamWithMultipleErrors[4].attempts?.unshift({ typedChar: 'e', startAt: 50, endAt: 100 }); // 2 errors on 'q'
-streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'w', startAt: 0, endAt: 50 });
-streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'e', startAt: 50, endAt: 100 });
-streamWithMultipleErrors[6].attempts?.unshift({ typedChar: 'r', startAt: 100, endAt: 150 }); // 3 errors on 'i'
-
 
 export const WithMultipleErrors: Story = {
   args: {
@@ -89,5 +124,6 @@ export const AtTheEnd: Story = {
   args: {
     stream: baseStreamCompleted, // All characters are completed
     cursorPosition: baseStreamCompleted.length - 1,
+    cursorType: meta.argTypes.cursorType.options[0],
   },
 };

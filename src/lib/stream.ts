@@ -27,13 +27,13 @@ export function createTypingStream(text: string): TypingStream {
 export function addAttempt({
   stream,
   cursorPosition,
-  typedChar,
+  typedSymbol,
   startAt,
   endAt,
 }: {
   stream: TypingStream;
   cursorPosition: number;
-  typedChar: string;
+  typedSymbol: string;
   startAt: number;
   endAt: number;
 }): TypingStream {
@@ -46,7 +46,7 @@ export function addAttempt({
   const targetSymbol = newStream[cursorPosition];
 
   const newAttempt: Attempt = {
-    typedChar,
+    typedSymbol: typedSymbol,
     startAt,
     endAt,
   };
@@ -62,4 +62,3 @@ export function addAttempt({
 
   return newStream;
 }
-

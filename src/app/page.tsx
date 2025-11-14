@@ -13,9 +13,9 @@ const testStreamCompleted: TypingStream = fullStreamText.split('').map(char => (
 }));
 
 // Add some errors for demonstration
-testStreamCompleted[2].attempts?.unshift({ typedChar: 'x', startAt: 0, endAt: 50 }); // 1 error
-testStreamCompleted[5].attempts?.unshift({ typedChar: 'y', startAt: 0, endAt: 50 });
-testStreamCompleted[5].attempts?.unshift({ typedChar: 'z', startAt: 50, endAt: 100 }); // 2 errors
+testStreamCompleted[2].attempts?.unshift({ typedSymbol: 'x', startAt: 0, endAt: 50 }); // 1 error
+testStreamCompleted[5].attempts?.unshift({ typedSymbol: 'y', startAt: 0, endAt: 50 });
+testStreamCompleted[5].attempts?.unshift({ typedSymbol: 'z', startAt: 50, endAt: 100 }); // 2 errors
 
 const testStreamPending: TypingStream = createTypingStream(fullStreamText);
 

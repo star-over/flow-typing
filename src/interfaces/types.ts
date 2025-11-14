@@ -8,13 +8,14 @@ export type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "5U";
 export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
-export type FingerId = "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" | "NONE";
+export type FingerId =  "NONE" | "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" ;
 export type HandSide = "Left" | "Right";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
+export type FlowLineSymbolType = "NONE" | "CORRECT" | "ERROR" | "ERRORS" | "FIXED"
 
 export type Attempt = {
-  typedChar: string;
+  typedSymbol: string;
   startAt: number;
   endAt: number;
 };
