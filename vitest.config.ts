@@ -15,9 +15,11 @@ export default defineConfig({
   test: {
     projects: [
       {
-        name: 'unit',
-        include: ['src/**/*.test.{ts,tsx}'],
-        environment: 'node',
+        test: {
+          name: 'unit',
+          include: ['src/**/*.test.{ts,tsx}'],
+          environment: 'node',
+        },
       },
       {
         extends: true,
