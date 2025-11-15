@@ -1,19 +1,46 @@
 import { cn } from '@/lib/utils';
-import { FlowLineCursorType, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
 import { useState, useEffect } from 'react';
 import { cva, VariantProps } from "class-variance-authority";
 import { getSymbolType, getSymbolChar } from '@/lib/stream-utils';
 
+// --- Variants ---
+
+const flowLineVariants = cva(
+  "w-screen flex justify-center items-center font-mono border-2 border-amber-400",
+  {
+    variants: {
+      size: {
+        XS: "text-xl",
+        SM: "text-2xl",
+        MD: "text-3xl",
+        LG: "text-4xl",
+        XL: "text-5xl",
+      } satisfies Record<FlowLineSize, string>,
+      cursorMode: {
+        "HALF":    "[&_.completed-symbols]:w-1/2         [&_.pending-symbols]:w-1/2",
+        "THIRD":   "[&_.completed-symbols]:w-1/3         [&_.pending-symbols]:w-2/3",
+        "QUARTER": "[&_.completed-symbols]:w-1/4         [&_.pending-symbols]:w-3/4",
+        "DINAMIC": "[&_.completed-symbols]:min-w-1/12    [&_.pending-symbols]:min-w-1/2",
+      } satisfies Record<FlowLineCursorMode, string>,
+    },
+    defaultVariants: {
+      size: "MD",
+      cursorMode: "HALF",
+    },
+  }
+);
+
 // --- Main Component ---
 
-export interface FlowLineProps {
+export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
   stream: TypingStream;
   cursorPosition: number;
   cursorType?: FlowLineCursorType;
   className?: string;
 }
 
-export function FlowLine({ stream, cursorPosition, cursorType, className }: FlowLineProps) {
+export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, className }: FlowLineProps) {
   const completedSymbols = stream.slice(0, cursorPosition);
   const cursorSymbol = stream[cursorPosition];
   const pendingSymbols = stream.slice(cursorPosition + 1);
@@ -21,11 +48,10 @@ export function FlowLine({ stream, cursorPosition, cursorType, className }: Flow
   const pendingCount = 100;
 
   return (
-    <div className={cn(`w-screen flex justify-center items-center  
-     font-mono text-4xl`, className)}>
+    <div className={cn(flowLineVariants({ cursorMode, size, className }))}>
 
       {/* ---- Completed Symbols ---- */}
-      <span className="flex justify-end whitespace-nowrap text-right overflow-hidden min-w-1/3 bg-amber-100">
+      <span className="completed-symbols flex justify-end whitespace-nowrap text-right overflow-hidden bg-amber-100">
         {completedSymbols.slice(completedCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
@@ -43,7 +69,7 @@ export function FlowLine({ stream, cursorPosition, cursorType, className }: Flow
       />
 
       {/* ---- Pending Symbols ---- */}
-      <span className="flex justify-start whitespace-pre text-left  overflow-hidden w-full   bg-rose-100">
+      <span className="pending-symbols flex justify-start whitespace-pre text-left overflow-hidden bg-rose-100">
         {pendingSymbols.slice(0, pendingCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
@@ -82,7 +108,7 @@ type RegularSymbolProps = React.ComponentProps<"span">
 
 function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbolProps) {
   return (
-    <span className={cn(regularSymbolVariants({ symbolType }), className)} {...props}>
+    <span className={cn(regularSymbolVariants({ symbolType, className }))} {...props}>
       {symbol}
     </span>
   );
@@ -132,7 +158,7 @@ function CursorSymbol({ cursorType, symbol, className, ...props }: CursorSymbolP
 
   return (
     <span className="relative">
-      <span className={cn(cursorSymbolVariants({ cursorType, isTyping }), className)} {...props} />
+      <span className={cn(cursorSymbolVariants({ cursorType, isTyping, className }))} {...props} />
       <span className="text-gray-50 mix-blend-difference">
         {symbol}
       </span>

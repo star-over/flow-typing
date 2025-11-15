@@ -13,6 +13,9 @@ export type HandSide = "Left" | "Right";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
 export type FlowLineSymbolType = "NONE" | "CORRECT" | "ERROR" | "ERRORS" | "FIXED"
+export type FlowLineSize = "XS" | "SM" | "MD" |"LG" | "XL"
+export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
+
 
 export type StreamAttempt = {
   typedSymbol: string;

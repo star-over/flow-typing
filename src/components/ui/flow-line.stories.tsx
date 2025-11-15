@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
-import { FlowLineCursorType, TypingStream } from '@/interfaces/types';
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypingStream } from '@/interfaces/types';
 import { createTypingStream, addAttempt } from '@/lib/stream-utils';
 
 const geistMono = Geist_Mono({
@@ -23,9 +23,18 @@ const meta = {
   // tags: ['autodocs'],
   argTypes: {
     stream: { control: false },
+    className: {control: false },
     cursorPosition: { control: { type: 'number', min: 0 } },
     cursorType: {
       options: ["VERTICAL", "UNDERSCORE", "RECTANGLE"] satisfies FlowLineCursorType[],
+      control: "inline-radio",
+    },
+    size: {
+      options: ["XS", "SM", "MD", "LG", "XL"] satisfies FlowLineSize[],
+      control: "inline-radio",
+    },
+    cursorMode: {
+      options: ["HALF", "THIRD", "QUARTER", "DINAMIC"] satisfies FlowLineCursorMode[],
       control: "inline-radio",
     },
   },
@@ -77,53 +86,46 @@ for (let i = 0; i < fullStreamText.length; i++) {
   if (i === 0) { // Errors on 'q'
     streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
   } else
-  if (i === 1) { // Errors on 'q'
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'e', startAt: 50, endAt: 100 });
-  } else
-  if (i === 2) { // Errors on 'i'
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'a', startAt: 0, endAt: 50 });
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'b', startAt: 50, endAt: 100 });
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'c', startAt: 100, endAt: 150 });
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 150, endAt: 200 })
-  } else
-  // Final correct attempt for all characters
-  streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
+    if (i === 1) { // Errors on 'q'
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'e', startAt: 50, endAt: 100 });
+    } else
+      if (i === 2) { // Errors on 'i'
+        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'a', startAt: 0, endAt: 50 });
+        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'b', startAt: 50, endAt: 100 });
+        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'c', startAt: 100, endAt: 150 });
+        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 150, endAt: 200 })
+      } else
+        // Final correct attempt for all characters
+        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
 }
-
 
 export const Default: Story = {
   args: {
-    stream: baseStreamCompleted,
-    cursorPosition: 10,
+    cursorPosition: 0,
+    size: meta.argTypes.size.options[0],
+    cursorMode: meta.argTypes.cursorMode.options[0],
+    cursorType: meta.argTypes.cursorType.options[0],
+    stream: baseStreamPending,
   },
 };
 
 export const WithOneError: Story = {
   args: {
-    stream: streamWithOneError,
     cursorPosition: 10,
+    size: meta.argTypes.size.options[0],
+    cursorMode: meta.argTypes.cursorMode.options[0],
+    cursorType: meta.argTypes.cursorType.options[0],
+    stream: streamWithOneError,
   },
 };
 
 export const WithMultipleErrors: Story = {
   args: {
-    stream: streamWithMultipleErrors,
-    cursorPosition: 20,
-  },
-};
-
-export const AtTheBeginning: Story = {
-  args: {
-    stream: baseStreamPending, // All characters are pending
-    cursorPosition: 0,
-  },
-};
-
-export const AtTheEnd: Story = {
-  args: {
-    stream: baseStreamCompleted, // All characters are completed
-    cursorPosition: baseStreamCompleted.length - 1,
+    cursorPosition: 10,
+    size: meta.argTypes.size.options[0],
+    cursorMode: meta.argTypes.cursorMode.options[0],
     cursorType: meta.argTypes.cursorType.options[0],
+    stream: streamWithMultipleErrors,
   },
 };
