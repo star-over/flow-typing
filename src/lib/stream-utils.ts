@@ -81,8 +81,8 @@ export function addAttempt({
 /**
  * Determines the visual state (symbolType) of a stream symbol based on its attempts.
  */
-export function getSymbolType(symbol: StreamSymbol): FlowLineSymbolType {
-  const { attempts, targetSymbol } = symbol;
+export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
+  const { attempts, targetSymbol } = symbol ?? {};
 
   if (!attempts || attempts.length === 0) {
     return "NONE";
@@ -103,5 +103,11 @@ export function getSymbolType(symbol: StreamSymbol): FlowLineSymbolType {
 /**
  * Returns the character to be displayed, converting space to a non-breaking space.
  */
-export const getSymbolChar = (symbol: { targetSymbol: string; }) =>
-  symbol.targetSymbol === sp ? nbsp : symbol.targetSymbol;
+export const getSymbolChar = (symbol?: { targetSymbol: string }): string => {
+  const char = symbol?.targetSymbol;
+  if (!char) {
+    // Returning a non-breaking space for empty chars to maintain layout
+    return nbsp;
+  }
+  return char === sp ? nbsp : char;
+};
