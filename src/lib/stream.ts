@@ -1,4 +1,4 @@
-import { TypingStream, Attempt } from '@/interfaces/types';
+import { TypingStream, StreamAttempt } from '@/interfaces/types';
 
 /**
  * Creates a TypingStream from a string, where each character is a StreamSymbol
@@ -45,7 +45,7 @@ export function addAttempt({
   const newStream = [...stream]; // Shallow copy of the array
   const targetSymbol = newStream[cursorPosition];
 
-  const newAttempt: Attempt = {
+  const newAttempt: StreamAttempt = {
     typedSymbol: typedSymbol,
     startAt,
     endAt,

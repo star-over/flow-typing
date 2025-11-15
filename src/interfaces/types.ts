@@ -14,7 +14,7 @@ export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
 export type FlowLineSymbolType = "NONE" | "CORRECT" | "ERROR" | "ERRORS" | "FIXED"
 
-export type Attempt = {
+export type StreamAttempt = {
   typedSymbol: string;
   startAt: number;
   endAt: number;
@@ -22,7 +22,7 @@ export type Attempt = {
 
 export type StreamSymbol = {
   targetSymbol: string;
-  attempts?: Attempt[];
+  attempts?: StreamAttempt[];
 };
 
 export type TypingStream = StreamSymbol[];
