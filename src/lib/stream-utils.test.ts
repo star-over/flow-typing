@@ -1,0 +1,180 @@
+import { describe, it, expect } from "vitest";
+import { createTypingStream, addAttempt, getSymbolType, getSymbolChar } from "./stream-utils";
+import { StreamSymbol } from "@/interfaces/types";
+import { nbsp } from "./utils";
+
+describe("createTypingStream", () => {
+  it("should create a TypingStream from a string", () => {
+    const text = "hello";
+    const stream = createTypingStream(text);
+
+    expect(stream).toHaveLength(5);
+    expect(stream[0]).toEqual({ targetSymbol: "h" });
+    expect(stream[1]).toEqual({ targetSymbol: "e" });
+    expect(stream[2]).toEqual({ targetSymbol: "l" });
+    expect(stream[3]).toEqual({ targetSymbol: "l" });
+    expect(stream[4]).toEqual({ targetSymbol: "o" });
+  });
+
+  it("should handle an empty string", () => {
+    const text = "";
+    const stream = createTypingStream(text);
+
+    expect(stream).toHaveLength(0);
+  });
+
+  it("should handle a string with spaces", () => {
+    const text = "a b";
+    const stream = createTypingStream(text);
+
+    expect(stream).toHaveLength(3);
+    expect(stream[1]).toEqual({ targetSymbol: " " });
+  });
+
+  it("should handle a string with special characters", () => {
+    const text = "!@#$%";
+    const stream = createTypingStream(text);
+
+    expect(stream).toHaveLength(5);
+    expect(stream[0]).toEqual({ targetSymbol: "!" });
+    expect(stream[4]).toEqual({ targetSymbol: "%" });
+  });
+
+  it("should handle a string with unicode characters", () => {
+    const text = "你好";
+    const stream = createTypingStream(text);
+
+    expect(stream).toHaveLength(2);
+    expect(stream[0]).toEqual({ targetSymbol: "你" });
+    expect(stream[1]).toEqual({ targetSymbol: "好" });
+  });
+});
+
+describe("addAttempt", () => {
+  it("should add an attempt to a symbol with no previous attempts", () => {
+    const stream = createTypingStream("a");
+    const newStream = addAttempt({ stream, cursorPosition: 0, typedSymbol: "a", startAt: 0, endAt: 100 });
+
+    expect(newStream[0].attempts).toBeDefined();
+    expect(newStream[0].attempts).toHaveLength(1);
+    expect(newStream[0].attempts?.[0]).toEqual({ typedSymbol: "a", startAt: 0, endAt: 100 });
+  });
+
+  it("should add an attempt to a symbol with existing attempts", () => {
+    let stream = createTypingStream("a");
+    stream = addAttempt({ stream, cursorPosition: 0, typedSymbol: "b", startAt: 0, endAt: 100 }); // First attempt
+    stream = addAttempt({ stream, cursorPosition: 0, typedSymbol: "a", startAt: 100, endAt: 200 }); // Second attempt
+
+    expect(stream[0].attempts).toHaveLength(2);
+    expect(stream[0].attempts?.[1]).toEqual({ typedSymbol: "a", startAt: 100, endAt: 200 });
+  });
+
+  it("should not modify the stream if cursorPosition is out of bounds", () => {
+    const stream = createTypingStream("a");
+    const newStream = addAttempt({ stream, cursorPosition: 1, typedSymbol: "a", startAt: 0, endAt: 100 });
+
+    expect(newStream).toBe(stream); // Should return the original stream instance
+  });
+
+  it("should not modify the stream if cursorPosition is negative", () => {
+    const stream = createTypingStream("a");
+    const newStream = addAttempt({ stream, cursorPosition: -1, typedSymbol: "a", startAt: 0, endAt: 100 });
+
+    expect(newStream).toBe(stream); // Should return the original stream instance
+  });
+
+  it("should be immutable", () => {
+    const stream = createTypingStream("a");
+    const newStream = addAttempt({ stream, cursorPosition: 0, typedSymbol: "a", startAt: 0, endAt: 100 });
+
+    expect(newStream).not.toBe(stream);
+    expect(newStream[0]).not.toBe(stream[0]);
+  });
+});
+
+describe("getSymbolType", () => {
+  it('should return "NONE" for a symbol with no attempts', () => {
+    const symbol: StreamSymbol = { targetSymbol: "a" };
+    expect(getSymbolType(symbol)).toBe("NONE");
+  });
+
+  it('should return "NONE" for a symbol with an empty attempts array', () => {
+    const symbol: StreamSymbol = { targetSymbol: "a", attempts: [] };
+    expect(getSymbolType(symbol)).toBe("NONE");
+  });
+
+  it('should return "CORRECT" for a correct first attempt', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [{ typedSymbol: "a", startAt: 0, endAt: 1 }],
+    };
+    expect(getSymbolType(symbol)).toBe("CORRECT");
+  });
+
+  it('should return "ERROR" for an incorrect first attempt', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [{ typedSymbol: "b", startAt: 0, endAt: 1 }],
+    };
+    expect(getSymbolType(symbol)).toBe("ERROR");
+  });
+
+  it('should return "FIXED" for a correct attempt after incorrect ones', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [
+        { typedSymbol: "b", startAt: 0, endAt: 1 },
+        { typedSymbol: "a", startAt: 1, endAt: 2 },
+      ],
+    };
+    expect(getSymbolType(symbol)).toBe("FIXED");
+  });
+
+  it('should return "ERRORS" for multiple incorrect attempts', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [
+        { typedSymbol: "b", startAt: 0, endAt: 1 },
+        { typedSymbol: "c", startAt: 1, endAt: 2 },
+      ],
+    };
+    expect(getSymbolType(symbol)).toBe("ERRORS");
+  });
+
+  it('should return "FIXED" for a correct attempt after incorrect multiple', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [
+        { typedSymbol: "b", startAt: 0, endAt: 1 },
+        { typedSymbol: "c", startAt: 1, endAt: 2 },
+        { typedSymbol: "a", startAt: 2, endAt: 3 },
+      ],
+    };
+    expect(getSymbolType(symbol)).toBe("FIXED");
+  });
+
+  it('should be case-sensitive and return "ERROR"', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      attempts: [{ typedSymbol: "A", startAt: 0, endAt: 1 }],
+    };
+    expect(getSymbolType(symbol)).toBe("ERROR");
+  });
+});
+
+describe("getSymbolChar", () => {
+  it("should return the target symbol for a regular character", () => {
+    const symbol = { targetSymbol: "a" };
+    expect(getSymbolChar(symbol)).toBe("a");
+  });
+
+  it("should return a non-breaking space for a space character", () => {
+    const symbol = { targetSymbol: " " };
+    expect(getSymbolChar(symbol)).toBe(nbsp);
+  });
+
+  it("should return an empty string for an empty target symbol", () => {
+    const symbol = { targetSymbol: "" };
+    expect(getSymbolChar(symbol)).toBe("");
+  });
+});

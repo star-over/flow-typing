@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { FlowLineCursorType, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
 import { useState, useEffect } from 'react';
 import { cva, VariantProps } from "class-variance-authority";
-import { getSymbolType, getSymbolChar } from '@/lib/flow-line-utils';
+import { getSymbolType, getSymbolChar } from '@/lib/stream-utils';
 
 // --- Main Component ---
 

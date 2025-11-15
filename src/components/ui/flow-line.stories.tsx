@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
 import { FlowLineCursorType, TypingStream } from '@/interfaces/types';
-import { createTypingStream, addAttempt } from '@/lib/stream';
+import { createTypingStream, addAttempt } from '@/lib/stream-utils';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
