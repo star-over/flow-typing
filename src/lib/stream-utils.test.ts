@@ -110,15 +110,15 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
 
-  it('should return "ERROR" for an incorrect first attempt', () => {
+  it('should return "INCORRECT" for an incorrect first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       attempts: [{ typedSymbol: "b", startAt: 0, endAt: 1 }],
     };
-    expect(getSymbolType(symbol)).toBe("ERROR");
+    expect(getSymbolType(symbol)).toBe("INCORRECT");
   });
 
-  it('should return "FIXED" for a correct attempt after incorrect ones', () => {
+  it('should return "CORRECTED" for a correct attempt after incorrect ones', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       attempts: [
@@ -126,10 +126,10 @@ describe("getSymbolType", () => {
         { typedSymbol: "a", startAt: 1, endAt: 2 },
       ],
     };
-    expect(getSymbolType(symbol)).toBe("FIXED");
+    expect(getSymbolType(symbol)).toBe("CORRECTED");
   });
 
-  it('should return "ERRORS" for multiple incorrect attempts', () => {
+  it('should return "INCORRECTS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       attempts: [
@@ -137,10 +137,10 @@ describe("getSymbolType", () => {
         { typedSymbol: "c", startAt: 1, endAt: 2 },
       ],
     };
-    expect(getSymbolType(symbol)).toBe("ERRORS");
+    expect(getSymbolType(symbol)).toBe("INCORRECTS");
   });
 
-  it('should return "FIXED" for a correct attempt after incorrect multiple', () => {
+  it('should return "CORRECTED" for a correct attempt after incorrect multiple', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       attempts: [
@@ -149,15 +149,15 @@ describe("getSymbolType", () => {
         { typedSymbol: "a", startAt: 2, endAt: 3 },
       ],
     };
-    expect(getSymbolType(symbol)).toBe("FIXED");
+    expect(getSymbolType(symbol)).toBe("CORRECTED");
   });
 
-  it('should be case-sensitive and return "ERROR"', () => {
+  it('should be case-sensitive and return "INCORRECT"', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       attempts: [{ typedSymbol: "A", startAt: 0, endAt: 1 }],
     };
-    expect(getSymbolType(symbol)).toBe("ERROR");
+    expect(getSymbolType(symbol)).toBe("INCORRECT");
   });
 });
 
@@ -172,8 +172,8 @@ describe("getSymbolChar", () => {
     expect(getSymbolChar(symbol)).toBe(nbsp);
   });
 
-  it("should return an empty string for an empty target symbol", () => {
+  it("should return a non-breaking space for an empty target symbol", () => {
     const symbol = { targetSymbol: "" };
-    expect(getSymbolChar(symbol)).toBe("");
+    expect(getSymbolChar(symbol)).toBe(nbsp);
   });
 });

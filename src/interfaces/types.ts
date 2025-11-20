@@ -9,10 +9,11 @@ export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
 export type FingerId =  "NONE" | "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" ;
-export type HandSide = "Left" | "Right";
+export type FingerState = "IDLE" | "ACTIVE" | "INACTIVE" | "INCORRECT";
+export type HandSide = "LEFT" | "RIGHT";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
-export type FlowLineSymbolType = "NONE" | "CORRECT" | "ERROR" | "ERRORS" | "FIXED"
+export type FlowLineSymbolType = "NONE" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
 export type FlowLineSize = "XS" | "SM" | "MD" |"LG" | "XL"
 export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
 

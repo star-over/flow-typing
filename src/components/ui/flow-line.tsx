@@ -91,9 +91,9 @@ const regularSymbolVariants = cva(
       symbolType: {
         NONE: "text-gray-600",
         CORRECT: "text-gray-400",
-        ERROR: "text-yellow-600",
-        ERRORS: "text-rose-700",
-        FIXED: "text-rose-900",
+        INCORRECT: "text-yellow-600",
+        INCORRECTS: "text-rose-700",
+        CORRECTED: "text-rose-900",
       } satisfies Record<FlowLineSymbolType, string>,
     },
     defaultVariants: {

@@ -93,10 +93,10 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
 
   if (isCorrect) {
     // If the last attempt is correct, it's either CORRECT (1st try) or FIXED (after errors).
-    return attempts.length > 1 ? "FIXED" : "CORRECT";
+    return attempts.length > 1 ? "CORRECTED" : "CORRECT";
   } else {
     // If the last attempt is incorrect, it's either an ERROR (1st try) or ERRORS (multiple).
-    return attempts.length > 1 ? "ERRORS" : "ERROR";
+    return attempts.length > 1 ? "INCORRECTS" : "INCORRECT";
   }
 }
 
