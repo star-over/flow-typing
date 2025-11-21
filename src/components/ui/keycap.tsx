@@ -56,7 +56,6 @@ const keyCapVariants = cva(
       },
 
       fingerId: {
-        NONE: "",
         L1: "bg-stone-50 border-stone-300 outline-stone-300",
         R1: "bg-stone-50 border-stone-300 outline-stone-300",
 
@@ -103,7 +102,6 @@ const keyCapVariants = cva(
       colorGroup: "PRIMARY",
       pressResult: "NEUTRAL",
       homeKeyMarker: "NONE",
-      fingerId: "NONE",
       isHomeKey: false,
     },
   });

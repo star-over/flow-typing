@@ -1,6 +1,7 @@
 {
   "general": {
-    "preferredEditor": "zed"
+    "preferredEditor": "zed",
+    "previewFeatures": true
   },
   "ui": {
     "hideBanner": true,
