@@ -1,7 +1,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Hand } from './hand';
+import { Hands } from './hands';
 import { FingerState } from "@/interfaces/types";
 
 const fingerOptions = {
@@ -10,8 +10,8 @@ const fingerOptions = {
 } as const;
 
 const meta = {
-  title: 'UI/Hand',
-  component: Hand,
+  title: 'UI/Hands',
+  component: Hands,
   argTypes: {
     L1: fingerOptions,
     L2: fingerOptions,
@@ -29,7 +29,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-} satisfies Meta<typeof Hand>;
+} satisfies Meta<typeof Hands>;
 
 export default meta;
 
