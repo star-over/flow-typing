@@ -6,6 +6,7 @@ export type KeyCapNavigationRole = "IDLE" | "HOME" | "PATH" | "TARGET";
 export type KeyCapPressResult = "NEUTRAL" | "CORRECT" | "INCORRECT";
 export type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "5U";
 export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
+export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
 export type FingerId =  "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" ;
@@ -37,6 +38,7 @@ export type PhysicalKey = {
   symbolSize?: KeyCapSymbolSize;
   homeKeyMarker?: KeyCapHomeKeyMarker;
   colorGroup?: KeyCapColorGroup;
+  type: KeyCapType;
 };
 export type KeyboardLayout =  PhysicalKey[][];
 
