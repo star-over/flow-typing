@@ -1,6 +1,15 @@
 import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { JSX, useState } from "react";
+import { JSX, useReducer } from "react";
+import { FlowLine } from "./flow-line";
+
+type TrainerState = {
+  streamText: string;
+}
+
+type TrainerAction =
+  | { type: 'keydown'; payload: string }
+  ;
 
 const symbolKeyCapIdSet = new Set<KeyCapId>(
   KeyboardLayoutANSI
@@ -13,11 +22,19 @@ const isKeyCapIdSymbol = (code: string): code is KeyCapId => {
   return symbolKeyCapIdSet.has(code as KeyCapId);
 };
 
-const keyProcess = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  if (isKeyCapIdSymbol(e.code)) {
-    console.log( e.code, e.shiftKey ? "shift" : "")
-    // e.stopPropagation();
-    // e.preventDefault();
+const initialTrainerState: TrainerState = {
+  streamText: "low low",
+};
+
+function reducer(state: TrainerState, action: TrainerAction): TrainerState {
+  switch (action.type) {
+    case "keydown":
+      return {
+        ...state,
+        streamText: state.streamText + action.payload
+      };
+    default:
+      return state;
   }
 }
 
@@ -26,18 +43,27 @@ export type TrainerProps = React.ComponentProps<"div">
 export function Trainer(
   { className, ...props }: TrainerProps
 ): JSX.Element {
-  console.log(symbolKeyCapIdSet);
+  const [state, dispatch] = useReducer(reducer, initialTrainerState)
+
+  const handleOnKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    console.log(e)
+    if (isKeyCapIdSymbol(e.code)) {
+      e.stopPropagation();
+      e.preventDefault();
+      dispatch({ type: 'keydown', payload: e.key });
+    }
+  }
+
   return (
     <div
+      id="trainer-frame"
       tabIndex={0} // Make the div focusable to receive keyboard events
-      // onKeyDown={(e) =>  keyProcess(e)}
-      // onKeyUp={(e) =>  keyProcess(e)}
-      onKeyDownCapture={(e) => keyProcess(e)}
-      // onKeyUpCapture={(e) => keyProcess(e)}
+      onKeyDownCapture={handleOnKey}
       className={className}
       {...props}
     >
-      A
+      {state.streamText}
+      {/* <FlowLine></FlowLine> */}
     </div>
   )
 }
