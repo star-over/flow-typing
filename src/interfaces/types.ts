@@ -11,16 +11,19 @@ export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
 export type FingerId =  "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" ;
 export type FingerState = "IDLE" | "ACTIVE" | "INACTIVE" | "INCORRECT";
-// export type HandSide = "LEFT" | "RIGHT";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
 export type FlowLineSymbolType = "PENDING" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
 export type FlowLineSize = "XS" | "SM" | "MD" |"LG" | "XL"
 export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
 
+export type TypedKey = {
+  keyCapId: KeyCapId;
+  shift: boolean;
+};
 
 export type StreamAttempt = {
-  typedSymbol: SymbolKey;
+  typedKey: TypedKey;
   startAt: number;
   endAt: number;
 };

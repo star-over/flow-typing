@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createTypingStream, addAttempt, getSymbolType, getSymbolChar, nbsp } from "./stream-utils";
-import { StreamSymbol, SymbolKey } from "@/interfaces/types";
+import { StreamSymbol, SymbolKey, TypedKey } from "@/interfaces/types";
 import { getSymbolKeyForChar } from "./symbol-utils";
-
 
 
 describe("createTypingStream", () => {
@@ -38,68 +37,79 @@ describe("createTypingStream", () => {
 });
 
 describe("addAttempt", () => {
-  const keyA = getSymbolKeyForChar("a")!;
-  const keyB = getSymbolKeyForChar("b")!;
+  const typedKeyA: TypedKey = { keyCapId: getSymbolKeyForChar("a")!.keyCapId, shift: false };
+  const typedKeyB: TypedKey = { keyCapId: getSymbolKeyForChar("b")!.keyCapId, shift: false };
 
   it("should add an attempt to a symbol", () => {
     const stream = createTypingStream("a");
-    const newStream = addAttempt({ stream, cursorPosition: 0, typedSymbol: keyA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 0, endAt: 100 });
 
     expect(newStream[0].attempts).toHaveLength(1);
-    expect(newStream[0].attempts[0].typedSymbol.symbol).toBe("a");
+    expect(newStream[0].attempts[0].typedKey).toEqual(typedKeyA);
   });
 
   it("should add multiple attempts", () => {
     let stream = createTypingStream("a");
-    stream = addAttempt({ stream, cursorPosition: 0, typedSymbol: keyB, startAt: 0, endAt: 100 });
-    stream = addAttempt({ stream, cursorPosition: 0, typedSymbol: keyA, startAt: 100, endAt: 200 });
+    stream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyB, startAt: 0, endAt: 100 });
+    stream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 100, endAt: 200 });
 
     expect(stream[0].attempts).toHaveLength(2);
-    expect(stream[0].attempts[1].typedSymbol.symbol).toBe("a");
+    expect(stream[0].attempts[1].typedKey).toEqual(typedKeyA);
   });
 
   it("should be immutable", () => {
     const stream = createTypingStream("a");
-    const newStream = addAttempt({ stream, cursorPosition: 0, typedSymbol: keyA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 0, endAt: 100 });
     expect(newStream).not.toBe(stream);
     expect(newStream[0]).not.toBe(stream[0]);
   });
 });
 
 describe("getSymbolType", () => {
-  const keyA_lower = getSymbolKeyForChar("a")!;
-  const keyA_upper = getSymbolKeyForChar("A")!;
-  const keyB = getSymbolKeyForChar("b")!;
-  const keyC = getSymbolKeyForChar("c")!;
+  const targetSymbolA_lower = getSymbolKeyForChar("a")!;
+  const targetSymbolA_upper = getSymbolKeyForChar("A")!;
+  const targetSymbolB = getSymbolKeyForChar("b")!;
+
+  const typedKeyA_lower: TypedKey = { keyCapId: targetSymbolA_lower.keyCapId, shift: targetSymbolA_lower.shift };
+  const typedKeyA_upper: TypedKey = { keyCapId: targetSymbolA_upper.keyCapId, shift: targetSymbolA_upper.shift };
+  const typedKeyB: TypedKey = { keyCapId: targetSymbolB.keyCapId, shift: targetSymbolB.shift };
 
 
   it('should return "PENDING" for a symbol with an empty attempts array', () => {
-    const symbol: StreamSymbol = { targetSymbol: keyA_lower, attempts: [] };
+    const symbol: StreamSymbol = { targetSymbol: targetSymbolA_lower, attempts: [] };
     expect(getSymbolType(symbol)).toBe("PENDING");
   });
 
   it('should return "CORRECT" for a correct first attempt', () => {
     const symbol: StreamSymbol = {
-      targetSymbol: keyA_lower,
-      attempts: [{ typedSymbol: keyA_lower, startAt: 0, endAt: 1 }],
+      targetSymbol: targetSymbolA_lower,
+      attempts: [{ typedKey: typedKeyA_lower, startAt: 0, endAt: 1 }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
 
-  it('should return "INCORRECT" for an incorrect first attempt', () => {
+  it('should return "INCORRECT" for an incorrect first attempt (wrong key)', () => {
     const symbol: StreamSymbol = {
-      targetSymbol: keyA_lower,
-      attempts: [{ typedSymbol: keyB, startAt: 0, endAt: 1 }],
+      targetSymbol: targetSymbolA_lower,
+      attempts: [{ typedKey: typedKeyB, startAt: 0, endAt: 1 }],
+    };
+    expect(getSymbolType(symbol)).toBe("INCORRECT");
+  });
+
+  it('should return "INCORRECT" for an incorrect first attempt (wrong shift)', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: targetSymbolA_lower, // 'a', shift: false
+      attempts: [{ typedKey: typedKeyA_upper, startAt: 0, endAt: 1 }], // same keyCapId, but shift: true
     };
     expect(getSymbolType(symbol)).toBe("INCORRECT");
   });
 
   it('should return "CORRECTED" for a correct attempt after an incorrect one', () => {
     const symbol: StreamSymbol = {
-      targetSymbol: keyA_lower,
+      targetSymbol: targetSymbolA_lower,
       attempts: [
-        { typedSymbol: keyB, startAt: 0, endAt: 1 },
-        { typedSymbol: keyA_lower, startAt: 1, endAt: 2 },
+        { typedKey: typedKeyB, startAt: 0, endAt: 1 },
+        { typedKey: typedKeyA_lower, startAt: 1, endAt: 2 },
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
@@ -107,19 +117,19 @@ describe("getSymbolType", () => {
 
   it('should return "INCORRECTS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
-      targetSymbol: keyA_lower,
+      targetSymbol: targetSymbolA_lower,
       attempts: [
-        { typedSymbol: keyB, startAt: 0, endAt: 1 },
-        { typedSymbol: keyC, startAt: 1, endAt: 2 },
+        { typedKey: typedKeyB, startAt: 0, endAt: 1 },
+        { typedKey: typedKeyA_upper, startAt: 1, endAt: 2 }, // still incorrect because of shift
       ],
     };
     expect(getSymbolType(symbol)).toBe("INCORRECTS");
   });
 
-  it('should be case-sensitive and return "INCORRECT"', () => {
+  it('should be case-sensitive and return "INCORRECT" (target A, typed a)', () => {
     const symbol: StreamSymbol = {
-      targetSymbol: keyA_lower,
-      attempts: [{ typedSymbol: keyA_upper, startAt: 0, endAt: 1 }],
+      targetSymbol: targetSymbolA_upper, // 'A', shift: true
+      attempts: [{ typedKey: typedKeyA_lower, startAt: 0, endAt: 1 }], // 'a', shift: false
     };
     expect(getSymbolType(symbol)).toBe("INCORRECT");
   });

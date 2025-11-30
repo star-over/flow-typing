@@ -3,6 +3,8 @@
 
 // event.codes
 export type KeyCapId =
+  | "Unknown"            // Unknown symbol for edge cases
+
   | "AltLeft"            // Alt
   | "AltRight"           // Alt Graph
   | "ArrowDown"          // ArrowDown

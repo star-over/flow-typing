@@ -1,4 +1,4 @@
-import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, SymbolKey } from '@/interfaces/types';
+import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, SymbolKey, TypedKey } from '@/interfaces/types';
 import { getSymbolKeyForChar } from './symbol-utils';
 
 /**
@@ -43,7 +43,7 @@ export function createTypingStream(text: string): TypingStream {
  *
  * @param stream The original TypingStream.
  * @param cursorPosition The index of the symbol to add the attempt to.
- * @param typedSymbol The SymbolKey that was typed.
+ * @param typedKey The TypedKey that was typed.
  * @param startAt The start time of the attempt.
  * @param endAt The end time of the attempt.
  * @returns A new TypingStream with the added attempt.
@@ -51,13 +51,13 @@ export function createTypingStream(text: string): TypingStream {
 export function addAttempt({
   stream,
   cursorPosition,
-  typedSymbol,
+  typedKey,
   startAt,
   endAt,
 }: {
   stream: TypingStream;
   cursorPosition: number;
-  typedSymbol: SymbolKey;
+  typedKey: TypedKey;
   startAt: number;
   endAt: number;
 }): TypingStream {
@@ -70,7 +70,7 @@ export function addAttempt({
   const targetSymbol = newStream[cursorPosition];
 
   const newAttempt: StreamAttempt = {
-    typedSymbol: typedSymbol,
+    typedKey: typedKey,
     startAt,
     endAt,
   };
@@ -98,8 +98,9 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   }
 
   const lastAttempt = attempts.at(-1)!;
-  // Compare the actual symbols within the SymbolKey objects
-  const isCorrect = lastAttempt.typedSymbol.symbol === targetSymbol?.symbol;
+  // Compare the actual physical key and shift state
+  const isCorrect = (lastAttempt.typedKey.keyCapId === targetSymbol?.keyCapId) &&
+                    (lastAttempt.typedKey.shift === targetSymbol?.shift);
 
   if (isCorrect) {
     // If the last attempt is correct, it's either CORRECT (1st try) or FIXED (after errors).
