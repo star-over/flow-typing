@@ -4,7 +4,6 @@ import { JSX, useReducer } from "react";
 import { FlowLine } from "./flow-line";
 import { TypedKey, TypingStream } from "@/interfaces/types";
 import { addAttempt, createTypingStream } from "@/lib/stream-utils";
-import { getSymbolKeyForChar } from "@/lib/symbol-utils";
 
 const TrainerActionTypes = {
   AddAttempt: "ADD_ATTEMPT",
@@ -16,7 +15,7 @@ type TrainerState = {
 }
 
 type TrainerAction =
-  | { type: typeof TrainerActionTypes.AddAttempt; payload: React.KeyboardEvent<HTMLDivElement> }
+  | { type: typeof TrainerActionTypes.AddAttempt; payload: TypedKey }
   ;
 
 const initialTrainerState: TrainerState = {
@@ -38,18 +37,10 @@ const isKeyCapIdSymbol = (code: string): code is KeyCapId => {
 function reducer(state: TrainerState, action: TrainerAction): TrainerState {
   switch (action.type) {
     case TrainerActionTypes.AddAttempt:
-      action.payload.stopPropagation();
-      action.payload.preventDefault();
-      const typedKey: TypedKey = {
-        keyCapId: isKeyCapIdSymbol(action.payload.code)
-          ? action.payload.code
-          : "Unknown",
-        shift: action.payload.shiftKey,
-      }
       const newStream = addAttempt({
         stream: state.stream,
         cursorPosition: state.cursorPosition,
-        typedKey,
+        typedKey: action.payload,
         startAt: 0, // Timing will be implemented later
         endAt: 0,
       });
@@ -57,8 +48,7 @@ function reducer(state: TrainerState, action: TrainerAction): TrainerState {
         ...state,
         stream: newStream,
         cursorPosition: state.cursorPosition + 1,
-      }
-
+      };
     default:
       return state;
   }
@@ -71,11 +61,23 @@ export function Trainer(
 ): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialTrainerState)
 
+  const handleOnKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isKeyCapIdSymbol(e.code)) {
+      e.stopPropagation();
+      e.preventDefault();
+      const typedKey: TypedKey = {
+        keyCapId: e.code,
+        shift: e.shiftKey,
+      };
+      dispatch({ type: TrainerActionTypes.AddAttempt, payload: typedKey });
+    }
+  }
+
   return (
     <div
       id="trainer-frame"
       tabIndex={0} // Make the div focusable to receive keyboard events
-      onKeyDownCapture={(e) => dispatch({ type: TrainerActionTypes.AddAttempt, payload: e })}
+      onKeyDownCapture={handleOnKey}
       className={className}
       {...props}
     >
