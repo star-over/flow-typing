@@ -14,7 +14,7 @@ export type FingerState = "IDLE" | "ACTIVE" | "INACTIVE" | "INCORRECT";
 // export type HandSide = "LEFT" | "RIGHT";
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
-export type FlowLineSymbolType = "NONE" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
+export type FlowLineSymbolType = "PENDING" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
 export type FlowLineSize = "XS" | "SM" | "MD" |"LG" | "XL"
 export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
 

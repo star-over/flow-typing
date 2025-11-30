@@ -89,7 +89,7 @@ const regularSymbolVariants = cva(
   {
     variants: {
       symbolType: {
-        NONE: "text-gray-600",
+        PENDING: "text-gray-600",
         CORRECT: "text-gray-400",
         INCORRECT: "text-yellow-600",
         INCORRECTS: "text-rose-700",
@@ -97,7 +97,7 @@ const regularSymbolVariants = cva(
       } satisfies Record<FlowLineSymbolType, string>,
     },
     defaultVariants: {
-      symbolType: "NONE",
+      symbolType: "PENDING",
     }
   }
 );

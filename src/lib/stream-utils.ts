@@ -86,7 +86,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   const { attempts, targetSymbol } = symbol ?? {};
 
   if (!attempts || attempts.length === 0) {
-    return "NONE";
+    return "PENDING";
   }
 
   const lastAttempt = attempts.at(-1)!;

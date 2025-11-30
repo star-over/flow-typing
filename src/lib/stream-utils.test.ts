@@ -92,9 +92,9 @@ describe("addAttempt", () => {
 });
 
 describe("getSymbolType", () => {
-  it('should return "NONE" for a symbol with an empty attempts array', () => {
+  it('should return "PENDING" for a symbol with an empty attempts array', () => {
     const symbol: StreamSymbol = { targetSymbol: "a", attempts: [] };
-    expect(getSymbolType(symbol)).toBe("NONE");
+    expect(getSymbolType(symbol)).toBe("PENDING");
   });
 
   it('should return "CORRECT" for a correct first attempt', () => {

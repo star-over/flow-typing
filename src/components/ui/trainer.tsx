@@ -2,18 +2,28 @@ import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { JSX, useReducer } from "react";
 import { FlowLine } from "./flow-line";
+import { TypingStream } from "@/interfaces/types";
+import { createTypingStream } from "@/lib/stream-utils";
 
 const TrainerActionTypes = {
   KeyDown: 'KEY_DOWN',
 } as const;
 
 type TrainerState = {
-  streamText: string;
+  text: string;
+  stream: TypingStream,
+  cursorPosition: number,
 }
 
 type TrainerAction =
   | { type: typeof TrainerActionTypes.KeyDown; payload: string }
   ;
+
+const initialTrainerState: TrainerState = {
+  text: "low low",
+  stream: createTypingStream("hello"),
+  cursorPosition: 0,
+};
 
 const symbolKeyCapIdSet = new Set<KeyCapId>(
   KeyboardLayoutANSI
@@ -26,16 +36,12 @@ const isKeyCapIdSymbol = (code: string): code is KeyCapId => {
   return symbolKeyCapIdSet.has(code as KeyCapId);
 };
 
-const initialTrainerState: TrainerState = {
-  streamText: "low low",
-};
-
 function reducer(state: TrainerState, action: TrainerAction): TrainerState {
   switch (action.type) {
     case TrainerActionTypes.KeyDown:
       return {
         ...state,
-        streamText: state.streamText + action.payload
+        text: state.text + action.payload
       };
     default:
       return state;
@@ -66,7 +72,7 @@ export function Trainer(
       className={className}
       {...props}
     >
-      {state.streamText}
+      {state.text}
       {/* <FlowLine></FlowLine> */}
     </div>
   )
