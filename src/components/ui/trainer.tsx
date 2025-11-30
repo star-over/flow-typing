@@ -3,12 +3,16 @@ import { KeyCapId } from "@/interfaces/key-cap-id";
 import { JSX, useReducer } from "react";
 import { FlowLine } from "./flow-line";
 
+const TrainerActionTypes = {
+  KeyDown: 'KEY_DOWN',
+} as const;
+
 type TrainerState = {
   streamText: string;
 }
 
 type TrainerAction =
-  | { type: 'keydown'; payload: string }
+  | { type: typeof TrainerActionTypes.KeyDown; payload: string }
   ;
 
 const symbolKeyCapIdSet = new Set<KeyCapId>(
@@ -28,7 +32,7 @@ const initialTrainerState: TrainerState = {
 
 function reducer(state: TrainerState, action: TrainerAction): TrainerState {
   switch (action.type) {
-    case "keydown":
+    case TrainerActionTypes.KeyDown:
       return {
         ...state,
         streamText: state.streamText + action.payload
@@ -50,7 +54,7 @@ export function Trainer(
     if (isKeyCapIdSymbol(e.code)) {
       e.stopPropagation();
       e.preventDefault();
-      dispatch({ type: 'keydown', payload: e.key });
+      dispatch({ type: TrainerActionTypes.KeyDown, payload: e.key });
     }
   }
 
