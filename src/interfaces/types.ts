@@ -27,7 +27,7 @@ export type StreamAttempt = {
 
 export type StreamSymbol = {
   targetSymbol: string;
-  attempts?: StreamAttempt[];
+  attempts: StreamAttempt[];
 };
 
 export type TypingStream = StreamSymbol[];

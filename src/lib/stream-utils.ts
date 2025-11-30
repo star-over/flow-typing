@@ -25,6 +25,7 @@ export const sp = '\u0020';
 export function createTypingStream(text: string): TypingStream {
   return text.split('').map(char => ({
     targetSymbol: char,
+    attempts: [],
   }));
 }
 
@@ -66,8 +67,8 @@ export function addAttempt({
     endAt,
   };
 
-  // Create a new attempts array, or start a new one if it doesn't exist
-  const newAttempts = targetSymbol.attempts ? [...targetSymbol.attempts, newAttempt] : [newAttempt];
+  // Create a new attempts array by adding the new attempt
+  const newAttempts = [...targetSymbol.attempts, newAttempt];
 
   // Create a new StreamSymbol object for the modified position
   newStream[cursorPosition] = {

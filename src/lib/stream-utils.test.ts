@@ -8,11 +8,11 @@ describe("createTypingStream", () => {
     const stream = createTypingStream(text);
 
     expect(stream).toHaveLength(5);
-    expect(stream[0]).toEqual({ targetSymbol: "h" });
-    expect(stream[1]).toEqual({ targetSymbol: "e" });
-    expect(stream[2]).toEqual({ targetSymbol: "l" });
-    expect(stream[3]).toEqual({ targetSymbol: "l" });
-    expect(stream[4]).toEqual({ targetSymbol: "o" });
+    expect(stream[0]).toEqual({ targetSymbol: "h", attempts: [] });
+    expect(stream[1]).toEqual({ targetSymbol: "e", attempts: [] });
+    expect(stream[2]).toEqual({ targetSymbol: "l", attempts: [] });
+    expect(stream[3]).toEqual({ targetSymbol: "l", attempts: [] });
+    expect(stream[4]).toEqual({ targetSymbol: "o", attempts: [] });
   });
 
   it("should handle an empty string", () => {
@@ -27,7 +27,7 @@ describe("createTypingStream", () => {
     const stream = createTypingStream(text);
 
     expect(stream).toHaveLength(3);
-    expect(stream[1]).toEqual({ targetSymbol: " " });
+    expect(stream[1]).toEqual({ targetSymbol: " ", attempts: [] });
   });
 
   it("should handle a string with special characters", () => {
@@ -35,8 +35,8 @@ describe("createTypingStream", () => {
     const stream = createTypingStream(text);
 
     expect(stream).toHaveLength(5);
-    expect(stream[0]).toEqual({ targetSymbol: "!" });
-    expect(stream[4]).toEqual({ targetSymbol: "%" });
+    expect(stream[0]).toEqual({ targetSymbol: "!", attempts: [] });
+    expect(stream[4]).toEqual({ targetSymbol: "%", attempts: [] });
   });
 
   it("should handle a string with unicode characters", () => {
@@ -44,8 +44,8 @@ describe("createTypingStream", () => {
     const stream = createTypingStream(text);
 
     expect(stream).toHaveLength(2);
-    expect(stream[0]).toEqual({ targetSymbol: "你" });
-    expect(stream[1]).toEqual({ targetSymbol: "好" });
+    expect(stream[0]).toEqual({ targetSymbol: "你", attempts: [] });
+    expect(stream[1]).toEqual({ targetSymbol: "好", attempts: [] });
   });
 });
 
@@ -92,11 +92,6 @@ describe("addAttempt", () => {
 });
 
 describe("getSymbolType", () => {
-  it('should return "NONE" for a symbol with no attempts', () => {
-    const symbol: StreamSymbol = { targetSymbol: "a" };
-    expect(getSymbolType(symbol)).toBe("NONE");
-  });
-
   it('should return "NONE" for a symbol with an empty attempts array', () => {
     const symbol: StreamSymbol = { targetSymbol: "a", attempts: [] };
     expect(getSymbolType(symbol)).toBe("NONE");
