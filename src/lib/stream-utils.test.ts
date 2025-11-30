@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { createTypingStream, addAttempt, getSymbolType, getSymbolChar, nbsp } from "./stream-utils";
+import { createTypingStream, addAttempt, getSymbolType, getSymbolChar } from "./stream-utils";
 import { StreamSymbol, SymbolKey, TypedKey } from "@/interfaces/types";
-import { getSymbolKeyForChar } from "./symbol-utils";
+import { getSymbolKeyForChar, nbsp } from "./symbol-utils";
 
 
 describe("createTypingStream", () => {

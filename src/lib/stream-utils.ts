@@ -1,20 +1,5 @@
-import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, SymbolKey, TypedKey } from '@/interfaces/types';
-import { getSymbolKeyForChar } from './symbol-utils';
-
-/**
-* Non bracable space unicode symbol
-*
-* @type {string}
-*/
-export const nbsp = '\u00A0';
-
-
-/**
-* Space unicode symbol
-*
-* @type {string}
-*/
-export const sp = '\u0020';
+import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, TypedKey } from '@/interfaces/types';
+import { getSymbolKeyForChar, nbsp, sp } from './symbol-utils';
 
 /**
  * Creates a TypingStream from a string, where each character is a StreamSymbol
