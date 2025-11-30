@@ -10,7 +10,7 @@ export const symbolLayoutEnQwerty: SymbolLayout = [
   { keyCapId: "ControlLeft",  symbol: "^",      shift: false },
   { keyCapId: "AltLeft",      symbol: "⌥",      shift: false },
   { keyCapId: "MetaLeft",     symbol: "⌘",      shift: false },
-  { keyCapId: "Space",        symbol: "space",  shift: false },
+  { keyCapId: "Space",        symbol: " ",      shift: false },
   { keyCapId: "AltRight",     symbol: "⌥",      shift: false },
   { keyCapId: "MetaRight",    symbol: "⌘",      shift: false },
   { keyCapId: "ArrowLeft",    symbol: "\u2190", shift: false },

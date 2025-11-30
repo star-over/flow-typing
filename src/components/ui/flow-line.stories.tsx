@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
 import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypingStream } from '@/interfaces/types';
 import { createTypingStream, addAttempt } from '@/lib/stream-utils';
+import { getSymbolKeyForChar } from '@/lib/symbol-utils';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -23,7 +24,7 @@ const meta = {
   // tags: ['autodocs'],
   argTypes: {
     stream: { control: false },
-    className: {control: false },
+    className: { control: false },
     cursorPosition: { control: { type: 'number', min: 0 } },
     cursorType: {
       options: ["VERTICAL", "UNDERSCORE", "RECTANGLE"] satisfies FlowLineCursorType[],
@@ -59,45 +60,68 @@ const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
 
 // 2. A stream where every character was typed correctly on the first attempt
 let baseStreamCompleted = createTypingStream(fullStreamText);
-for (let i = 0; i < fullStreamText.length; i++) {
-  baseStreamCompleted = addAttempt({
-    stream: baseStreamCompleted,
-    cursorPosition: i,
-    typedSymbol: fullStreamText[i],
-    startAt: 0,
-    endAt: 100,
-  });
+for (let i = 0; i < baseStreamCompleted.length; i++) {
+  const char = baseStreamCompleted[i].targetSymbol.symbol;
+  const symbolKey = getSymbolKeyForChar(char);
+  if (symbolKey) {
+    baseStreamCompleted = addAttempt({
+      stream: baseStreamCompleted,
+      cursorPosition: i,
+      typedSymbol: symbolKey,
+      startAt: 0,
+      endAt: 100,
+    });
+  }
 }
 
 // 3. A stream with one error on 'q' (index 4)
 let streamWithOneError = createTypingStream(fullStreamText);
-for (let i = 0; i < fullStreamText.length; i++) {
+for (let i = 0; i < streamWithOneError.length; i++) {
+  const char = streamWithOneError[i].targetSymbol.symbol;
+  const symbolKey = getSymbolKeyForChar(char);
+  if (!symbolKey) continue;
+
   if (i === 4) { // Incorrect attempt on 'q'
-    streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
-  } else {
-    // Final correct attempt for all characters
-    streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
+    const wrongSymbolKey = getSymbolKeyForChar('w');
+    if (wrongSymbolKey) {
+      streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: wrongSymbolKey, startAt: 0, endAt: 50 });
+    }
   }
+  // Final correct attempt for all characters
+  streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedSymbol: symbolKey, startAt: 50, endAt: 100 })
 }
 
 // 4. A stream with multiple errors on 'q' (index 4) and 'i' (index 6)
 let streamWithMultipleErrors = createTypingStream(fullStreamText);
-for (let i = 0; i < fullStreamText.length; i++) {
-  if (i === 0) { // Errors on 'q'
-    streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
-  } else
-    if (i === 1) { // Errors on 'q'
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'w', startAt: 0, endAt: 50 });
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'e', startAt: 50, endAt: 100 });
-    } else
-      if (i === 2) { // Errors on 'i'
-        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'a', startAt: 0, endAt: 50 });
-        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'b', startAt: 50, endAt: 100 });
-        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: 'c', startAt: 100, endAt: 150 });
-        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 150, endAt: 200 })
-      } else
-        // Final correct attempt for all characters
-        streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: fullStreamText[i], startAt: 50, endAt: 100 })
+for (let i = 0; i < streamWithMultipleErrors.length; i++) {
+  const char = streamWithMultipleErrors[i].targetSymbol.symbol;
+  const correctSymbolKey = getSymbolKeyForChar(char);
+  if (!correctSymbolKey) continue;
+
+  if (i === 0) { // Errors on 'T'
+    const wrongSymbolKey = getSymbolKeyForChar('w');
+    if (wrongSymbolKey) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey, startAt: 0, endAt: 50 });
+    }
+  } else if (i === 1) { // Errors on 'h'
+    const wrongSymbolKey1 = getSymbolKeyForChar('w');
+    const wrongSymbolKey2 = getSymbolKeyForChar('e');
+    if (wrongSymbolKey1 && wrongSymbolKey2) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey1, startAt: 0, endAt: 50 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey2, startAt: 50, endAt: 100 });
+    }
+  } else if (i === 2) { // Errors on 'e'
+    const wrongSymbolKey1 = getSymbolKeyForChar('a');
+    const wrongSymbolKey2 = getSymbolKeyForChar('b');
+    const wrongSymbolKey3 = getSymbolKeyForChar('c');
+    if (wrongSymbolKey1 && wrongSymbolKey2 && wrongSymbolKey3) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey1, startAt: 0, endAt: 50 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey2, startAt: 50, endAt: 100 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: wrongSymbolKey3, startAt: 100, endAt: 150 });
+    }
+  }
+  // Final correct attempt for all characters
+  streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedSymbol: correctSymbolKey, startAt: 50, endAt: 100 })
 }
 
 export const Default: Story = {

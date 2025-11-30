@@ -20,13 +20,13 @@ export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
 
 
 export type StreamAttempt = {
-  typedSymbol: string;
+  typedSymbol: SymbolKey;
   startAt: number;
   endAt: number;
 };
 
 export type StreamSymbol = {
-  targetSymbol: string;
+  targetSymbol: SymbolKey;
   attempts: StreamAttempt[];
 };
 

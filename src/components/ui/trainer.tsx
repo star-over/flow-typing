@@ -2,26 +2,25 @@ import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { JSX, useReducer } from "react";
 import { FlowLine } from "./flow-line";
-import { TypingStream } from "@/interfaces/types";
-import { createTypingStream } from "@/lib/stream-utils";
+import { SymbolKey, TypingStream } from "@/interfaces/types";
+import { addAttempt, createTypingStream } from "@/lib/stream-utils";
+import { getSymbolKeyForChar } from "@/lib/symbol-utils";
 
 const TrainerActionTypes = {
-  KeyDown: 'KEY_DOWN',
+  AddAttempt: "ADD_ATTEMPT",
 } as const;
 
 type TrainerState = {
-  text: string;
   stream: TypingStream,
   cursorPosition: number,
 }
 
 type TrainerAction =
-  | { type: typeof TrainerActionTypes.KeyDown; payload: string }
+  | { type: typeof TrainerActionTypes.AddAttempt; payload: SymbolKey }
   ;
 
 const initialTrainerState: TrainerState = {
-  text: "low low",
-  stream: createTypingStream("hello"),
+  stream: createTypingStream("hello world, this is a test."),
   cursorPosition: 0,
 };
 
@@ -38,10 +37,18 @@ const isKeyCapIdSymbol = (code: string): code is KeyCapId => {
 
 function reducer(state: TrainerState, action: TrainerAction): TrainerState {
   switch (action.type) {
-    case TrainerActionTypes.KeyDown:
+    case TrainerActionTypes.AddAttempt:
+      const newStream = addAttempt({
+        stream: state.stream,
+        cursorPosition: state.cursorPosition,
+        typedSymbol: action.payload,
+        startAt: 0, // Timing will be implemented later
+        endAt: 0,
+      });
       return {
         ...state,
-        text: state.text + action.payload
+        stream: newStream,
+        cursorPosition: state.cursorPosition + 1,
       };
     default:
       return state;
@@ -56,11 +63,13 @@ export function Trainer(
   const [state, dispatch] = useReducer(reducer, initialTrainerState)
 
   const handleOnKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log(e)
     if (isKeyCapIdSymbol(e.code)) {
       e.stopPropagation();
       e.preventDefault();
-      dispatch({ type: TrainerActionTypes.KeyDown, payload: e.key });
+      const symbolKey = getSymbolKeyForChar(e.key);
+      if (symbolKey) {
+        dispatch({ type: TrainerActionTypes.AddAttempt, payload: symbolKey });
+      }
     }
   }
 
@@ -72,8 +81,7 @@ export function Trainer(
       className={className}
       {...props}
     >
-      {state.text}
-      {/* <FlowLine></FlowLine> */}
+      <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />
     </div>
   )
 }

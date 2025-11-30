@@ -1,4 +1,5 @@
-import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType } from '@/interfaces/types';
+import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, SymbolKey } from '@/interfaces/types';
+import { getSymbolKeyForChar } from './symbol-utils';
 
 /**
 * Non bracable space unicode symbol
@@ -17,16 +18,23 @@ export const sp = '\u0020';
 
 /**
  * Creates a TypingStream from a string, where each character is a StreamSymbol
- * with no attempts yet.
+ * with no attempts yet. It skips characters that don't have a corresponding SymbolKey.
  *
  * @param text The input string to convert into a TypingStream.
  * @returns A TypingStream array.
  */
 export function createTypingStream(text: string): TypingStream {
-  return text.split('').map(char => ({
-    targetSymbol: char,
-    attempts: [],
-  }));
+  const stream: TypingStream = [];
+  for (const char of text.split('')) {
+    const symbolKey = getSymbolKeyForChar(char);
+    if (symbolKey) {
+      stream.push({
+        targetSymbol: symbolKey,
+        attempts: [],
+      });
+    }
+  }
+  return stream;
 }
 
 /**
@@ -35,7 +43,7 @@ export function createTypingStream(text: string): TypingStream {
  *
  * @param stream The original TypingStream.
  * @param cursorPosition The index of the symbol to add the attempt to.
- * @param typedChar The character that was typed.
+ * @param typedSymbol The SymbolKey that was typed.
  * @param startAt The start time of the attempt.
  * @param endAt The end time of the attempt.
  * @returns A new TypingStream with the added attempt.
@@ -49,7 +57,7 @@ export function addAttempt({
 }: {
   stream: TypingStream;
   cursorPosition: number;
-  typedSymbol: string;
+  typedSymbol: SymbolKey;
   startAt: number;
   endAt: number;
 }): TypingStream {
@@ -90,7 +98,8 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   }
 
   const lastAttempt = attempts.at(-1)!;
-  const isCorrect = lastAttempt.typedSymbol === targetSymbol;
+  // Compare the actual symbols within the SymbolKey objects
+  const isCorrect = lastAttempt.typedSymbol.symbol === targetSymbol?.symbol;
 
   if (isCorrect) {
     // If the last attempt is correct, it's either CORRECT (1st try) or FIXED (after errors).
@@ -104,8 +113,8 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
 /**
  * Returns the character to be displayed, converting space to a non-breaking space.
  */
-export const getSymbolChar = (symbol?: { targetSymbol: string }): string => {
-  const char = symbol?.targetSymbol;
+export const getSymbolChar = (symbol?: StreamSymbol): string => {
+  const char = symbol?.targetSymbol.symbol;
   if (!char) {
     // Returning a non-breaking space for empty chars to maintain layout
     return nbsp;
