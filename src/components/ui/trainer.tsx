@@ -7,6 +7,7 @@ import {
   TrainerActionTypes,
 } from "@/store/trainer-store";
 import { isKeyCapIdSymbol } from "@/lib/symbol-utils";
+import { VirtualKeyboard } from "./virtual-keyboard";
 
 export type TrainerProps = React.ComponentProps<"div">
 
@@ -36,6 +37,7 @@ export function Trainer(
       {...props}
     >
       <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />
+      <VirtualKeyboard virtualLayout={state.virtualLayout} />
     </div>
   )
 }

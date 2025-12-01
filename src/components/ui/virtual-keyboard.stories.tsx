@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -60,7 +60,7 @@ export const WholeKeyboard: Story = {
   },
   render: ({ shift }) => {
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: KeyboardLayoutANSI,
+      keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
       shift: shift,
@@ -77,7 +77,7 @@ export const JustPath: Story = {
   render: ({ target }) => {
 
     const targetSymbolKey = findPath({
-      keyboardLayout: KeyboardLayoutANSI,
+      keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
       targetSymbol: target

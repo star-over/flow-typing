@@ -1,7 +1,7 @@
 import { KeyboardLayout } from "@/interfaces/types";
 // todo: add type of key: system, modifier, letter
 
-export const KeyboardLayoutANSI: KeyboardLayout =  [
+export const keyboardLayoutANSI: KeyboardLayout =  [
     [
       { keyCapId: "Backquote", type: "SYMBOL" },
       { keyCapId: "Digit1", type: "SYMBOL" },

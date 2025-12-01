@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { findPath } from "./virtual-layout";
-import { KeyboardLayoutANSI } from "../data/keyboard-layout-ansi";
+import { keyboardLayoutANSI } from "../data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
 import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { VirtualKey } from "../interfaces/types";
@@ -8,7 +8,7 @@ import { VirtualKey } from "../interfaces/types";
 describe("findPath", () => {
   it("should correctly identify HOME, TARGET, and PATH keys for target '5'", () => {
     const options = {
-      keyboardLayout: KeyboardLayoutANSI,
+      keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
       targetSymbol: "5",

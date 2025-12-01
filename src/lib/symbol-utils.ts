@@ -1,7 +1,7 @@
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { SymbolKey, SymbolLayout } from "@/interfaces/types";
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { KeyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 
 /**
  * Non-breaking space unicode symbol
@@ -40,7 +40,7 @@ export function getSymbolKeyForChar(char: string): SymbolKey | undefined {
 }
 
 export const symbolKeyCapIdSet = new Set<KeyCapId>(
-  KeyboardLayoutANSI.flat()
+  keyboardLayoutANSI.flat()
     .filter((key) => key.type === "SYMBOL")
     .map((key) => key.keyCapId),
 );
