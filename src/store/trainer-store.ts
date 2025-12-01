@@ -1,7 +1,7 @@
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
-import { FingerLayout, KeyboardLayout, SymbolLayout, TypedKey, TypingStream, VirtualKey } from "@/interfaces/types";
+import { TypedKey, TypingStream, VirtualKey } from "@/interfaces/types";
 import { addAttempt, createTypingStream } from "@/lib/stream-utils";
 import { findPath } from "@/lib/virtual-layout";
 
@@ -14,12 +14,7 @@ export const TrainerActionTypes = {
 export type TrainerState = {
   stream: TypingStream;
   cursorPosition: number;
-
-  keyboardLayout: KeyboardLayout,
-  symbolLayout: SymbolLayout,
-  fingerLayout: FingerLayout,
-
-  virtualLayout: VirtualKey[][]
+  virtualLayout: VirtualKey[][];
 };
 
 export type TrainerAction = {
@@ -27,33 +22,36 @@ export type TrainerAction = {
   payload: TypedKey;
 };
 
+// Layouts are static and don't need to be in the state
 const keyboardLayout = keyboardLayoutANSI;
 const symbolLayout = symbolLayoutEnQwerty;
 const fingerLayout = fingerLayoutASDF;
-const cursorPosition = 0;
-const stream = createTypingStream("hello world, this is a test.");
-const virtualLayout = findPath({
-  keyboardLayout,
-  symbolLayout,
-  fingerLayout,
-  targetSymbol: stream[cursorPosition].targetSymbol.symbol,
-})
 
-export const initialTrainerState: TrainerState = {
-  stream: createTypingStream("hello world, this is a test."),
-  cursorPosition,
-  keyboardLayout,
-  symbolLayout,
-  fingerLayout,
-  virtualLayout,
-};
+export function createInitialState(text: string): TrainerState {
+  const cursorPosition = 0;
+  const stream = createTypingStream(text);
+  const virtualLayout = findPath({
+    keyboardLayout,
+    symbolLayout,
+    fingerLayout,
+    targetSymbol: stream[cursorPosition].targetSymbol.symbol,
+  });
+
+  return {
+    stream,
+    cursorPosition,
+    virtualLayout,
+  };
+}
+
+export const initialTrainerState: TrainerState = createInitialState("hello world, this is a test.");
 
 export function reducer(
   state: TrainerState,
   action: TrainerAction,
 ): TrainerState {
   switch (action.type) {
-    case TrainerActionTypes.AddAttempt:
+    case TrainerActionTypes.AddAttempt: {
       const newStream = addAttempt({
         stream: state.stream,
         cursorPosition: state.cursorPosition,
@@ -61,19 +59,30 @@ export function reducer(
         startAt: 0, // Timing will be implemented later
         endAt: 0,
       });
+
+      // Prevent moving cursor out of bounds
+      if (state.cursorPosition >= newStream.length - 1) {
+        return {
+          ...state,
+          stream: newStream
+        };
+      }
+
       const newCursorPosition = state.cursorPosition + 1;
       const newVirtualLayout = findPath({
         keyboardLayout,
         symbolLayout,
         fingerLayout,
         targetSymbol: newStream[newCursorPosition].targetSymbol.symbol,
-      })
+      });
+
       return {
         ...state,
         stream: newStream,
         cursorPosition: newCursorPosition,
         virtualLayout: newVirtualLayout
       };
+    }
     default:
       return state;
   }
