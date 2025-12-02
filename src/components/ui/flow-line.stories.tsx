@@ -62,7 +62,7 @@ const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
 let baseStreamCompleted = createTypingStream(fullStreamText);
 for (let i = 0; i < baseStreamCompleted.length; i++) {
   const symbolKey = baseStreamCompleted[i].targetSymbol;
-  const typedKey = { keyCapId: symbolKey.keyCapId, shift: symbolKey.shift };
+  const typedKey = { keyCapId: symbolKey.keyCapId, shift: symbolKey.shift, isCorrect: true };
   if (typedKey) { // This check is mostly for TypeScript, as getSymbolKeyForChar always returns a SymbolKey
     baseStreamCompleted = addAttempt({
       stream: baseStreamCompleted,
@@ -78,12 +78,12 @@ for (let i = 0; i < baseStreamCompleted.length; i++) {
 let streamWithOneError = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithOneError.length; i++) {
   const targetSymbolKey = streamWithOneError[i].targetSymbol;
-  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift };
+  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift, isCorrect: true };
 
   if (i === 4) { // Incorrect attempt on 'q'
     const wrongSymbolKey = getSymbolKeyForChar('w');
     if (wrongSymbolKey) {
-      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift };
+      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift, isCorrect: false };
       streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
     }
   }
@@ -95,20 +95,20 @@ for (let i = 0; i < streamWithOneError.length; i++) {
 let streamWithMultipleErrors = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithMultipleErrors.length; i++) {
   const targetSymbolKey = streamWithMultipleErrors[i].targetSymbol;
-  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift };
+  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift, isCorrect: true };
 
   if (i === 0) { // Errors on 'T'
     const wrongSymbolKey = getSymbolKeyForChar('w');
     if (wrongSymbolKey) {
-      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift };
+      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift, isCorrect: false };
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
     }
   } else if (i === 1) { // Errors on 'h'
     const wrongSymbolKey1 = getSymbolKeyForChar('w');
     const wrongSymbolKey2 = getSymbolKeyForChar('e');
     if (wrongSymbolKey1 && wrongSymbolKey2) {
-      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift };
-      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift };
+      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift, isCorrect: false };
+      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift, isCorrect: false };
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
     }
@@ -117,9 +117,9 @@ for (let i = 0; i < streamWithMultipleErrors.length; i++) {
     const wrongSymbolKey2 = getSymbolKeyForChar('b');
     const wrongSymbolKey3 = getSymbolKeyForChar('c');
     if (wrongSymbolKey1 && wrongSymbolKey2 && wrongSymbolKey3) {
-      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift };
-      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift };
-      const wrongTypedKey3 = { keyCapId: wrongSymbolKey3.keyCapId, shift: wrongSymbolKey3.shift };
+      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift, isCorrect: false };
+      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift, isCorrect: false };
+      const wrongTypedKey3 = { keyCapId: wrongSymbolKey3.keyCapId, shift: wrongSymbolKey3.shift, isCorrect: false };
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey3, startAt: 100, endAt: 150 });

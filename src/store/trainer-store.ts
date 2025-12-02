@@ -62,15 +62,26 @@ export function reducer(
 ): TrainerState {
   switch (action.type) {
     case TrainerActionTypes.AddAttempt: {
+      const typedKey = action.payload;
+
       const newStream = addAttempt({
         stream: state.stream,
         cursorPosition: state.cursorPosition,
-        typedKey: action.payload,
+        typedKey: typedKey,
         startAt: 0, // Timing will be implemented later
         endAt: 0,
       });
 
-      // Prevent moving cursor out of bounds
+      // If the attempt was incorrect, just update the stream with the new attempt
+      // but keep the cursor and derived state the same.
+      if (!typedKey.isCorrect) {
+        return {
+          ...state,
+          stream: newStream,
+        };
+      }
+
+      // Prevent moving cursor out of bounds after a correct attempt
       if (state.cursorPosition >= newStream.length - 1) {
         return {
           ...state,
@@ -78,6 +89,7 @@ export function reducer(
         };
       }
 
+      // If correct, advance the cursor and calculate new derived state
       const newCursorPosition = state.cursorPosition + 1;
       const newTargetSymbol = newStream[newCursorPosition].targetSymbol;
       const newVirtualLayout = findPath({

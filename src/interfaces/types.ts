@@ -20,6 +20,7 @@ export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
 export type TypedKey = {
   keyCapId: KeyCapId;
   shift: boolean;
+  isCorrect: boolean;
 };
 
 export type StreamAttempt = {

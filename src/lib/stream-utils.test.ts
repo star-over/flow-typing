@@ -37,8 +37,8 @@ describe("createTypingStream", () => {
 });
 
 describe("addAttempt", () => {
-  const typedKeyA: TypedKey = { keyCapId: getSymbolKeyForChar("a")!.keyCapId, shift: false };
-  const typedKeyB: TypedKey = { keyCapId: getSymbolKeyForChar("b")!.keyCapId, shift: false };
+  const typedKeyA: TypedKey = { keyCapId: getSymbolKeyForChar("a")!.keyCapId, shift: false, isCorrect: true };
+  const typedKeyB: TypedKey = { keyCapId: getSymbolKeyForChar("b")!.keyCapId, shift: false, isCorrect: false };
 
   it("should add an attempt to a symbol", () => {
     const stream = createTypingStream("a");
@@ -70,9 +70,9 @@ describe("getSymbolType", () => {
   const targetSymbolA_upper = getSymbolKeyForChar("A")!;
   const targetSymbolB = getSymbolKeyForChar("b")!;
 
-  const typedKeyA_lower: TypedKey = { keyCapId: targetSymbolA_lower.keyCapId, shift: targetSymbolA_lower.shift };
-  const typedKeyA_upper: TypedKey = { keyCapId: targetSymbolA_upper.keyCapId, shift: targetSymbolA_upper.shift };
-  const typedKeyB: TypedKey = { keyCapId: targetSymbolB.keyCapId, shift: targetSymbolB.shift };
+  const typedKeyA_lower: TypedKey = { keyCapId: targetSymbolA_lower.keyCapId, shift: targetSymbolA_lower.shift, isCorrect: true };
+  const typedKeyA_upper: TypedKey = { keyCapId: targetSymbolA_upper.keyCapId, shift: targetSymbolA_upper.shift, isCorrect: true };
+  const typedKeyB: TypedKey = { keyCapId: targetSymbolB.keyCapId, shift: targetSymbolB.shift, isCorrect: false };
 
 
   it('should return "PENDING" for a symbol with an empty attempts array', () => {

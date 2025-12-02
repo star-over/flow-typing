@@ -21,9 +21,15 @@ export function Trainer(
     if (isKeyCapIdSymbol(e.code)) {
       e.stopPropagation();
       e.preventDefault();
+
+      const { stream, cursorPosition } = state;
+      const targetSymbol = stream[cursorPosition].targetSymbol;
+      const isCorrect = targetSymbol.keyCapId === e.code && targetSymbol.shift === e.shiftKey;
+
       const typedKey: TypedKey = {
         keyCapId: e.code,
         shift: e.shiftKey,
+        isCorrect: isCorrect,
       };
       dispatch({ type: TrainerActionTypes.AddAttempt, payload: typedKey });
     }
