@@ -58,7 +58,7 @@ export function Hands(
       </svg>
 
       <div
-        className="w-24"
+        className="w-12"
       />
 
       <svg

@@ -40,7 +40,7 @@ export function createInitialState(text: string): TrainerState {
     keyboardLayout,
     symbolLayout,
     fingerLayout,
-    targetSymbol: targetSymbol.symbol,
+    targetSymbol: targetSymbol,
   });
   const handStates = getHandStates(targetSymbol, symbolLayout, fingerLayout);
 
@@ -84,7 +84,7 @@ export function reducer(
         keyboardLayout,
         symbolLayout,
         fingerLayout,
-        targetSymbol: newTargetSymbol.symbol,
+        targetSymbol: newTargetSymbol,
       });
       const newHandStates = getHandStates(
         newTargetSymbol,

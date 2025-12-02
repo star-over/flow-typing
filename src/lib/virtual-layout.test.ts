@@ -7,11 +7,15 @@ import { VirtualKey } from "../interfaces/types";
 
 describe("findPath", () => {
   it("should correctly identify HOME, TARGET, and PATH keys for target '5'", () => {
+    const targetSymbolKey = symbolLayoutEnQwerty.find(
+      (key) => key.symbol === "5"
+    );
+
     const options = {
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
-      targetSymbol: "5",
+      targetSymbol: targetSymbolKey!,
     };
 
     const virtualLayout = findPath(options);

@@ -79,7 +79,7 @@ export interface FindPathOptions {
   /** The layout of finger responsibilities for each key. */
   fingerLayout: FingerLayout;
   /** The target symbol to find the path for. */
-  targetSymbol: string;
+  targetSymbol: SymbolKey;
 }
 
 const findKeyInData = (layout: VirtualLayout, keyCapId: KeyCapId) => {
@@ -101,28 +101,24 @@ const findKeyInData = (layout: VirtualLayout, keyCapId: KeyCapId) => {
  */
 export function findPath(options: FindPathOptions): VirtualLayout {
   const { keyboardLayout, symbolLayout, fingerLayout, targetSymbol } = options;
-  // 1. Find the key for the target symbol
-  const targetSymbolKey = symbolLayout.find(
-    (symbolKey) => symbolKey.symbol === targetSymbol
-  );
 
-  // If the target symbol doesn't exist in the layout, return a default layout.
-  if (!targetSymbolKey) {
-    console.warn(`Symbol "${targetSymbol}" not found in symbol layout.`);
+  // If the target symbol is null/undefined, return a default layout.
+  if (!targetSymbol) {
+    console.warn(`targetSymbol is missing.`);
     return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout });
   }
 
-  // 2. Find the finger responsible for the target key
+  // 1. Find the finger responsible for the target key
   const targetFingerKey = fingerLayout.find(
-    (fingerKey) => fingerKey.keyCapId === targetSymbolKey.keyCapId
+    (fingerKey) => fingerKey.keyCapId === targetSymbol.keyCapId
   );
 
   if (!targetFingerKey) {
-    console.warn(`Finger for keyCapId "${targetSymbolKey.keyCapId}" not found.`);
-    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbolKey.shift });
+    console.warn(`Finger for keyCapId "${targetSymbol.keyCapId}" not found.`);
+    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: targetSymbol.shift });
   }
 
-  // 3. Get all key IDs associated with that finger
+  // 2. Get all key IDs associated with that finger
   const keyCapIdsForTargetFinger = fingerLayout
     .filter((fingerKey) => fingerKey.fingerId === targetFingerKey.fingerId)
     .map((fingerKey) => fingerKey.keyCapId);
@@ -131,19 +127,19 @@ export function findPath(options: FindPathOptions): VirtualLayout {
     (fingerKey) => fingerKey.isHomeKey && keyCapIdsForTargetFinger.includes(fingerKey.keyCapId)
   )?.keyCapId
 
-  // 4. Create the base virtual layout
+  // 3. Create the base virtual layout
   const virtualLayout = createVirtualLayout({
     keyboardLayout,
     symbolLayout,
     fingerLayout,
-    shift: targetSymbolKey.shift,
+    shift: targetSymbol.shift,
   });
 
-  // 5. Pathfinding
+  // 4. Pathfinding
   const pathKeyCapIds: KeyCapId[] = [];
   if (homeKeyCapId) {
     const homeKey = findKeyInData(virtualLayout, homeKeyCapId);
-    const targetKey = findKeyInData(virtualLayout, targetSymbolKey.keyCapId);
+    const targetKey = findKeyInData(virtualLayout, targetSymbol.keyCapId);
 
     if (homeKey && targetKey && homeKey.rowIndex !== undefined && homeKey.colIndex !== undefined && targetKey.rowIndex !== undefined && targetKey.colIndex !== undefined) {
       // Vertical path
@@ -169,11 +165,11 @@ export function findPath(options: FindPathOptions): VirtualLayout {
   }
 
 
-  // 6. Update visibility and navigation roles for the keys
+  // 5. Update visibility and navigation roles for the keys
   const layoutWithVisibility = virtualLayout.map((row) =>
     row.map(
       (virtualKey): VirtualKey => {
-        const isTarget = virtualKey.keyCapId === targetSymbolKey.keyCapId;
+        const isTarget = virtualKey.keyCapId === targetSymbol.keyCapId;
         const isHome = virtualKey.keyCapId === homeKeyCapId;
         const isPath = pathKeyCapIds.includes(virtualKey.keyCapId) && !isTarget && !isHome;
 
