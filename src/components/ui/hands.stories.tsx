@@ -51,3 +51,12 @@ export const Default: Story = {
     RB: fingerOptions.options[0],
   },
 };
+
+export const Default1: Story = {
+  args: {
+    L1: fingerOptions.options[1],
+    L2: fingerOptions.options[2],
+    L3: fingerOptions.options[3],
+    L4: fingerOptions.options[0],
+  },
+};

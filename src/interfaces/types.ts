@@ -82,3 +82,7 @@ export type VirtualKey = {
   navigationRole?: KeyCapNavigationRole;
 };
 export type VirtualLayout = VirtualKey[][];
+
+export type HandStates = {
+  [F in FingerId]: FingerState;
+};
