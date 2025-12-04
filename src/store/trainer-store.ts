@@ -20,6 +20,7 @@ export type TrainerState = {
   cursorPosition: number;
   virtualLayout: VirtualKey[][];
   handStates: HandStates;
+  lastTypedKey?: TypedKey; // Track the last typed key for error indication
 };
 
 export type TrainerAction = {
@@ -42,7 +43,7 @@ export function createInitialState(text: string): TrainerState {
     fingerLayout,
     targetSymbol: targetSymbol,
   });
-  const handStates = getHandStates(targetSymbol, symbolLayout, fingerLayout);
+  const handStates = getHandStates(targetSymbol, undefined, symbolLayout, fingerLayout);
 
   return {
     stream,
@@ -72,12 +73,23 @@ export function reducer(
         endAt: 0,
       });
 
-      // If the attempt was incorrect, just update the stream with the new attempt
+      // Update hand states with error indication logic
+      const currentTargetSymbol = state.stream[state.cursorPosition].targetSymbol;
+      const newHandStates = getHandStates(
+        currentTargetSymbol,
+        typedKey, // Pass the typed key for error indication
+        symbolLayout,
+        fingerLayout,
+      );
+
+      // If the attempt was incorrect, just update the stream and hand states
       // but keep the cursor and derived state the same.
       if (!typedKey.isCorrect) {
         return {
           ...state,
           stream: newStream,
+          handStates: newHandStates,
+          lastTypedKey: typedKey,
         };
       }
 
@@ -86,6 +98,7 @@ export function reducer(
         return {
           ...state,
           stream: newStream,
+          lastTypedKey: typedKey,
         };
       }
 
@@ -98,8 +111,9 @@ export function reducer(
         fingerLayout,
         targetSymbol: newTargetSymbol,
       });
-      const newHandStates = getHandStates(
+      const nextHandStates = getHandStates(
         newTargetSymbol,
+        undefined, // No error on correct typing
         symbolLayout,
         fingerLayout,
       );
@@ -109,7 +123,8 @@ export function reducer(
         stream: newStream,
         cursorPosition: newCursorPosition,
         virtualLayout: newVirtualLayout,
-        handStates: newHandStates,
+        handStates: nextHandStates,
+        lastTypedKey: typedKey,
       };
     }
     default:
