@@ -9,8 +9,21 @@ export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 export type KeyCapSymbolSize = "MD" | "SM" | "XS";
 export type Visibility = "INVISIBLE" | "VISIBLE";
-export type FingerId =  "L5" | "L4" | "L3" | "L2" | "L1" | "LB" | "RB" | "R1" | "R2" | "R3" | "R4"| "R5" ;
+// Define finger IDs as constants to avoid duplication
+export const LEFT_HAND_FINGER_IDS = ["L1", "L2", "L3", "L4", "L5", "LB"] as const;
+export const RIGHT_HAND_FINGER_IDS = ["R1", "R2", "R3", "R4", "R5", "RB"] as const;
+
+// Create types from the constants
+export type LeftHandFingerId = typeof LEFT_HAND_FINGER_IDS[number];
+export type RightHandFingerId = typeof RIGHT_HAND_FINGER_IDS[number];
+
+// Union of all finger IDs
+export type FingerId = LeftHandFingerId | RightHandFingerId;
+
 export type FingerState = "IDLE" | "ACTIVE" | "INACTIVE" | "INCORRECT";
+
+// Union type for all hand finger IDs
+export type HandFingerId = FingerId;
 export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
 export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
 export type FlowLineSymbolType = "PENDING" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
