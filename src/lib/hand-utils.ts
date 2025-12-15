@@ -9,6 +9,7 @@ import {
   RIGHT_HAND_FINGER_IDS,
 } from "@/interfaces/types";
 import { findKeyCapBySymbol, getFingerByKeyCap } from "./symbol-utils";
+import { KeyCapId } from "@/interfaces/key-cap-id";
 
 /**
  * Determines if a finger belongs to the left hand.
@@ -182,4 +183,19 @@ export function getHandStates(
   // TODO: Handle shift key. If shift is needed, the opposite pinky should be active.
 
   return handStates;
+}
+
+/**
+ * Retrieves all keyCapIds associated with a given fingerId.
+ * @param fingerId The ID of the finger.
+ * @param fingerLayout The FingerLayout array.
+ * @returns An array of KeyCapIds associated with the finger.
+ */
+export function getKeyCapIdsByFingerId(
+  fingerId: FingerId,
+  fingerLayout: FingerLayout
+): KeyCapId[] {
+  return fingerLayout
+    .filter((fingerKey) => fingerKey.fingerId === fingerId)
+    .map((fingerKey) => fingerKey.keyCapId);
 }
