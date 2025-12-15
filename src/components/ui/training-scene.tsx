@@ -48,6 +48,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Отправляем событие только для одиночных символов, игнорируя служебные клавиши
       if (event.key.length === 1) {
+        event.preventDefault(); // Предотвращаем действие браузера по умолчанию
         send({ type: 'KEY_PRESS', key: event.key });
       }
     };

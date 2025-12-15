@@ -2,11 +2,11 @@ import { TypingStream, StreamSymbol } from "@/interfaces/types";
 import { getSymbolKeyForChar } from "@/lib/symbol-utils";
 
 const lessons = [
-  "The quick brown fox jumps over the lazy dog.",
-  "Never underestimate the power of a good book.",
-  "The early bird catches the worm.",
-  "Technology has changed the way we live and work.",
-  "To be or not to be, that is the question.",
+  "the quick brown fox jumps over the lazy dog.",
+  "never underestimate the power of a good book.",
+  "the early bird catches the worm.",
+  "technology has changed the way we live and work.",
+  "to be or not to be, that is the question.",
 ];
 
 /**
