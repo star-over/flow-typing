@@ -192,3 +192,48 @@ export function findPath(options: FindPathOptions): VirtualLayout {
 
   return layoutWithVisibility;
 };
+
+
+export function findKeyInLayout(layout: VirtualLayout, keyCapId: KeyCapId): VirtualKey | null {
+  for (const row of layout) {
+    const key = row.find(k => k.keyCapId === keyCapId);
+    if (key) {
+      return key;
+    }
+  }
+  return null;
+}
+
+export function getPathKeyCapIds(
+  virtualLayout: VirtualLayout,
+  homeKeyCapId: KeyCapId,
+  targetKeyCapId: KeyCapId
+): KeyCapId[] {
+  const pathKeyCapIds: KeyCapId[] = [];
+  const homeKey = findKeyInLayout(virtualLayout, homeKeyCapId);
+  const targetKey = findKeyInLayout(virtualLayout, targetKeyCapId);
+
+  if (homeKey && targetKey && homeKey.rowIndex !== undefined && homeKey.colIndex !== undefined && targetKey.rowIndex !== undefined && targetKey.colIndex !== undefined) {
+    // Vertical path
+    const startRow = Math.min(homeKey.rowIndex, targetKey.rowIndex);
+    const endRow = Math.max(homeKey.rowIndex, targetKey.rowIndex);
+    for (let i = startRow; i <= endRow; i++) {
+      const key = virtualLayout[i][homeKey.colIndex];
+      if (key) {
+        pathKeyCapIds.push(key.keyCapId);
+      }
+    }
+
+    // Horizontal path
+    const startCol = Math.min(homeKey.colIndex, targetKey.colIndex);
+    const endCol = Math.max(homeKey.colIndex, targetKey.colIndex);
+    for (let i = startCol; i <= endCol; i++) {
+      const key = virtualLayout[targetKey.rowIndex][i];
+      if (key) {
+        pathKeyCapIds.push(key.keyCapId);
+      }
+    }
+  }
+
+  return pathKeyCapIds;
+}

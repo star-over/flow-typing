@@ -5,6 +5,7 @@ import { KeyCapId } from "@/interfaces/key-cap-id";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { getFingerByKeyCap } from "@/lib/symbol-utils";
 import { getKeyCapIdsByFingerId } from "@/lib/hand-utils";
+import { getPathKeyCapIds } from "@/lib/virtual-layout";
 
 export type VirtualKeyboardProps = React.ComponentProps<"div">
   & {
@@ -17,15 +18,25 @@ type VirtualRowProps = React.ComponentProps<"div">
     row: VirtualKey[];
     targetKeyCapId?: KeyCapId;
     activeFingerKeyCapIds: KeyCapId[];
+    pathKeyCapIds: KeyCapId[];
   }
 
 export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboardProps): JSX.Element {
   let activeFingerKeyCapIds: KeyCapId[] = [];
+  let pathKeyCapIds: KeyCapId[] = [];
+  let homeKeyCapId: KeyCapId | undefined;
 
   if (targetKeyCapId) {
     const targetFingerId: FingerId | undefined = getFingerByKeyCap(targetKeyCapId, fingerLayoutASDF);
     if (targetFingerId) {
       activeFingerKeyCapIds = getKeyCapIdsByFingerId(targetFingerId, fingerLayoutASDF);
+      homeKeyCapId = fingerLayoutASDF.find(
+        (key) => key.fingerId === targetFingerId && key.isHomeKey
+      )?.keyCapId;
+
+      if (homeKeyCapId) {
+        pathKeyCapIds = getPathKeyCapIds(virtualLayout, homeKeyCapId, targetKeyCapId);
+      }
     }
   }
 
@@ -35,6 +46,7 @@ export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboa
       key={rowIndex}
       targetKeyCapId={targetKeyCapId}
       activeFingerKeyCapIds={activeFingerKeyCapIds}
+      pathKeyCapIds={pathKeyCapIds}
     />
   ));
 
@@ -45,17 +57,20 @@ export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboa
   )
 };
 
-function VirtualRow({ row, targetKeyCapId, activeFingerKeyCapIds }: VirtualRowProps): JSX.Element {
+function VirtualRow({ row, targetKeyCapId, activeFingerKeyCapIds, pathKeyCapIds }: VirtualRowProps): JSX.Element {
   const keyCaps = row.map((virtualKey) => {
     let navigationRole: KeyCapNavigationRole = "IDLE";
     let visibility: Visibility = "INVISIBLE";
 
-    if (virtualKey.keyCapId === targetKeyCapId) {
-      navigationRole = "TARGET";
+    if (activeFingerKeyCapIds.includes(virtualKey.keyCapId)) {
       visibility = "VISIBLE";
-    } else if (activeFingerKeyCapIds.includes(virtualKey.keyCapId)) {
-      navigationRole = "IDLE";
-      visibility = "VISIBLE";
+      if (virtualKey.keyCapId === targetKeyCapId) {
+        navigationRole = "TARGET";
+      } else if (pathKeyCapIds.includes(virtualKey.keyCapId)) {
+        navigationRole = "PATH";
+      } else {
+        navigationRole = "IDLE";
+      }
     }
 
     return (
