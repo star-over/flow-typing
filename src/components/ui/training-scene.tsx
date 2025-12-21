@@ -1,6 +1,6 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { FlowLine } from "./flow-line";
 import { VirtualKeyboard } from "./virtual-keyboard";
 import { Hands } from "./hands";
@@ -26,13 +26,13 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   const { stream, currentIndex, targetKeyCapId, targetFingerId } = state.context;
 
   // Создаем виртуальную раскладку на основе текущего состояния
-  const virtualLayout = useMemo(() => createVirtualLayout({
+  const virtualLayout = createVirtualLayout({
     keyboardLayout: keyboardLayoutANSI,
     symbolLayout: symbolLayoutEnQwerty,
     fingerLayout: fingerLayoutASDF,
     // TODO: Добавить обработку shift в машину состояний
     shift: state.context.shiftRequired,
-  }), [state.context.shiftRequired]);
+  });
 
   // Определяем состояния пальцев
   const fingerStates: Partial<Record<FingerId, FingerState>> = {};
@@ -47,6 +47,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Отправляем событие только для одиночных символов, игнорируя служебные клавиши
+      // console.log(event.key)
       if (event.key.length === 1) {
         event.preventDefault(); // Предотвращаем действие браузера по умолчанию
         send({ type: 'KEY_PRESS', key: event.key });
