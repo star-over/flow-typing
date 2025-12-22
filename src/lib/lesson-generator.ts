@@ -1,7 +1,7 @@
 import { TypingStream, StreamSymbol } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
-const lessons = [
+export const lessons = [
   "the quick brown fox jumps over the lazy dog.",
   "never underestimate the power of a good book.",
   "the early bird catches the worm.",
