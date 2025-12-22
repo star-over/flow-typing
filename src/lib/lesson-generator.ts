@@ -1,5 +1,5 @@
 import { TypingStream, StreamSymbol } from "@/interfaces/types";
-import { getSymbolKeyForChar } from "@/lib/symbol-utils";
+import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
 const lessons = [
   "the quick brown fox jumps over the lazy dog.",
@@ -22,15 +22,15 @@ export function generateLesson(): TypingStream {
   const stream: TypingStream = lessonText
     .split('')
     .map((char): StreamSymbol | null => {
-      const symbolKey = getSymbolKeyForChar(char);
-      if (!symbolKey) {
+      const keyCapIds = getKeyCapIdsForChar(char);
+      if (!keyCapIds) {
         // Handle cases where a character might not be on the keyboard layout
         // For now, we'll skip it. A more robust solution might substitute it.
         console.warn(`Character "${char}" not found in symbol layout.`);
         return null;
       }
       return {
-        targetSymbol: symbolKey,
+        targetSymbol: char,
         attempts: [],
       };
     })

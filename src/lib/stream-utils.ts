@@ -1,5 +1,5 @@
 import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, TypedKey } from '@/interfaces/types';
-import { getSymbolKeyForChar, nbsp, sp } from './symbol-utils';
+import { getKeyCapIdsForChar, nbsp, sp } from './symbol-utils';
 
 /**
  * Creates a TypingStream from a string, where each character is a StreamSymbol
@@ -11,10 +11,11 @@ import { getSymbolKeyForChar, nbsp, sp } from './symbol-utils';
 export function createTypingStream(text: string): TypingStream {
   const stream: TypingStream = [];
   for (const char of text.split('')) {
-    const symbolKey = getSymbolKeyForChar(char);
-    if (symbolKey) {
+    // Check if the character is supported by the layout
+    const keyCapIds = getKeyCapIdsForChar(char);
+    if (keyCapIds) {
       stream.push({
-        targetSymbol: symbolKey,
+        targetSymbol: char,
         attempts: [],
       });
     }
@@ -76,16 +77,14 @@ export function addAttempt({
  * Determines the visual state (symbolType) of a stream symbol based on its attempts.
  */
 export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
-  const { attempts, targetSymbol } = symbol ?? {};
+  const { attempts } = symbol ?? {};
 
   if (!attempts || attempts.length === 0) {
     return "PENDING";
   }
 
   const lastAttempt = attempts.at(-1)!;
-  // Compare the actual physical key and shift state
-  const isCorrect = (lastAttempt.typedKey.keyCapId === targetSymbol?.keyCapId) &&
-                    (lastAttempt.typedKey.shift === targetSymbol?.shift);
+  const isCorrect = lastAttempt.typedKey.isCorrect;
 
   if (isCorrect) {
     // If the last attempt is correct, it's either CORRECT (1st try) or FIXED (after errors).
@@ -100,7 +99,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
  * Returns the character to be displayed, converting space to a non-breaking space.
  */
 export const getSymbolChar = (symbol?: StreamSymbol): string => {
-  const char = symbol?.targetSymbol.symbol;
+  const char = symbol?.targetSymbol;
   if (!char) {
     // Returning a non-breaking space for empty chars to maintain layout
     return nbsp;

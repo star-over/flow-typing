@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { FlowLine } from './flow-line';
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypingStream } from '@/interfaces/types';
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypingStream, TypedKey } from '@/interfaces/types';
 import { createTypingStream, addAttempt } from '@/lib/stream-utils';
-import { getSymbolKeyForChar } from '@/lib/symbol-utils';
+import { getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -53,6 +53,19 @@ type Story = StoryObj<typeof meta>;
 
 const fullStreamText = 'The quick brown fo xxx xxx xxx xxx xxx jumps over the lazy dog.';
 
+// --- Helper to create TypedKey from a character ---
+const createTypedKeyFromChar = (char: string, isCorrect: boolean): TypedKey | null => {
+  const keyCapIds = getKeyCapIdsForChar(char);
+  if (!keyCapIds) return null;
+  const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
+  return {
+    keyCapId: primaryKey,
+    shift: isShiftRequired(char),
+    isCorrect,
+  };
+};
+
+
 // --- Stream Definitions ---
 
 // 1. A stream with no attempts yet
@@ -61,9 +74,9 @@ const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
 // 2. A stream where every character was typed correctly on the first attempt
 let baseStreamCompleted = createTypingStream(fullStreamText);
 for (let i = 0; i < baseStreamCompleted.length; i++) {
-  const symbolKey = baseStreamCompleted[i].targetSymbol;
-  const typedKey = { keyCapId: symbolKey.keyCapId, shift: symbolKey.shift, isCorrect: true };
-  if (typedKey) { // This check is mostly for TypeScript, as getSymbolKeyForChar always returns a SymbolKey
+  const targetChar = baseStreamCompleted[i].targetSymbol;
+  const typedKey = createTypedKeyFromChar(targetChar, true);
+  if (typedKey) {
     baseStreamCompleted = addAttempt({
       stream: baseStreamCompleted,
       cursorPosition: i,
@@ -77,13 +90,12 @@ for (let i = 0; i < baseStreamCompleted.length; i++) {
 // 3. A stream with one error on 'q' (index 4)
 let streamWithOneError = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithOneError.length; i++) {
-  const targetSymbolKey = streamWithOneError[i].targetSymbol;
-  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift, isCorrect: true };
+  const targetChar = streamWithOneError[i].targetSymbol;
+  const correctTypedKey = createTypedKeyFromChar(targetChar, true)!;
 
   if (i === 4) { // Incorrect attempt on 'q'
-    const wrongSymbolKey = getSymbolKeyForChar('w');
-    if (wrongSymbolKey) {
-      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift, isCorrect: false };
+    const wrongTypedKey = createTypedKeyFromChar('w', false);
+    if (wrongTypedKey) {
       streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
     }
   }
@@ -94,32 +106,26 @@ for (let i = 0; i < streamWithOneError.length; i++) {
 // 4. A stream with multiple errors on 'q' (index 4) and 'i' (index 6)
 let streamWithMultipleErrors = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithMultipleErrors.length; i++) {
-  const targetSymbolKey = streamWithMultipleErrors[i].targetSymbol;
-  const correctTypedKey = { keyCapId: targetSymbolKey.keyCapId, shift: targetSymbolKey.shift, isCorrect: true };
+  const targetChar = streamWithMultipleErrors[i].targetSymbol;
+  const correctTypedKey = createTypedKeyFromChar(targetChar, true)!;
 
   if (i === 0) { // Errors on 'T'
-    const wrongSymbolKey = getSymbolKeyForChar('w');
-    if (wrongSymbolKey) {
-      const wrongTypedKey = { keyCapId: wrongSymbolKey.keyCapId, shift: wrongSymbolKey.shift, isCorrect: false };
+    const wrongTypedKey = createTypedKeyFromChar('w', false);
+    if (wrongTypedKey) {
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
     }
   } else if (i === 1) { // Errors on 'h'
-    const wrongSymbolKey1 = getSymbolKeyForChar('w');
-    const wrongSymbolKey2 = getSymbolKeyForChar('e');
-    if (wrongSymbolKey1 && wrongSymbolKey2) {
-      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift, isCorrect: false };
-      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift, isCorrect: false };
+    const wrongTypedKey1 = createTypedKeyFromChar('w', false);
+    const wrongTypedKey2 = createTypedKeyFromChar('e', false);
+    if (wrongTypedKey1 && wrongTypedKey2) {
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
     }
   } else if (i === 2) { // Errors on 'e'
-    const wrongSymbolKey1 = getSymbolKeyForChar('a');
-    const wrongSymbolKey2 = getSymbolKeyForChar('b');
-    const wrongSymbolKey3 = getSymbolKeyForChar('c');
-    if (wrongSymbolKey1 && wrongSymbolKey2 && wrongSymbolKey3) {
-      const wrongTypedKey1 = { keyCapId: wrongSymbolKey1.keyCapId, shift: wrongSymbolKey1.shift, isCorrect: false };
-      const wrongTypedKey2 = { keyCapId: wrongSymbolKey2.keyCapId, shift: wrongSymbolKey2.shift, isCorrect: false };
-      const wrongTypedKey3 = { keyCapId: wrongSymbolKey3.keyCapId, shift: wrongSymbolKey3.shift, isCorrect: false };
+    const wrongTypedKey1 = createTypedKeyFromChar('a', false);
+    const wrongTypedKey2 = createTypedKeyFromChar('b', false);
+    const wrongTypedKey3 = createTypedKeyFromChar('c', false);
+    if (wrongTypedKey1 && wrongTypedKey2 && wrongTypedKey3) {
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
       streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey3, startAt: 100, endAt: 150 });

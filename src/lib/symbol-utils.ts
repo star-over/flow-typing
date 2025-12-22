@@ -1,7 +1,6 @@
 import {
   FingerId,
   FingerLayout,
-  SymbolKey,
   SymbolLayout,
 } from "@/interfaces/types";
 import { KeyCapId } from "@/interfaces/key-cap-id";
@@ -23,56 +22,25 @@ export const nbsp = '\u00A0';
 export const sp = '\u0020';
 
 /**
- * Creates a map from a character to its SymbolKey object for efficient lookups.
- * @param layout The SymbolLayout to create the map from.
- * @returns A Map where the key is the character and the value is the SymbolKey.
- */
-function createSymbolKeyMap(layout: SymbolLayout): Map<string, SymbolKey> {
-  // Assuming SymbolLayout is an array of SymbolKey.
-  // Each SymbolKey has a 'symbol' property which is the character.
-  return new Map(layout.map((key) => [key.symbol, key]));
-}
-
-// Create a memoized map for the default QWERTY layout.
-const symbolKeyMapEnQwerty = createSymbolKeyMap(symbolLayoutEnQwerty);
-
-/**
- * Gets the SymbolKey for a given character from the default QWERTY layout.
+ * Gets the array of KeyCapIds required to type a given character.
  * @param char The character to look up.
- * @returns The corresponding SymbolKey, or undefined if not found.
+ * @returns The corresponding array of KeyCapIds, or undefined if not found.
  */
-export function getSymbolKeyForChar(char: string): SymbolKey | undefined {
-  return symbolKeyMapEnQwerty.get(char);
+export function getKeyCapIdsForChar(char: string): KeyCapId[] | undefined {
+  if (char === ' ') return ['Space']; // Handle space separately if needed
+  return symbolLayoutEnQwerty[char];
 }
 
 /**
- * Finds the KeyCapId for a given symbol from a symbol layout.
- * @param symbol The symbol to find.
- * @param layout The symbol layout to search in.
- * @returns The corresponding KeyCapId or undefined if not found.
+ * Checks if the Shift key is required to type a given character.
+ * @param char The character to check.
+ * @returns True if Shift is required, false otherwise.
  */
-export function findKeyCapBySymbol(
-  symbol: string,
-  layout: SymbolLayout,
-): KeyCapId | undefined {
-  // Try to find exact match first (unshifted)
-  let found = layout.find(
-    (symbolKey) => symbolKey.symbol === symbol && !symbolKey.shift,
-  );
-  if (found) {
-    return found.keyCapId;
-  }
-
-  // If not found, try to find with shift
-  found = layout.find(
-    (symbolKey) => symbolKey.symbol === symbol && symbolKey.shift,
-  );
-  if (found) {
-    return found.keyCapId;
-  }
-
-  return undefined;
+export function isShiftRequired(char: string): boolean {
+  const keyCapIds = getKeyCapIdsForChar(char);
+  return keyCapIds?.some(id => id.includes('Shift')) ?? false;
 }
+
 
 /**
  * Retrieves the fingerId for a given KeyCapId from a finger layout.

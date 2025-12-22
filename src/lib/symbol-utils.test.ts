@@ -1,42 +1,56 @@
 import { describe, it, expect } from 'vitest';
-import { getSymbolKeyForChar, isKeyCapIdSymbol } from './symbol-utils';
+import { getKeyCapIdsForChar, isKeyCapIdSymbol, isShiftRequired } from './symbol-utils';
 
-describe('getSymbolKeyForChar', () => {
-  it('should return the correct SymbolKey for a lowercase character', () => {
-    const symbolKey = getSymbolKeyForChar('a');
-    expect(symbolKey).toBeDefined();
-    expect(symbolKey?.symbol).toBe('a');
-    expect(symbolKey?.keyCapId).toBe('KeyA');
-    expect(symbolKey?.shift).toBe(false);
+describe('getKeyCapIdsForChar', () => {
+  it('should return the correct KeyCapId for a lowercase character', () => {
+    const keyCapIds = getKeyCapIdsForChar('a');
+    expect(keyCapIds).toEqual(['KeyA']);
   });
 
-  it('should return the correct SymbolKey for an uppercase character', () => {
-    const symbolKey = getSymbolKeyForChar('A');
-    expect(symbolKey).toBeDefined();
-    expect(symbolKey?.symbol).toBe('A');
-    expect(symbolKey?.keyCapId).toBe('KeyA');
-    expect(symbolKey?.shift).toBe(true);
+  it('should return the correct KeyCapIds for an uppercase character', () => {
+    const keyCapIds = getKeyCapIdsForChar('A');
+    expect(keyCapIds).toEqual(['KeyA', 'ShiftLeft']);
   });
 
-  it('should return the correct SymbolKey for a symbol character', () => {
-    const symbolKey = getSymbolKeyForChar('!');
-    expect(symbolKey).toBeDefined();
-    expect(symbolKey?.symbol).toBe('!');
-    expect(symbolKey?.keyCapId).toBe('Digit1');
-    expect(symbolKey?.shift).toBe(true);
+  it('should return the correct KeyCapIds for a symbol character', () => {
+    const keyCapIds = getKeyCapIdsForChar('!');
+    expect(keyCapIds).toEqual(['Digit1', 'ShiftLeft']);
   });
 
-  it('should return the correct SymbolKey for a space character', () => {
-    const symbolKey = getSymbolKeyForChar(' ');
-    expect(symbolKey).toBeDefined();
-    expect(symbolKey?.symbol).toBe(' ');
-    expect(symbolKey?.keyCapId).toBe('Space');
-    expect(symbolKey?.shift).toBe(false);
+  it('should return the correct KeyCapId for a space character', () => {
+    const keyCapIds = getKeyCapIdsForChar(' ');
+    expect(keyCapIds).toEqual(['Space']);
   });
 
   it('should return undefined for a character not in the layout', () => {
-    const symbolKey = getSymbolKeyForChar('€');
-    expect(symbolKey).toBeUndefined();
+    const keyCapIds = getKeyCapIdsForChar('€');
+    expect(keyCapIds).toBeUndefined();
+  });
+});
+
+describe('isShiftRequired', () => {
+  it('should return false for a lowercase character', () => {
+    expect(isShiftRequired('a')).toBe(false);
+  });
+
+  it('should return true for an uppercase character', () => {
+    expect(isShiftRequired('A')).toBe(true);
+  });
+
+  it('should return true for a shifted symbol character', () => {
+    expect(isShiftRequired('!')).toBe(true);
+  });
+
+  it('should return false for an unshifted symbol character', () => {
+    expect(isShiftRequired('1')).toBe(false);
+  });
+
+  it('should return false for a space character', () => {
+    expect(isShiftRequired(' ')).toBe(false);
+  });
+
+  it('should return false for a character not in the layout', () => {
+    expect(isShiftRequired('€')).toBe(false);
   });
 });
 

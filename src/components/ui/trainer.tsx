@@ -6,7 +6,7 @@ import {
   reducer,
   TrainerActionTypes,
 } from "@/store/trainer-store";
-import { isKeyCapIdSymbol } from "@/lib/symbol-utils";
+import { isKeyCapIdSymbol, getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
 import { VirtualKeyboard } from "./virtual-keyboard";
 import { Hands } from "./hands";
 
@@ -24,7 +24,12 @@ export function Trainer(
 
       const { stream, cursorPosition } = state;
       const targetSymbol = stream[cursorPosition].targetSymbol;
-      const isCorrect = targetSymbol.keyCapId === e.code && targetSymbol.shift === e.shiftKey;
+
+      const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol);
+      const primaryKey = requiredKeyCapIds?.find(id => !id.includes('Shift')) || requiredKeyCapIds?.[0];
+      const shiftNeeded = isShiftRequired(targetSymbol);
+      
+      const isCorrect = e.code === primaryKey && e.shiftKey === shiftNeeded;
 
       const typedKey: TypedKey = {
         keyCapId: e.code,

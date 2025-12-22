@@ -43,7 +43,7 @@ export type StreamAttempt = {
 };
 
 export type StreamSymbol = {
-  targetSymbol: SymbolKey;
+  targetSymbol: string;
   attempts: StreamAttempt[];
 };
 
@@ -66,12 +66,7 @@ export type FingerKey = {
 };
 export type FingerLayout = FingerKey[];
 
-export type SymbolKey = {
-  keyCapId: KeyCapId;
-  symbol: string;
-  shift: boolean;
-};
-export type SymbolLayout = SymbolKey[];
+export type SymbolLayout = Record<string, KeyCapId[]>;
 
 export type VirtualKey = {
   // From PhysicalKey

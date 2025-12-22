@@ -2,13 +2,12 @@ import {
   FingerId,
   FingerLayout,
   SymbolLayout,
-  SymbolKey,
   HandStates,
   TypedKey,
   LEFT_HAND_FINGER_IDS,
   RIGHT_HAND_FINGER_IDS,
 } from "@/interfaces/types";
-import { findKeyCapBySymbol, getFingerByKeyCap } from "./symbol-utils";
+import { getKeyCapIdsForChar, getFingerByKeyCap, isShiftRequired } from "./symbol-utils";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 
 /**
@@ -53,21 +52,24 @@ function initializeHandStates(): HandStates {
 /**
  * Gets the target finger for a symbol.
  * @param targetSymbol The symbol to find the finger for.
- * @param symbolLayout The layout mapping symbols to key caps.
  * @param fingerLayout The layout mapping key caps to fingers.
  * @returns The finger ID for the target symbol, or undefined if not found.
  */
 function getTargetFinger(
-  targetSymbol: SymbolKey,
-  symbolLayout: SymbolLayout,
+  targetSymbol: string,
   fingerLayout: FingerLayout
 ): FingerId | undefined {
-  const targetKeyCapId = findKeyCapBySymbol(targetSymbol.symbol, symbolLayout);
-  if (!targetKeyCapId) {
+  const keyCapIds = getKeyCapIdsForChar(targetSymbol);
+  if (!keyCapIds) {
+    return undefined;
+  }
+  
+  const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
+  if (!primaryKey) {
     return undefined;
   }
 
-  return getFingerByKeyCap(targetKeyCapId, fingerLayout);
+  return getFingerByKeyCap(primaryKey, fingerLayout);
 }
 
 /**
@@ -151,7 +153,7 @@ function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId)
  * @returns A props object for the Hands component with finger states.
  */
 export function getHandStates(
-  targetSymbol: SymbolKey | undefined,
+  targetSymbol: string | undefined,
   typedKey: TypedKey | undefined,
   symbolLayout: SymbolLayout,
   fingerLayout: FingerLayout,
@@ -164,7 +166,7 @@ export function getHandStates(
   }
 
   // Get the target finger for the symbol
-  const targetFinger = getTargetFinger(targetSymbol, symbolLayout, fingerLayout);
+  const targetFinger = getTargetFinger(targetSymbol, fingerLayout);
   if (!targetFinger) {
     return handStates;
   }
@@ -172,6 +174,15 @@ export function getHandStates(
   // Set the correct finger as active
   handStates[targetFinger] = "ACTIVE";
 
+  // Handle shift key: the opposite pinky should be active.
+  if (isShiftRequired(targetSymbol)) {
+    if (isLeftHandFinger(targetFinger)) {
+      handStates["R5"] = "ACTIVE"; // Right pinky
+    } else {
+      handStates["L5"] = "ACTIVE"; // Left pinky
+    }
+  }
+  
   // Handle error indication logic
   if (typedKey && !typedKey.isCorrect) {
     updateHandStatesForError(handStates, targetFinger, typedKey, fingerLayout);
@@ -179,8 +190,6 @@ export function getHandStates(
 
   // Set other fingers on the same hand as INACTIVE
   setOtherFingersInactive(handStates, targetFinger);
-
-  // TODO: Handle shift key. If shift is needed, the opposite pinky should be active.
 
   return handStates;
 }

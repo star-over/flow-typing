@@ -75,15 +75,11 @@ export const JustPath: Story = {
     target: meta.argTypes.target.options[0],
   },
   render: ({ target }) => {
-    const targetSymbolObject = symbolLayoutEnQwerty.find(
-      (key) => key.symbol === target
-    );
-
     const virtualLayout = findPath({
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
-      targetSymbol: targetSymbolObject!,
+      targetSymbol: target,
     });
 
     return <VirtualKeyboard virtualLayout={virtualLayout} />;

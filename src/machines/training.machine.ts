@@ -1,7 +1,7 @@
 import { createMachine, assign } from 'xstate';
 import { KeyCapId } from '@/interfaces/key-cap-id';
 import { FingerId, TypingStream } from '@/interfaces/types';
-import { getFingerByKeyCap } from '@/lib/symbol-utils';
+import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 
 // Forward-declare event and context types for type safety
@@ -46,15 +46,23 @@ export const trainingMachine = createMachine({
       entry: assign({
         // Calculate and assign the target IDs when entering this state
         targetKeyCapId: ({ context }) => {
-          return context.stream[context.currentIndex]?.targetSymbol.keyCapId;
+          const symbol = context.stream[context.currentIndex]?.targetSymbol;
+          if (!symbol) return undefined;
+          const keyCapIds = getKeyCapIdsForChar(symbol);
+          return keyCapIds?.find(id => !id.includes('Shift')) || keyCapIds?.[0];
         },
         targetFingerId: ({ context }) => {
-          const keyCapId = context.stream[context.currentIndex]?.targetSymbol.keyCapId;
+          const symbol = context.stream[context.currentIndex]?.targetSymbol;
+          if (!symbol) return undefined;
+          const keyCapIds = getKeyCapIdsForChar(symbol);
+          const keyCapId = keyCapIds?.find(id => !id.includes('Shift')) || keyCapIds?.[0];
           if (!keyCapId) return undefined;
           return getFingerByKeyCap(keyCapId, fingerLayoutASDF);
         },
         shiftRequired: ({ context }) => {
-          return context.stream[context.currentIndex]?.targetSymbol.shift ?? false;
+          const symbol = context.stream[context.currentIndex]?.targetSymbol;
+          if (!symbol) return false;
+          return isShiftRequired(symbol);
         },
       }),
       on: {
@@ -71,7 +79,7 @@ export const trainingMachine = createMachine({
         {
           target: 'correctInput',
           guard: ({ context }) => {
-            const currentSymbol = context.stream[context.currentIndex]?.targetSymbol.symbol;
+            const currentSymbol = context.stream[context.currentIndex]?.targetSymbol;
             return context.pressedKey === currentSymbol;
           },
         },
