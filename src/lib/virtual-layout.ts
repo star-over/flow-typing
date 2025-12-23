@@ -1,6 +1,7 @@
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { KeyboardLayout, SymbolLayout, FingerLayout, VirtualLayout, PhysicalKey, VirtualKey, FingerKey } from "@/interfaces/types";
 import { getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
+import { getKeyCapIdsByFingerId } from "./hand-utils";
 
 
 interface CreateVirtualLayoutOptions {
@@ -53,9 +54,7 @@ export function createVirtualLayout(
         }
 
         // Find the corresponding finger
-        const fingerKey: FingerKey | undefined = fingerLayout.find(
-          (fKey) => fKey.keyCapId === physicalKey.keyCapId
-        );
+        const fingerKey = fingerLayout[physicalKey.keyCapId];
 
         // Create the VirtualKey by merging properties and adding default UI states
         const virtualKey: VirtualKey = {
@@ -131,9 +130,7 @@ export function findPath(options: FindPathOptions): VirtualLayout {
   const shift = isShiftRequired(targetSymbol);
 
   // 1. Find the finger responsible for the target key
-  const targetFingerKey = fingerLayout.find(
-    (fingerKey) => fingerKey.keyCapId === targetKeyCapId
-  );
+  const targetFingerKey = fingerLayout[targetKeyCapId];
 
   if (!targetFingerKey) {
     console.warn(`Finger for keyCapId "${targetKeyCapId}" not found.`);
@@ -141,13 +138,12 @@ export function findPath(options: FindPathOptions): VirtualLayout {
   }
 
   // 2. Get all key IDs associated with that finger
-  const keyCapIdsForTargetFinger = fingerLayout
-    .filter((fingerKey) => fingerKey.fingerId === targetFingerKey.fingerId)
-    .map((fingerKey) => fingerKey.keyCapId);
+  const keyCapIdsForTargetFinger = getKeyCapIdsByFingerId(targetFingerKey.fingerId, fingerLayout);
 
-  const homeKeyCapId = fingerLayout.find(
-    (fingerKey) => fingerKey.isHomeKey && keyCapIdsForTargetFinger.includes(fingerKey.keyCapId)
-  )?.keyCapId
+  const homeKeyCapId = (Object.entries(fingerLayout).find(
+    ([, fingerKey]) => fingerKey.isHomeKey && fingerKey.fingerId === targetFingerKey.fingerId
+  )?.[0]) as KeyCapId | undefined;
+
 
   // 3. Create the base virtual layout
   const virtualLayout = createVirtualLayout({

@@ -197,14 +197,14 @@ export function getHandStates(
 /**
  * Retrieves all keyCapIds associated with a given fingerId.
  * @param fingerId The ID of the finger.
- * @param fingerLayout The FingerLayout array.
+ * @param fingerLayout The FingerLayout object.
  * @returns An array of KeyCapIds associated with the finger.
  */
 export function getKeyCapIdsByFingerId(
   fingerId: FingerId,
   fingerLayout: FingerLayout
 ): KeyCapId[] {
-  return fingerLayout
-    .filter((fingerKey) => fingerKey.fingerId === fingerId)
-    .map((fingerKey) => fingerKey.keyCapId);
+  return Object.entries(fingerLayout)
+    .filter(([, fingerKey]) => fingerKey.fingerId === fingerId)
+    .map(([keyCapId]) => keyCapId as KeyCapId);
 }

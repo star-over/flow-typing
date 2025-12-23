@@ -30,9 +30,9 @@ export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboa
     const targetFingerId: FingerId | undefined = getFingerByKeyCap(targetKeyCapId, fingerLayoutASDF);
     if (targetFingerId) {
       activeFingerKeyCapIds = getKeyCapIdsByFingerId(targetFingerId, fingerLayoutASDF);
-      homeKeyCapId = fingerLayoutASDF.find(
-        (key) => key.fingerId === targetFingerId && key.isHomeKey
-      )?.keyCapId;
+      homeKeyCapId = (Object.entries(fingerLayoutASDF).find(
+        ([, fingerKey]) => fingerKey.fingerId === targetFingerId && fingerKey.isHomeKey
+      )?.[0]) as KeyCapId | undefined;
 
       if (homeKeyCapId) {
         pathKeyCapIds = getPathKeyCapIds(virtualLayout, homeKeyCapId, targetKeyCapId);

@@ -52,7 +52,7 @@ export function getFingerByKeyCap(
   keyCapId: KeyCapId,
   fingerLayout: FingerLayout,
 ): FingerId | undefined {
-  const entry = fingerLayout.find((fingerKey) => fingerKey.keyCapId === keyCapId);
+  const entry = fingerLayout[keyCapId];
   return entry ? entry.fingerId : undefined;
 }
 

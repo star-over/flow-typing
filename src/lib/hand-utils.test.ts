@@ -63,9 +63,8 @@ describe("getHandStates", () => {
 
   it("should return all IDLE for a symbol with no finger mapping", () => {
     // Use a symbol that exists in symbolLayout but remove its finger mapping
-    const mockFingerLayout: FingerLayout = fingerLayout.filter(
-      (key) => key.keyCapId !== "Backquote"
-    );
+    const mockFingerLayout = { ...fingerLayout };
+    delete mockFingerLayout.Backquote;
 
     const handStates = getHandStates("`", undefined, symbolLayout, mockFingerLayout);
     expect(handStates).toEqual(idleHands);

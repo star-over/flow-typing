@@ -60,11 +60,10 @@ export type PhysicalKey = {
 export type KeyboardLayout =  PhysicalKey[][];
 
 export type FingerKey = {
-  keyCapId: KeyCapId;
   fingerId: FingerId;
   isHomeKey?: boolean;
 };
-export type FingerLayout = FingerKey[];
+export type FingerLayout = Partial<Record<KeyCapId, FingerKey>>;
 
 export type SymbolLayout = Record<string, KeyCapId[]>;
 
