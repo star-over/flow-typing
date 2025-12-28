@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getKeyCapIdsForChar, isKeyCapIdSymbol, isShiftRequired } from './symbol-utils';
+import { getKeyCapIdsForChar, isTextKey, isShiftRequired, isModifierKey } from './symbol-utils';
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
@@ -54,21 +54,41 @@ describe('isShiftRequired', () => {
   });
 });
 
-describe('isKeyCapIdSymbol', () => {
+describe('isTextKey', () => {
   it('should return true for a valid symbol KeyCapId', () => {
-    expect(isKeyCapIdSymbol('KeyA')).toBe(true);
-    expect(isKeyCapIdSymbol('Digit1')).toBe(true);
-    expect(isKeyCapIdSymbol('Comma')).toBe(true);
+    expect(isTextKey('KeyA')).toBe(true);
+    expect(isTextKey('Digit1')).toBe(true);
+    expect(isTextKey('Comma')).toBe(true);
   });
 
   it('should return false for a non-symbol KeyCapId', () => {
-    expect(isKeyCapIdSymbol('ShiftLeft')).toBe(false);
-    expect(isKeyCapIdSymbol('CapsLock')).toBe(false);
-    expect(isKeyCapIdSymbol('Enter')).toBe(false);
+    expect(isTextKey('ShiftLeft')).toBe(false);
+    expect(isTextKey('CapsLock')).toBe(false);
+    expect(isTextKey('Enter')).toBe(false);
   });
 
   it('should return false for an invalid or non-existent KeyCapId', () => {
-    expect(isKeyCapIdSymbol('InvalidKey')).toBe(false);
-    expect(isKeyCapIdSymbol('KeyZz')).toBe(false);
+    expect(isTextKey('InvalidKey')).toBe(false);
+    expect(isTextKey('KeyZz')).toBe(false);
+  });
+});
+
+describe('isModifierKey', () => {
+  it('should return true for a valid modifier KeyCapId', () => {
+    expect(isModifierKey('ShiftLeft')).toBe(true);
+    expect(isModifierKey('ControlRight')).toBe(true);
+    expect(isModifierKey('AltLeft')).toBe(true);
+    expect(isModifierKey('MetaRight')).toBe(true);
+  });
+
+  it('should return false for a non-modifier KeyCapId', () => {
+    expect(isModifierKey('KeyA')).toBe(false);
+    expect(isModifierKey('Enter')).toBe(false);
+    expect(isModifierKey('Tab')).toBe(false);
+  });
+
+  it('should return false for an invalid or non-existent KeyCapId', () => {
+    expect(isModifierKey('InvalidKey')).toBe(false);
+    expect(isModifierKey('Shift')).toBe(false);
   });
 });

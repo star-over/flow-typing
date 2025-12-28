@@ -6,7 +6,7 @@ import {
   reducer,
   TrainerActionTypes,
 } from "@/store/trainer-store";
-import { isKeyCapIdSymbol, getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
+import { isTextKey, getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
 import { VirtualKeyboard } from "./virtual-keyboard";
 import { Hands } from "./hands";
 
@@ -18,7 +18,7 @@ export function Trainer(
   const [state, dispatch] = useReducer(reducer, initialTrainerState)
 
   const handleOnKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isKeyCapIdSymbol(e.code)) {
+    if (isTextKey(e.code)) {
       e.stopPropagation();
       e.preventDefault();
 
