@@ -49,16 +49,16 @@ export const keyboardMachine = setup({
       pressedKeys: ({ context, event }) => {
         if (event.type !== 'KEY_UP') return context.pressedKeys;
 
-        const newPressedKeys = new Set<KeyCapId>();
-        for (const key of context.pressedKeys) {
-          if (isModifierKey(key) && key !== event.keyCapId) {
-            newPressedKeys.add(key);
-          }
-        }
-        return newPressedKeys;
+        // При отпускании Meta клавиши удаляем все не модификаторы
+        // Оставляем только другие модификаторы
+        return new Set(
+          Array.from(context.pressedKeys).filter(
+            (key) => isModifierKey(key) && key !== event.keyCapId
+          )
+        );
       },
     }),
-    clearKeys: assign((_) => ({
+    clearKeys: assign(() => ({
       pressedKeys: new Set<KeyCapId>(),
     })),
     recognizePressedKeys: ({
@@ -83,7 +83,7 @@ export const keyboardMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QGswE8BGB7AhgJwgGIBpAUQE0B9AVQAUBtABgF1FQAHLWASwBdusAOzYgAHogBMEgOwA6RgBYlANmWMAnNKUT1EgDQg0iALQBGAKwAOWRMbmAzIx2WpC5QvMBfTwdSZcBIQASqQAyqQAKkysSCCcPPxCIuII5hKy0tKm9i7K9lrSltL6hiYW1rYOTuouEm4e3r7o2PhEZFQAIgDyAOoActEi8XwCwrEp+XLZmZaqdcoSytkGRghmVjZ2js6u7l4+IH4tge2U3f30pjEcXCNJ44jK0sqyljn2Oc6mlj8rZRuVbY1XYNA5HAIQWQAG24sF4YEE3EEUEIg1iw0SY1AEzkWXUjkYllMCnU5mk5nMfwQ2XMNk05mJOQWplUlkah2aENkeDAAGMsFBEQAvSColhDW6Y5KIBTPWQKCQshSKSyy1X2KnmF4MxQybKOZ4K7wHQRYCBwETg1oShKjaVrKSyJbSdQKUzu8xuxUSDWlB0eWRpFxKyyMZ5h5Tsq0EWTcCBQsA2u5YsSSWmfOw-VVWQqZKnGAM-OqEjymCSe+wSKOc1rQ2HwxHIpNSh4INz2eQLRZazRl8zqKnZdJZCRFdTudzEz3V-y1nn8wXcEUQZt21s5Co5RQKSumYpafOFlzK7N9nf2fbeIA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QGswE8BGB7AhgJwgGIBpAUQE0B9AVQAUBtABgF1FQAHLWASwBdusAOzYgAHogAcjAMwA6AKwAmAJzKALMoCMizYwBsitQBoQaRAFppM2QHYJBm4zWNl+m4YC+Hk6ky4CJBQ0DJqsSCCcPPxCIuIIyvLKsrqaynqMjPKMEpqaEiZmCOapjLKqjNqaenZqavLaXj7o2PhEAEqkAMqkACpMYRxcfALC4XF5agrSEtLVetLyesp28gUWKnLqNnpqVqp2Ko0gvi0BZFQAIgDyAOoAcv0ikcMxY4izmrY5au6ai1qZNZFDZlH47PbLCSHbzHZr+IjnSjXe70UJPIbRUagOLyRyyRiKbbVNR-Gw2ZRA4ppWSKWkSSEEpR5ZRHE7w2QAG24sF4YEE3EEUEIj3Cz0xsUQVSSansiihVWkaWmeiBZNstX09SlizlrLhrVkeDAAGMsFB+QAvSDCljoqIjCUINR6T6a6QLRJLHRVIGlVS1GzyRbzckyGxqLwwwRYCBwERs1p2l5YsSSlzJDRh6ryZ05SmKz66LRpFR1aSE+R6vwG7gQDlgJPit4IUkZ1zSbaB3OaSm6OS7eQSXHuTKaH6KKunCCc7m8-mCxsO5sB2yZNIuDtDxSq+TJRJ1cPzHRBicwhMEQ0ms2WyCL17Y97uWQSHI2RVKCrKWYq0wWPuyAchzJRRR3HSMPCAA */
   id: "keyboard",
   context: ({
     input
@@ -141,4 +141,3 @@ export const keyboardMachine = setup({
     },
   },
 });
-
