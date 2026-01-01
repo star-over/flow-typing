@@ -77,5 +77,5 @@ export type KeyCapId =
   | "Semicolon"          // ; / :
   | "Slash"              // / / ?
   | "Space"              // " "
-  | "SpaceLeft"          // " "
-  | "SpaceRight"         // " "
+  | "SpaceLeft"          // " " special Id for lett | right hand pressing
+  | "SpaceRight"         // " " special Id for lett | right hand pressing
