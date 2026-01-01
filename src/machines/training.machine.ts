@@ -4,11 +4,12 @@
  * отслеживает ошибки и прогресс, а также управляет визуальным состоянием
  * целевых клавиш и пальцев.
  */
-import { createMachine, assign } from 'xstate';
+import { assign,createMachine } from 'xstate';
+
+import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { KeyCapId } from '@/interfaces/key-cap-id';
 import { FingerId, TypingStream } from '@/interfaces/types';
 import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 
 /**
  * Контекст (расширенные данные) машины состояний тренировки.

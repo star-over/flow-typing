@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { FlowLine } from './flow-line';
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypingStream, TypedKey } from '@/interfaces/types';
-import { createTypingStream, addAttempt } from '@/lib/stream-utils';
+
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypedKey,TypingStream } from '@/interfaces/types';
+import { addAttempt,createTypingStream } from '@/lib/stream-utils';
 import { getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
+
+import { FlowLine } from './flow-line';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',

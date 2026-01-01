@@ -4,11 +4,12 @@
  * на набранную часть, текущий символ (курсор) и оставшуюся часть.
  * Динамически отображает состояние символов (правильно/неправильно набрано).
  */
-import { cn } from '@/lib/utils';
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
-import { useState, useEffect } from 'react';
 import { cva, VariantProps } from "class-variance-authority";
-import { getSymbolType, getSymbolChar } from '@/lib/stream-utils';
+import { useEffect,useState } from 'react';
+
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
+import { getSymbolChar,getSymbolType } from '@/lib/stream-utils';
+import { cn } from '@/lib/utils';
 
 // --- Variants ---
 
@@ -154,7 +155,7 @@ function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbo
  * Определяет форму курсора и анимацию мигания.
  */
 const cursorSymbolVariants = cva(
-  `absolute left-0 -bottom-0 bg-gray-800`,
+  `absolute left-0 bottom-0 bg-gray-800`,
   {
     variants: {
       /** Тип визуализации курсора. */

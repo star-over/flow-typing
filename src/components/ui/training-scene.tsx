@@ -5,14 +5,16 @@
  * `FlowLine`, `HandsExt` и кнопки управления тренировкой.
  */
 import { useSelector } from "@xstate/react";
-import type { ActorRefFrom } from "xstate";
 import { useEffect } from "react";
+import type { ActorRefFrom } from "xstate";
+
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { FingerId, FingerState, HandStates,KeyCapId } from "@/interfaces/types";
+import { getFingerByKeyCap,getKeyCapIdsForChar } from "@/lib/symbol-utils";
+import { trainingMachine } from "@/machines/training.machine";
+
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { FingerId, FingerState, KeyCapId, HandStates } from "@/interfaces/types";
-import { trainingMachine } from "@/machines/training.machine";
-import { getKeyCapIdsForChar, getFingerByKeyCap } from "@/lib/symbol-utils";
 
 /** Идентификаторы всех пальцев, включая основания кистей. */
 const ALL_FINGER_IDS: FingerId[] = ["L1", "L2", "L3", "L4", "L5", "R1", "R2", "R3", "R4", "R5", "LB", "RB"];

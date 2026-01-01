@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { areKeyCapIdArraysEqual } from './utils';
+import { describe, expect,it } from 'vitest';
+
 import { KeyCapId } from '../interfaces/key-cap-id';
+import { areKeyCapIdArraysEqual } from './utils';
 
 describe('areKeyCapIdArraysEqual', () => {
   it('should return true for identical arrays', () => {

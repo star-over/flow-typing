@@ -1,6 +1,7 @@
+import { assign, setup } from "xstate";
+
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
-import { assign, setup } from "xstate";
 
 export interface KeyboardMachineContext {
   pressedKeys: Set<KeyCapId>;

@@ -1,4 +1,4 @@
-import { TypingStream, StreamSymbol } from "@/interfaces/types";
+import { StreamSymbol,TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
 export const lessons = [

@@ -5,16 +5,18 @@
  * отображение `FlowLine` и `HandsExt`.
  */
 import { JSX, useReducer } from "react";
-import { FlowLine } from "./flow-line";
+
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { FingerId, KeyCapId, TypedKey } from "@/interfaces/types";
+import { getFingerByKeyCap,getKeyCapIdsForChar, isShiftRequired, isTextKey } from "@/lib/symbol-utils";
 import {
   initialTrainerState,
   reducer,
   TrainerActionTypes,
 } from "@/store/trainer-store";
-import { isTextKey, getKeyCapIdsForChar, isShiftRequired, getFingerByKeyCap } from "@/lib/symbol-utils";
+
+import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 
 /** Пропсы для компонента `Trainer`. */
 export type TrainerProps = React.ComponentProps<"div">
@@ -81,6 +83,7 @@ export function Trainer(
       tabIndex={0} // Делаем div фокусируемым для приема событий клавиатуры
       onKeyDownCapture={handleOnKey}
       className={className}
+      role="textbox" // Changed role to textbox
       {...props}
     >
       <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />

@@ -1,5 +1,6 @@
-import { clsx, type ClassValue } from "clsx"
+import { type ClassValue,clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+
 import { KeyCapId } from "../interfaces/key-cap-id";
 
 export function cn(...inputs: ClassValue[]) {

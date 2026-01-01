@@ -1,8 +1,9 @@
 "use client";
 
 import { useMachine } from "@xstate/react";
-import { appMachine } from "@/machines/app.machine";
+
 import { TrainingScene } from "@/components/ui/training-scene";
+import { appMachine } from "@/machines/app.machine";
 
 export function AppClient() {
   const [state, send] = useMachine(appMachine);

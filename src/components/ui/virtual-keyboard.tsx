@@ -5,9 +5,11 @@
  * Он не содержит логики определения состояний клавиш, а лишь отображает
  * `VirtualKey` с заданными `visibility` и `navigationRole`.
  */
-import { VirtualKey, } from "@/interfaces/types";
-import { KeyCap } from "./keycap";
 import { JSX } from "react";
+
+import { VirtualKey, } from "@/interfaces/types";
+
+import { KeyCap } from "./keycap";
 
 
 /** Пропсы для компонента `VirtualKeyboard`. */

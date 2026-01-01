@@ -1,8 +1,9 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Hands } from './hands';
 import { FingerState } from "@/interfaces/types";
+
+import { Hands } from './hands';
 
 const fingerOptions = {
   options: ["INACTIVE", "ACTIVE", "INCORRECT", "IDLE"] satisfies FingerState[],

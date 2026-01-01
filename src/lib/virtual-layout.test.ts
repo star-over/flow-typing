@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { findPath } from "./virtual-layout";
+import { describe, expect,it } from "vitest";
+
+import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "../data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
-import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { VirtualKey } from "../interfaces/types";
+import { findPath } from "./virtual-layout";
 
 describe("findPath", () => {
   it("should correctly identify HOME, TARGET, and PATH keys for target '5'", () => {

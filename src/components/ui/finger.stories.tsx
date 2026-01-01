@@ -2,6 +2,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { FingerId, FingerState } from "@/interfaces/types";
+
 import { Finger } from "./finger";
 
 const meta = {

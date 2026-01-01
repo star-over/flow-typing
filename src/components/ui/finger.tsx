@@ -1,7 +1,8 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { JSX } from "react";
-import { cn } from '@/lib/utils';
+
 import { FingerId, FingerState } from "@/interfaces/types";
+import { cn } from '@/lib/utils';
 
 const fingerVariants = cva(
   "w-[281px] [&_.finger-1]:fill-yellow-400 [&_.finger-2]:fill-orange-400 [&_.finger-3]:fill-green-400 [&_.finger-4]:fill-blue-400 [&_.finger-5]:fill-purple-400 [&_.finger-base]:fill-orange-50",

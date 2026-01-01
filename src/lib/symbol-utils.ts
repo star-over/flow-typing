@@ -3,13 +3,13 @@
  * @description Содержит функции для определения типа клавиши, получения
  * информации о символах и их связи с физическими клавишами.
  */
+import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
 } from "@/interfaces/types";
-import { KeyCapId } from "@/interfaces/key-cap-id";
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 
 /**
  * Символ неразрывного пробела (non-breaking space).

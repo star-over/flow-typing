@@ -1,9 +1,10 @@
 "use client";
 
-import { keyboardMachine } from "@/machines/keyboard.machine";
 import { useMachine } from "@xstate/react";
-import { KeyCapId } from "@/interfaces/key-cap-id";
 import React, { useEffect, useState } from "react";
+
+import { KeyCapId } from "@/interfaces/key-cap-id";
+import { keyboardMachine } from "@/machines/keyboard.machine";
 
 export default function KeyboardTestPage() {
   const [recognized, setRecognized] = useState<KeyCapId[][]>([]);
@@ -40,14 +41,14 @@ export default function KeyboardTestPage() {
 
 
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-8 focus:outline-none"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
-      autoFocus
-    >
-      <h1 className="text-4xl font-bold mb-4">Keyboard Machine Test</h1>
+          <div
+            className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-8 focus:outline-none"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
+            role="textbox" // Changed role to textbox
+            // autoFocus Removed autoFocus for accessibility
+          >      <h1 className="text-4xl font-bold mb-4">Keyboard Machine Test</h1>
       <p className="text-lg mb-8">
         Нажмите любую клавишу, чтобы протестировать машину состояний.
       </p>

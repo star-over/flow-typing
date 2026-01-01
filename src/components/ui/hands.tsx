@@ -5,10 +5,11 @@
  * в зависимости от состояния (`ACTIVE`, `INACTIVE`, `IDLE`, `INCORRECT`).
  * Используется SVG для отрисовки частей руки.
  */
-import { JSX } from "react";
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { JSX } from "react";
+
 import { FingerState } from "@/interfaces/types";
+import { cn } from '@/lib/utils';
 
 // SVG-пути для отрисовки различных частей руки
 const part1 = "M146.4 228c1.3-.7 5-.8 6.2.2 4.5 5 8.3 8.7 12.4 14 3.2 4 6.8 7 12 5.5 22.8-6.7 46.5-14.5 69.2-20.3 5.4-1.1 13.8.3 18.6 2 5.2 1.7 6.5 2.4 11 6.8 6.8 6.5 5.3 15.1-3.2 19.2-2.8 1.3-6 2-9 2.8-40.2 10.1-79 23.5-112 49.8-6 4.8-13.7 8-21.2 10.3-13.5 4.1-24.8-2.3-26.7-15a53 53 0 0 1 .6-20.1c6-25 17.7-44.3 42.1-55.3Z";

@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { getHandStates, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
-import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
+import { describe, expect,it } from "vitest";
+
 import { fingerLayoutASDF } from "../data/finger-layout-asdf";
-import { SymbolLayout, FingerLayout, HandStates, TypedKey } from "../interfaces/types";
+import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
+import { FingerLayout, HandStates, SymbolLayout, TypedKey } from "../interfaces/types";
+import { getHandStates, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
 
 describe("getHandStates", () => {
   const symbolLayout: SymbolLayout = symbolLayoutEnQwerty;

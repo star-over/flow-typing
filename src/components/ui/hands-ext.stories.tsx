@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { HandsExt } from './hands-ext';
+
 import { HandStates } from '@/interfaces/types';
+
+import { HandsExt } from './hands-ext';
 
 const meta = {
   title: 'UI/HandsExt',

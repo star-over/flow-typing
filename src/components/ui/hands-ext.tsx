@@ -6,12 +6,14 @@
  * Также компонент визуализирует руки и пальцы в соответствии с их состоянием.
  */
 import React from 'react';
-import { VirtualKeyboard } from './virtual-keyboard';
-import { Hands } from './hands';
-import { FingerId, KeyCapId, VirtualLayout, VirtualKey, HandStates } from '@/interfaces/types';
+
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
+import { FingerId, HandStates,KeyCapId, VirtualKey, VirtualLayout } from '@/interfaces/types';
+
+import { Hands } from './hands';
+import { VirtualKeyboard } from './virtual-keyboard';
 
 /**
  * Получает символ для заданного `KeyCapId` с учетом состояния Shift.

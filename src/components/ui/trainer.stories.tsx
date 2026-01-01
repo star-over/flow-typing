@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Geist, Geist_Mono } from 'next/font/google';
+
 import { Trainer } from './trainer';
 
 const geistMono = Geist_Mono({

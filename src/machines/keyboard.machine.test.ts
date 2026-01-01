@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createActor } from "xstate";
-import { keyboardMachine } from "./keyboard.machine";
+
 import { KeyCapId } from "@/interfaces/key-cap-id";
+
+import { keyboardMachine } from "./keyboard.machine";
 
 describe("keyboardMachine", () => {
   it("should start in idle state with no pressed keys", () => {

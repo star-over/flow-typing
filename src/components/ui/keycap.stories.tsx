@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { KeyCap } from './keycap';
+
 import { KeyCapHomeKeyMarker, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+
+import { KeyCap } from './keycap';
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',

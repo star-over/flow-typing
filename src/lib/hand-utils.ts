@@ -3,17 +3,18 @@
  * @description Содержит функции для определения состояний рук и пальцев,
  * их принадлежности, и для получения связанных с ними данных.
  */
+import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
-  SymbolLayout,
   HandStates,
-  TypedKey,
   LEFT_HAND_FINGER_IDS,
   RIGHT_HAND_FINGER_IDS,
+  SymbolLayout,
+  TypedKey,
 } from "@/interfaces/types";
-import { getKeyCapIdsForChar, getFingerByKeyCap, isShiftRequired } from "./symbol-utils";
-import { KeyCapId } from "@/interfaces/key-cap-id";
+
+import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from "./symbol-utils";
 
 /**
  * Определяет, принадлежит ли палец левой руке.

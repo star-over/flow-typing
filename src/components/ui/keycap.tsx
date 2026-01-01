@@ -5,8 +5,9 @@
  * и динамических состояний (видимость, результат нажатия, навигационная роль).
  */
 import { cva, type VariantProps } from "class-variance-authority"
+
+import { FingerId,KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 import { cn } from "@/lib/utils"
-import { Visibility, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, KeyCapNavigationRole, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel, FingerId } from "@/interfaces/types";
 
 /**
  * Варианты стилей для компонента `KeyCap` на основе CVA (Class Variance Authority).

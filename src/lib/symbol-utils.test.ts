@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { getKeyCapIdsForChar, isTextKey, isShiftRequired, isModifierKey } from './symbol-utils';
+import { describe, expect,it } from 'vitest';
+
+import { getKeyCapIdsForChar, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {

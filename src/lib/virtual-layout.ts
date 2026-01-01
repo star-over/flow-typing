@@ -4,8 +4,9 @@
  * финальной, обогащенной моделью клавиатуры для отображения в UI.
  */
 import { KeyCapId } from "@/interfaces/types";
-import { KeyboardLayout, SymbolLayout, FingerLayout, VirtualLayout, PhysicalKey, VirtualKey, } from "@/interfaces/types";
+import { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
 import { getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
+
 import { getKeyCapIdsByFingerId } from "./hand-utils";
 
 

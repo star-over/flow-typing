@@ -1,6 +1,8 @@
 import { createMachine } from 'xstate';
-import { trainingMachine } from './training.machine';
+
 import { generateLesson } from '@/lib/lesson-generator';
+
+import { trainingMachine } from './training.machine';
 
 // Mock context for the app machine
 interface AppContext {

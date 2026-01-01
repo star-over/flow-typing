@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { createTypingStream, addAttempt, getSymbolType, getSymbolChar } from "./stream-utils";
+import { describe, expect,it } from "vitest";
+
 import { StreamSymbol, TypedKey } from "@/interfaces/types";
+
+import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
 import { getKeyCapIdsForChar, nbsp } from "./symbol-utils";
 
 
