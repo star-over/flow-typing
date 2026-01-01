@@ -1,14 +1,14 @@
 import { JSX, useReducer } from "react";
 import { FlowLine } from "./flow-line";
-import { TypedKey } from "@/interfaces/types";
+import { FingerId, KeyCapId, TypedKey } from "@/interfaces/types";
 import {
   initialTrainerState,
   reducer,
   TrainerActionTypes,
 } from "@/store/trainer-store";
-import { isTextKey, getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
-import { VirtualKeyboard } from "./virtual-keyboard";
-import { Hands } from "./hands";
+import { isTextKey, getKeyCapIdsForChar, isShiftRequired, getFingerByKeyCap } from "@/lib/symbol-utils";
+import { HandsExt } from "./hands-ext"; // Import HandsExt
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf"; // Import fingerLayoutASDF
 
 export type TrainerProps = React.ComponentProps<"div">
 
@@ -40,6 +40,21 @@ export function Trainer(
     }
   }
 
+  // Generate highlightedFingerKeys for HandsExt
+  const targetSymbol = state.stream[state.cursorPosition].targetSymbol;
+  const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol) || [];
+
+  const highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>> = {};
+  requiredKeyCapIds.forEach(keyCapId => {
+    const fingerId = getFingerByKeyCap(keyCapId, fingerLayoutASDF);
+    if (fingerId) {
+      if (!highlightedFingerKeys[fingerId]) {
+        highlightedFingerKeys[fingerId] = [];
+      }
+      highlightedFingerKeys[fingerId]?.push(keyCapId);
+    }
+  });
+
   return (
     <div
       id="trainer-frame"
@@ -49,8 +64,10 @@ export function Trainer(
       {...props}
     >
       <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />
-      <VirtualKeyboard virtualLayout={state.virtualLayout} />
-      <Hands {...state.handStates}/>
+      <HandsExt
+        highlightedFingerKeys={highlightedFingerKeys}
+        handStates={state.handStates}
+      />
     </div>
   )
 }

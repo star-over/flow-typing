@@ -2,14 +2,11 @@ import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 import { useEffect } from "react";
 import { FlowLine } from "./flow-line";
-import { VirtualKeyboard } from "./virtual-keyboard";
-import { Hands } from "./hands";
-import { createVirtualLayout } from "@/lib/virtual-layout";
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { HandsExt } from "./hands-ext"; // Import HandsExt
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { FingerId, FingerState } from "@/interfaces/types";
+import { FingerId, FingerState, KeyCapId, HandStates } from "@/interfaces/types";
 import { trainingMachine } from "@/machines/training.machine";
+import { getKeyCapIdsForChar, getFingerByKeyCap } from "@/lib/symbol-utils";
 
 const ALL_FINGER_IDS: FingerId[] = ["L1", "L2", "L3", "L4", "L5", "R1", "R2", "R3", "R4", "R5", "LB", "RB"];
 
@@ -23,16 +20,23 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   // Подписываемся на состояние и получаем метод send для актора trainingMachine
   const state = useSelector(actor, (snapshot) => snapshot);
   const send = actor.send;
-  const { stream, currentIndex, targetKeyCapId, targetFingerId } = state.context;
+  const { stream, currentIndex, targetFingerId } = state.context; // Removed targetKeyCapId
 
-  // Создаем виртуальную раскладку на основе текущего состояния
-  const virtualLayout = createVirtualLayout({
-    keyboardLayout: keyboardLayoutANSI,
-    symbolLayout: symbolLayoutEnQwerty,
-    fingerLayout: fingerLayoutASDF,
-    // TODO: Добавить обработку shift в машину состояний
-    shift: state.context.shiftRequired,
+  // Generate highlightedFingerKeys for HandsExt
+  const targetSymbol = stream[currentIndex].targetSymbol;
+  const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol) || [];
+
+  const highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>> = {};
+  requiredKeyCapIds.forEach(keyCapId => {
+    const fingerId = getFingerByKeyCap(keyCapId, fingerLayoutASDF);
+    if (fingerId) {
+      if (!highlightedFingerKeys[fingerId]) {
+        highlightedFingerKeys[fingerId] = [];
+      }
+      highlightedFingerKeys[fingerId]?.push(keyCapId);
+    }
   });
+
 
   // Определяем состояния пальцев
   const fingerStates: Partial<Record<FingerId, FingerState>> = {};
@@ -71,9 +75,10 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
 
       <FlowLine stream={stream} cursorPosition={currentIndex} />
 
-      <VirtualKeyboard virtualLayout={virtualLayout} targetKeyCapId={targetKeyCapId} />
-
-      <Hands {...fingerStates} />
+      <HandsExt
+        highlightedFingerKeys={highlightedFingerKeys}
+        handStates={fingerStates as HandStates} // Cast to HandStates
+      />
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
       {state.matches('paused') ? (

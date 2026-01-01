@@ -1,4 +1,6 @@
-import { KeyCapId } from "@/interfaces/key-cap-id";
+import { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
+
+export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 
 export type KeyCapLabel = { symbol?: string };
 export type KeyCapHomeKeyMarker = "BAR" | "DOT" | "NONE";

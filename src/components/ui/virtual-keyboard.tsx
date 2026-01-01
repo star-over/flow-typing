@@ -1,52 +1,23 @@
-import { VirtualKey, FingerId, KeyCapNavigationRole, Visibility } from "@/interfaces/types";
+import { VirtualKey, } from "@/interfaces/types";
 import { KeyCap } from "./keycap";
 import { JSX } from "react";
-import { KeyCapId } from "@/interfaces/key-cap-id";
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { getFingerByKeyCap } from "@/lib/symbol-utils";
-import { getKeyCapIdsByFingerId } from "@/lib/hand-utils";
-import { getPathKeyCapIds } from "@/lib/virtual-layout";
+
 
 export type VirtualKeyboardProps = React.ComponentProps<"div">
   & {
     virtualLayout: VirtualKey[][];
-    targetKeyCapId?: KeyCapId;
   }
 
 type VirtualRowProps = React.ComponentProps<"div">
   & {
     row: VirtualKey[];
-    targetKeyCapId?: KeyCapId;
-    activeFingerKeyCapIds: KeyCapId[];
-    pathKeyCapIds: KeyCapId[];
   }
 
-export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboardProps): JSX.Element {
-  let activeFingerKeyCapIds: KeyCapId[] = [];
-  let pathKeyCapIds: KeyCapId[] = [];
-  let homeKeyCapId: KeyCapId | undefined;
-
-  if (targetKeyCapId) {
-    const targetFingerId: FingerId | undefined = getFingerByKeyCap(targetKeyCapId, fingerLayoutASDF);
-    if (targetFingerId) {
-      activeFingerKeyCapIds = getKeyCapIdsByFingerId(targetFingerId, fingerLayoutASDF);
-      homeKeyCapId = (Object.entries(fingerLayoutASDF).find(
-        ([, fingerKey]) => fingerKey.fingerId === targetFingerId && fingerKey.isHomeKey
-      )?.[0]) as KeyCapId | undefined;
-
-      if (homeKeyCapId) {
-        pathKeyCapIds = getPathKeyCapIds(virtualLayout, homeKeyCapId, targetKeyCapId);
-      }
-    }
-  }
-
+export function VirtualKeyboard({ virtualLayout }: VirtualKeyboardProps): JSX.Element {
   const rows = virtualLayout.map((row: VirtualKey[], rowIndex: number) => (
     <VirtualRow
       row={row}
       key={rowIndex}
-      targetKeyCapId={targetKeyCapId}
-      activeFingerKeyCapIds={activeFingerKeyCapIds}
-      pathKeyCapIds={pathKeyCapIds}
     />
   ));
 
@@ -57,28 +28,14 @@ export function VirtualKeyboard({ virtualLayout, targetKeyCapId }: VirtualKeyboa
   )
 };
 
-function VirtualRow({ row, targetKeyCapId, activeFingerKeyCapIds, pathKeyCapIds }: VirtualRowProps): JSX.Element {
+function VirtualRow({ row }: VirtualRowProps): JSX.Element {
   const keyCaps = row.map((virtualKey) => {
-    let navigationRole: KeyCapNavigationRole = "IDLE";
-    let visibility: Visibility = "INVISIBLE";
-
-    if (activeFingerKeyCapIds.includes(virtualKey.keyCapId)) {
-      visibility = "VISIBLE";
-      if (virtualKey.keyCapId === targetKeyCapId) {
-        navigationRole = "TARGET";
-      } else if (pathKeyCapIds.includes(virtualKey.keyCapId)) {
-        navigationRole = "PATH";
-      } else {
-        navigationRole = "IDLE";
-      }
-    }
-
     return (
       <KeyCap
         key={virtualKey.keyCapId}
         {...virtualKey}
-        navigationRole={navigationRole}
-        visibility={visibility}
+        navigationRole={virtualKey.navigationRole}
+        visibility={virtualKey.visibility}
       />
     );
   });
