@@ -1,3 +1,10 @@
+/**
+ * @file Компонент `HandsExt` объединяет виртуальную клавиатуру и визуализацию рук.
+ * @description Этот компонент отображает 10 виртуальных клавиатур (по одной на каждый палец),
+ * которые накладываются друг на друга. Только актуальные для текущего нажатия клавиши
+ * отображаются как видимые, создавая иллюзию единой клавиатуры с подсветкой.
+ * Также компонент визуализирует руки и пальцы в соответствии с их состоянием.
+ */
 import React from 'react';
 import { VirtualKeyboard } from './virtual-keyboard';
 import { Hands } from './hands';
@@ -6,7 +13,12 @@ import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
 
-// Helper to get symbol for a KeyCapId based on shift state
+/**
+ * Получает символ для заданного `KeyCapId` с учетом состояния Shift.
+ * @param keyCapId Идентификатор клавиши.
+ * @param shift Флаг, указывающий, нажат ли Shift.
+ * @returns Символ, соответствующий клавише, или пустая строка, если не найден.
+ */
 const getSymbolForKeyCapId = (keyCapId: KeyCapId, shift: boolean): string => {
   for (const [symbolChar, keyCapIds] of Object.entries(symbolLayoutEnQwerty)) {
     const hasShift = keyCapIds.some(id => id.includes("Shift"));
@@ -16,11 +28,16 @@ const getSymbolForKeyCapId = (keyCapId: KeyCapId, shift: boolean): string => {
       return symbolChar;
     }
   }
-  // Fallback for system keys or if not found
   return "";
 };
 
-// Helper to generate a VirtualLayout for a specific finger's keyboard
+/**
+ * Генерирует `VirtualLayout` для виртуальной клавиатуры конкретного пальца.
+ * В этом макете видимы только те клавиши, которые принадлежат данному пальцу и подсвечены.
+ * @param fingerId Идентификатор пальца, для которого генерируется макет.
+ * @param highlightedKeys Массив `KeyCapId` клавиш, которые должны быть подсвечены.
+ * @returns Объект `VirtualLayout`, готовый для передачи в `VirtualKeyboard`.
+ */
 const getFingerVirtualLayout = (
   fingerId: FingerId,
   highlightedKeys: KeyCapId[],
@@ -35,7 +52,8 @@ const getFingerVirtualLayout = (
 
       const isKeyForCurrentFinger = fingerData && fingerData.fingerId === fingerId;
       const isHighlighted = highlightedKeys.includes(keyCapId);
-      const isShift = keyCapId.includes("Shift"); // Assuming Shift key logic
+      // Определение isShift должно быть более точным, основываясь на целевом символе, а не на самой клавише
+      const isShift = keyCapId.includes("Shift"); 
 
       const symbol = getSymbolForKeyCapId(keyCapId, isShift);
 
@@ -44,8 +62,8 @@ const getFingerVirtualLayout = (
         ...physicalKey,
         rowIndex,
         colIndex,
-        symbol: symbol || " ", // Fallback symbol
-        fingerId: fingerData?.fingerId || 'L1', // Default or actual fingerId
+        symbol: symbol || " ",
+        fingerId: fingerData?.fingerId || 'L1',
         isHomeKey: fingerData?.isHomeKey,
         visibility: (isKeyForCurrentFinger && isHighlighted) ? 'VISIBLE' : 'INVISIBLE',
         navigationRole: (isKeyForCurrentFinger && isHighlighted) ? 'TARGET' : 'IDLE',
@@ -55,13 +73,24 @@ const getFingerVirtualLayout = (
   return virtualLayout;
 };
 
+/** Пропсы для компонента `HandsExt`. */
 interface HandsExtProps {
-  // A map where key is FingerId and value is an array of KeyCapIds that should be highlighted for that finger
+  /**
+   * Карта, где ключ - `FingerId`, а значение - массив `KeyCapId`,
+   * которые должны быть подсвечены для этого пальца.
+   */
   highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>>;
-  // Other props for Hands, if any
+  /** Состояния всех пальцев и кистей для визуализации. */
   handStates: HandStates;
 }
 
+/**
+ * Компонент `HandsExt` для расширенной визуализации клавиатуры и рук.
+ * @param props Пропсы компонента.
+ * @param props.highlightedFingerKeys Клавиши, которые должны быть подсвечены для каждого пальца.
+ * @param props.handStates Текущие состояния пальцев и кистей.
+ * @returns Элемент JSX, отображающий виртуальную клавиатуру для пальцев и сами руки.
+ */
 export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, handStates }) => {
   const fingerIds: FingerId[] = [
     'L5', 'L4', 'L3', 'L2', 'L1',

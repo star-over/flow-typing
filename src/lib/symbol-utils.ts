@@ -1,33 +1,35 @@
+/**
+ * @file Утилиты для работы с символами и типами клавиш.
+ * @description Содержит функции для определения типа клавиши, получения
+ * информации о символах и их связи с физическими клавишами.
+ */
 import {
   FingerId,
   FingerLayout,
-  // SymbolLayout
 } from "@/interfaces/types";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 
 /**
- * Non-breaking space unicode symbol
- *
+ * Символ неразрывного пробела (non-breaking space).
  * @type {string}
  */
 export const nbsp = '\u00A0';
 
 /**
- * Space unicode symbol
- *
+ * Символ обычного пробела (space).
  * @type {string}
  */
 export const sp = '\u0020';
 
 
-// --- Key Type Definitions based on keyboard-layout-ansi.ts ---
+// --- Key Type Definitions ---
 
 const allKeys = keyboardLayoutANSI.flat();
 
 /**
- * A set of all modifier keycap IDs, derived from the keyboard layout.
+ * `Set` всех `KeyCapId` для клавиш-модификаторов.
  */
 export const modifierKeyCapIdSet = new Set<KeyCapId>(
   allKeys
@@ -36,7 +38,7 @@ export const modifierKeyCapIdSet = new Set<KeyCapId>(
 );
 
 /**
- * A set of all symbol (text) keycap IDs, derived from the keyboard layout.
+ * `Set` всех `KeyCapId` для символьных клавиш.
  */
 export const symbolKeyCapIdSet = new Set<KeyCapId>(
   allKeys
@@ -45,7 +47,7 @@ export const symbolKeyCapIdSet = new Set<KeyCapId>(
 );
 
 /**
- * A set of functional (system) keycap IDs, derived from the keyboard layout.
+ * `Set` всех `KeyCapId` для системных (функциональных) клавиш.
  */
 export const functionalKeyCapIdSet = new Set<KeyCapId>(
   allKeys
@@ -54,18 +56,18 @@ export const functionalKeyCapIdSet = new Set<KeyCapId>(
 );
 
 /**
- * Checks if a given key is a modifier key.
- * @param key The key code to check.
- * @returns True if the key is a modifier, false otherwise.
+ * Проверяет, является ли клавиша модификатором.
+ * @param key Код клавиши (`KeyboardEvent.code`).
+ * @returns `true`, если клавиша является модификатором.
  */
 export function isModifierKey(key: string): key is KeyCapId {
   return modifierKeyCapIdSet.has(key as KeyCapId);
 }
 
 /**
- * Checks if a given key is a text key (a symbol).
- * @param key The key code to check.
- * @returns True if the key is a text key, false otherwise.
+ * Проверяет, является ли клавиша символьной (текстовой).
+ * @param key Код клавиши (`KeyboardEvent.code`).
+ * @returns `true`, если клавиша является символьной.
  */
 export function isTextKey(key: string): key is KeyCapId {
   return symbolKeyCapIdSet.has(key as KeyCapId);
@@ -75,19 +77,19 @@ export function isTextKey(key: string): key is KeyCapId {
 
 
 /**
- * Gets the array of KeyCapIds required to type a given character.
- * @param char The character to look up.
- * @returns The corresponding array of KeyCapIds, or undefined if not found.
+ * Получает массив `KeyCapId`, необходимых для набора заданного символа.
+ * @param char Символ для поиска.
+ * @returns Массив `KeyCapId` или `undefined`, если символ не найден.
  */
 export function getKeyCapIdsForChar(char: string): KeyCapId[] | undefined {
-  if (char === ' ') return ['Space']; // Handle space separately if needed
+  if (char === ' ') return ['Space'];
   return symbolLayoutEnQwerty[char];
 }
 
 /**
- * Checks if the Shift key is required to type a given character.
- * @param char The character to check.
- * @returns True if Shift is required, false otherwise.
+ * Проверяет, требуется ли нажатие клавиши Shift для набора заданного символа.
+ * @param char Символ для проверки.
+ * @returns `true`, если требуется Shift.
  */
 export function isShiftRequired(char: string): boolean {
   const keyCapIds = getKeyCapIdsForChar(char);
@@ -96,10 +98,10 @@ export function isShiftRequired(char: string): boolean {
 
 
 /**
- * Retrieves the fingerId for a given KeyCapId from a finger layout.
- * @param keyCapId The KeyCapId to look up.
- * @param fingerLayout The finger layout to use.
- * @returns The fingerId or undefined if not found.
+ * Получает `fingerId` для заданного `KeyCapId` из пальцевого макета.
+ * @param keyCapId `KeyCapId` для поиска.
+ * @param fingerLayout Схема расположения пальцев.
+ * @returns `FingerId` или `undefined`, если не найден.
  */
 export function getFingerByKeyCap(
   keyCapId: KeyCapId,

@@ -1,28 +1,42 @@
+/**
+ * @file Компонент `TrainingScene` для отображения основной сцены тренировки.
+ * @description Этот компонент является контейнером, который управляет состоянием
+ * тренировки с помощью XState-актора и отображает основные UI-элементы:
+ * `FlowLine`, `HandsExt` и кнопки управления тренировкой.
+ */
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 import { useEffect } from "react";
 import { FlowLine } from "./flow-line";
-import { HandsExt } from "./hands-ext"; // Import HandsExt
+import { HandsExt } from "./hands-ext";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { FingerId, FingerState, KeyCapId, HandStates } from "@/interfaces/types";
 import { trainingMachine } from "@/machines/training.machine";
 import { getKeyCapIdsForChar, getFingerByKeyCap } from "@/lib/symbol-utils";
 
+/** Идентификаторы всех пальцев, включая основания кистей. */
 const ALL_FINGER_IDS: FingerId[] = ["L1", "L2", "L3", "L4", "L5", "R1", "R2", "R3", "R4", "R5", "LB", "RB"];
 
-// Определяем пропсы для компонента.
-// Мы ожидаем получить актор (живой экземпляр) запущенной 'trainingMachine'.
+/** Пропсы для компонента `TrainingScene`. */
 type TrainingSceneProps = {
+  /** Актор (живой экземпляр) запущенной `trainingMachine`. */
   actor: ActorRefFrom<typeof trainingMachine>;
 };
 
+/**
+ * Компонент `TrainingScene` отрисовывает основную сцену тренировки слепой печати.
+ * Он подключается к XState-машине `trainingMachine` для получения состояния
+ * и отправки событий, а также отображает `FlowLine`, `HandsExt` и элементы управления.
+ * @param props Пропсы компонента.
+ * @param props.actor Актор `trainingMachine`.
+ * @returns Элемент JSX, представляющий тренировочную сцену.
+ */
 export const TrainingScene = ({ actor }: TrainingSceneProps) => {
-  // Подписываемся на состояние и получаем метод send для актора trainingMachine
   const state = useSelector(actor, (snapshot) => snapshot);
   const send = actor.send;
-  const { stream, currentIndex, targetFingerId } = state.context; // Removed targetKeyCapId
+  const { stream, currentIndex, targetFingerId } = state.context;
 
-  // Generate highlightedFingerKeys for HandsExt
+  // Генерируем `highlightedFingerKeys` для `HandsExt` на основе текущего целевого символа.
   const targetSymbol = stream[currentIndex].targetSymbol;
   const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol) || [];
 
@@ -38,7 +52,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   });
 
 
-  // Определяем состояния пальцев
+  // Определяем состояния пальцев на основе `targetFingerId` из контекста машины состояний.
   const fingerStates: Partial<Record<FingerId, FingerState>> = {};
   ALL_FINGER_IDS.forEach(id => {
     fingerStates[id] = "IDLE";
@@ -51,7 +65,6 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Отправляем событие только для одиночных символов, игнорируя служебные клавиши
-      // console.log(event.key)
       if (event.key.length === 1) {
         event.preventDefault(); // Предотвращаем действие браузера по умолчанию
         send({ type: 'KEY_PRESS', key: event.key });
@@ -60,11 +73,10 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // Очистка при размонтировании компонента
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [send]); // `send` стабилен, но лучше указать его в зависимостях
+  }, [send]);
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -77,7 +89,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
 
       <HandsExt
         highlightedFingerKeys={highlightedFingerKeys}
-        handStates={fingerStates as HandStates} // Cast to HandStates
+        handStates={fingerStates as HandStates}
       />
 
       {/* Кнопки для тестирования событий паузы/возобновления */}

@@ -1,3 +1,9 @@
+/**
+ * @file Компонент `FlowLine` для визуализации потока ввода текста.
+ * @description Имитирует движение каретки печатной машинки, разделяя текст
+ * на набранную часть, текущий символ (курсор) и оставшуюся часть.
+ * Динамически отображает состояние символов (правильно/неправильно набрано).
+ */
 import { cn } from '@/lib/utils';
 import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
 import { useState, useEffect } from 'react';
@@ -6,10 +12,15 @@ import { getSymbolType, getSymbolChar } from '@/lib/stream-utils';
 
 // --- Variants ---
 
+/**
+ * Варианты стилей для `FlowLine` на основе CVA.
+ * Определяет размер шрифта и режим отображения курсора.
+ */
 const flowLineVariants = cva(
   "w-screen flex justify-center items-center font-mono border-2 border-amber-400",
   {
     variants: {
+      /** Размер шрифта для символов в строке. */
       size: {
         XS: "text-xl",
         SM: "text-2xl",
@@ -17,6 +28,7 @@ const flowLineVariants = cva(
         LG: "text-4xl",
         XL: "text-5xl",
       } satisfies Record<FlowLineSize, string>,
+      /** Режим отображения курсора, влияющий на соотношение ширины зон. */
       cursorMode: {
         "HALF":    "[&_.completed-symbols]:w-1/2         [&_.pending-symbols]:w-1/2",
         "THIRD":   "[&_.completed-symbols]:w-1/3         [&_.pending-symbols]:w-2/3",
@@ -33,19 +45,30 @@ const flowLineVariants = cva(
 
 // --- Main Component ---
 
+/** Пропсы для компонента `FlowLine`. */
 export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
+  /** Поток символов для отображения. */
   stream: TypingStream;
+  /** Текущая позиция курсора в потоке символов. */
   cursorPosition: number;
+  /** Тип визуализации курсора. */
   cursorType?: FlowLineCursorType;
+  /** Дополнительные классы CSS. */
   className?: string;
 }
 
+/**
+ * Компонент `FlowLine` визуализирует процесс набора текста,
+ * отображая пройденные символы, текущий символ под курсором и ожидающие символы.
+ * @param props Пропсы компонента.
+ * @returns Элемент JSX, представляющий строку потока ввода.
+ */
 export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, className }: FlowLineProps) {
   const completedSymbols = stream.slice(0, cursorPosition);
   const cursorSymbol = stream[cursorPosition];
   const pendingSymbols = stream.slice(cursorPosition + 1);
-  const completedCount = -100;
-  const pendingCount = 100;
+  const completedCount = -100; // Количество отображаемых пройденных символов
+  const pendingCount = 100;    // Количество отображаемых ожидающих символов
 
   return (
     <div className={cn(flowLineVariants({ cursorMode, size, className }))}>
@@ -84,10 +107,15 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
 // --- Sub-components & Variants ---
 
 // -------- RegularSymbol --------
+/**
+ * Варианты стилей для обычного символа в `FlowLine`.
+ * Определяет цвет символа в зависимости от его типа (`FlowLineSymbolType`).
+ */
 const regularSymbolVariants = cva(
   "", // Base classes are handled by variants for clarity.
   {
     variants: {
+      /** Тип символа (правильно набран, ошибка и т.д.). */
       symbolType: {
         PENDING: "text-gray-600",
         CORRECT: "text-gray-400",
@@ -102,10 +130,16 @@ const regularSymbolVariants = cva(
   }
 );
 
+/** Пропсы для компонента `RegularSymbol`. */
 type RegularSymbolProps = React.ComponentProps<"span">
   & VariantProps<typeof regularSymbolVariants>
-  & { symbol: string; }
+  & { /** Отображаемый символ. */ symbol: string; }
 
+/**
+ * Вспомогательный компонент для отображения обычного символа в `FlowLine`.
+ * @param props Пропсы компонента.
+ * @returns Элемент JSX, представляющий символ.
+ */
 function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbolProps) {
   return (
     <span className={cn(regularSymbolVariants({ symbolType, className }))} {...props}>
@@ -115,15 +149,21 @@ function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbo
 }
 
 // -------- CursorSymbol --------
+/**
+ * Варианты стилей для компонента курсора.
+ * Определяет форму курсора и анимацию мигания.
+ */
 const cursorSymbolVariants = cva(
   `absolute left-0 -bottom-0 bg-gray-800`,
   {
     variants: {
+      /** Тип визуализации курсора. */
       cursorType: {
         RECTANGLE: "h-full w-full",
         VERTICAL: "h-full w-1",
         UNDERSCORE: "h-1 w-full",
       } satisfies Record<FlowLineCursorType, string>,
+      /** Флаг, указывающий, идет ли набор текста. Влияет на анимацию мигания. */
       isTyping: {
         true: "",
         false: "animate-caret-blink",
@@ -136,15 +176,21 @@ const cursorSymbolVariants = cva(
   }
 );
 
+/** Пропсы для компонента `CursorSymbol`. */
 type CursorSymbolProps = React.ComponentProps<"span">
   & VariantProps<typeof cursorSymbolVariants>
-  & { symbol: string; }
+  & { /** Символ под курсором. */ symbol: string; }
 
+/**
+ * Вспомогательный компонент `CursorSymbol` для отображения курсора в `FlowLine`.
+ * Включает логику мигания курсора при отсутствии активности.
+ * @param props Пропсы компонента.
+ * @returns Элемент JSX, представляющий курсор.
+ */
 function CursorSymbol({ cursorType, symbol, className, ...props }: CursorSymbolProps) {
   const [isTyping, setIsTyping] = useState(true);
   const blinkDelay = 600;
 
-  // Reset animation when the symbol at the cursor changes.
   useEffect(() => {
     setIsTyping(true);
     const timer = setTimeout(() => {
@@ -154,7 +200,7 @@ function CursorSymbol({ cursorType, symbol, className, ...props }: CursorSymbolP
     return () => {
       clearTimeout(timer);
     };
-  }, [symbol]); // Depend on the symbol prop, not the key.
+  }, [symbol]);
 
   return (
     <span className="relative">

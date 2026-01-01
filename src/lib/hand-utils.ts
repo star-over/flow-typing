@@ -1,3 +1,8 @@
+/**
+ * @file Утилиты для работы с руками и пальцами.
+ * @description Содержит функции для определения состояний рук и пальцев,
+ * их принадлежности, и для получения связанных с ними данных.
+ */
 import {
   FingerId,
   FingerLayout,
@@ -11,73 +16,59 @@ import { getKeyCapIdsForChar, getFingerByKeyCap, isShiftRequired } from "./symbo
 import { KeyCapId } from "@/interfaces/key-cap-id";
 
 /**
- * Determines if a finger belongs to the left hand.
- * @param fingerId The finger ID to check.
- * @returns True if the finger belongs to the left hand.
+ * Определяет, принадлежит ли палец левой руке.
+ * @param fingerId Идентификатор пальца для проверки.
+ * @returns `true`, если палец принадлежит левой руке.
  */
 export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HAND_FINGER_IDS[number] {
   return LEFT_HAND_FINGER_IDS.includes(fingerId as typeof LEFT_HAND_FINGER_IDS[number]);
 }
 
 /**
- * Determines if a finger belongs to the right hand.
- * @param fingerId The finger ID to check.
- * @returns True if the finger belongs to the right hand.
+ * Определяет, принадлежит ли палец правой руке.
+ * @param fingerId Идентификатор пальца для проверки.
+ * @returns `true`, если палец принадлежит правой руке.
  */
 export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_HAND_FINGER_IDS[number] {
   return RIGHT_HAND_FINGER_IDS.includes(fingerId as typeof RIGHT_HAND_FINGER_IDS[number]);
 }
 
 /**
- * Initializes hand states with all fingers in IDLE state.
- * @returns A HandStates object with all fingers set to IDLE.
+ * Инициализирует состояния рук, устанавливая всем пальцам состояние 'IDLE'.
+ * @returns Объект `HandStates` со всеми пальцами в состоянии 'IDLE'.
  */
 function initializeHandStates(): HandStates {
   return {
-    L1: "IDLE",
-    L2: "IDLE",
-    L3: "IDLE",
-    L4: "IDLE",
-    L5: "IDLE",
-    LB: "IDLE",
-    R1: "IDLE",
-    R2: "IDLE",
-    R3: "IDLE",
-    R4: "IDLE",
-    R5: "IDLE",
-    RB: "IDLE",
+    L1: "IDLE", L2: "IDLE", L3: "IDLE", L4: "IDLE", L5: "IDLE", LB: "IDLE",
+    R1: "IDLE", R2: "IDLE", R3: "IDLE", R4: "IDLE", R5: "IDLE", RB: "IDLE",
   };
 }
 
 /**
- * Gets the target finger for a symbol.
- * @param targetSymbol The symbol to find the finger for.
- * @param fingerLayout The layout mapping key caps to fingers.
- * @returns The finger ID for the target symbol, or undefined if not found.
+ * Определяет целевой палец для заданного символа.
+ * @param targetSymbol Символ для поиска.
+ * @param fingerLayout Схема расположения пальцев.
+ * @returns Идентификатор пальца (`FingerId`) или `undefined`, если не найден.
  */
 function getTargetFinger(
   targetSymbol: string,
   fingerLayout: FingerLayout
 ): FingerId | undefined {
   const keyCapIds = getKeyCapIdsForChar(targetSymbol);
-  if (!keyCapIds) {
-    return undefined;
-  }
+  if (!keyCapIds) return undefined;
   
   const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
-  if (!primaryKey) {
-    return undefined;
-  }
+  if (!primaryKey) return undefined;
 
   return getFingerByKeyCap(primaryKey, fingerLayout);
 }
 
 /**
- * Updates hand states based on error indication logic.
- * @param handStates The current hand states to update.
- * @param targetFinger The finger that should be active for the target symbol.
- * @param typedKey The key that was actually typed.
- * @param fingerLayout The layout mapping key caps to fingers.
+ * Обновляет состояние рук на основе логики индикации ошибок.
+ * @param handStates Текущие состояния рук для обновления.
+ * @param targetFinger Целевой палец, который должен быть активен.
+ * @param typedKey Клавиша, которая была фактически нажата.
+ * @param fingerLayout Схема расположения пальцев.
  */
 function updateHandStatesForError(
   handStates: HandStates,
@@ -87,70 +78,45 @@ function updateHandStatesForError(
 ): void {
   const typedFinger = getFingerByKeyCap(typedKey.keyCapId, fingerLayout);
 
-  // If we can determine the finger for the typed key
   if (typedFinger) {
-    // Case 1: Error made by the same finger - no change to algorithm
     if (typedFinger === targetFinger) {
-      // No change needed, keep the target finger as ACTIVE
       return;
-    }
-    // Case 2: Error made by different finger but same hand
-    else if (
+    } else if (
       (isLeftHandFinger(targetFinger) && isLeftHandFinger(typedFinger)) ||
       (isRightHandFinger(targetFinger) && isRightHandFinger(typedFinger))
     ) {
-      // Mark the erroneous finger as INCORRECT
       handStates[typedFinger] = "INCORRECT";
-      // Keep the correct finger as ACTIVE
-    }
-    // Case 3: Error made by different hand
-    else {
-      // Mark the entire erroneous hand as INCORRECT
-      const isTypedLeftHand = isLeftHandFinger(typedFinger);
-      const handFingerIds = isTypedLeftHand ? LEFT_HAND_FINGER_IDS : RIGHT_HAND_FINGER_IDS;
-
+    } else {
+      const handFingerIds = isLeftHandFinger(typedFinger) ? LEFT_HAND_FINGER_IDS : RIGHT_HAND_FINGER_IDS;
       handFingerIds.forEach((fingerId) => {
         handStates[fingerId] = "INCORRECT";
       });
-
-      // Keep the correct finger as ACTIVE
       handStates[targetFinger] = "ACTIVE";
     }
   }
 }
 
 /**
- * Sets other fingers on the same hand as INACTIVE.
- * @param handStates The hand states to update.
- * @param targetFinger The finger that should remain ACTIVE.
+ * Устанавливает состояние 'INACTIVE' для остальных пальцев на той же руке.
+ * @param handStates Состояния рук для обновления.
+ * @param targetFinger Палец, который должен остаться 'ACTIVE'.
  */
 function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId): void {
-  const isTargetLeftHand = isLeftHandFinger(targetFinger);
-  const isTargetRightHand = isRightHandFinger(targetFinger);
-
-  if (isTargetLeftHand) {
-    LEFT_HAND_FINGER_IDS.forEach((fingerId) => {
-      if (handStates[fingerId] === "IDLE") {
-        handStates[fingerId] = "INACTIVE";
-      }
-    });
-  } else if (isTargetRightHand) {
-    RIGHT_HAND_FINGER_IDS.forEach((fingerId) => {
-      if (handStates[fingerId] === "IDLE") {
-        handStates[fingerId] = "INACTIVE";
-      }
-    });
-  }
+  const handIds = isLeftHandFinger(targetFinger) ? LEFT_HAND_FINGER_IDS : RIGHT_HAND_FINGER_IDS;
+  handIds.forEach((fingerId) => {
+    if (handStates[fingerId] === "IDLE") {
+      handStates[fingerId] = "INACTIVE";
+    }
+  });
 }
 
 /**
- * Determines the state of each finger for the Hands component based on the target symbol and typed key.
- *
- * @param targetSymbol The symbol to be typed.
- * @param typedKey The key that was actually typed (for error handling).
- * @param symbolLayout The layout mapping symbols to key caps.
- * @param fingerLayout The layout mapping key caps to fingers.
- * @returns A props object for the Hands component with finger states.
+ * Определяет состояние каждого пальца для компонента Hands на основе целевого символа и нажатой клавиши.
+ * @param targetSymbol Символ, который необходимо набрать.
+ * @param typedKey Фактически нажатая клавиша (для обработки ошибок).
+ * @param symbolLayout Схема расположения символов.
+ * @param fingerLayout Схема расположения пальцев.
+ * @returns Объект с состояниями пальцев, готовый для передачи в компонент `Hands`.
  */
 export function getHandStates(
   targetSymbol: string | undefined,
@@ -160,21 +126,13 @@ export function getHandStates(
 ): HandStates {
   const handStates = initializeHandStates();
 
-  // Handle case when there's no target symbol
-  if (!targetSymbol) {
-    return handStates;
-  }
+  if (!targetSymbol) return handStates;
 
-  // Get the target finger for the symbol
   const targetFinger = getTargetFinger(targetSymbol, fingerLayout);
-  if (!targetFinger) {
-    return handStates;
-  }
+  if (!targetFinger) return handStates;
 
-  // Set the correct finger as active
   handStates[targetFinger] = "ACTIVE";
 
-  // Handle shift key: the opposite pinky should be active.
   if (isShiftRequired(targetSymbol)) {
     if (isLeftHandFinger(targetFinger)) {
       handStates["R5"] = "ACTIVE"; // Right pinky
@@ -183,22 +141,20 @@ export function getHandStates(
     }
   }
   
-  // Handle error indication logic
   if (typedKey && !typedKey.isCorrect) {
     updateHandStatesForError(handStates, targetFinger, typedKey, fingerLayout);
   }
 
-  // Set other fingers on the same hand as INACTIVE
   setOtherFingersInactive(handStates, targetFinger);
 
   return handStates;
 }
 
 /**
- * Retrieves all keyCapIds associated with a given fingerId.
- * @param fingerId The ID of the finger.
- * @param fingerLayout The FingerLayout object.
- * @returns An array of KeyCapIds associated with the finger.
+ * Получает все `keyCapId` для заданного `fingerId`.
+ * @param fingerId Идентификатор пальца.
+ * @param fingerLayout Объект `FingerLayout`.
+ * @returns Массив `KeyCapId`, связанных с пальцем.
  */
 export function getKeyCapIdsByFingerId(
   fingerId: FingerId,

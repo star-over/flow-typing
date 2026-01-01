@@ -1,79 +1,95 @@
+/**
+ * @file Определяет физический макет клавиатуры стандарта ANSI.
+ *
+ * @description
+ * Этот файл представляет собой "холст" или "геометрию" клавиатуры.
+ * Он описывает, какие клавиши существуют, как они сгруппированы по рядам,
+ * и их физические свойства, такие как ширина и тип.
+ *
+ * Структура: Двумерный массив, где каждый вложенный массив представляет собой ряд клавиш.
+ *
+ * @see{@link /DOMAIN.md}
+ * @see{@link /src/interfaces/types.ts}
+ */
 import { KeyboardLayout } from "@/interfaces/types";
-// todo: add type of key: system, modifier, letter
 
-export const keyboardLayoutANSI: KeyboardLayout =  [
-    [
-      { keyCapId: "Backquote", type: "SYMBOL" },
-      { keyCapId: "Digit1", type: "SYMBOL" },
-      { keyCapId: "Digit2", type: "SYMBOL" },
-      { keyCapId: "Digit3", type: "SYMBOL" },
-      { keyCapId: "Digit4", type: "SYMBOL" },
-      { keyCapId: "Digit5", type: "SYMBOL" },
-      { keyCapId: "Digit6", type: "SYMBOL" },
-      { keyCapId: "Digit7", type: "SYMBOL" },
-      { keyCapId: "Digit8", type: "SYMBOL" },
-      { keyCapId: "Digit9", type: "SYMBOL" },
-      { keyCapId: "Digit0", type: "SYMBOL" },
-      { keyCapId: "Minus" , type: "SYMBOL" },
-      { keyCapId: "Equal" , type: "SYMBOL" },
-      { keyCapId: "Backspace", type: "SYSTEM",  unitWidth: "1.5U", symbolSize: "SM", colorGroup: "SECONDARY" },
-    ],
-    [
-      { keyCapId: "Tab", type: "SYSTEM", unitWidth: "1.5U", symbolSize: "SM", colorGroup: "SECONDARY" },
-      { keyCapId: "KeyQ", type: "SYMBOL" },
-      { keyCapId: "KeyW", type: "SYMBOL" },
-      { keyCapId: "KeyE", type: "SYMBOL" },
-      { keyCapId: "KeyR", type: "SYMBOL" },
-      { keyCapId: "KeyT", type: "SYMBOL" },
-      { keyCapId: "KeyY", type: "SYMBOL" },
-      { keyCapId: "KeyU", type: "SYMBOL" },
-      { keyCapId: "KeyI", type: "SYMBOL" },
-      { keyCapId: "KeyO", type: "SYMBOL" },
-      { keyCapId: "KeyP", type: "SYMBOL" },
-      { keyCapId: "BracketLeft", type: "SYMBOL" },
-      { keyCapId: "BracketRight", type: "SYMBOL" },
-      { keyCapId: "Backslash", type: "SYMBOL" },
-    ],
-    [
-      { keyCapId: "CapsLock", type: "SYSTEM", unitWidth: "1.75U", symbolSize: "SM", colorGroup: "SECONDARY" },
-      { keyCapId: "KeyA", type: "SYMBOL", },
-      { keyCapId: "KeyS", type: "SYMBOL", },
-      { keyCapId: "KeyD", type: "SYMBOL", },
-      { keyCapId: "KeyF", type: "SYMBOL", homeKeyMarker: "BAR" },
-      { keyCapId: "KeyG", type: "SYMBOL" },
-      { keyCapId: "KeyH", type: "SYMBOL" },
-      { keyCapId: "KeyJ", type: "SYMBOL", homeKeyMarker: "BAR" },
-      { keyCapId: "KeyK", type: "SYMBOL" },
-      { keyCapId: "KeyL", type: "SYMBOL" },
-      { keyCapId: "Semicolon", type: "SYMBOL" },
-      { keyCapId: "Quote", type: "SYMBOL" },
-      { keyCapId: "Enter", type: "SYSTEM", unitWidth: "1.75U", symbolSize: "SM", colorGroup: "ACCENT" },
-    ],
-    [
-      { keyCapId: "ShiftLeft", type: "MODIFIER", unitWidth: "2U", symbolSize: "SM",  colorGroup: "SECONDARY" },
-      { keyCapId: "KeyZ", type: "SYMBOL" },
-      { keyCapId: "KeyX", type: "SYMBOL" },
-      { keyCapId: "KeyC", type: "SYMBOL" },
-      { keyCapId: "KeyV", type: "SYMBOL" },
-      { keyCapId: "KeyB", type: "SYMBOL" },
-      { keyCapId: "KeyN", type: "SYMBOL" },
-      { keyCapId: "KeyM", type: "SYMBOL" },
-      { keyCapId: "Comma", type: "SYMBOL" },
-      { keyCapId: "Period", type: "SYMBOL" },
-      { keyCapId: "Slash", type: "SYMBOL" },
-      { keyCapId: "ShiftRight", type: "MODIFIER", unitWidth: "2U", symbolSize: "SM", colorGroup: "SECONDARY" },
-    ],
-    [
-      { keyCapId: "Fn", type: "MODIFIER",          unitWidth: "1U",    symbolSize: "SM", colorGroup: "SECONDARY" },
-      { keyCapId: "ControlLeft", type: "MODIFIER", unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "AltLeft", type: "MODIFIER",     unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "MetaLeft", type: "MODIFIER",    unitWidth: "1.25U", symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "Space", type: "SYMBOL",       unitWidth: "5U",    symbolSize: "MD", },
-      { keyCapId: "MetaRight", type: "MODIFIER",   unitWidth: "1.25U", symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "ControlRight", type: "MODIFIER",    unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "AltRight", type: "MODIFIER",    unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "ArrowLeft", type: "SYSTEM",   unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "ArrowUp", type: "SYSTEM",     unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-      { keyCapId: "ArrowRight", type: "SYSTEM",  unitWidth: "1U",    symbolSize: "MD", colorGroup: "SECONDARY" },
-    ],
-  ];
+export const keyboardLayoutANSI: KeyboardLayout = [
+  // ROW 1
+  [
+    { keyCapId: "Backquote", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit1", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit2", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit3", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit4", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit5", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit6", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit7", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit8", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit9", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Digit0", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Minus", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Equal", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Backspace", unitWidth: "2U", type: "SYSTEM" },
+  ],
+  // ROW 2
+  [
+    { keyCapId: "Tab", unitWidth: "1.5U", type: "SYSTEM" },
+    { keyCapId: "KeyQ", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyW", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyE", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyR", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyT", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyY", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyU", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyI", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyO", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyP", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "BracketLeft", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "BracketRight", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Backslash", unitWidth: "1.5U", type: "SYMBOL" },
+  ],
+  // ROW 3
+  [
+    { keyCapId: "CapsLock", unitWidth: "1.75U", type: "SYSTEM" },
+    { keyCapId: "KeyA", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyS", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyD", unitWidth: "1U", type: "SYMBOL", homeKeyMarker: "BAR" },
+    { keyCapId: "KeyF", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyG", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyH", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyJ", unitWidth: "1U", type: "SYMBOL", homeKeyMarker: "BAR" },
+    { keyCapId: "KeyK", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyL", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Semicolon", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Quote", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Enter", unitWidth: "2U", type: "SYSTEM" },
+  ],
+  // ROW 4
+  [
+    { keyCapId: "ShiftLeft", unitWidth: "2U", type: "MODIFIER" },
+    { keyCapId: "KeyZ", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyX", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyC", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyV", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyB", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyN", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "KeyM", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Comma", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Period", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Slash", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "ShiftRight", unitWidth: "2U", type: "MODIFIER" },
+  ],
+  // ROW 5
+  [
+    { keyCapId: "ControlLeft", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "MetaLeft", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "AltLeft", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "Space", unitWidth: "5U", type: "SYMBOL" },
+    { keyCapId: "AltRight", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "MetaRight", unitWidth: "1.25U", type: "MODIFIER" }, // ADDED MetaRight
+    { keyCapId: "Fn", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "ContextMenu", unitWidth: "1.25U", type: "SYSTEM" },
+    { keyCapId: "ControlRight", unitWidth: "1.25U", type: "MODIFIER" }
+  ]
+]
+

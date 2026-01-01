@@ -1,17 +1,20 @@
+/**
+ * @file Утилиты для работы с потоком символов (`TypingStream`).
+ * @description Содержит функции для создания, обновления и анализа потока,
+ * который представляет собой упражнение для пользователя.
+ */
 import { TypingStream, StreamAttempt, StreamSymbol, FlowLineSymbolType, TypedKey } from '@/interfaces/types';
 import { getKeyCapIdsForChar, nbsp, sp } from './symbol-utils';
 
 /**
- * Creates a TypingStream from a string, where each character is a StreamSymbol
- * with no attempts yet. It skips characters that don't have a corresponding SymbolKey.
- *
- * @param text The input string to convert into a TypingStream.
- * @returns A TypingStream array.
+ * Создает `TypingStream` из строки.
+ * Каждый символ строки, поддерживаемый раскладкой, преобразуется в `StreamSymbol`.
+ * @param text Входная строка для преобразования.
+ * @returns Массив `TypingStream`.
  */
 export function createTypingStream(text: string): TypingStream {
   const stream: TypingStream = [];
   for (const char of text.split('')) {
-    // Check if the character is supported by the layout
     const keyCapIds = getKeyCapIdsForChar(char);
     if (keyCapIds) {
       stream.push({
@@ -24,15 +27,15 @@ export function createTypingStream(text: string): TypingStream {
 }
 
 /**
- * Adds a new attempt to a symbol in the TypingStream at a given position.
- * This function is immutable and returns a new stream.
- *
- * @param stream The original TypingStream.
- * @param cursorPosition The index of the symbol to add the attempt to.
- * @param typedKey The TypedKey that was typed.
- * @param startAt The start time of the attempt.
- * @param endAt The end time of the attempt.
- * @returns A new TypingStream with the added attempt.
+ * Добавляет новую попытку набора к символу в `TypingStream`.
+ * Функция иммутабельна и возвращает новый экземпляр потока.
+ * @param params - Параметры для добавления попытки.
+ * @param params.stream - Исходный `TypingStream`.
+ * @param params.cursorPosition - Индекс символа, к которому добавляется попытка.
+ * @param params.typedKey - Данные о нажатой клавише.
+ * @param params.startAt - Время начала попытки (timestamp).
+ * @param params.endAt - Время окончания попытки (timestamp).
+ * @returns Новый `TypingStream` с добавленной попыткой.
  */
 export function addAttempt({
   stream,
@@ -47,12 +50,11 @@ export function addAttempt({
   startAt: number;
   endAt: number;
 }): TypingStream {
-  // Return original stream if position is out of bounds
   if (cursorPosition < 0 || cursorPosition >= stream.length) {
     return stream;
   }
 
-  const newStream = [...stream]; // Shallow copy of the array
+  const newStream = [...stream];
   const targetSymbol = newStream[cursorPosition];
 
   const newAttempt: StreamAttempt = {
@@ -61,10 +63,8 @@ export function addAttempt({
     endAt,
   };
 
-  // Create a new attempts array by adding the new attempt
   const newAttempts = [...targetSymbol.attempts, newAttempt];
 
-  // Create a new StreamSymbol object for the modified position
   newStream[cursorPosition] = {
     ...targetSymbol,
     attempts: newAttempts,
@@ -74,7 +74,9 @@ export function addAttempt({
 }
 
 /**
- * Determines the visual state (symbolType) of a stream symbol based on its attempts.
+ * Определяет визуальное состояние (`FlowLineSymbolType`) символа потока на основе истории его попыток.
+ * @param symbol Объект `StreamSymbol` для анализа.
+ * @returns Тип состояния символа для `FlowLine`.
  */
 export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   const { attempts } = symbol ?? {};
@@ -87,21 +89,21 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   const isCorrect = lastAttempt.typedKey.isCorrect;
 
   if (isCorrect) {
-    // If the last attempt is correct, it's either CORRECT (1st try) or FIXED (after errors).
     return attempts.length > 1 ? "CORRECTED" : "CORRECT";
   } else {
-    // If the last attempt is incorrect, it's either an ERROR (1st try) or ERRORS (multiple).
     return attempts.length > 1 ? "INCORRECTS" : "INCORRECT";
   }
 }
 
 /**
- * Returns the character to be displayed, converting space to a non-breaking space.
+ * Возвращает символ для отображения.
+ * Преобразует обычный пробел в неразрывный пробел (`&nbsp;`) для корректного рендеринга в HTML.
+ * @param symbol Объект `StreamSymbol`.
+ * @returns Символ для отображения.
  */
 export const getSymbolChar = (symbol?: StreamSymbol): string => {
   const char = symbol?.targetSymbol;
   if (!char) {
-    // Returning a non-breaking space for empty chars to maintain layout
     return nbsp;
   }
   return char === sp ? nbsp : char;
