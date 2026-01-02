@@ -1,12 +1,12 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { FingerState } from "@/interfaces/types";
+import { FINGER_STATES } from "@/interfaces/types";
 
 import { Hands } from './hands';
 
 const fingerOptions = {
-  options: ["INACTIVE", "ACTIVE", "INCORRECT", "IDLE"] satisfies FingerState[],
+  options: FINGER_STATES,
   control: "inline-radio",
 } as const;
 

@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { KeyCapHomeKeyMarker, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+import {
+  KEY_CAP_HOME_KEY_MARKERS,
+  KEY_CAP_NAVIGATION_ROLES,
+  KEY_CAP_PRESS_RESULTS,
+  KEY_CAP_SYMBOL_SIZES,
+  KEY_CAP_UNIT_WIDTHS,
+  VISIBILITY_STATES,
+} from "@/interfaces/types";
 
 import { KeyCap } from './keycap';
 
@@ -25,31 +32,31 @@ const meta = {
 
   argTypes: {
     visibility: {
-      options: ["VISIBLE", "INVISIBLE"] satisfies Visibility[],
+      options: VISIBILITY_STATES,
       control: "inline-radio",
     },
     homeKeyMarker: {
-      options: ["NONE", "BAR", "DOT"] satisfies KeyCapHomeKeyMarker[],
+      options: KEY_CAP_HOME_KEY_MARKERS,
       control: "inline-radio",
     },
     navigationRole: {
-      options: ["IDLE", "HOME", "PATH", "TARGET"] satisfies KeyCapNavigationRole[],
+      options: KEY_CAP_NAVIGATION_ROLES,
       control: "inline-radio",
     },
     unitWidth: {
-      options: ["1U", "1.25U", "1.5U", "1.75U", "2U", "5U"] satisfies KeyCapUnitWidth[],
+      options: KEY_CAP_UNIT_WIDTHS,
       control: "inline-radio",
     },
     symbolSize: {
-      options: ["MD", "SM", "XS"] satisfies KeyCapSymbolSize[],
+      options: KEY_CAP_SYMBOL_SIZES,
       control: "inline-radio",
     },
     pressResult: {
-      options: ["NEUTRAL", "CORRECT", "INCORRECT"]  satisfies KeyCapPressResult[],
+      options: KEY_CAP_PRESS_RESULTS,
       control: "inline-radio",
     },
     centerPointVisibility: {
-      options: ["VISIBLE", "INVISIBLE"] satisfies Visibility[],
+      options: VISIBILITY_STATES,
       control: "inline-radio",
     },
 

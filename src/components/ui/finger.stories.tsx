@@ -1,7 +1,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { FingerId, FingerState } from "@/interfaces/types";
+import { LEFT_HAND_FINGER_IDS, FINGER_STATES } from "@/interfaces/types";
 
 import { Finger } from "./finger";
 
@@ -10,11 +10,11 @@ const meta = {
   component: Finger,
   argTypes: {
     part: {
-      options: ["L1", "L2", "L3", "L4", "L5", "LB"] satisfies FingerId[],
+      options: LEFT_HAND_FINGER_IDS,
       control: "inline-radio",
     },
     state: {
-      options: ["IDLE", "ACTIVE", "INACTIVE", "INCORRECT"]  satisfies FingerState[],
+      options: FINGER_STATES,
       control: "inline-radio",
     }
   },

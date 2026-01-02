@@ -1,53 +1,66 @@
+/**
+ * ВНИМАНИЕ!
+ * Этот файл содержит не только определения типов, но и важные JSDoc-комментарии,
+ * которые описывают семантику и назначение этих типов.
+ * При рефакторинге или добавлении новых типов, пожалуйста, сохраняйте
+ * существующие комментарии. Они являются частью документации и единого языка проекта.
+ */
 import { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 
 export type KeyCapLabel = { symbol?: string };
+
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
-export type KeyCapHomeKeyMarker = "BAR" | "DOT" | "NONE";
+export const KEY_CAP_HOME_KEY_MARKERS = ["BAR", "DOT", "NONE"] as const;
+export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
+
 /**
  * Определяет навигационную роль клавиши в текущем упражнении.
  * Используется для визуальных подсказок пользователю.
  */
-export type KeyCapNavigationRole =
-  /** Клавиша не участвует в текущей навигации. */
-  | "IDLE"
-  /** Исходная позиция пальца для текущего нажатия (якорная клавиша). */
-  | "HOME"
-  /** Клавиша находится на пути движения пальца от 'HOME' к 'TARGET'. */
-  | "PATH"
-  /** Целевая клавиша, которую необходимо нажать. */
-  | "TARGET";
+export const KEY_CAP_NAVIGATION_ROLES = [
+  "IDLE", // Клавиша не участвует в текущей навигации.
+  "HOME", // Исходная позиция пальца для текущего нажатия (якорная клавиша).
+  "PATH", // Клавиша находится на пути движения пальца от 'HOME' к 'TARGET'.
+  "TARGET", // Целевая клавиша, которую необходимо нажать.
+] as const;
+export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
 
 /** Результат нажатия клавиши пользователем. */
-export type KeyCapPressResult =
-  /** Нейтральное состояние, нажатие еще не оценено. */
-  | "NEUTRAL"
-  /** Нажатие было правильным. */
-  | "CORRECT"
-  /** Нажатие было ошибочным. */
-  | "INCORRECT";
+export const KEY_CAP_PRESS_RESULTS = [
+  "NEUTRAL", // Нейтральное состояние, нажатие еще не оценено.
+  "CORRECT", // Нажатие было правильным.
+  "INCORRECT", // Нажатие было ошибочным.
+] as const;
+export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 
 /** Стандартные размеры ширины клавиш, выраженные в "юнитах" (1U ~ 19мм). */
-export type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "5U";
+export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "5U"] as const;
+export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
+
 /** Группа цвета клавиши для визуального разделения. */
-export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
+export const KEY_CAP_COLOR_GROUPS = ["PRIMARY", "SECONDARY", "ACCENT"] as const;
+export type KeyCapColorGroup = typeof KEY_CAP_COLOR_GROUPS[number];
+
 /**
  * Функциональный тип клавиши.
  * @see /TASKS.md
  */
-export type KeyCapType =
-  /** Клавиша, вводящая символ (буква, цифра, знак). */
-  | "SYMBOL"
-  /** Системная/управляющая клавиша (Enter, Backspace, Tab). */
-  | "SYSTEM"
-  /** Клавиша-модификатор (Shift, Alt, Ctrl). */
-  | "MODIFIER";
+export const KEY_CAP_TYPES = [
+  "SYMBOL", // Клавиша, вводящая символ (буква, цифра, знак).
+  "SYSTEM", // Системная/управляющая клавиша (Enter, Backspace, Tab).
+  "MODIFIER", // Клавиша-модификатор (Shift, Alt, Ctrl).
+] as const;
+export type KeyCapType = typeof KEY_CAP_TYPES[number];
 
 /** Размер символа (легенды) на клавише. */
-export type KeyCapSymbolSize = "MD" | "SM" | "XS";
+export const KEY_CAP_SYMBOL_SIZES = ["MD", "SM", "XS"] as const;
+export type KeyCapSymbolSize = typeof KEY_CAP_SYMBOL_SIZES[number];
+
 /** Видимость UI элемента. */
-export type Visibility = "INVISIBLE" | "VISIBLE";
+export const VISIBILITY_STATES = ["INVISIBLE", "VISIBLE"] as const;
+export type Visibility = typeof VISIBILITY_STATES[number];
 
 // --- Finger and Hand Types ---
 
@@ -74,7 +87,8 @@ export type RightHandFingerId = typeof RIGHT_HAND_FINGER_IDS[number];
 export type FingerId = LeftHandFingerId | RightHandFingerId;
 
 /** Состояние отдельного пальца. */
-export type FingerState = "IDLE" | "ACTIVE" | "INACTIVE" | "INCORRECT";
+export const FINGER_STATES = ["IDLE", "ACTIVE", "INACTIVE", "INCORRECT"] as const;
+export type FingerState = typeof FINGER_STATES[number];
 
 /** Объединение всех идентификаторов пальцев и кистей. */
 export type HandFingerId = FingerId;
@@ -82,15 +96,24 @@ export type HandFingerId = FingerId;
 // --- FlowLine Types ---
 
 /** Состояние компонента FlowLine. */
-export type FlowLineState = "START" | "TYPING" | "PAUSE" | "END"
+export const FLOW_LINE_STATES = ["START", "TYPING", "PAUSE", "END"] as const;
+export type FlowLineState = typeof FLOW_LINE_STATES[number];
+
 /** Тип курсора в FlowLine. */
-export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL"
+export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as const;
+export type FlowLineCursorType = typeof FLOW_LINE_CURSOR_TYPES[number];
+
 /** Состояние отдельного символа в FlowLine. */
-export type FlowLineSymbolType = "PENDING" | "CORRECT" | "INCORRECT" | "INCORRECTS" | "CORRECTED"
+export const FLOW_LINE_SYMBOL_TYPES = ["PENDING", "CORRECT", "INCORRECT", "INCORRECTS", "CORRECTED"] as const;
+export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
+
 /** Размер шрифта в FlowLine. */
-export type FlowLineSize = "XS" | "SM" | "MD" |"LG" | "XL"
+export const FLOW_LINE_SIZES = ["XS", "SM", "MD", "LG", "XL"] as const;
+export type FlowLineSize = typeof FLOW_LINE_SIZES[number];
+
 /** Режим отображения курсора в FlowLine. */
-export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC"
+export const FLOW_LINE_CURSOR_MODES = ["HALF", "THIRD", "QUARTER", "DINAMIC"] as const;
+export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
 
 // --- Typing Stream and Attempts ---
 

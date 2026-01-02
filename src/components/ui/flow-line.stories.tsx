@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, TypedKey,TypingStream } from '@/interfaces/types';
+import {
+  FLOW_LINE_CURSOR_MODES,
+  FLOW_LINE_CURSOR_TYPES,
+  FLOW_LINE_SIZES,
+  TypedKey,
+  TypingStream
+} from '@/interfaces/types';
 import { addAttempt,createTypingStream } from '@/lib/stream-utils';
 import { getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
 
@@ -29,15 +35,15 @@ const meta = {
     className: { control: false },
     cursorPosition: { control: { type: 'number', min: 0 } },
     cursorType: {
-      options: ["VERTICAL", "UNDERSCORE", "RECTANGLE"] satisfies FlowLineCursorType[],
+      options: FLOW_LINE_CURSOR_TYPES,
       control: "inline-radio",
     },
     size: {
-      options: ["XS", "SM", "MD", "LG", "XL"] satisfies FlowLineSize[],
+      options: FLOW_LINE_SIZES,
       control: "inline-radio",
     },
     cursorMode: {
-      options: ["HALF", "THIRD", "QUARTER", "DINAMIC"] satisfies FlowLineCursorMode[],
+      options: FLOW_LINE_CURSOR_MODES,
       control: "inline-radio",
     },
   },
