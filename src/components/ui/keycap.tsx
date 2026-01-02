@@ -6,7 +6,7 @@
  */
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { FingerId,KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapLabel, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+import { FingerId,KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapId, KeyCapLabel, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 import { cn } from "@/lib/utils"
 
 /**
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
  * Определяет, как клавиша должна выглядеть в зависимости от ее состояния и свойств.
  */
 const keyCapVariants = cva(
-  `flex items-center justify-center relative rounded-sm h-8 
+  `flex items-center justify-center relative rounded-sm h-8
   [&_.keycap-marker]:bg-slate-500`,
   {
     variants: {
@@ -131,6 +131,7 @@ const keyCapVariants = cva(
 export type KeyCapProps = React.ComponentProps<"div">
   & VariantProps<typeof keyCapVariants>
   & KeyCapLabel
+  & { keyCapId: KeyCapId };
 
 /**
  * Компонент `KeyCap` отображает одну клавишу виртуальной клавиатуры.
@@ -146,6 +147,16 @@ export type KeyCapProps = React.ComponentProps<"div">
  * @param props.isHomeKey - Флаг, указывающий, является ли клавиша домашней.
  * @param props.fingerId - Идентификатор пальца, связанного с клавишей.
  * @param props.symbol - Символ, отображаемый на клавише.
+ * @param props.keyCapId - Уникальный идентификатор клавиши.
+ *
+ * @architectural_notes
+ * - **data-keycap-id**: Этот атрибут добавляется в DOM для уникальной идентификации
+ *   каждой клавиши. Он используется для поиска конкретной клавиши (например,
+ *   домашней клавиши пальца) в логике позиционирования других компонентов.
+ * - **keycap-center-point**: Этот невидимый `div` в центре клавиши служит "якорем"
+ *   для выравнивания. Его координаты считываются для точного совмещения
+ *   клавиатурного кластера с соответствующим пальцем в компоненте `HandsExt`.
+ *
  * @returns Элемент JSX, представляющий клавишу.
  */
 export function KeyCap({
@@ -160,10 +171,12 @@ export function KeyCap({
   isHomeKey,
   fingerId,
   symbol = "A",
+  keyCapId,
   ...props
 }: KeyCapProps) {
   return (
     <div
+      data-keycap-id={keyCapId}
       className={cn(
         keyCapVariants({
           visibility,

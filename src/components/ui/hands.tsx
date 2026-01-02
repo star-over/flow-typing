@@ -4,6 +4,14 @@
  * палец и основание кисти могут быть индивидуально подсвечены или изменены
  * в зависимости от состояния (`ACTIVE`, `INACTIVE`, `IDLE`, `INCORRECT`).
  * Используется SVG для отрисовки частей руки.
+ *
+ * @architectural_notes
+ * - **data-finger-id**: Каждый палец обернут в `<g>` с этим атрибутом для
+ *   уникальной идентификации в DOM.
+ * - **finger-center-point**: Внутри каждой группы пальца находится невидимый `<circle>`
+ *   с этим классом. Он служит "якорем" для вычисления положения подушечки пальца
+ *   и используется другими компонентами (например, `HandsExt`) для динамического
+ *   позиционирования элементов относительно пальца.
  */
 import { cva, type VariantProps } from 'class-variance-authority';
 import { JSX } from "react";
@@ -70,12 +78,29 @@ export function Hands(
         className="w-3xs"
         viewBox="0 0 281 321"
       >
-        <path className="L1" d={part1} />
-        <path className="L2" d={part2} />
-        <path className="L3" d={part3} />
-        <path className="L4" d={part4} />
-        <path className="L5" d={part5} />
-        <path className="LB" d={partB} />
+        <g data-finger-id="L1">
+          <path className="L1" d={part1} />
+          <circle cx="150" cy="225" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="L2">
+          <path className="L2" d={part2} />
+          <circle cx="210" cy="40" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="L3">
+          <path className="L3" d={part3} />
+          <circle cx="180" cy="25" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="L4">
+          <path className="L4" d={part4} />
+          <circle cx="90" cy="50" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="L5">
+          <path className="L5" d={part5} />
+          <circle cx="30" cy="60" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="LB">
+          <path className="LB" d={partB} />
+        </g>
       </svg>
 
       <div
@@ -86,12 +111,29 @@ export function Hands(
         className="w-3xs -scale-x-100"
         viewBox="0 0 281 321"
       >
-        <path className="R1" d={part1} />
-        <path className="R2" d={part2} />
-        <path className="R3" d={part3} />
-        <path className="R4" d={part4} />
-        <path className="R5" d={part5} />
-        <path className="RB" d={partB} />
+        <g data-finger-id="R1">
+          <path className="R1" d={part1} />
+          <circle cx="150" cy="225" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="R2">
+          <path className="R2" d={part2} />
+          <circle cx="210" cy="40" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="R3">
+          <path className="R3" d={part3} />
+          <circle cx="180" cy="25" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="R4">
+          <path className="R4" d={part4} />
+          <circle cx="90" cy="50" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="R5">
+          <path className="R5" d={part5} />
+          <circle cx="30" cy="60" r="5" fill="transparent" className="finger-center-point" />
+        </g>
+        <g data-finger-id="RB">
+          <path className="RB" d={partB} />
+        </g>
       </svg>
     </div>
   );
