@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import type { ActorRefFrom } from "xstate";
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { FingerId, FingerState, HandStates,KeyCapId } from "@/interfaces/types";
+import { FingerId, FingerState, KeyCapId } from "@/interfaces/types";
 import { getFingerByKeyCap,getKeyCapIdsForChar } from "@/lib/symbol-utils";
 import { trainingMachine } from "@/machines/training.machine";
 
@@ -91,7 +91,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
 
       <HandsExt
         highlightedFingerKeys={highlightedFingerKeys}
-        handStates={fingerStates as HandStates}
+        {...fingerStates}
       />
 
       {/* Кнопки для тестирования событий паузы/возобновления */}

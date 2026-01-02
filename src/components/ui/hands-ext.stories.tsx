@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { HandStates } from '@/interfaces/types';
-
+// Убран импорт HandStates, так как он больше не используется напрямую в props
 import { HandsExt } from './hands-ext';
 
 const meta = {
@@ -17,7 +16,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Mock hand states for demonstration
-const mockHandStates: HandStates = { // Explicitly cast to HandStates
+// Теперь эти состояния будут spread'иться напрямую в args
+const mockHandStates = {
   L5: "IDLE",
   L4: "IDLE",
   L3: "IDLE",
@@ -30,12 +30,12 @@ const mockHandStates: HandStates = { // Explicitly cast to HandStates
   R5: "IDLE",
   LB: "IDLE",
   RB: "IDLE",
-};
+} as const; // Используем as const для сохранения точных строковых литералов
 
 export const Default: Story = {
   args: {
     highlightedFingerKeys: {},
-    handStates: mockHandStates,
+    ...mockHandStates, // Распространяем состояния пальцев напрямую
   },
 };
 
@@ -45,11 +45,9 @@ export const ShiftFCombination: Story = {
       L2: ['KeyF'], // Left Index finger presses 'F'
       R5: ['ShiftRight'], // Right Pinky presses 'ShiftRight'
     },
-    handStates: {
-      ...mockHandStates,
-      L2: "ACTIVE",
-      R5: "ACTIVE",
-    },
+    ...mockHandStates, // Начинаем с состояний по умолчанию
+    L2: "ACTIVE", // Переопределяем конкретные состояния
+    R5: "ACTIVE",
   },
 };
 
@@ -58,10 +56,8 @@ export const SingleKeyPress: Story = {
     highlightedFingerKeys: {
       L2: ['KeyA'], // Left Index finger presses 'A'
     },
-    handStates: {
-      ...mockHandStates,
-      L2: "ACTIVE",
-    },
+    ...mockHandStates, // Начинаем с состояний по умолчанию
+    L2: "ACTIVE", // Переопределяем конкретное состояние
   },
 };
 

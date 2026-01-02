@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
-import { FingerId, FingerState, KeyCapId, VirtualKey, VirtualLayout } from '@/interfaces/types';
+import { FingerId, FingerState, KeyCapId, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
 import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
@@ -59,6 +59,10 @@ const partB = "M57.8 137.3c13.4 0 77 2.7 88.8 7.4 23 9 30.2 24.7 23.3 48.4a95 95
 const handsVariants = cva("",
   {
     variants: {
+      centerPointVisibility: {
+        VISIBLE: "[&_.finger-center-point]:fill-blue-500",
+        INVISIBLE: "[&_.finger-center-point]:fill-transparent",
+      } satisfies Record<Visibility, string>,
       L1: { ACTIVE: "[&_.L1]:fill-yellow-400", INACTIVE: "[&_.L1]:fill-orange-50", IDLE: "[&_.L1]:fill-gray-200", INCORRECT: "[&_.L1]:fill-rose-600", } satisfies Record<FingerState, string>,
       L2: { ACTIVE: "[&_.L2]:fill-orange-400", INACTIVE: "[&_.L2]:fill-orange-50", IDLE: "[&_.L2]:fill-gray-200", INCORRECT: "[&_.L2]:fill-rose-600", } satisfies Record<FingerState, string>,
       L3: { ACTIVE: "[&_.L3]:fill-green-400", INACTIVE: "[&_.L3]:fill-orange-50", IDLE: "[&_.L3]:fill-gray-200", INCORRECT: "[&_.L3]:fill-rose-600", } satisfies Record<FingerState, string>,
@@ -73,6 +77,7 @@ const handsVariants = cva("",
       RB: { ACTIVE: "[&_.RB]:fill-orange-50", INACTIVE: "[&_.RB]:fill-orange-50", IDLE: "[&_.RB]:fill-gray-200", INCORRECT: "[&_.RB]:fill-rose-600", } satisfies Record<FingerState, string>,
     },
     defaultVariants: {
+      centerPointVisibility: "INVISIBLE",
       L1: "IDLE", L2: "IDLE", L3: "IDLE", L4: "IDLE", L5: "IDLE", LB: "IDLE", R1: "IDLE", R2: "IDLE", R3: "IDLE", R4: "IDLE", R5: "IDLE", RB: "IDLE",
     },
   });
@@ -113,7 +118,7 @@ type HandsExtProps = React.ComponentProps<"div"> & VariantProps<typeof handsVari
  *       5. Эта дельта применяется как `transform: translate(X, Y)` к div-обертке
  *          соответствующей `VirtualKeyboard`, сдвигая ее в нужное положение.
  */
-export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, className, L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB, ...props }) => {
+export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, className, centerPointVisibility, L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB, ...props }) => {
   const fingerIds: FingerId[] = useMemo(() => ['L5', 'L4', 'L3', 'L2', 'L1', 'R1', 'R2', 'R3', 'R4', 'R5'], []);
   const keyboardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -167,25 +172,25 @@ export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, class
       {/* Hands SVG Layer */}
       <div
         className={cn(
-          handsVariants({ L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB }),
+          handsVariants({ centerPointVisibility, L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB }),
           "flex w-screen justify-center"
         )}
       >
         <svg className="w-3xs" viewBox="0 0 281 321">
-          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="150" cy="225" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="210" cy="40" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="180" cy="25" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="50" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="30" cy="60" r="5" fill="transparent" className="finger-center-point" /></g>
+          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="150" cy="225" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="210" cy="40" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="180" cy="25" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="50" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="30" cy="60" r="5" className="finger-center-point" /></g>
           <g data-finger-id="LB"><path className="LB" d={partB} /></g>
         </svg>
         <div className="w-12" />
         <svg className="w-3xs -scale-x-100" viewBox="0 0 281 321">
-          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="150" cy="225" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="210" cy="40" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="180" cy="25" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="50" r="5" fill="transparent" className="finger-center-point" /></g>
-          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="30" cy="60" r="5" fill="transparent" className="finger-center-point" /></g>
+          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="150" cy="225" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="210" cy="40" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="180" cy="25" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="50" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="30" cy="60" r="5" className="finger-center-point" /></g>
           <g data-finger-id="RB"><path className="RB" d={partB} /></g>
         </svg>
       </div>

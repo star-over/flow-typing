@@ -89,7 +89,7 @@ export function Trainer(
       <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />
       <HandsExt
         highlightedFingerKeys={highlightedFingerKeys}
-        handStates={state.handStates}
+        {...state.handStates}
       />
     </div>
   )

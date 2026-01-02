@@ -4,7 +4,10 @@
     "Imove",
     "INCORRECTS",
     "Ipart",
-    "NONUS"
+    "NONUS",
+    "spread'иться",
+    "отрисовывает",
+    "рендерингом"
 ],
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
