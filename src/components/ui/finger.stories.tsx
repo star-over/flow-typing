@@ -1,7 +1,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { LEFT_HAND_FINGER_IDS, FINGER_STATES } from "@/interfaces/types";
+import { FINGER_STATES,LEFT_HAND_FINGER_IDS } from "@/interfaces/types";
 
 import { Finger } from "./finger";
 
