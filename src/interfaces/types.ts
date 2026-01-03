@@ -246,7 +246,6 @@ export type HandStates = {
   [F in FingerId]: FingerState;
 };
 
-
 // --- XState Machine Types ---
 
 // App Machine Types
@@ -293,3 +292,32 @@ export type TrainingEvent =
   | { type: 'KEY_PRESS'; keys: KeyCapId[] }
   | { type: 'PAUSE_TRAINING' }
   | { type: 'RESUME_TRAINING' };
+
+// --- HandsScene ViewModel ---
+
+/**
+ * Полное визуальное состояние одной клавиши в сцене.
+ * @see /VisualContract.md
+ */
+export interface KeySceneState {
+  visibility: Visibility;
+  navigationRole: KeyCapNavigationRole;
+  pressResult: KeyCapPressResult;
+}
+
+/**
+ * Описывает полное состояние одного пальца и его "среза" сцены.
+ * @see /VisualContract.md
+ */
+export interface FingerSceneState {
+  fingerState: FingerState;
+  keyCapStates?: Record<KeyCapId, KeySceneState>;
+}
+
+/**
+ * Итоговая модель представления для сцены с руками: словарь состояний для всех 12 элементов.
+ * @see /VisualContract.md
+ */
+export type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
+
+

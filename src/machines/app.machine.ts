@@ -1,11 +1,28 @@
 import { createMachine, sendTo } from "xstate";
 
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { AppContext, AppEvent } from "@/interfaces/types"; // Import types from interfaces
 import { generateLesson } from "@/lib/lesson-generator";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
+
+// Local types for appMachine
+export interface AppContext {
+  user: { name: string } | null;
+  settings: {
+    theme: 'dark' | 'light';
+  };
+}
+
+export type AppEvent =
+  | { type: 'START_TRAINING' }
+  | { type: 'QUIT_TRAINING' }
+  | { type: 'GO_TO_SETTINGS' }
+  | { type: 'VIEW_STATS' }
+  | { type: 'BACK_TO_MENU' }
+  | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
+  | { type: 'KEY_UP'; keyCapId: KeyCapId }
+  | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
 
 export const appMachine = createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqB0BLAdlgLlsgDZYBeuUAxANoAMAuoqKgPawFas7MgAeiAJwBmQRkEAOAIwB2AKxy6AFhkA2eTIA0IAJ6IJAJgyqFciYLqqJwmUuFyAvg+1pMWCMTBUAygBUAggBKvgD6voH+AJIAcjEA4vRMSCBsHITcvAIIgkpKGEqqdBLW6jJ0NkraeggywnQYZdYGEnKCCqpKUk4u6NgeXnEA8mHD3gCivr7x3om8qZwZyVkiYpKyCspqGlWIwgb10gaKwqJydVKOziCufZ5UAGqRYwDqIX7+vjOMc+wLPEuIKQGToYYqCAxtKSqfYdSq6RCdPLFKQ5PaCC6CdHda69fAAJ2QuEoVAg3DA2BwADdWABrcn4wl4HBQbxgPGUrAAYzAs2S83S-1AWQMNgwdCkdWESgk8nsbR2CCUmIwwIKEgK8jaqhE2JuDKJzKobLxrDxGFQxGQ+AAZqaALYYfVMllsjnc3ksX4CzKIVSyFWFJQQqy1JRFBV+oyCDooqTq4QSSyXHqYJ3EgCKAFVIqFwlFYtEEt8+V6uIL+L7+QZA8GZVLw-DFeixYoZIm5NDxYZdb1YGB8IRmbAqAAhfwAYQA0iMQgBZMbRTMelKlxZCoSicTSeSKFTqORaRs2eqqBN0AwXSy5VloyHuYWD4K3DsdTmfzxfL-lln0IIEgsEQnIUIwrkCrCCYLYdEccbKHIBTJjiqYEgaUDjqwdoWv2XjvMEYQRDE8Sfqu5bCqK4qStKsqtHICpwaoYpWOY1hSqo2rCHejrIc6aEYZ4+BeERaTfgCCAijIYoSuUlFnNRCr7PUoiCGoFzgUq3ZXDcxqmqOE7Tr4wzvkuxaekJa4Vtkm5rDumz7oe1R+lI+Snmc0brBYShOFcOCsBAcC8K4PymSRiAALSqAqIVyOImKSHIgFKrIdAITcRKECQ5CUIFfw-ocGBAuBOQmAYxUqAq0gYHsEJHHYIguclvTuI4WXeiJUgqSqdRBnUMgWOYYFlKCSWYhc6rKHYqgcWmzLNcJ66KgmKpSHQkh0PILSQgqSoKdYbanLkxU2BxfYDpQ8AlkFOUXg0kjycV56lGB1YYB2MLgUc2oXuxGm9o++BnSZ2WtUGeQoqIMhAvsoP9cIFVDYmbVtMIcaTVxlA8Zh-EzWZWRBnJbX5GGS3lKtIhdhxYl4ljwUINYjl1OKcZnFYIhSBG+Onpe0aQsUEieQ4QA */

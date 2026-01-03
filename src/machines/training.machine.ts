@@ -7,8 +7,25 @@
 import { assign,createMachine } from 'xstate';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { TrainingContext, TrainingEvent, TypingStream } from '@/interfaces/types'; // Import types from interfaces
+import { FingerId, KeyCapId, TypingStream } from '@/interfaces/types';
 import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
+
+
+export interface TrainingContext {
+  stream: TypingStream;
+  currentIndex: number;
+  pressedKeys: KeyCapId[] | null;
+  errors: number;
+  targetKeyCapId: KeyCapId | undefined;
+  targetFingerId: FingerId | undefined;
+  shiftRequired: boolean;
+}
+
+export type TrainingEvent =
+  | { type: 'KEY_PRESS'; keys: KeyCapId[] }
+  | { type: 'PAUSE_TRAINING' }
+  | { type: 'RESUME_TRAINING' };
+
 
 /**
  * XState машина состояний для управления логикой тренировки.

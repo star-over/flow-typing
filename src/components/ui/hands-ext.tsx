@@ -10,6 +10,16 @@ import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
 
+/**
+ * @architectural_note
+ * Этот компонент в будущем должен быть отрефакторен для принятия единого `viewModel`
+ * типа `HandsSceneViewModel` из `src/interfaces/types.ts`.
+ * Вся логика по определению состояний пальцев и пропсов `highlightedFingerKeys`
+ * должна быть вынесена в слой мапперов, а `HandsExt` должен стать "тупым"
+ * компонентом, просто отрисовывающим полученную `viewModel`.
+ * @see /VisualContract.md
+ */
+
 const getSymbolForKeyCapId = (keyCapId: KeyCapId, shift: boolean): string => {
   for (const [symbolChar, keyCapIds] of Object.entries(symbolLayoutEnQwerty)) {
     const hasShift = keyCapIds.some(id => id.includes("Shift"));

@@ -10,12 +10,12 @@ describe('getKeyCapIdsForChar', () => {
 
   it('should return the correct KeyCapIds for an uppercase character', () => {
     const keyCapIds = getKeyCapIdsForChar('A');
-    expect(keyCapIds).toEqual(['KeyA', 'ShiftLeft']);
+    expect(keyCapIds).toEqual(['KeyA', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapIds for a symbol character', () => {
     const keyCapIds = getKeyCapIdsForChar('!');
-    expect(keyCapIds).toEqual(['Digit1', 'ShiftLeft']);
+    expect(keyCapIds).toEqual(['Digit1', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapId for a space character', () => {

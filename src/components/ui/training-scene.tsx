@@ -59,7 +59,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
     fingerStates[id] = "IDLE";
   });
   if (targetFingerId) {
-    fingerStates[targetFingerId] = "ACTIVE";
+    fingerStates[targetFingerId!] = "ACTIVE";
   }
 
   return (

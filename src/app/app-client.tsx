@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import { TrainingScene } from "@/components/ui/training-scene";
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { AppEvent } from "@/interfaces/types"; // Import AppEvent
+import { AppEvent } from "@/machines/app.machine"; // Import AppEvent from app.machine
 import { appMachine } from "@/machines/app.machine";
 
 export function AppClient() {

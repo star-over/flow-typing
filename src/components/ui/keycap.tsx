@@ -115,7 +115,7 @@ const keyCapVariants = cva(
     ],
 
     defaultVariants: {
-      visibility: "VISIBLE",
+      visibility: "INVISIBLE",
       centerPointVisibility: "INVISIBLE",
       navigationRole: "IDLE",
       unitWidth: "1U",
