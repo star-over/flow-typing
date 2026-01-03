@@ -37,8 +37,8 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     *   `INCORRECT`: Палец, который совершил ошибочное нажатие *не своей* клавиши (перепутал пальцы).
 
 2.  **Видимость клавиш (`keyCapStates`):**
-    *   Словарь `keyCapStates` определяется **только для `ACTIVE` и `INCORRECT` пальцев**. 
-    *   Для `INACTIVE` и `IDLE` пальцев это свойство отсутствует. UI-компонент не должен рендерить для них клавиатурный кластер. Так как по-умолчанию свойство `visibility` для клавиши установлено в `INVISIBLE` то отсутствие свойств означает отсутствие видимости клавишь для пальца.
+    *   Словарь `keyCapStates` определяется **только для `ACTIVE` пальцев**. 
+    *   Для `INACTIVE`, `IDLE` и `INCORRECT` пальцев это свойство отсутствует. UI-компонент не должен рендерить для них клавиатурный кластер.
     *   `keyCapStates` для активного пальца содержит **все клавиши из его кластера** (согласно `finger-layout-asdf.ts`).
     *   У всех клавиш, перечисленных в `keyCapStates`, свойство `visibility` должно быть установлено в `"VISIBLE"`.
 
@@ -48,10 +48,10 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
         * Нажатая по ошибке клавиша (`KeyI`) в своем кластере получает `pressResult: 'INCORRECT'`.
         * Целевая клавиша (`KeyK`) сохраняет `navigationRole: 'TARGET'`.
     * **Ошибка другого пальца:** (Цель `'k'`, нажата `'j'`).
-        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`.
+        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, чтобы продолжать подсвечивать цель.
         * Палец, который нажал не свою клавишу (`R2`), переходит в состояние `INCORRECT`.
-        * Отображаются **оба** кластера клавиш: и для `R3` (чтобы показать цель), и для `R2` (чтобы показать ошибку).
-        * У нажатой клавиши (`KeyJ`) `pressResult` становится `'INCORRECT'`.
+        * Кластер клавиш для ошибочного пальца (`R2`) **не отображается**. Подсвечивается только сам палец, сигнализируя об ошибке.
+        * Отображается только кластер для `ACTIVE` пальца (`R3`).
 
 ## 3. Примеры состояний
 
@@ -157,7 +157,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
       "Equal":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
       "Backspace":  { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
       "KeyP":       { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "BracketLeft":{ "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
+      "BracketLeft":{ "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
       "BracketRight":{ "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
       "Backslash":  { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
       "Enter":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
@@ -194,6 +194,39 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "INCORRECT" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+
+### Пример 5: Ошибка другого пальца
+
+*   **Задача:** Нажать `'k'`, но нажат `'j'`.
+*   **Анализ:** Целевой палец `R3` остается `ACTIVE`, чтобы показывать цель. Палец `R2`, совершивший ошибку, переходит в `INCORRECT`. Кластер клавиш для `R2` не отображается.
+
+```json
+{
+  "L1": { "fingerState": "IDLE" },
+  "L2": { "fingerState": "IDLE" },
+  "L3": { "fingerState": "IDLE" },
+  "L4": { "fingerState": "IDLE" },
+  "L5": { "fingerState": "IDLE" },
+  "LB": { "fingerState": "IDLE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": {
+    "fingerState": "INCORRECT"
+  },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
       "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" }
     }
