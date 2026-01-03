@@ -5,7 +5,6 @@
  * `FlowLine`, `HandsExt` и кнопки управления тренировкой.
  */
 import { useSelector } from "@xstate/react";
-import { useEffect } from "react";
 import type { ActorRefFrom } from "xstate";
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
@@ -62,23 +61,6 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   if (targetFingerId) {
     fingerStates[targetFingerId] = "ACTIVE";
   }
-
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Отправляем событие только для одиночных символов, игнорируя служебные клавиши
-      if (event.key.length === 1) {
-        event.preventDefault(); // Предотвращаем действие браузера по умолчанию
-        send({ type: 'KEY_PRESS', key: event.key });
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [send]);
 
   return (
     <div className="flex flex-col items-center gap-8">

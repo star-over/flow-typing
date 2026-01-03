@@ -245,3 +245,51 @@ export type VirtualLayout = VirtualKey[][];
 export type HandStates = {
   [F in FingerId]: FingerState;
 };
+
+
+// --- XState Machine Types ---
+
+// App Machine Types
+export interface AppContext {
+  user: { name: string } | null;
+  settings: {
+    theme: 'dark' | 'light';
+  };
+}
+
+export type AppEvent =
+  | { type: 'START_TRAINING' }
+  | { type: 'QUIT_TRAINING' }
+  | { type: 'GO_TO_SETTINGS' }
+  | { type: 'VIEW_STATS' }
+  | { type: 'BACK_TO_MENU' }
+  | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
+  | { type: 'KEY_UP'; keyCapId: KeyCapId }
+  | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
+
+// Keyboard Machine Types
+export interface KeyboardMachineContext {
+  pressedKeys: Set<KeyCapId>;
+  // parentActor will be typed as ActorRefFrom<AppMachine> in keyboard.machine.ts
+}
+
+export type KeyboardMachineEvent =
+  | { type: "KEY_DOWN"; keyCapId: KeyCapId }
+  | { type: "KEY_UP"; keyCapId: KeyCapId }
+  | { type: "RESET" };
+
+// Training Machine Types
+export interface TrainingContext {
+  stream: TypingStream;
+  currentIndex: number;
+  pressedKeys: KeyCapId[] | null;
+  errors: number;
+  targetKeyCapId: KeyCapId | undefined;
+  targetFingerId: FingerId | undefined;
+  shiftRequired: boolean;
+}
+
+export type TrainingEvent =
+  | { type: 'KEY_PRESS'; keys: KeyCapId[] }
+  | { type: 'PAUSE_TRAINING' }
+  | { type: 'RESUME_TRAINING' };

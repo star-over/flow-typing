@@ -1,8 +1,11 @@
 "use client";
 
 import { useMachine } from "@xstate/react";
+import { useEffect } from "react";
 
 import { TrainingScene } from "@/components/ui/training-scene";
+import { KeyCapId } from "@/interfaces/key-cap-id";
+import { AppEvent } from "@/interfaces/types"; // Import AppEvent
 import { appMachine } from "@/machines/app.machine";
 
 export function AppClient() {
@@ -10,6 +13,33 @@ export function AppClient() {
 
   // Access the invoked training actor if it exists
   const trainingActor = state.children.trainingService;
+
+  /**
+   * АРХИТЕКТУРНОЕ РЕШЕНИЕ:
+   * Этот `useEffect` является единственной точкой входа для всех событий
+   * клавиатуры в приложении. Он перехватывает нажатия и отпускания клавиш,
+   * и, не анализируя их, отправляет в главную машину состояний (`appMachine`).
+   * Это гарантирует, что вся логика обработки ввода централизована в машинах состояний.
+   */
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const appEvent: AppEvent = { type: "KEY_DOWN", keyCapId: event.code as KeyCapId };
+      send(appEvent);
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const appEvent: AppEvent = { type: "KEY_UP", keyCapId: event.code as KeyCapId };
+      send(appEvent);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [send]);
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">

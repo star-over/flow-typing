@@ -7,41 +7,8 @@
 import { assign,createMachine } from 'xstate';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { KeyCapId } from '@/interfaces/key-cap-id';
-import { FingerId, TypingStream } from '@/interfaces/types';
+import { TrainingContext, TrainingEvent, TypingStream } from '@/interfaces/types'; // Import types from interfaces
 import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
-
-/**
- * Контекст (расширенные данные) машины состояний тренировки.
- * Содержит все динамические данные, необходимые для работы машины.
- */
-interface TrainingContext {
-  /** Поток символов для набора. */
-  stream: TypingStream;
-  /** Текущий индекс символа в потоке, который необходимо набрать. */
-  currentIndex: number;
-  /** Последняя нажатая пользователем клавиша. */
-  pressedKey: string | null;
-  /** Количество допущенных ошибок. */
-  errors: number;
-  /** `KeyCapId` целевой клавиши, которую необходимо нажать. */
-  targetKeyCapId: KeyCapId | undefined;
-  /** `FingerId` пальца, который должен нажать целевую клавишу. */
-  targetFingerId: FingerId | undefined;
-  /** Флаг, указывающий, требуется ли нажатие Shift для текущего символа. */
-  shiftRequired: boolean;
-}
-
-/**
- * Типы событий, которые могут быть отправлены в машину состояний тренировки.
- */
-type TrainingEvent =
-  /** Событие нажатия клавиши пользователем. */
-  | { type: 'KEY_PRESS'; key: string }
-  /** Событие паузы тренировки. */
-  | { type: 'PAUSE_TRAINING' }
-  /** Событие возобновления тренировки. */
-  | { type: 'RESUME_TRAINING' };
 
 /**
  * XState машина состояний для управления логикой тренировки.
@@ -59,7 +26,7 @@ export const trainingMachine = createMachine({
   context: ({ input }) => ({
     stream: input.stream,
     currentIndex: 0,
-    pressedKey: null,
+    pressedKeys: null,
     errors: 0,
     targetKeyCapId: undefined,
     targetFingerId: undefined,
@@ -96,7 +63,7 @@ export const trainingMachine = createMachine({
         KEY_PRESS: {
           target: 'processingInput',
           actions: assign({
-            pressedKey: ({ event }) => event.key,
+            pressedKeys: ({ event }) => event.keys,
           }),
         },
       },
@@ -105,9 +72,19 @@ export const trainingMachine = createMachine({
       always: [
         {
           target: 'correctInput',
-          guard: ({ context }) => {
-            const currentSymbol = context.stream[context.currentIndex]?.targetSymbol;
-            return context.pressedKey === currentSymbol;
+          guard: ({ context, event }) => {
+            if (event.type !== 'KEY_PRESS') return false;
+
+            const targetSymbol = context.stream[context.currentIndex]?.targetSymbol;
+            if (!targetSymbol) return false;
+
+            const requiredKeyCaps = getKeyCapIdsForChar(targetSymbol);
+            if (!requiredKeyCaps) return false;
+
+            const pressedKeysSet = new Set(event.keys);
+            
+            // Check if all required keys are in the pressed keys set
+            return requiredKeyCaps.every(key => pressedKeysSet.has(key));
           },
         },
         { target: 'incorrectInput' },
