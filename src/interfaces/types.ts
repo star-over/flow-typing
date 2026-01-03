@@ -27,6 +27,7 @@ export const KEY_CAP_NAVIGATION_ROLES = [
 ] as const;
 export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
 
+// TODO: Rename NEUTRAL to IDLE for consistency
 /** Результат нажатия клавиши пользователем. */
 export const KEY_CAP_PRESS_RESULTS = [
   "NEUTRAL", // Нейтральное состояние, нажатие еще не оценено.

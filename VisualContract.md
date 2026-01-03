@@ -34,13 +34,24 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     *   `ACTIVE`: Палец, непосредственно выполняющий действие (нажатие целевой или модифицирующей клавиши).
     *   `INACTIVE`: "Соседний" палец на той же руке, где есть `ACTIVE` или `INCORRECT` палец.
     *   `IDLE`: Любой палец на полностью неактивной руке.
-    *   `INCORRECT`: Палец, который совершил ошибочное нажатие.
+    *   `INCORRECT`: Палец, который совершил ошибочное нажатие *не своей* клавиши (перепутал пальцы).
 
 2.  **Видимость клавиш (`keyCapStates`):**
-    *   Словарь `keyCapStates` определяется **только для `ACTIVE` пальцев**. 
+    *   Словарь `keyCapStates` определяется **только для `ACTIVE` и `INCORRECT` пальцев**. 
     *   Для `INACTIVE` и `IDLE` пальцев это свойство отсутствует. UI-компонент не должен рендерить для них клавиатурный кластер. Так как по-умолчанию свойство `visibility` для клавиши установлено в `INVISIBLE` то отсутствие свойств означает отсутствие видимости клавишь для пальца.
     *   `keyCapStates` для активного пальца содержит **все клавиши из его кластера** (согласно `finger-layout-asdf.ts`).
     *   У всех клавиш, перечисленных в `keyCapStates`, свойство `visibility` должно быть установлено в `"VISIBLE"`.
+
+3. **Обработка ошибок**
+    * **Ошибка в пределах одного пальца:** (Цель `'k'`, нажата `'i'`).
+        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, так как цель все еще актуальна.
+        * Нажатая по ошибке клавиша (`KeyI`) в своем кластере получает `pressResult: 'INCORRECT'`.
+        * Целевая клавиша (`KeyK`) сохраняет `navigationRole: 'TARGET'`.
+    * **Ошибка другого пальца:** (Цель `'k'`, нажата `'j'`).
+        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`.
+        * Палец, который нажал не свою клавишу (`R2`), переходит в состояние `INCORRECT`.
+        * Отображаются **оба** кластера клавиш: и для `R3` (чтобы показать цель), и для `R2` (чтобы показать ошибку).
+        * У нажатой клавиши (`KeyJ`) `pressResult` становится `'INCORRECT'`.
 
 ## 3. Примеры состояний
 
@@ -158,6 +169,37 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
       "ContextMenu":{ "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" }
     }
   },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+
+### Пример 4: Ошибка в пределах одного пальца
+
+*   **Задача:** Нажать `'k'`, но нажат `'i'`.
+*   **Анализ:** Оба действия выполняет палец `R3`. Целевой палец остается `ACTIVE`, чтобы подсвечивать цель. Нажатая клавиша `'i'` получает статус ошибки.
+
+```json
+{
+  "L1": { "fingerState": "IDLE" },
+  "L2": { "fingerState": "IDLE" },
+  "L3": { "fingerState": "IDLE" },
+  "L4": { "fingerState": "IDLE" },
+  "L5": { "fingerState": "IDLE" },
+  "LB": { "fingerState": "IDLE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": { "fingerState": "INACTIVE" },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "INCORRECT" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
   "RB": { "fingerState": "INACTIVE" }
 }
 ```
