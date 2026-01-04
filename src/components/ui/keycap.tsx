@@ -231,7 +231,7 @@ export function KeyCap({
           w-0.5 h-0.5 rounded-full bg-red-400"
       />
 
-
+      {/* ------- ARROW --------- */}
       <div className='keycap-path-arrow absolute z-10'>
 
         <svg width="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">

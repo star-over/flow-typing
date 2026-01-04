@@ -38,6 +38,11 @@ const meta = {
       options: VISIBILITY_STATES,
       control: "inline-radio",
     },
+    isHomeKey: {
+      name: 'Is It Home Key',
+      control: 'boolean',
+      description: 'Toggle to switch between Home key and not',
+    },
     fingerId: {
       options: [...LEFT_HAND_FINGER_IDS, ...RIGHT_HAND_FINGER_IDS],
       control: "inline-radio",
@@ -87,8 +92,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    symbol: "G",
-    keyCapId: 'KeyG',
+    isHomeKey: false,
     fingerId: meta.argTypes.fingerId.options[0],
     visibility: meta.argTypes.visibility.options[0],
     homeKeyMarker: meta.argTypes.homeKeyMarker.options[0],
@@ -98,6 +102,8 @@ export const Default: Story = {
     symbolSize: meta.argTypes.symbolSize.options[0],
     pressResult: meta.argTypes.pressResult.options[0],
     centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
+    symbol: "G",
+    keyCapId: 'KeyG',
   },
   render: (args) => <KeyCap {...args} />
 };
