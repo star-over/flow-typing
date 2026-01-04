@@ -47,11 +47,28 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
         * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, так как цель все еще актуальна.
         * Нажатая по ошибке клавиша (`KeyI`) в своем кластере получает `pressResult: 'INCORRECT'`.
         * Целевая клавиша (`KeyK`) сохраняет `navigationRole: 'TARGET'`.
-    * **Ошибка другого пальца:** (Цель `'k'`, нажата `'j'`).
+    * **Ошибка другого пальца (та же рука):** (Цель `'k'`, нажата `'j'`).
         * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, чтобы продолжать подсвечивать цель.
         * Палец, который нажал не свою клавишу (`R2`), переходит в состояние `INCORRECT`.
-        * Кластер клавиш для ошибочного пальца (`R2`) **не отображается**. Подсвечивается только сам палец, сигнализируя об ошибке.
+        * Кластер клавиш для ошибочного пальца (`R2`) **не отображается**. Подсвечивается только сам палец.
         * Отображается только кластер для `ACTIVE` пальца (`R3`).
+    * **Ошибка другой рукой:** (Цель `'k'`, нажата `'f'`).
+        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`.
+        * Палец, который нажал не свою клавишу (`L2`), переходит в `INCORRECT`.
+        * Обе руки считаются "задействованными", поэтому все остальные пальцы на обеих руках переходят в состояние `INACTIVE`.
+    * **Ошибка с ненужным модификатором:** (Цель `'k'`, нажато `Shift + K`).
+        * Целевой палец (`R3`) нажал правильную клавишу, но сама попытка неверна. Он остается `ACTIVE`, чтобы показывать цель. В его кластере `KeyK` получает `pressResult: 'INCORRECT'`.
+        * Палец, нажавший ненужный модификатор (`L5` или `R5`), переходит в `INCORRECT`.
+        * Остальные пальцы на задействованных руках переходят в `INACTIVE`.
+    * **Ошибка с пропущенным модификатором:** (Цель `K`, нажато `k`).
+        * Оба пальца, которые должны были участвовать в аккорде (`L5` и `R3`), переходят в состояние `ACTIVE`, чтобы показать полную цель.
+        * Нажатая клавиша (`KeyK`) получает `pressResult: 'CORRECT'`, так как само действие было верным.
+        * Ненажатая клавиша-модификатор (`ShiftLeft`) получает `pressResult: 'INCORRECT'`, сигнализируя о пропуске.
+    * **Ошибка в аккорде (верный модификатор, неверная клавиша):** (Цель `K`, нажато `J`).
+        * Пальцы, составляющие цель (`L5` и `R3`), остаются `ACTIVE`.
+        * Палец, нажавший верный модификатор (`L5`), получает `pressResult: 'CORRECT'`.
+        * Палец, который должен был нажать основную клавишу (`R3`), не действовал, поэтому `pressResult` для `KeyK` — `NEUTRAL`.
+        * Палец, совершивший ошибку (`R2`), переходит в `INCORRECT`.
 
 ## 3. Примеры состояний
 
@@ -204,7 +221,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 }
 ```
 
-### Пример 5: Ошибка другого пальца
+### Пример 5: Ошибка другого пальца (та же рука)
 
 *   **Задача:** Нажать `'k'`, но нажат `'j'`.
 *   **Анализ:** Целевой палец `R3` остается `ACTIVE`, чтобы показывать цель. Палец `R2`, совершивший ошибку, переходит в `INCORRECT`. Кластер клавиш для `R2` не отображается.
@@ -229,6 +246,151 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
       "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+
+### Пример 6: Ошибка другой рукой
+
+*   **Задача:** Нажать `'k'`, но нажат `'f'`.
+*   **Анализ:** Целевой палец `R3` (правая рука) остается `ACTIVE`. Палец `L2` (левая рука), совершивший ошибку, переходит в `INCORRECT`. Так как задействованы обе руки, все остальные пальцы на обеих руках переходят в состояние `INACTIVE`.
+
+```json
+{
+  "L1": { "fingerState": "INACTIVE" },
+  "L2": { "fingerState": "INCORRECT" },
+  "L3": { "fingerState": "INACTIVE" },
+  "L4": { "fingerState": "INACTIVE" },
+  "L5": { "fingerState": "INACTIVE" },
+  "LB": { "fingerState": "INACTIVE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": { "fingerState": "INACTIVE" },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+
+### Пример 7: Ошибка с ненужным модификатором
+
+*   **Задача:** Нажать `'k'`, но нажат `Shift + K`.
+*   **Анализ:** Нажата верная основная клавиша (`KeyK`), но с лишним модификатором. Целевой палец `R3` остается `ACTIVE`, но сама клавиша `KeyK` получает `pressResult: 'INCORRECT'`. Палец `L5`, нажавший `ShiftLeft`, отмечается как `INCORRECT`. Все остальные пальцы на обеих руках становятся `INACTIVE`.
+
+```json
+{
+  "L1": { "fingerState": "INACTIVE" },
+  "L2": { "fingerState": "INACTIVE" },
+  "L3": { "fingerState": "INACTIVE" },
+  "L4": { "fingerState": "INACTIVE" },
+  "L5": { "fingerState": "INCORRECT" },
+  "LB": { "fingerState": "INACTIVE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": { "fingerState": "INACTIVE" },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "INCORRECT" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+### Пример 8: Ошибка с пропущенным модификатором
+
+*   **Задача:** Нажать `'K'`, но нажат `k`.
+*   **Анализ:** Нажата правильная основная клавиша (`KeyK`), но пропущен `Shift`. Оба пальца (`L5` и `R3`) должны быть `ACTIVE`, чтобы показать полный целевой аккорд. Нажатая `KeyK` получает `pressResult: 'CORRECT'`, так как действие само по себе было верным. Пропущенная `ShiftLeft` получает `pressResult: 'INCORRECT'`.
+
+```json
+{
+  "L1": { "fingerState": "INACTIVE" },
+  "L2": { "fingerState": "INACTIVE" },
+  "L3": { "fingerState": "INACTIVE" },
+  "L4": { "fingerState": "INACTIVE" },
+  "L5": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "ShiftLeft": { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "INCORRECT" },
+      "Tab": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "CapsLock": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyA": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyZ": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Backquote": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Digit1": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
+    }
+  },
+  "LB": { "fingerState": "INACTIVE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": { "fingerState": "INACTIVE" },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "CORRECT" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
+    }
+  },
+  "R4": { "fingerState": "INACTIVE" },
+  "R5": { "fingerState": "INACTIVE" },
+  "RB": { "fingerState": "INACTIVE" }
+}
+```
+
+### Пример 9: Ошибка в аккорде (верный модификатор, неверная клавиша)
+
+*   **Задача:** Нажать `'K'` (Shift + k), но нажат `J` (Shift + j).
+*   **Анализ:** Пользователь верно нажал модификатор `ShiftLeft` (`L5`), но ошибся с основной клавишей. Пальцы, составляющие цель (`L5` и `R3`), остаются `ACTIVE`. Палец, нажавший верный модификатор (`L5`), получает `pressResult: 'CORRECT'`. Ненажатая целевая клавиша (`KeyK`) остается с `pressResult: 'NEUTRAL'`. Ошибочный палец `R2` переходит в `INCORRECT`.
+
+```json
+{
+  "L1": { "fingerState": "INACTIVE" },
+  "L2": { "fingerState": "INACTIVE" },
+  "L3": { "fingerState": "INACTIVE" },
+  "L4": { "fingerState": "INACTIVE" },
+  "L5": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "ShiftLeft": { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "CORRECT" },
+      "Tab": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "CapsLock": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyA": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyZ": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Backquote": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Digit1": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
+    }
+  },
+  "LB": { "fingerState": "INACTIVE" },
+
+  "R1": { "fingerState": "INACTIVE" },
+  "R2": { "fingerState": "INCORRECT" },
+  "R3": {
+    "fingerState": "ACTIVE",
+    "keyCapStates": {
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
     }
   },
   "R4": { "fingerState": "INACTIVE" },
