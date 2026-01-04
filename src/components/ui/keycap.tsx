@@ -1,12 +1,12 @@
 /**
- * @file Компонент `KeyCap` для отображения одной физической клавиши.
+* @file Компонент `KeyCap` для отображения одной физической клавиши.
  * @description Этот компонент является базовым строительным блоком для виртуальной клавиатуры.
  * Он отвечает за визуализацию клавиши, ее символа, маркеров (например, для домашнего ряда)
  * и динамических состояний (видимость, результат нажатия, навигационная роль).
  */
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { FingerId,KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapId, KeyCapLabel, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+import { FingerId, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapId, KeyCapLabel, KeyCapNavigationArrowFrom, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 import { cn } from "@/lib/utils"
 
 /**
@@ -63,10 +63,9 @@ const keyCapVariants = cva(
 
       /** Маркер для домашнего ряда (например, черточка или точка). */
       homeKeyMarker: {
-        BAR: "",
         DOT: "[&_.keycap-marker]:w-1 [&_.keycap-marker]:h-1",
         NONE: "[&_.keycap-marker]:invisible",
-      } satisfies Record<KeyCapHomeKeyMarker, string>,
+      } satisfies Partial<Record<KeyCapHomeKeyMarker, string>>,
 
       /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
       isHomeKey: {
@@ -78,7 +77,6 @@ const keyCapVariants = cva(
       fingerId: {
         L1: "bg-stone-50 border-stone-300 outline-stone-300",
         R1: "bg-stone-50 border-stone-300 outline-stone-300",
-
         L5: "bg-purple-50  border-purple-300  outline-purple-300 ",
         L4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
         L3: "bg-sky-50     border-sky-300     outline-sky-300    ",
@@ -90,15 +88,35 @@ const keyCapVariants = cva(
 
         LB: "",
         RB: "",
-      } satisfies Record<FingerId, string>,
+      } satisfies Partial<Record<FingerId, string>>,
 
-      /** Навигационная роль клавиши. */
+      /** Навигационная роль клавиши по движению к целевой клавише. */
       navigationRole: {
         IDLE:   "text-slate-300",
         HOME:   "",
         PATH:   "text-lime-600 bg-green-100 ",
         TARGET: "text-lime-700  bg-green-300 outline-2 outline-green-700",
       } satisfies Record<KeyCapNavigationRole, string>,
+
+      /** Стрелка направления движения пальца к клавише. */
+      navigationArrowFrom: {
+        NONE:  '[&_.keycap-path-arrow]:invisible',
+        TOP:   `[&_.keycap-path-arrow]:rotate-180
+                [&_.keycap-path-arrow]:-top-1/3 
+                [&_.keycap-path-arrow]:left-1/2
+                [&_.keycap-path-arrow]:-translate-x-1/2`,
+        BOTTOM:`[&_.keycap-path-arrow]:-bottom-1/3
+                [&_.keycap-path-arrow]:left-1/2
+                [&_.keycap-path-arrow]:-translate-x-1/2`,
+        LEFT:  `[&_.keycap-path-arrow]:rotate-90
+                [&_.keycap-path-arrow]:top-1/2
+                [&_.keycap-path-arrow]:-left-1/3
+                [&_.keycap-path-arrow]:-translate-y-1/2`,
+        RIGHT: `[&_.keycap-path-arrow]:-rotate-90
+                [&_.keycap-path-arrow]:top-1/2
+                [&_.keycap-path-arrow]:-right-1/3
+                [&_.keycap-path-arrow]:-translate-y-1/2`,
+      } satisfies Record<KeyCapNavigationArrowFrom, string>,
     },
 
     compoundVariants: [
@@ -115,7 +133,7 @@ const keyCapVariants = cva(
     ],
 
     defaultVariants: {
-      visibility: "INVISIBLE",
+      visibility: "VISIBLE",
       centerPointVisibility: "INVISIBLE",
       navigationRole: "IDLE",
       unitWidth: "1U",
@@ -123,6 +141,7 @@ const keyCapVariants = cva(
       colorGroup: "PRIMARY",
       pressResult: "NEUTRAL",
       homeKeyMarker: "NONE",
+      navigationArrowFrom: "NONE",
       isHomeKey: false,
     },
   });
@@ -139,6 +158,7 @@ export type KeyCapProps = React.ComponentProps<"div">
  * @param props.visibility - Определяет видимость клавиши.
  * @param props.centerPointVisibility - Определяет видимость центральной точки.
  * @param props.navigationRole - Определяет навигационную роль клавиши.
+ * @param props.navigationArrow - Определяет направление стрелки для движения пальца к целевой клавише..
  * @param props.unitWidth - Определяет ширину клавиши.
  * @param props.colorGroup - Определяет цветовую группу клавиши.
  * @param props.pressResult - Определяет результат нажатия клавиши.
@@ -163,6 +183,7 @@ export function KeyCap({
   visibility,
   centerPointVisibility,
   navigationRole,
+  navigationArrowFrom: navigationArrow,
   unitWidth,
   colorGroup,
   pressResult,
@@ -185,6 +206,7 @@ export function KeyCap({
           isHomeKey,
           fingerId,
           navigationRole,
+          navigationArrowFrom: navigationArrow,
           unitWidth,
           symbolSize,
           colorGroup,
@@ -205,9 +227,28 @@ export function KeyCap({
 
       {/* ------- CENTER --------- */}
       <div
-        className="keycap-center-point absolute top-1/2 left-1/2 -translate-x-1/2
-          -translate-y-1/2 w-0.5 h-0.5 rounded-full bg-red-400"
+        className="keycap-center-point absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          w-0.5 h-0.5 rounded-full bg-red-400"
       />
+
+
+      <div className='keycap-path-arrow absolute z-10'>
+
+        <svg width="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <mask id="path-1-inside-1_119_57" fill="white">
+            <path fillRule="evenodd" clipRule="evenodd" d="M27 21L13.5 0L0 21H5.70578V28H20.9231V21H27Z" />
+          </mask>
+          <path fillRule="evenodd" clipRule="evenodd" d="M27 21L13.5 0L0 21H5.70578V28H20.9231V21H27Z" fill="#27AE60" fillOpacity="0.7" />
+          <path fillRule="evenodd" clipRule="evenodd" d="M27 21L13.5 0L0 21H5.70578V28H20.9231V21H27Z" fill="url(#paint0_linear_119_57)" fillOpacity="0.8" />
+          <path d="M13.5 0L14.3412 -0.540758L13.5 -1.84926L12.6588 -0.540758L13.5 0ZM27 21V22H28.8317L27.8412 20.4592L27 21ZM0 21L-0.841178 20.4592L-1.83167 22H0V21ZM5.70578 21H6.70578V20H5.70578V21ZM5.70578 28H4.70578V29H5.70578V28ZM20.9231 28V29H21.9231V28H20.9231ZM20.9231 21V20H19.9231V21H20.9231ZM12.6588 0.540758L26.1588 21.5408L27.8412 20.4592L14.3412 -0.540758L12.6588 0.540758ZM0.841178 21.5408L14.3412 0.540758L12.6588 -0.540758L-0.841178 20.4592L0.841178 21.5408ZM5.70578 20H0V22H5.70578V20ZM6.70578 28V21H4.70578V28H6.70578ZM20.9231 27H5.70578V29H20.9231V27ZM19.9231 21V28H21.9231V21H19.9231ZM27 20H20.9231V22H27V20Z" fill="#2A9852" fillOpacity="0.2" mask="url(#path-1-inside-1_119_57)" />
+          <defs>
+            <linearGradient id="paint0_linear_119_57" x1="13.5" y1="0" x2="13.5" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#24FF00" />
+              <stop offset="1" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
     </div>
   )
 }

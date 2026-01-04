@@ -12,7 +12,7 @@ export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 export type KeyCapLabel = { symbol?: string };
 
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
-export const KEY_CAP_HOME_KEY_MARKERS = ["BAR", "DOT", "NONE"] as const;
+export const KEY_CAP_HOME_KEY_MARKERS = ["NONE", "BAR", "DOT"] as const;
 export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
 
 /**
@@ -26,6 +26,20 @@ export const KEY_CAP_NAVIGATION_ROLES = [
   "TARGET", // Целевая клавиша, которую необходимо нажать.
 ] as const;
 export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
+
+
+/**
+ * Определяет навигационную роль клавиши в текущем упражнении.
+ * Используется для визуальных стрелок направления движения пальца к клавише
+ */
+export const KEY_CAP_NAVIGATION_ARROWS_FROM = [
+  "NONE",   // Стрелка не отображается.
+  "TOP",     // Отображается стрелка c верху.
+  "RIGHT",  // Отображается стрелка с права.
+  "BOTTOM",   // Отображается стрелка с низу.
+  "LEFT",   // Отображается стрелка с лева.
+] as const;
+export type KeyCapNavigationArrowFrom = typeof KEY_CAP_NAVIGATION_ARROWS_FROM[number];
 
 // TODO: Rename NEUTRAL to IDLE for consistency
 /** Результат нажатия клавиши пользователем. */
@@ -69,6 +83,10 @@ export type Visibility = typeof VISIBILITY_STATES[number];
 export const LEFT_HAND_FINGER_IDS = ["L1", "L2", "L3", "L4", "L5", "LB"] as const;
 /** Константы для идентификаторов пальцев правой руки. */
 export const RIGHT_HAND_FINGER_IDS = ["R1", "R2", "R3", "R4", "R5", "RB"] as const;
+// /** Константы для идентификаторов ладони левой руки. */
+// export const LEFT_HAND_BASE = "LB" as const;
+// /** Константы для идентификаторов ладони правой руки. */
+// export const RIGHT_HAND_BASE = "RB" as const;
 
 /** Идентификаторы пальцев левой руки. */
 export type LeftHandFingerId = typeof LEFT_HAND_FINGER_IDS[number];
@@ -320,5 +338,3 @@ export interface FingerSceneState {
  * @see /VisualContract.md
  */
 export type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
-
-

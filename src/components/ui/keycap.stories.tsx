@@ -3,10 +3,13 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import {
   KEY_CAP_HOME_KEY_MARKERS,
+  KEY_CAP_NAVIGATION_ARROWS_FROM,
   KEY_CAP_NAVIGATION_ROLES,
   KEY_CAP_PRESS_RESULTS,
   KEY_CAP_SYMBOL_SIZES,
   KEY_CAP_UNIT_WIDTHS,
+  LEFT_HAND_FINGER_IDS,
+  RIGHT_HAND_FINGER_IDS,
   VISIBILITY_STATES,
 } from "@/interfaces/types";
 
@@ -35,12 +38,20 @@ const meta = {
       options: VISIBILITY_STATES,
       control: "inline-radio",
     },
-    homeKeyMarker: {
-      options: KEY_CAP_HOME_KEY_MARKERS,
+    fingerId: {
+      options: [...LEFT_HAND_FINGER_IDS, ...RIGHT_HAND_FINGER_IDS],
       control: "inline-radio",
     },
     navigationRole: {
       options: KEY_CAP_NAVIGATION_ROLES,
+      control: "inline-radio",
+    },
+    navigationArrowFrom: {
+      options: KEY_CAP_NAVIGATION_ARROWS_FROM,
+      control: "inline-radio",
+    },
+    homeKeyMarker: {
+      options: KEY_CAP_HOME_KEY_MARKERS,
       control: "inline-radio",
     },
     unitWidth: {
@@ -76,15 +87,17 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    symbol: "A",
-    keyCapId: 'KeyA',
+    symbol: "G",
+    keyCapId: 'KeyG',
+    fingerId: meta.argTypes.fingerId.options[0],
     visibility: meta.argTypes.visibility.options[0],
     homeKeyMarker: meta.argTypes.homeKeyMarker.options[0],
     navigationRole: meta.argTypes.navigationRole.options[0],
+    navigationArrowFrom: meta.argTypes.navigationArrowFrom.options[0],
     unitWidth: meta.argTypes.unitWidth.options[0],
     symbolSize: meta.argTypes.symbolSize.options[0],
     pressResult: meta.argTypes.pressResult.options[0],
     centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
   },
-  // render: (args) => <KeyCap {...args} />
+  render: (args) => <KeyCap {...args} />
 };
