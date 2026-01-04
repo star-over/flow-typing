@@ -20,9 +20,8 @@ export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
  * Используется для визуальных подсказок пользователю.
  */
 export const KEY_CAP_NAVIGATION_ROLES = [
-  "IDLE", // Клавиша не участвует в текущей навигации.
-  "HOME", // Исходная позиция пальца для текущего нажатия (якорная клавиша).
-  "PATH", // Клавиша находится на пути движения пальца от 'HOME' к 'TARGET'.
+  "NONE", // Клавиша не участвует в текущей навигации.
+  "PATH", // Клавиша находится на пути движения пальца к 'TARGET'.
   "TARGET", // Целевая клавиша, которую необходимо нажать.
 ] as const;
 export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];

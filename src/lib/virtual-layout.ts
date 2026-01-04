@@ -189,11 +189,9 @@ export function findPath(options: FindPathOptions): VirtualLayout {
             : "INVISIBLE",
           navigationRole: isTarget
             ? "TARGET"
-            : isHome
-              ? "HOME"
-              : isPath
-                ? "PATH"
-                : "IDLE",
+            : (isHome || isPath)
+              ? "PATH"
+              : "NONE",
         }
       }
     )

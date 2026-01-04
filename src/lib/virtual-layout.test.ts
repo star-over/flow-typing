@@ -7,7 +7,7 @@ import { VirtualKey } from "../interfaces/types";
 import { findPath } from "./virtual-layout";
 
 describe("findPath", () => {
-  it("should correctly identify HOME, TARGET, and PATH keys for target '5'", () => {
+  it("should correctly identify PATH and TARGET keys for target '5'", () => {
     const options = {
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
@@ -27,7 +27,7 @@ describe("findPath", () => {
 
     // Home key
     const homeKey = getKey("KeyF");
-    expect(homeKey?.navigationRole).toBe("HOME");
+    expect(homeKey?.navigationRole).toBe("PATH");
 
     // Target key
     const targetKey = getKey("Digit5");
@@ -42,6 +42,6 @@ describe("findPath", () => {
 
     // Other keys for the same finger should be IDLE
     const idleKey = getKey("KeyT");
-    expect(idleKey?.navigationRole).toBe("IDLE");
+    expect(idleKey?.navigationRole).toBe("NONE");
   });
 });

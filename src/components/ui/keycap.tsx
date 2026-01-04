@@ -63,6 +63,7 @@ const keyCapVariants = cva(
 
       /** Маркер для домашнего ряда (например, черточка или точка). */
       homeKeyMarker: {
+        BAR: "",
         DOT: "[&_.keycap-marker]:w-1 [&_.keycap-marker]:h-1",
         NONE: "[&_.keycap-marker]:invisible",
       } satisfies Partial<Record<KeyCapHomeKeyMarker, string>>,
@@ -92,8 +93,7 @@ const keyCapVariants = cva(
 
       /** Навигационная роль клавиши по движению к целевой клавише. */
       navigationRole: {
-        IDLE:   "text-slate-300",
-        HOME:   "",
+        NONE:   "text-slate-300",
         PATH:   "text-lime-600 bg-green-100 ",
         TARGET: "text-lime-700  bg-green-300 outline-2 outline-green-700",
       } satisfies Record<KeyCapNavigationRole, string>,
@@ -121,7 +121,7 @@ const keyCapVariants = cva(
 
     compoundVariants: [
       {
-        navigationRole: ["HOME", "TARGET"],
+        navigationRole: ["TARGET"],
         pressResult: "INCORRECT",
         class: "outline-red-300",
       },
@@ -135,7 +135,7 @@ const keyCapVariants = cva(
     defaultVariants: {
       visibility: "VISIBLE",
       centerPointVisibility: "INVISIBLE",
-      navigationRole: "IDLE",
+      navigationRole: "NONE",
       unitWidth: "1U",
       symbolSize: "MD",
       colorGroup: "PRIMARY",

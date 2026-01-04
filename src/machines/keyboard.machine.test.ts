@@ -1,52 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { assign, createActor, createMachine, sendTo } from "xstate";
 
-import { KeyboardMachineEvent,KeyCapId } from "@/interfaces/types"; // Import types from interfaces
+import { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
 
 import { keyboardMachine,KeyboardMachineEvent } from "./keyboard.machine";
-
-// Test parent machine to receive events from the keyboard machine
-const testParentMachine = createMachine({
-  id: "testParent",
-  initial: "active",
-  context: {
-    recognizedKeyHistory: [] as KeyCapId[][], // Change to history
-  },
-  types: {} as { events: { type: "KEY_DOWN"; keyCapId: KeyCapId } | { type: "KEY_UP"; keyCapId: KeyCapId } | { type: "RESET" } | { type: "KEYBOARD.RECOGNIZED"; keys: KeyCapId[] } },
-  invoke: {
-    id: "keyboard",
-    src: keyboardMachine,
-    input: ({ self }) => ({ parentActor: self }), // Pass the testParentMachine's actor reference
-  },
-  on: {
-    "KEY_DOWN": {
-      actions: sendTo("keyboard", ({ event }) => ({
-        type: "KEY_DOWN",
-        keyCapId: event.keyCapId,
-      })),
-    },
-    "KEY_UP": {
-      actions: sendTo("keyboard", ({ event }) => ({
-        type: "KEY_UP",
-        keyCapId: event.keyCapId,
-      })),
-    },
-    "RESET": {
-      actions: sendTo("keyboard", { type: "RESET" }),
-    },
-    "KEYBOARD.RECOGNIZED": {
-      actions: assign({
-        recognizedKeyHistory: ({ context, event }) => [
-          ...context.recognizedKeyHistory,
-          event.keys,
-        ],
-      }),
-    },
-  },
-  states: {
-    active: {},
-  },
-});
 
 // Test parent machine to receive events from the keyboard machine
 const testParentMachine = createMachine({

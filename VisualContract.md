@@ -12,7 +12,7 @@
 // Полное визуальное состояние одной клавиши
 interface KeySceneState {
   visibility: Visibility;               // VISIBLE, INVISIBLE
-  navigationRole: KeyCapNavigationRole; // IDLE, HOME, PATH, TARGET
+  navigationRole: KeyCapNavigationRole; // NONE, PATH, TARGET
   pressResult: KeyCapPressResult;       // NEUTRAL, CORRECT, INCORRECT
 }
 
@@ -74,10 +74,10 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R3": {
     "fingerState": "ACTIVE",
     "keyCapStates": {
-      "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
-      "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" }
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
     }
   },
   "R4": { "fingerState": "INACTIVE" }, 
@@ -101,8 +101,8 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     "keyCapStates": {
       "Digit2": { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
       "KeyW":   { "visibility": "VISIBLE", "navigationRole": "PATH",   "pressResult": "NEUTRAL" },
-      "KeyS":   { "visibility": "VISIBLE", "navigationRole": "HOME",   "pressResult": "NEUTRAL" },
-      "KeyX":   { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" }
+      "KeyS":   { "visibility": "VISIBLE", "navigationRole": "PATH",   "pressResult": "NEUTRAL" },
+      "KeyX":   { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" }
     }
   },
   "L5": { "fingerState": "INACTIVE" }, 
@@ -128,13 +128,13 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     "fingerState": "ACTIVE",
     "keyCapStates": {
       "KeyF":     { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
-      "Digit4":   { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "Digit5":   { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyR":     { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyT":     { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyG":     { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyV":     { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "KeyB":     { "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" }
+      "Digit4":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Digit5":   { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyR":     { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyT":     { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyG":     { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyV":     { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "KeyB":     { "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" }
     }
   },
   "L3": { "fingerState": "INACTIVE" }, 
@@ -149,24 +149,24 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R5": {
     "fingerState": "ACTIVE",
     "keyCapStates": {
-      "Semicolon":  { "visibility": "VISIBLE", "navigationRole": "HOME",   "pressResult": "NEUTRAL" },
+      "Semicolon":  { "visibility": "VISIBLE", "navigationRole": "PATH",   "pressResult": "NEUTRAL" },
       "Quote":      { "visibility": "VISIBLE", "navigationRole": "PATH",   "pressResult": "NEUTRAL" },
       "ShiftRight": { "visibility": "VISIBLE", "navigationRole": "TARGET", "pressResult": "NEUTRAL" },
-      "Digit0":     { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Minus":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Equal":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Backspace":  { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "KeyP":       { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "BracketLeft":{ "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "BracketRight":{ "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "Backslash":  { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Enter":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Slash":      { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "ControlRight":{ "visibility": "VISIBLE", "navigationRole": "IDLE", "pressResult": "NEUTRAL" },
-      "MetaRight":  { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "AltRight":   { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "Fn":         { "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" },
-      "ContextMenu":{ "visibility": "VISIBLE", "navigationRole": "IDLE",   "pressResult": "NEUTRAL" }
+      "Digit0":     { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Minus":      { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Equal":      { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Backspace":  { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "KeyP":       { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "BracketLeft":{ "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "BracketRight":{ "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "Backslash":  { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Enter":      { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Slash":      { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "ControlRight":{ "visibility": "VISIBLE", "navigationRole": "NONE", "pressResult": "NEUTRAL" },
+      "MetaRight":  { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "AltRight":   { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "Fn":         { "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" },
+      "ContextMenu":{ "visibility": "VISIBLE", "navigationRole": "NONE",   "pressResult": "NEUTRAL" }
     }
   },
   "RB": { "fingerState": "INACTIVE" }
@@ -192,10 +192,10 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R3": {
     "fingerState": "ACTIVE",
     "keyCapStates": {
-      "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
-      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "INCORRECT" },
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "INCORRECT" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
-      "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" }
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" }
     }
   },
   "R4": { "fingerState": "INACTIVE" },
@@ -225,10 +225,10 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R3": {
     "fingerState": "ACTIVE",
     "keyCapStates": {
-      "Digit8": { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
-      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" },
+      "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "pressResult": "NEUTRAL" },
-      "Comma":  { "visibility": "VISIBLE", "navigationRole": "IDLE",      "pressResult": "NEUTRAL" }
+      "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE",      "pressResult": "NEUTRAL" }
     }
   },
   "R4": { "fingerState": "INACTIVE" },

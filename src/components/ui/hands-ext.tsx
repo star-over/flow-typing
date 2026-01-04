@@ -50,7 +50,7 @@ const getFingerVirtualLayout = (fingerId: FingerId, highlightedKeys: KeyCapId[])
         fingerId: fingerData?.fingerId || 'L1',
         isHomeKey: fingerData?.isHomeKey,
         visibility: isKeyForCurrentFinger && isHighlighted ? 'VISIBLE' : 'INVISIBLE',
-        navigationRole: isKeyForCurrentFinger && isHighlighted ? 'TARGET' : 'IDLE',
+        navigationRole: isKeyForCurrentFinger && isHighlighted ? 'TARGET' : 'NONE',
       };
     })
   );
