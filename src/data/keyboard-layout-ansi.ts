@@ -77,19 +77,19 @@ export const keyboardLayoutANSI: KeyboardLayout = [
     { keyCapId: "Comma", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "Period", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "Slash", unitWidth: "1U", type: "SYMBOL" },
-    { keyCapId: "ShiftRight", unitWidth: "2U", type: "MODIFIER" },
+    { keyCapId: "ShiftRight", unitWidth: "2.5U", type: "MODIFIER" },
   ],
   // ROW 5
   [
+    { keyCapId: "Fn", unitWidth: "1.25U", type: "SYSTEM" },
     { keyCapId: "ControlLeft", unitWidth: "1.25U", type: "MODIFIER" },
-    { keyCapId: "MetaLeft", unitWidth: "1.25U", type: "MODIFIER" },
     { keyCapId: "AltLeft", unitWidth: "1.25U", type: "MODIFIER" },
-    { keyCapId: "Space", unitWidth: "5U", type: "SYMBOL" },
+    { keyCapId: "MetaLeft", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "SpaceLeft", unitWidth: "3U", type: "SYMBOL" },
+    { keyCapId: "SpaceRight", unitWidth: "3U", type: "SYMBOL" },
+    { keyCapId: "MetaRight", unitWidth: "1.25U", type: "MODIFIER" },
     { keyCapId: "AltRight", unitWidth: "1.25U", type: "MODIFIER" },
-    { keyCapId: "MetaRight", unitWidth: "1.25U", type: "MODIFIER" }, // ADDED MetaRight
     { keyCapId: "Fn", unitWidth: "1.25U", type: "MODIFIER" },
-    { keyCapId: "ContextMenu", unitWidth: "1.25U", type: "SYSTEM" },
     { keyCapId: "ControlRight", unitWidth: "1.25U", type: "MODIFIER" }
   ]
 ]
-

@@ -50,7 +50,7 @@ export const KEY_CAP_PRESS_RESULTS = [
 export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 
 /** Стандартные размеры ширины клавиш, выраженные в "юнитах" (1U ~ 19мм). */
-export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "5U"] as const;
+export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "2.5U", "3U", "5U"] as const;
 export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 
 /** Группа цвета клавиши для визуального разделения. */

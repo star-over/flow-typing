@@ -51,7 +51,9 @@ const keyCapVariants = cva(
         "1.5U":  "w-13",
         "1.75U": "w-15",
         "2U":    "w-19",
-        "5U":    "w-42",
+        "2.5U":  "w-24",
+        "3U":    "w-18",
+        "5U":    "w-38",
       } satisfies Record<KeyCapUnitWidth, string>,
 
       /** Цветовая группа клавиши. */
