@@ -5,9 +5,10 @@
  * `FlowLine`, `HandsExt` и кнопки управления тренировкой.
  */
 import { useSelector } from "@xstate/react";
-import type { ActorRefFrom } from "xstate";
+import type { ActorRefFrom, SnapshotFrom } from "xstate";
 
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
+import { appMachine } from "@/machines/app.machine";
 import { trainingMachine } from "@/machines/training.machine";
 
 import { FlowLine } from "./flow-line";
@@ -16,7 +17,8 @@ import { HandsExt } from "./hands-ext";
 /** Пропсы для компонента `TrainingScene`. */
 type TrainingSceneProps = {
   /** Актор (живой экземпляр) запущенной `trainingMachine`. */
-  actor: ActorRefFrom<typeof trainingMachine>;
+  trainingActor: ActorRefFrom<typeof trainingMachine>;
+  appState: SnapshotFrom<typeof appMachine>;
 };
 
 /**
@@ -24,22 +26,22 @@ type TrainingSceneProps = {
  * Он подключается к XState-машине `trainingMachine` для получения состояния
  * и отправки событий, а также отображает `FlowLine`, `HandsExt` и элементы управления.
  * @param props Пропсы компонента.
- * @param props.actor Актор `trainingMachine`.
+ * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ actor }: TrainingSceneProps) => {
-  const state = useSelector(actor, (snapshot) => snapshot);
-  const send = actor.send;
-  const { stream, currentIndex } = state.context;
+export const TrainingScene = ({ trainingActor, appState }: TrainingSceneProps) => {
+  const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
+  const send = trainingActor.send;
+  const { stream, currentIndex } = trainingState.context;
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel = generateHandsSceneViewModel(state);
+  const viewModel = generateHandsSceneViewModel(appState);
 
   return (
     <div className="flex flex-col items-center gap-8">
       <h2 className="text-2xl font-semibold">Training In Progress</h2>
       <p>
-        Training Machine State: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{state.value.toString()}</code>
+        Training Machine State: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{trainingState.value.toString()}</code>
       </p>
 
       <FlowLine stream={stream} cursorPosition={currentIndex} />
@@ -47,7 +49,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
       <HandsExt viewModel={viewModel} />
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
-      {state.matches('paused') ? (
+      {trainingState.matches('paused') ? (
         <button
           onClick={() => send({ type: 'RESUME_TRAINING' })}
           className="p-2 mt-4 bg-green-500 text-white rounded"

@@ -1,10 +1,12 @@
-import { AppContext, AppEvent } from '@/machines/app.machine';
-import { HandsSceneViewModel, FingerId, FingerState, KeySceneState, KeyCapId } from '@/interfaces/types';
-import { getFingerByKeyCap } from './symbol-utils';
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
+import { SnapshotFrom } from 'xstate';
 
-// This is a placeholder for the actual state type from the app machine
-type AppMachineState = any;
+import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
+import { FingerId, FingerState, HandsSceneViewModel, KeyCapId,KeySceneState } from '@/interfaces/types';
+import { appMachine } from '@/machines/app.machine';
+
+import { getFingerByKeyCap } from './symbol-utils';
+
+type AppMachineState = SnapshotFrom<typeof appMachine>;
 
 /**
  * Generates the complete HandsSceneViewModel from the current state of the app machine.
@@ -13,8 +15,8 @@ type AppMachineState = any;
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
 export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneViewModel {
-  const trainingContext = state.context.trainingRef?.getSnapshot()?.context;
-  const keyboardContext = state.context.keyboardRef?.getSnapshot()?.context;
+  const trainingContext = state.children.trainingService?.getSnapshot()?.context;
+  const keyboardContext = state.children.keyboardService?.getSnapshot()?.context;
 
   if (!trainingContext || !keyboardContext) {
     // Return an idle view model if machines are not ready

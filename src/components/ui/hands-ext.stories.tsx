@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { HandsSceneViewModel } from '@/interfaces/types';
+
 import { HandsExt } from './hands-ext';
 
 // --- Mock ViewModel Data ---

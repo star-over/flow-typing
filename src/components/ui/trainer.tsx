@@ -8,6 +8,7 @@ import { JSX, useReducer } from "react";
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { FingerId, KeyCapId, TypedKey } from "@/interfaces/types";
+import { HandsSceneViewModel, KeySceneState } from "@/interfaces/types";
 import { getFingerByKeyCap,getKeyCapIdsForChar, isShiftRequired, isTextKey } from "@/lib/symbol-utils";
 import {
   initialTrainerState,
@@ -15,7 +16,6 @@ import {
   TrainerActionTypes,
 } from "@/store/trainer-store";
 
-import { HandsSceneViewModel, KeySceneState } from "@/interfaces/types";
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
 

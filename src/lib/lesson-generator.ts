@@ -1,5 +1,5 @@
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { FingerId, KeyCapId, LEFT_HAND_FINGER_IDS, RIGHT_HAND_FINGER_IDS, StreamSymbol,TypingStream } from "@/interfaces/types";
+import { FingerId, KeyCapId, LEFT_HAND_FINGER_IDS, RIGHT_HAND_FINGER_IDS, TypingStream } from "@/interfaces/types";
 import { getFingerByKeyCap, getKeyCapIdsForChar, modifierKeyCapIdSet } from "@/lib/symbol-utils";
 
 export const lessons = [

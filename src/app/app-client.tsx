@@ -67,7 +67,7 @@ export function AppClient() {
 
         {trainingActor && (
           <div>
-            <TrainingScene actor={trainingActor} />
+            <TrainingScene appState={state} trainingActor={trainingActor} />
             {state.matches('trainingComplete') && <p className="text-xl font-bold text-green-500 mt-4">Lesson Complete!</p>}
             <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
               Back to Menu
