@@ -111,13 +111,15 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
       const homeKeyId = homeKeyEntry[0] as KeyCapId;
       const fingerElement = document.querySelector(`[data-finger-id="${fingerId}"] .finger-center-point`);
-      const keyboardContainer = keyboardRefs.current[fingerId];
-
-      if (fingerElement && keyboardContainer) {
-        const keyElement = keyboardContainer.querySelector(`[data-keycap-id="${homeKeyId}"] .keycap-center-point`);
-
-        if (keyElement) {
-          const fingerRect = fingerElement.getBoundingClientRect();
+                const keyboardContainer = keyboardRefs.current[fingerId];
+          
+                if (fingerElement && keyboardContainer) {
+                  // ВАЖНО: Поиск `keyElement` должен быть ограничен `keyboardContainer` этого пальца.
+                  // Глобальный `document.querySelector` может найти клавишу в другом, одновременно
+                  // отображаемом кластере, что приведет к неверному позиционированию.
+                  const keyElement = keyboardContainer.querySelector(`[data-keycap-id="${homeKeyId}"] .keycap-center-point`);
+          
+                  if (keyElement) {          const fingerRect = fingerElement.getBoundingClientRect();
           const keyRect = keyElement.getBoundingClientRect();
           const containerRect = keyboardContainer.parentElement?.getBoundingClientRect();
 
@@ -166,7 +168,10 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
           <g data-finger-id="RB"><path className="RB" d={partB} /></g>
         </svg>
 
-        {/* Keyboards Layer - NOW INSIDE THE CENTERED CONTAINER */}
+        {/*
+          Keyboards Layer: Рендерится *после* SVG рук, чтобы гарантировать,
+          что кластеры клавиш будут отображаться поверх (выше по z-оси).
+        */}
         {fingerIds.map(fingerId => {
           const fingerSceneState = viewModel[fingerId];
           // Only render a keyboard if the finger is not IDLE and has keyCapStates

@@ -5,6 +5,10 @@ import { HandsSceneViewModel } from '@/interfaces/types';
 import { HandsExt } from './hands-ext';
 
 // --- Mock ViewModel Data ---
+// Эти моки HandsSceneViewModel используются для тестирования различных состояний
+// компонента HandsExt в Storybook. При добавлении новой сложной логики
+// рендеринга в HandsExt, настоятельно рекомендуется создавать новый мок
+// и новую историю для его изолированного тестирования.
 // Based on examples from /VisualContract.md
 
 const idleViewModel: HandsSceneViewModel = {
