@@ -81,7 +81,6 @@ export const keyboardLayoutANSI: KeyboardLayout = [
   ],
   // ROW 5
   [
-    { keyCapId: "Fn", unitWidth: "1.25U", type: "SYSTEM" },
     { keyCapId: "ControlLeft", unitWidth: "1.25U", type: "MODIFIER" },
     { keyCapId: "AltLeft", unitWidth: "1.25U", type: "MODIFIER" },
     { keyCapId: "MetaLeft", unitWidth: "1.25U", type: "MODIFIER" },
@@ -89,7 +88,7 @@ export const keyboardLayoutANSI: KeyboardLayout = [
     { keyCapId: "SpaceRight", unitWidth: "3U", type: "SYMBOL" },
     { keyCapId: "MetaRight", unitWidth: "1.25U", type: "MODIFIER" },
     { keyCapId: "AltRight", unitWidth: "1.25U", type: "MODIFIER" },
-    { keyCapId: "Fn", unitWidth: "1.25U", type: "MODIFIER" },
+    { keyCapId: "ContextMenu", unitWidth: "1.25U", type: "SYSTEM" },
     { keyCapId: "ControlRight", unitWidth: "1.25U", type: "MODIFIER" }
   ]
 ]

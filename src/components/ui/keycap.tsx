@@ -74,8 +74,6 @@ const keyCapVariants = cva(
       isHomeKey: {
         true: "ring-2",
         false: "ring-0",
-        // true: "border-2",
-        // false: "border-0",
       },
 
       /** Идентификатор пальца, ответственного за эту клавишу. */
@@ -139,7 +137,7 @@ const keyCapVariants = cva(
 
     defaultVariants: {
       visibility: "VISIBLE",
-      centerPointVisibility: "INVISIBLE",
+      centerPointVisibility: "VISIBLE",
       navigationRole: "NONE",
       unitWidth: "1U",
       symbolSize: "MD",

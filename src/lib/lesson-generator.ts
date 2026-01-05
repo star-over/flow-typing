@@ -1,5 +1,6 @@
-import { StreamSymbol,TypingStream } from "@/interfaces/types";
-import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { FingerId, KeyCapId, LEFT_HAND_FINGER_IDS, RIGHT_HAND_FINGER_IDS, StreamSymbol,TypingStream } from "@/interfaces/types";
+import { getFingerByKeyCap, getKeyCapIdsForChar, modifierKeyCapIdSet } from "@/lib/symbol-utils";
 
 export const lessons = [
   "the quick brown fox jumps over the lazy dog.",
@@ -9,32 +10,69 @@ export const lessons = [
   "to be or not to be, that is the question.",
 ];
 
+const isLeftHand = (fingerId: FingerId) => (LEFT_HAND_FINGER_IDS as readonly FingerId[]).includes(fingerId);
+const isRightHand = (fingerId: FingerId) => (RIGHT_HAND_FINGER_IDS as readonly FingerId[]).includes(fingerId);
+
+type Hand = 'LEFT' | 'RIGHT' | 'NONE';
+
 /**
- * Generates a lesson as a TypingStream.
- * It picks a random lesson, converts each character into a StreamSymbol,
- * and returns the array.
+ * Generates a lesson as an "enriched" TypingStream.
+ * It picks a random lesson, then for each character, it pre-calculates the
+ * `requiredKeyCapIds`, including special logic for the spacebar.
  * @returns A TypingStream for the lesson.
  */
 export function generateLesson(): TypingStream {
   const randomIndex = Math.floor(Math.random() * lessons.length);
   const lessonText = lessons[randomIndex];
 
+  let lastHandUsed: Hand = 'NONE';
+
   const stream: TypingStream = lessonText
     .split('')
-    .map((char): StreamSymbol | null => {
-      const keyCapIds = getKeyCapIdsForChar(char);
-      if (!keyCapIds) {
-        // Handle cases where a character might not be on the keyboard layout
-        // For now, we'll skip it. A more robust solution might substitute it.
-        console.warn(`Character "${char}" not found in symbol layout.`);
-        return null;
+    .reduce<TypingStream>((acc, char) => {
+      let requiredKeyCapIds: KeyCapId[] | undefined;
+      let currentHand: Hand = 'NONE';
+
+      if (char === ' ') {
+        // Spacebar logic
+        if (lastHandUsed === 'LEFT') {
+          requiredKeyCapIds = ['SpaceRight'];
+        } else {
+          // Default to left space if previous was right or none
+          requiredKeyCapIds = ['SpaceLeft'];
+        }
+      } else {
+        // Normal character logic
+        requiredKeyCapIds = getKeyCapIdsForChar(char);
       }
-      return {
+
+      if (!requiredKeyCapIds) {
+        console.warn(`Character "${char}" not found in symbol layout.`);
+        return acc; // Skip characters not in the layout
+      }
+
+      // Determine the hand used for this character
+      const primaryKey = requiredKeyCapIds.find(id => !modifierKeyCapIdSet.has(id));
+      if (primaryKey) {
+        const fingerId = getFingerByKeyCap(primaryKey, fingerLayoutASDF);
+        if (fingerId) {
+          if (isLeftHand(fingerId)) currentHand = 'LEFT';
+          else if (isRightHand(fingerId)) currentHand = 'RIGHT';
+        }
+      }
+      
+      if (currentHand !== 'NONE') {
+        lastHandUsed = currentHand;
+      }
+
+      acc.push({
         targetSymbol: char,
+        requiredKeyCapIds,
         attempts: [],
-      };
-    })
-    .filter((symbol): symbol is StreamSymbol => symbol !== null); // Filter out nulls
+      });
+      
+      return acc;
+    }, []);
 
   return stream;
 }

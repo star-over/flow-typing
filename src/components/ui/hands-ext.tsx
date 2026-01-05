@@ -1,56 +1,55 @@
 'use client';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import React, { useEffect, useMemo, useRef } from 'react';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
-import { FingerId, FingerState, KeyCapId, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
+import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
 import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
 
-/**
- * @architectural_note
- * Этот компонент в будущем должен быть отрефакторен для принятия единого `viewModel`
- * типа `HandsSceneViewModel` из `src/interfaces/types.ts`.
- * Вся логика по определению состояний пальцев и пропсов `highlightedFingerKeys`
- * должна быть вынесена в слой мапперов, а `HandsExt` должен стать "тупым"
- * компонентом, просто отрисовывающим полученную `viewModel`.
- * @see /VisualContract.md
- */
 
-const getSymbolForKeyCapId = (keyCapId: KeyCapId, shift: boolean): string => {
+const getSymbolForKeyCapId = (keyCapId: KeyCapId): string => {
   for (const [symbolChar, keyCapIds] of Object.entries(symbolLayoutEnQwerty)) {
-    const hasShift = keyCapIds.some(id => id.includes("Shift"));
-    const primaryKey = keyCapIds.find(id => !id.includes("Shift"));
-    if ((primaryKey === keyCapId || keyCapIds[0] === keyCapId) && hasShift === shift) {
+    // This is a simplified lookup and doesn't handle shifts correctly for the demo.
+    // The viewModel builder will be responsible for providing the correct symbol.
+    if (keyCapIds[0] === keyCapId && keyCapIds.length === 1) {
       return symbolChar;
     }
   }
-  return "";
+  return keyCapId; // Fallback for keys like 'Shift'
 };
 
-const getFingerVirtualLayout = (fingerId: FingerId, highlightedKeys: KeyCapId[]): VirtualLayout => {
-  const fingerLayoutAsdfEntries = Object.entries(fingerLayoutASDF);
+
+const generateVirtualLayoutForFinger = (fingerId: FingerId, viewModel: HandsSceneViewModel): VirtualLayout => {
+  const fingerSceneState = viewModel[fingerId];
+  const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = fingerSceneState?.keyCapStates || {};
+
   return keyboardLayoutANSI.map((row, rowIndex) =>
-    row.map((physicalKey, colIndex): VirtualKey => {
-      const keyCapId = physicalKey.keyCapId;
-      const fingerData = fingerLayoutAsdfEntries.find(([kId]) => kId === keyCapId)?.[1];
-      const isKeyForCurrentFinger = fingerData?.fingerId === fingerId;
-      const isHighlighted = highlightedKeys.includes(keyCapId);
-      const isShift = keyCapId.includes("Shift");
-      const symbol = getSymbolForKeyCapId(keyCapId, isShift);
+    row.map((physicalKey): VirtualKey => {
+      const { keyCapId } = physicalKey;
+      const keyCapState = keyCapStates[keyCapId];
+
+      const fingerData = Object.values(fingerLayoutASDF).find(d => d.fingerId === fingerId);
+
+      // Determine visibility and other properties based on the viewModel
+      const isVisible = !!keyCapState;
+      const visibility: Visibility = isVisible ? 'VISIBLE' : 'INVISIBLE';
 
       return {
         ...physicalKey,
         rowIndex,
-        colIndex,
-        symbol: symbol || " ",
-        fingerId: fingerData?.fingerId || 'L1',
-        isHomeKey: fingerData?.isHomeKey,
-        visibility: isKeyForCurrentFinger && isHighlighted ? 'VISIBLE' : 'INVISIBLE',
-        navigationRole: isKeyForCurrentFinger && isHighlighted ? 'TARGET' : 'NONE',
+        colIndex: 0, // colIndex is not used in the current layout logic
+        symbol: getSymbolForKeyCapId(keyCapId),
+        fingerId: fingerData?.fingerId || 'L1', // Fallback, should be correct from data
+        isHomeKey: fingerData?.isHomeKey || false,
+        // Dynamic properties from ViewModel
+        visibility: visibility,
+        navigationRole: keyCapState?.navigationRole || 'NONE',
+        navigationArrow: keyCapState?.navigationArrow || 'NONE',
+        pressResult: keyCapState?.pressResult || 'NEUTRAL',
       };
     })
   );
@@ -92,43 +91,14 @@ const handsVariants = cva("",
     },
   });
 
-type HandsExtProps = React.ComponentProps<"div"> & VariantProps<typeof handsVariants> & {
-  highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>>;
-};
+interface HandsExtProps {
+  viewModel: HandsSceneViewModel;
+  className?: string;
+  centerPointVisibility?: Visibility;
+}
 
-/**
- * @file Компонент `HandsExt` - расширенная версия визуализации рук.
- * @description Этот компонент является самодостаточной реализацией отображения рук и
- * индивидуальных клавиатурных кластеров для каждого пальца. В отличие от `Hands`,
- * он не только отрисовывает SVG рук, но и управляет рендерингом и позиционированием
- * 10 виртуальных клавиатур.
- *
- * @architectural_notes
- * 1.  **Клиентский Компонент:** Помечен директивой `'use client'`, так как выполняет
- *     манипуляции с DOM после рендеринга.
- * 2.  **Два слоя:** Компонент состоит из двух основных слоев, наложенных друг на друга
- *     с помощью `position: absolute`:
- *     - Слой виртуальных клавиатур: 10 компонентов `VirtualKeyboard`, каждый в своей div-обертке.
- *     - Слой SVG рук: отрисовка рук, скопированная из компонента `Hands`.
- * 3.  **Механизм Позиционирования "Якорей":**
- *     - **Цель:** Совместить центр "домашней" клавиши каждого пальца с центром подушечки
- *       самого пальца.
- *     - **Реализация:** Используется хук `useEffect` для вычисления смещений после
- *       первого рендера.
- *     - **Якоря:**
- *       - В `hands.tsx` каждый палец содержит `<circle class="finger-center-point" />`
- *         внутри группы `<g data-finger-id="...">`.
- *       - В `keycap.tsx` каждая клавиша содержит `<div class="keycap-center-point" />`
- *         и имеет атрибут `data-keycap-id="..."`.
- *     - **Логика `useEffect`:**
- *       1. Для каждого пальца определяется его домашняя клавиша (`homeKeyId`).
- *       2. Через `document.querySelector` находятся DOM-элементы якоря пальца и якоря клавиши.
- *       3. С помощью `getBoundingClientRect()` получаются их экранные координаты.
- *       4. Вычисляется дельта (разница) по осям X и Y.
- *       5. Эта дельта применяется как `transform: translate(X, Y)` к div-обертке
- *          соответствующей `VirtualKeyboard`, сдвигая ее в нужное положение.
- */
-export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, className, centerPointVisibility, L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB, ...props }) => {
+
+export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, centerPointVisibility, ...props }) => {
   const fingerIds: FingerId[] = useMemo(() => ['L5', 'L4', 'L3', 'L2', 'L1', 'R1', 'R2', 'R3', 'R4', 'R5'], []);
   const keyboardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -157,50 +127,60 @@ export const HandsExt: React.FC<HandsExtProps> = ({ highlightedFingerKeys, class
         }
       }
     });
-  }, [highlightedFingerKeys, fingerIds]);
+  }, [viewModel, fingerIds]);
+
+  const fingerStates = Object.fromEntries(
+    Object.entries(viewModel).map(([fingerId, fingerSceneState]) => [fingerId, fingerSceneState.fingerState])
+  ) as Record<FingerId, FingerState>;
 
   return (
     <div
       className={cn("relative w-full h-full", className)}
       {...props}
     >
-      {/* Keyboards Layer */}
-      {fingerIds.map(fingerId => {
-        const fingerHighlightedKeys = highlightedFingerKeys[fingerId] || [];
-        const fingerVirtualLayout = getFingerVirtualLayout(fingerId, fingerHighlightedKeys);
-        return (
-          <div
-            key={fingerId}
-            ref={el => { keyboardRefs.current[fingerId] = el; }}
-            className="absolute top-0 left-0"
-          >
-            <VirtualKeyboard virtualLayout={fingerVirtualLayout} />
-          </div>
-        );
-      })}
-
       {/* Hands SVG Layer */}
       <div
         className={cn(
-          handsVariants({ centerPointVisibility, L1, L2, L3, L4, L5, LB, R1, R2, R3, R4, R5, RB }),
+          handsVariants({ centerPointVisibility, ...fingerStates }),
           "flex w-screen justify-center"
         )}
       >
+        {/* Keyboards Layer - NOW INSIDE THE CENTERED CONTAINER */}
+        {fingerIds.map(fingerId => {
+          const fingerSceneState = viewModel[fingerId];
+          // Only render a keyboard if the finger is not IDLE and has keyCapStates
+          if (fingerSceneState.fingerState === 'IDLE' || !fingerSceneState.keyCapStates) {
+            return null;
+          }
+
+          const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
+
+          return (
+            <div
+              key={fingerId}
+              ref={el => { keyboardRefs.current[fingerId] = el; }}
+              className="absolute top-0 left-0"
+            >
+              <VirtualKeyboard virtualLayout={virtualLayout} />
+            </div>
+          );
+        })}
+
         <svg className="w-3xs" viewBox="0 0 281 321">
-          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="150" cy="225" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="210" cy="40" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="180" cy="25" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="50" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="30" cy="60" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="260" cy="240" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="240" cy="55" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="172" cy="18" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="25" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="15" cy="60" r="2" className="finger-center-point" /></g>
           <g data-finger-id="LB"><path className="LB" d={partB} /></g>
         </svg>
         <div className="w-12" />
         <svg className="w-3xs -scale-x-100" viewBox="0 0 281 321">
-          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="150" cy="225" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="210" cy="40" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="180" cy="25" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="50" r="5" className="finger-center-point" /></g>
-          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="30" cy="60" r="5" className="finger-center-point" /></g>
+          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="260" cy="240" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="240" cy="55" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="172" cy="18" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="25" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="15" cy="60" r="2" className="finger-center-point" /></g>
           <g data-finger-id="RB"><path className="RB" d={partB} /></g>
         </svg>
       </div>

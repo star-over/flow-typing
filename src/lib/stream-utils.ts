@@ -20,6 +20,7 @@ export function createTypingStream(text: string): TypingStream {
     if (keyCapIds) {
       stream.push({
         targetSymbol: char,
+        requiredKeyCapIds: keyCapIds,
         attempts: [],
       });
     }

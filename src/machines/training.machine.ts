@@ -6,9 +6,7 @@
  */
 import { assign,createMachine } from 'xstate';
 
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { FingerId, KeyCapId, TypingStream } from '@/interfaces/types';
-import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
+import { KeyCapId, TypingStream } from '@/interfaces/types';
 
 
 export interface TrainingContext {
@@ -16,9 +14,6 @@ export interface TrainingContext {
   currentIndex: number;
   pressedKeys: KeyCapId[] | null;
   errors: number;
-  targetKeyCapId: KeyCapId | undefined;
-  targetFingerId: FingerId | undefined;
-  shiftRequired: boolean;
 }
 
 export type TrainingEvent =
@@ -45,37 +40,12 @@ export const trainingMachine = createMachine({
     currentIndex: 0,
     pressedKeys: null,
     errors: 0,
-    targetKeyCapId: undefined,
-    targetFingerId: undefined,
-    shiftRequired: false,
   }),
   on: {
     PAUSE_TRAINING: '.paused',
   },
   states: {
     awaitingInput: {
-      entry: assign({
-        // Calculate and assign the target IDs when entering this state
-        targetKeyCapId: ({ context }) => {
-          const symbol = context.stream[context.currentIndex]?.targetSymbol;
-          if (!symbol) return undefined;
-          const keyCapIds = getKeyCapIdsForChar(symbol);
-          return keyCapIds?.find(id => !id.includes('Shift')) || keyCapIds?.[0];
-        },
-        targetFingerId: ({ context }) => {
-          const symbol = context.stream[context.currentIndex]?.targetSymbol;
-          if (!symbol) return undefined;
-          const keyCapIds = getKeyCapIdsForChar(symbol);
-          const keyCapId = keyCapIds?.find(id => !id.includes('Shift')) || keyCapIds?.[0];
-          if (!keyCapId) return undefined;
-          return getFingerByKeyCap(keyCapId, fingerLayoutASDF);
-        },
-        shiftRequired: ({ context }) => {
-          const symbol = context.stream[context.currentIndex]?.targetSymbol;
-          if (!symbol) return false;
-          return isShiftRequired(symbol);
-        },
-      }),
       on: {
         KEY_PRESS: {
           target: 'processingInput',
@@ -91,17 +61,36 @@ export const trainingMachine = createMachine({
           target: 'correctInput',
           guard: ({ context, event }) => {
             if (event.type !== 'KEY_PRESS') return false;
+            const currentSymbol = context.stream[context.currentIndex];
+            if (!currentSymbol) return false;
 
-            const targetSymbol = context.stream[context.currentIndex]?.targetSymbol;
-            if (!targetSymbol) return false;
+            const requiredKeys = new Set(currentSymbol.requiredKeyCapIds);
+            const pressedKeys = new Set(event.keys);
 
-            const requiredKeyCaps = getKeyCapIdsForChar(targetSymbol);
-            if (!requiredKeyCaps) return false;
-
-            const pressedKeysSet = new Set(event.keys);
+            // Special handling for the spacebar
+            const isTargetVirtualSpace = currentSymbol.requiredKeyCapIds.some(key => key.startsWith('Space'));
+            if (isTargetVirtualSpace && pressedKeys.has('Space')) {
+                // The user pressed the physical spacebar when a virtual one was expected.
+                // We substitute the physical 'Space' with the specific virtual one to check for a match.
+                // This assumes only ONE virtual space can be a target at a time.
+                const virtualSpaceTarget = currentSymbol.requiredKeyCapIds.find(key => key.startsWith('Space'));
+                // Create a new set for comparison, replacing 'Space' with the required virtual space
+                const substitutedPressedKeys = new Set(Array.from(pressedKeys).map(k => k === 'Space' ? virtualSpaceTarget! : k));
+                
+                // Now compare the substituted set with the required set.
+                if (requiredKeys.size !== substitutedPressedKeys.size) return false;
+                for (const key of requiredKeys) {
+                  if (!substitutedPressedKeys.has(key)) return false;
+                }
+                return true;
+            }
             
-            // Check if all required keys are in the pressed keys set
-            return requiredKeyCaps.every(key => pressedKeysSet.has(key));
+            // Default comparison for all other keys
+            if (requiredKeys.size !== pressedKeys.size) return false;
+            for (const key of requiredKeys) {
+              if (!pressedKeys.has(key)) return false;
+            }
+            return true;
           },
         },
         { target: 'incorrectInput' },

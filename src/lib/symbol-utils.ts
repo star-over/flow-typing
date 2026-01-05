@@ -82,7 +82,6 @@ export function isTextKey(key: string): key is KeyCapId {
  * @returns Массив `KeyCapId` или `undefined`, если символ не найден.
  */
 export function getKeyCapIdsForChar(char: string): KeyCapId[] | undefined {
-  if (char === ' ') return ['Space'];
   return symbolLayoutEnQwerty[char];
 }
 

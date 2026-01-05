@@ -15,6 +15,7 @@ import {
   TrainerActionTypes,
 } from "@/store/trainer-store";
 
+import { HandsSceneViewModel, KeySceneState } from "@/interfaces/types";
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
 
@@ -77,6 +78,31 @@ export function Trainer(
     }
   });
 
+  // Construct the viewModel for HandsExt
+  const viewModel: HandsSceneViewModel = {} as HandsSceneViewModel;
+  for (const fingerId in state.handStates) {
+    viewModel[fingerId as FingerId] = {
+      fingerState: state.handStates[fingerId as FingerId],
+    };
+  }
+
+  for (const fingerIdStr in highlightedFingerKeys) {
+    const fingerId = fingerIdStr as FingerId;
+    const keyCapIds = highlightedFingerKeys[fingerId];
+    if (keyCapIds && viewModel[fingerId]) {
+      const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
+      keyCapIds.forEach(keyId => {
+        keyCapStates[keyId] = {
+          visibility: 'VISIBLE',
+          navigationRole: 'TARGET',
+          pressResult: 'NEUTRAL',
+          navigationArrow: 'NONE',
+        };
+      });
+      viewModel[fingerId].keyCapStates = keyCapStates;
+    }
+  }
+
   return (
     <div
       id="trainer-frame"
@@ -87,10 +113,7 @@ export function Trainer(
       {...props}
     >
       <FlowLine stream={state.stream} cursorPosition={state.cursorPosition} />
-      <HandsExt
-        highlightedFingerKeys={highlightedFingerKeys}
-        {...state.handStates}
-      />
+      <HandsExt viewModel={viewModel} />
     </div>
   )
 }

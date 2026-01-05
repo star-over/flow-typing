@@ -162,15 +162,17 @@ export type StreamAttempt = {
 };
 
 /**
- * Расширенное представление одного символа в упражнении.
- * Включает сам символ и историю попыток его набора.
+ * Расширенное представление одного "шага" в упражнении.
+ * Включает сам символ и заранее вычисленные целевые клавиши.
  */
-export type StreamSymbol = {
-  /** Целевой символ, который пользователь должен набрать. */
+export interface StreamSymbol {
+  /** Целевой символ для отображения (напр., 'F'). */
   targetSymbol: string;
+  /** Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight']). */
+  requiredKeyCapIds: KeyCapId[];
   /** Массив всех попыток набора этого символа. */
   attempts: StreamAttempt[];
-};
+}
 
 /**
  * Поток символов для набора. Представляет собой полное упражнение.
@@ -248,6 +250,8 @@ export type VirtualKey = {
   pressResult?: KeyCapPressResult;
   /** Навигационная роль клавиши в текущем упражнении. */
   navigationRole?: KeyCapNavigationRole;
+  /** Стрелка направления движения пальца к клавише. */
+  navigationArrow?: KeyCapNavigationArrow;
 };
 /**
  * Виртуальный макет клавиатуры.
@@ -320,6 +324,7 @@ export type TrainingEvent =
 export interface KeySceneState {
   visibility: Visibility;
   navigationRole: KeyCapNavigationRole;
+  navigationArrow: KeyCapNavigationArrow;
   pressResult: KeyCapPressResult;
 }
 
@@ -329,7 +334,7 @@ export interface KeySceneState {
  */
 export interface FingerSceneState {
   fingerState: FingerState;
-  keyCapStates?: Record<KeyCapId, KeySceneState>;
+  keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
 }
 
 /**

@@ -7,16 +7,11 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { FingerId, FingerState, KeyCapId } from "@/interfaces/types";
-import { getFingerByKeyCap,getKeyCapIdsForChar } from "@/lib/symbol-utils";
+import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
 import { trainingMachine } from "@/machines/training.machine";
 
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
-
-/** Идентификаторы всех пальцев, включая основания кистей. */
-const ALL_FINGER_IDS: FingerId[] = ["L1", "L2", "L3", "L4", "L5", "R1", "R2", "R3", "R4", "R5", "LB", "RB"];
 
 /** Пропсы для компонента `TrainingScene`. */
 type TrainingSceneProps = {
@@ -35,32 +30,10 @@ type TrainingSceneProps = {
 export const TrainingScene = ({ actor }: TrainingSceneProps) => {
   const state = useSelector(actor, (snapshot) => snapshot);
   const send = actor.send;
-  const { stream, currentIndex, targetFingerId } = state.context;
+  const { stream, currentIndex } = state.context;
 
-  // Генерируем `highlightedFingerKeys` для `HandsExt` на основе текущего целевого символа.
-  const targetSymbol = stream[currentIndex].targetSymbol;
-  const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol) || [];
-
-  const highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>> = {};
-  requiredKeyCapIds.forEach(keyCapId => {
-    const fingerId = getFingerByKeyCap(keyCapId, fingerLayoutASDF);
-    if (fingerId) {
-      if (!highlightedFingerKeys[fingerId]) {
-        highlightedFingerKeys[fingerId] = [];
-      }
-      highlightedFingerKeys[fingerId]?.push(keyCapId);
-    }
-  });
-
-
-  // Определяем состояния пальцев на основе `targetFingerId` из контекста машины состояний.
-  const fingerStates: Partial<Record<FingerId, FingerState>> = {};
-  ALL_FINGER_IDS.forEach(id => {
-    fingerStates[id] = "IDLE";
-  });
-  if (targetFingerId) {
-    fingerStates[targetFingerId!] = "ACTIVE";
-  }
+  // Генерируем ViewModel для HandsExt на основе текущего состояния машины
+  const viewModel = generateHandsSceneViewModel(state);
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -71,10 +44,7 @@ export const TrainingScene = ({ actor }: TrainingSceneProps) => {
 
       <FlowLine stream={stream} cursorPosition={currentIndex} />
 
-      <HandsExt
-        highlightedFingerKeys={highlightedFingerKeys}
-        {...fingerStates}
-      />
+      <HandsExt viewModel={viewModel} />
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
       {state.matches('paused') ? (
