@@ -86,6 +86,49 @@ const errorViewModel: HandsSceneViewModel = {
   R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" }
 };
 
+const spaceLeftViewModel: HandsSceneViewModel = {
+  ...idleViewModel, // Start with all IDLE
+  L1: {
+    fingerState: "ACTIVE",
+    keyCapStates: {
+      "SpaceLeft": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+      // Assuming 'KeyA' was previously pressed by L5 for context, though not strictly necessary for this view model
+      "KeyA": { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" }, 
+    }
+  },
+};
+
+const spaceRightViewModel: HandsSceneViewModel = {
+  ...idleViewModel, // Start with all IDLE
+  R1: {
+    fingerState: "ACTIVE",
+    keyCapStates: {
+      "SpaceRight": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+      // Assuming 'Semicolon' was previously pressed by R5 for context
+      "Semicolon": { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" }, 
+    }
+  },
+};
+
+const shiftLeftChordViewModel: HandsSceneViewModel = {
+  ...idleViewModel, // Start with all IDLE
+  L5: { // Left little finger for ShiftLeft
+    fingerState: "ACTIVE",
+    keyCapStates: {
+      "ShiftLeft": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+      "KeyA":      { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+    }
+  },
+  L3: { // Left middle finger for KeyD
+    fingerState: "ACTIVE",
+    keyCapStates: {
+      "KeyD":    { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+      "KeyE":    { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+      "KeyC":    { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+    }
+  },
+};
+
 
 const meta = {
   title: 'UI/HandsExt',
@@ -108,6 +151,7 @@ export const Idle: Story = {
   args: {
     viewModel: idleViewModel,
     centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
   },
 };
 
@@ -115,6 +159,7 @@ export const SimplePress: Story = {
   args: {
     viewModel: simplePressViewModel,
     centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
   },
 };
 
@@ -122,6 +167,7 @@ export const Movement: Story = {
   args: {
     viewModel: movementViewModel,
     centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
   },
 };
 
@@ -129,6 +175,7 @@ export const Chord: Story = {
   args: {
     viewModel: chordViewModel,
     centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
   },
 };
 
@@ -136,5 +183,30 @@ export const Error: Story = {
   args: {
     viewModel: errorViewModel,
     centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
+  },
+};
+
+export const SpaceLeft: Story = {
+  args: {
+    viewModel: spaceLeftViewModel,
+    centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
+  },
+};
+
+export const SpaceRight: Story = {
+  args: {
+    viewModel: spaceRightViewModel,
+    centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
+  },
+};
+
+export const ShiftLeftChord: Story = {
+  args: {
+    viewModel: shiftLeftChordViewModel,
+    centerPointVisibility: 'VISIBLE',
+    className: 'p-12',
   },
 };

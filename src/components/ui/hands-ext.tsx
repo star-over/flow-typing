@@ -111,19 +111,22 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
       const homeKeyId = homeKeyEntry[0] as KeyCapId;
       const fingerElement = document.querySelector(`[data-finger-id="${fingerId}"] .finger-center-point`);
-      const keyElement = document.querySelector(`[data-keycap-id="${homeKeyId}"] .keycap-center-point`);
       const keyboardContainer = keyboardRefs.current[fingerId];
 
-      if (fingerElement && keyElement && keyboardContainer) {
-        const fingerRect = fingerElement.getBoundingClientRect();
-        const keyRect = keyElement.getBoundingClientRect();
-        const containerRect = keyboardContainer.parentElement?.getBoundingClientRect();
+      if (fingerElement && keyboardContainer) {
+        const keyElement = keyboardContainer.querySelector(`[data-keycap-id="${homeKeyId}"] .keycap-center-point`);
 
-        if (containerRect) {
-          const deltaX = (fingerRect.left - containerRect.left) - (keyRect.left - containerRect.left);
-          const deltaY = (fingerRect.top - containerRect.top) - (keyRect.top - containerRect.top);
+        if (keyElement) {
+          const fingerRect = fingerElement.getBoundingClientRect();
+          const keyRect = keyElement.getBoundingClientRect();
+          const containerRect = keyboardContainer.parentElement?.getBoundingClientRect();
 
-          keyboardContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+          if (containerRect) {
+            const deltaX = (fingerRect.left - containerRect.left) - (keyRect.left - containerRect.left);
+            const deltaY = (fingerRect.top - containerRect.top) - (keyRect.top - containerRect.top);
+
+            keyboardContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+          }
         }
       }
     });
@@ -142,30 +145,9 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
       <div
         className={cn(
           handsVariants({ centerPointVisibility, ...fingerStates }),
-          "flex w-screen justify-center"
+          "flex w-screen justify-center mt-10"
         )}
       >
-        {/* Keyboards Layer - NOW INSIDE THE CENTERED CONTAINER */}
-        {fingerIds.map(fingerId => {
-          const fingerSceneState = viewModel[fingerId];
-          // Only render a keyboard if the finger is not IDLE and has keyCapStates
-          if (fingerSceneState.fingerState === 'IDLE' || !fingerSceneState.keyCapStates) {
-            return null;
-          }
-
-          const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
-
-          return (
-            <div
-              key={fingerId}
-              ref={el => { keyboardRefs.current[fingerId] = el; }}
-              className="absolute top-0 left-0"
-            >
-              <VirtualKeyboard virtualLayout={virtualLayout} />
-            </div>
-          );
-        })}
-
         <svg className="w-3xs" viewBox="0 0 281 321">
           <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="260" cy="240" r="2" className="finger-center-point" /></g>
           <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="240" cy="55" r="2" className="finger-center-point" /></g>
@@ -183,6 +165,27 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
           <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="15" cy="60" r="2" className="finger-center-point" /></g>
           <g data-finger-id="RB"><path className="RB" d={partB} /></g>
         </svg>
+
+        {/* Keyboards Layer - NOW INSIDE THE CENTERED CONTAINER */}
+        {fingerIds.map(fingerId => {
+          const fingerSceneState = viewModel[fingerId];
+          // Only render a keyboard if the finger is not IDLE and has keyCapStates
+          if (fingerSceneState.fingerState === 'IDLE' || !fingerSceneState.keyCapStates) {
+            return null;
+          }
+
+          const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
+
+          return (
+            <div
+              key={fingerId}
+              ref={el => { keyboardRefs.current[fingerId] = el; }}
+              className="absolute top-0 left-0"
+            >
+              <VirtualKeyboard virtualLayout={virtualLayout}/>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
