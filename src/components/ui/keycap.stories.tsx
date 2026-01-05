@@ -47,7 +47,7 @@ const meta = {
       options: KEY_CAP_NAVIGATION_ROLES,
       control: "inline-radio",
     },
-    navigationArrowFrom: {
+    navigationArrow: {
       options: KEY_CAP_NAVIGATION_ARROWS,
       control: "inline-radio",
     },
@@ -93,7 +93,7 @@ export const Default: Story = {
     visibility: meta.argTypes.visibility.options[0],
     homeKeyMarker: meta.argTypes.homeKeyMarker.options[0],
     navigationRole: meta.argTypes.navigationRole.options[0],
-    navigationArrowFrom: meta.argTypes.navigationArrowFrom.options[0],
+    navigationArrow: meta.argTypes.navigationArrow.options[0],
     unitWidth: meta.argTypes.unitWidth.options[0],
     symbolSize: meta.argTypes.symbolSize.options[0],
     pressResult: meta.argTypes.pressResult.options[0],

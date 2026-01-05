@@ -101,7 +101,7 @@ const keyCapVariants = cva(
       } satisfies Record<KeyCapNavigationRole, string>,
 
       /** Стрелка направления движения пальца к клавише. */
-      navigationArrowFrom: {
+      navigationArrow: {
         NONE:  '[&_.keycap-path-arrow]:invisible',
         UP:    `[&_.keycap-path-arrow]:rotate-0
                 [&_.keycap-path-arrow]:-top-1/2
@@ -144,7 +144,7 @@ const keyCapVariants = cva(
       colorGroup: "PRIMARY",
       pressResult: "NEUTRAL",
       homeKeyMarker: "NONE",
-      navigationArrowFrom: "NONE",
+      navigationArrow: "NONE",
       isHomeKey: false,
     },
   });
@@ -186,7 +186,7 @@ export function KeyCap({
   visibility,
   centerPointVisibility,
   navigationRole,
-  navigationArrowFrom: navigationArrow,
+  navigationArrow: navigationArrow,
   unitWidth,
   colorGroup,
   pressResult,
@@ -209,7 +209,7 @@ export function KeyCap({
           isHomeKey,
           fingerId,
           navigationRole,
-          navigationArrowFrom: navigationArrow,
+          navigationArrow: navigationArrow,
           unitWidth,
           symbolSize,
           colorGroup,
