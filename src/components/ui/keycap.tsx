@@ -6,7 +6,7 @@
  */
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { FingerId, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapId, KeyCapLabel, KeyCapNavigationArrowFrom, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
+import { FingerId, KeyCapColorGroup, KeyCapHomeKeyMarker, KeyCapId, KeyCapLabel, KeyCapNavigationArrow, KeyCapNavigationRole, KeyCapPressResult, KeyCapSymbolSize, KeyCapUnitWidth, Visibility } from "@/interfaces/types";
 import { cn } from "@/lib/utils"
 
 /**
@@ -70,14 +70,16 @@ const keyCapVariants = cva(
 
       /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
       isHomeKey: {
-        true: "border-2",
-        false: "border-0",
+        true: "ring-2",
+        false: "ring-0",
+        // true: "border-2",
+        // false: "border-0",
       },
 
       /** Идентификатор пальца, ответственного за эту клавишу. */
       fingerId: {
-        L1: "bg-stone-50 border-stone-300 outline-stone-300",
-        R1: "bg-stone-50 border-stone-300 outline-stone-300",
+        L1: "bg-stone-50   border-stone-300   outline-stone-300 ring-stone-400",
+        R1: "bg-stone-50   border-stone-300   outline-stone-300",
         L5: "bg-purple-50  border-purple-300  outline-purple-300 ",
         L4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
         L3: "bg-sky-50     border-sky-300     outline-sky-300    ",
@@ -95,28 +97,29 @@ const keyCapVariants = cva(
       navigationRole: {
         NONE:   "text-slate-300",
         PATH:   "text-lime-600 bg-green-100 ",
-        TARGET: "text-lime-700  bg-green-300 outline-2 outline-green-700",
+        TARGET: "text-lime-700  bg-green-300 outline-1 outline-green-700",
       } satisfies Record<KeyCapNavigationRole, string>,
 
       /** Стрелка направления движения пальца к клавише. */
       navigationArrowFrom: {
         NONE:  '[&_.keycap-path-arrow]:invisible',
-        TOP:   `[&_.keycap-path-arrow]:rotate-180
-                [&_.keycap-path-arrow]:-top-1/3 
+        UP:    `[&_.keycap-path-arrow]:rotate-0
+                [&_.keycap-path-arrow]:-top-1/2
                 [&_.keycap-path-arrow]:left-1/2
                 [&_.keycap-path-arrow]:-translate-x-1/2`,
-        BOTTOM:`[&_.keycap-path-arrow]:-bottom-1/3
+        DOWN:  `[&_.keycap-path-arrow]:rotate-180
+                [&_.keycap-path-arrow]:-bottom-1/2
                 [&_.keycap-path-arrow]:left-1/2
                 [&_.keycap-path-arrow]:-translate-x-1/2`,
-        LEFT:  `[&_.keycap-path-arrow]:rotate-90
+        LEFT:  `[&_.keycap-path-arrow]:-rotate-90
                 [&_.keycap-path-arrow]:top-1/2
-                [&_.keycap-path-arrow]:-left-1/3
+                [&_.keycap-path-arrow]:-left-1/2
                 [&_.keycap-path-arrow]:-translate-y-1/2`,
-        RIGHT: `[&_.keycap-path-arrow]:-rotate-90
+        RIGHT: `[&_.keycap-path-arrow]:rotate-90
                 [&_.keycap-path-arrow]:top-1/2
-                [&_.keycap-path-arrow]:-right-1/3
+                [&_.keycap-path-arrow]:-right-1/2
                 [&_.keycap-path-arrow]:-translate-y-1/2`,
-      } satisfies Record<KeyCapNavigationArrowFrom, string>,
+      } satisfies Record<KeyCapNavigationArrow, string>,
     },
 
     compoundVariants: [

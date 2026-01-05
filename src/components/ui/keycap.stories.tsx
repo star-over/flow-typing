@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import {
   KEY_CAP_HOME_KEY_MARKERS,
-  KEY_CAP_NAVIGATION_ARROWS_FROM,
+  KEY_CAP_NAVIGATION_ARROWS,
   KEY_CAP_NAVIGATION_ROLES,
   KEY_CAP_PRESS_RESULTS,
   KEY_CAP_SYMBOL_SIZES,
@@ -28,10 +28,6 @@ const geistSans = Geist({
 const meta = {
   title: 'UI/KeyCap',
   component: KeyCap,
-  // parameters: {
-  //   layout: 'centered',
-  // },
-  // tags: ['autodocs'],
 
   argTypes: {
     visibility: {
@@ -52,7 +48,7 @@ const meta = {
       control: "inline-radio",
     },
     navigationArrowFrom: {
-      options: KEY_CAP_NAVIGATION_ARROWS_FROM,
+      options: KEY_CAP_NAVIGATION_ARROWS,
       control: "inline-radio",
     },
     homeKeyMarker: {

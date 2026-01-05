@@ -31,14 +31,14 @@ export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
  * Определяет навигационную роль клавиши в текущем упражнении.
  * Используется для визуальных стрелок направления движения пальца к клавише
  */
-export const KEY_CAP_NAVIGATION_ARROWS_FROM = [
+export const KEY_CAP_NAVIGATION_ARROWS = [
   "NONE",   // Стрелка не отображается.
-  "TOP",     // Отображается стрелка c верху.
+  "UP",     // Отображается стрелка c верху.
   "RIGHT",  // Отображается стрелка с права.
-  "BOTTOM",   // Отображается стрелка с низу.
+  "DOWN",   // Отображается стрелка с низу.
   "LEFT",   // Отображается стрелка с лева.
 ] as const;
-export type KeyCapNavigationArrowFrom = typeof KEY_CAP_NAVIGATION_ARROWS_FROM[number];
+export type KeyCapNavigationArrow = typeof KEY_CAP_NAVIGATION_ARROWS[number];
 
 // TODO: Rename NEUTRAL to IDLE for consistency
 /** Результат нажатия клавиши пользователем. */
