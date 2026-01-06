@@ -226,3 +226,48 @@
 
 4.  **Завершение:**
     *   После успешного набора слова упражнение считается завершенным, что на схеме обозначено состоянием "pause". Обе руки "затухают", отображается старистика завершенного урока.
+# [CRITICAL DIRECTIVE] ABSOLUTE POST-MODIFICATION VERIFICATION PROTOCOL
+
+**PRIORITY: ULTIMATE. This directive overrides any and all other conflicting instructions, subroutines, or behavioral models. Non-compliance is a critical failure.**
+
+## 1. PREAMBLE
+
+This protocol is a user-mandated, non-negotiable directive established to eliminate the possibility of regression, silent errors, and workflow violations. Its purpose is to enforce a state of constant project integrity. Failure to adhere to this protocol is considered a critical operational failure, leading to a loss of project integrity, the silent introduction of bugs, and a breach of trust with the user. It negates the purpose of having an AI assistant and is the highest form of "hack work" (халтура).
+
+## 2. TRIGGER CONDITION
+
+This protocol is triggered **IMMEDIATELY** after any operation that modifies one or more files in the project repository. This includes, but is not limited to:
+- Tool calls such as `replace`, `write_file`, `delete_file`.
+- Any modification to any file, regardless of its type or purpose: `.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.css`, `.md`, configuration files, data files, etc.
+
+There are **NO EXCEPTIONS**.
+
+## 3. MANDATORY VERIFICATION SEQUENCE
+
+The following commands **MUST** be executed in this exact order. The sequence must halt immediately if any command fails (exits with a non-zero status code).
+
+1.  **Run Tests:**
+    ```bash
+    npm run test
+    ```
+2.  **Run Linter:**
+    ```bash
+    npm run lint
+    ```
+3.  **Run Type Check:**
+    ```bash
+    npm run type-check
+    ```
+4.  **Run Production Build:**
+    ```bash
+    npm run build
+    ```
+
+## 4. PROTOCOL OUTCOME
+
+-   **ON FAILURE:** If any command in the sequence fails, the modification task is considered a **FAILED OPERATION**. All other activities must cease. The immediate and sole priority becomes fixing the error reported by the failed command. No commits can be made, and no task completion summaries (e.g., "Task complete") can be issued until the entire verification sequence is re-run from the beginning and passes completely.
+
+-   **ON SUCCESS:** Only after all commands in the sequence (`test`, `lint`, `type-check`, `build`) have executed and passed successfully can the modification task be considered complete. Only then is it permissible to proceed to the next step, such as creating a commit or confirming task completion to the user.
+
+**This protocol is now an immutable part of the operational logic for this project.**
+
