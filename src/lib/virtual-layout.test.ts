@@ -44,4 +44,32 @@ describe("findPath", () => {
     const idleKey = getKey("KeyT");
     expect(idleKey?.navigationRole).toBe("NONE");
   });
+
+  it("should correctly handle shifted symbols like '%'", () => {
+    const options = {
+      keyboardLayout: keyboardLayoutANSI,
+      symbolLayout: symbolLayoutEnQwerty,
+      fingerLayout: fingerLayoutASDF,
+      targetSymbol: "%",
+    };
+
+    const virtualLayout = findPath(options);
+
+    const getKey = (keyCapId: string): VirtualKey | undefined => {
+        for (const row of virtualLayout) {
+            const key = row.find(k => k.keyCapId === keyCapId);
+            if (key) return key;
+        }
+        return undefined;
+    }
+
+    // Check if the symbol on Digit5 is '%'
+    const targetKey = getKey("Digit5");
+    expect(targetKey?.symbol).toBe("%");
+    expect(targetKey?.navigationRole).toBe("TARGET");
+
+    // Check if ShiftRight is also made visible as it's required for the chord
+    const shiftKey = getKey("ShiftRight");
+    expect(shiftKey?.visibility).toBe("VISIBLE");
+  });
 });

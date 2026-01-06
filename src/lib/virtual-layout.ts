@@ -3,9 +3,9 @@
  * @description Содержит функции для построения `VirtualLayout`, которая является
  * финальной, обогащенной моделью клавиатуры для отображения в UI.
  */
-import { KeyCapId } from "@/interfaces/types";
+import { KeyCapId, ModifierKey } from "@/interfaces/types";
 import { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
-import { getKeyCapIdsForChar, isShiftRequired } from "@/lib/symbol-utils";
+import { getKeyCapIdsForChar, getSymbol } from "@/lib/symbol-utils";
 
 import { getKeyCapIdsByFingerId } from "./hand-utils";
 
@@ -14,7 +14,7 @@ interface CreateVirtualLayoutOptions {
   keyboardLayout: KeyboardLayout;
   symbolLayout: SymbolLayout;
   fingerLayout: FingerLayout;
-  shift?: boolean;
+  activeModifiers?: ModifierKey[];
 }
 
 /**
@@ -23,41 +23,19 @@ interface CreateVirtualLayoutOptions {
  * @param options.keyboardLayout Физический макет клавиатуры (расположение, размеры).
  * @param options.symbolLayout Символьный макет (какой символ на какой клавише).
  * @param options.fingerLayout Пальцевый макет (какой палец за какую клавишу отвечает).
- * @param [options.shift=false] Состояние клавиши Shift.
+ * @param [options.activeModifiers=[]] Список активных клавиш-модификаторов.
  * @returns `VirtualLayout` (двумерный массив `VirtualKey`), готовый для рендеринга в UI.
  */
 export function createVirtualLayout(
   options: CreateVirtualLayoutOptions
 ): VirtualLayout {
-  const { keyboardLayout, symbolLayout, fingerLayout, shift = false } = options;
+  const { keyboardLayout, fingerLayout, activeModifiers = [] } = options;
 
   const virtualLayout: VirtualLayout = keyboardLayout
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         const keyCapId = physicalKey.keyCapId;
-        let symbol = "";
-
-        // Обратный поиск символа для клавиши с учетом Shift
-        for (const [char, keyCapIds] of Object.entries(symbolLayout)) {
-          const hasShift = keyCapIds.some(id => id.includes("Shift"));
-          const primaryKey = keyCapIds.find(id => !id.includes("Shift"));
-
-          if (primaryKey === keyCapId && hasShift === shift) {
-            symbol = char;
-            break;
-          }
-        }
-        
-        // Фоллбэк для системных клавиш или если символ не найден
-        if (!symbol) {
-          for (const [char, keyCapIds] of Object.entries(symbolLayout)) {
-            if (keyCapIds[0] === keyCapId && keyCapIds.length === 1) {
-              symbol = char;
-              break;
-            }
-          }
-        }
-
+        const symbol = getSymbol(keyCapId, activeModifiers);
         const fingerKey = fingerLayout[physicalKey.keyCapId];
 
         const virtualKey: VirtualKey = {
@@ -127,12 +105,18 @@ export function findPath(options: FindPathOptions): VirtualLayout {
   }
 
   const targetKeyCapId = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
-  const shift = isShiftRequired(targetSymbol);
+  
+  const activeModifiers: ModifierKey[] = [];
+  if (keyCapIds.some(id => id.includes('Shift'))) activeModifiers.push('shift');
+  if (keyCapIds.some(id => id.includes('Control'))) activeModifiers.push('ctrl');
+  if (keyCapIds.some(id => id.includes('Alt'))) activeModifiers.push('alt');
+  if (keyCapIds.some(id => id.includes('Meta'))) activeModifiers.push('meta');
+
 
   const targetFingerKey = fingerLayout[targetKeyCapId];
   if (!targetFingerKey) {
     console.warn(`Finger for keyCapId "${targetKeyCapId}" not found.`);
-    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, shift: shift });
+    return createVirtualLayout({ keyboardLayout, symbolLayout, fingerLayout, activeModifiers });
   }
 
   const keyCapIdsForTargetFinger = getKeyCapIdsByFingerId(targetFingerKey.fingerId, fingerLayout);
@@ -144,7 +128,7 @@ export function findPath(options: FindPathOptions): VirtualLayout {
     keyboardLayout,
     symbolLayout,
     fingerLayout,
-    shift: shift,
+    activeModifiers,
   });
 
   const pathKeyCapIds: KeyCapId[] = [];
@@ -181,10 +165,14 @@ export function findPath(options: FindPathOptions): VirtualLayout {
         const isTarget = virtualKey.keyCapId === targetKeyCapId;
         const isHome = virtualKey.keyCapId === homeKeyCapId;
         const isPath = pathKeyCapIds.includes(virtualKey.keyCapId) && !isTarget && !isHome;
+        const isRequired = keyCapIds.includes(virtualKey.keyCapId);
+
+        // A key is visible if it's required for the chord (e.g. Shift) or if it belongs to the finger cluster of the main target key
+        const isVisible = keyCapIdsForTargetFinger.includes(virtualKey.keyCapId) || isRequired;
 
         return {
           ...virtualKey,
-          visibility: keyCapIdsForTargetFinger.includes(virtualKey.keyCapId)
+          visibility: isVisible
             ? "VISIBLE"
             : "INVISIBLE",
           navigationRole: isTarget

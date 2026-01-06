@@ -1,6 +1,6 @@
 import { describe, expect,it } from 'vitest';
 
-import { getKeyCapIdsForChar, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
+import { getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
@@ -52,6 +52,38 @@ describe('isShiftRequired', () => {
 
   it('should return false for a character not in the layout', () => {
     expect(isShiftRequired('€')).toBe(false);
+  });
+});
+
+describe('getSymbol', () => {
+  it('should return the correct symbol for a base key with no modifiers', () => {
+    expect(getSymbol('KeyA', [])).toBe('a');
+  });
+
+  it('should return the correct symbol for a base key with shift modifier', () => {
+    expect(getSymbol('KeyA', ['shift'])).toBe('A');
+  });
+
+  it('should return the correct symbol for a number key with shift modifier', () => {
+    expect(getSymbol('Digit1', ['shift'])).toBe('!');
+  });
+  
+  it('should return the base symbol if a modifier combination is not found (Level 2 Fallback)', () => {
+    expect(getSymbol('KeyA', ['ctrl'])).toBe('a');
+  });
+  
+  it('should return the base symbol if multiple modifiers are not found (Level 2 Fallback)', () => {
+    expect(getSymbol('KeyA', ['ctrl', 'shift'])).toBe('a');
+  });
+
+  it('should return a placeholder for a key that does not map to any symbol (Level 3 Fallback)', () => {
+    // 'Escape' is a valid KeyCapId but is not in the symbol layout.
+    expect(getSymbol('Escape', [])).toBe('...');
+  });
+
+  it('should return a placeholder if even the base key is not found after modifier lookup fails (Level 3 Fallback)', () => {
+    // 'Escape' is a valid KeyCapId but is not in the symbol layout.
+    expect(getSymbol('Escape', ['shift'])).toBe('...');
   });
 });
 

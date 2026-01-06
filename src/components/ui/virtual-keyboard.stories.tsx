@@ -4,11 +4,12 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { ModifierKey } from "@/interfaces/types";
 import { createVirtualLayout, findPath } from "@/lib/virtual-layout";
 
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";
 
-type StoryArgs = VirtualKeyboardProps & { shift: boolean, target: string };
+type StoryArgs = VirtualKeyboardProps & { activeModifiers: ModifierKey[], target: string };
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -23,15 +24,12 @@ const geistSans = Geist({
 const meta  = {
   title: 'UI/VirtualKeyboard',
   component: VirtualKeyboard,
-  // parameters: {
-  //   layout: 'centered',
-  // },
-  // tags: ['autodocs'],
   argTypes: {
-    shift: {
-      name: 'Shift Modifier',
-      control: 'boolean',
-      description: 'Toggle to switch between lower and upper case',
+    activeModifiers: {
+      name: 'Active Modifiers',
+      control: 'check',
+      options: ['shift', 'ctrl', 'alt', 'meta'],
+      description: 'Select active modifier keys.',
     },
     target: {
       name: 'Target symbol',
@@ -57,17 +55,17 @@ type Story = StoryObj<StoryArgs>;
 
 export const WholeKeyboard: Story = {
   args: {
-    shift: false,
+    activeModifiers: [],
   },
-  render: ({ shift }) => {
+  render: ({ activeModifiers }) => {
     const virtualLayout = createVirtualLayout({
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
-      shift: shift,
+      activeModifiers: activeModifiers,
     });
 
-    return <VirtualKeyboard  {...{ virtualLayout }} />;
+    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers }} />;
   },
 };
 

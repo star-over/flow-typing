@@ -4,23 +4,10 @@ import React, { useEffect, useMemo, useRef } from 'react';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
-import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
+import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState, ModifierKey, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
 import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
-
-
-const getSymbolForKeyCapId = (keyCapId: KeyCapId): string => {
-  for (const [symbolChar, keyCapIds] of Object.entries(symbolLayoutEnQwerty)) {
-    // This is a simplified lookup and doesn't handle shifts correctly for the demo.
-    // The viewModel builder will be responsible for providing the correct symbol.
-    if (keyCapIds[0] === keyCapId && keyCapIds.length === 1) {
-      return symbolChar;
-    }
-  }
-  return keyCapId; // Fallback for keys like 'Shift'
-};
 
 
 const generateVirtualLayoutForFinger = (fingerId: FingerId, viewModel: HandsSceneViewModel): VirtualLayout => {
@@ -42,7 +29,7 @@ const generateVirtualLayoutForFinger = (fingerId: FingerId, viewModel: HandsScen
         ...physicalKey,
         rowIndex,
         colIndex: 0, // colIndex is not used in the current layout logic
-        symbol: getSymbolForKeyCapId(keyCapId),
+        symbol: keyCapId, // Placeholder symbol, VirtualKeyboard will calculate the real one
         fingerId: fingerData?.fingerId || 'L1', // Fallback, should be correct from data
         isHomeKey: fingerData?.isHomeKey || false,
         // Dynamic properties from ViewModel
@@ -181,13 +168,28 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
           const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
 
+          // Determine active modifiers from the entire scene for this keyboard
+          const activeModifiers: ModifierKey[] = [];
+          const allTargetKeyCaps = Object.values(viewModel)
+            .filter(f => f.fingerState === 'ACTIVE' && f.keyCapStates)
+            .flatMap(f => 
+                Object.entries(f.keyCapStates!)
+                    .filter(([, state]) => state.navigationRole === 'TARGET')
+                    .map(([keyCapId]) => keyCapId as KeyCapId)
+            );
+
+          if (allTargetKeyCaps.some(k => k === 'ShiftLeft' || k === 'ShiftRight')) activeModifiers.push('shift');
+          if (allTargetKeyCaps.some(k => k === 'ControlLeft' || k === 'ControlRight')) activeModifiers.push('ctrl');
+          if (allTargetKeyCaps.some(k => k === 'AltLeft' || k === 'AltRight')) activeModifiers.push('alt');
+          if (allTargetKeyCaps.some(k => k === 'MetaLeft' || k === 'MetaRight')) activeModifiers.push('meta');
+
           return (
             <div
               key={fingerId}
               ref={el => { keyboardRefs.current[fingerId] = el; }}
               className="absolute top-0 left-0"
             >
-              <VirtualKeyboard virtualLayout={virtualLayout}/>
+              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers}/>
             </div>
           );
         })}
