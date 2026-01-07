@@ -8,7 +8,9 @@ import {
   KEY_CAP_PRESS_RESULTS,
   KEY_CAP_SYMBOL_SIZES,
   KEY_CAP_UNIT_WIDTHS,
+  LEFT_HAND_BASE,
   LEFT_HAND_FINGER_IDS,
+  RIGHT_HAND_BASE,
   RIGHT_HAND_FINGER_IDS,
   VISIBILITY_STATES,
 } from "@/interfaces/types";
@@ -40,7 +42,7 @@ const meta = {
       description: 'Toggle to switch between Home key and not',
     },
     fingerId: {
-      options: [...LEFT_HAND_FINGER_IDS, ...RIGHT_HAND_FINGER_IDS],
+      options: [...LEFT_HAND_FINGER_IDS, ...RIGHT_HAND_FINGER_IDS, LEFT_HAND_BASE, RIGHT_HAND_BASE],
       control: "inline-radio",
     },
     navigationRole: {
