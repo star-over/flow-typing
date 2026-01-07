@@ -30,12 +30,6 @@ const keyCapVariants = cva(
         INVISIBLE: "[&_.keycap-center-point]:invisible",
       } satisfies Record<Visibility, string>,
 
-      /** Результат нажатия клавиши. */
-      pressResult: {
-        NEUTRAL: "animate-none",
-        CORRECT: "animate-bounce",
-        INCORRECT: "animate-pulse bg-red-200 text-red-700",
-      } satisfies Record<KeyCapPressResult, string>,
 
       /** Размер символа на клавише. */
       symbolSize: {
@@ -46,14 +40,14 @@ const keyCapVariants = cva(
 
       /** Ширина клавиши в юнитах (1U ~ 19мм). */
       unitWidth: {
-        "1U":    "w-8",
+        "1U": "w-8",
         "1.25U": "w-11",
-        "1.5U":  "w-13",
+        "1.5U": "w-13",
         "1.75U": "w-15",
-        "2U":    "w-19",
-        "2.5U":  "w-24",
-        "3U":    "w-18",
-        "5U":    "w-38",
+        "2U": "w-19",
+        "2.5U": "w-24",
+        "3U": "w-18",
+        "5U": "w-38",
       } satisfies Record<KeyCapUnitWidth, string>,
 
       /** Цветовая группа клавиши. */
@@ -70,11 +64,7 @@ const keyCapVariants = cva(
         NONE: "[&_.keycap-marker]:invisible",
       } satisfies Partial<Record<KeyCapHomeKeyMarker, string>>,
 
-      /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
-      isHomeKey: {
-        true: "ring-2",
-        false: "ring-0",
-      },
+
 
       /** Идентификатор пальца, ответственного за эту клавишу. */
       fingerId: {
@@ -93,25 +83,26 @@ const keyCapVariants = cva(
         RB: "",
       } satisfies Partial<Record<FingerId, string>>,
 
+
       /** Навигационная роль клавиши по движению к целевой клавише. */
       navigationRole: {
-        NONE:   "text-slate-300",
-        PATH:   "text-lime-600 bg-green-100 ",
-        TARGET: "text-lime-700  bg-green-300 outline-1 outline-green-700",
+        NONE: "text-slate-300",
+        PATH: "text-lime-600 bg-slate-100 ",
+        TARGET: "text-lime-700  bg-slate-200 outline-2 outline-green-700",
       } satisfies Record<KeyCapNavigationRole, string>,
 
       /** Стрелка направления движения пальца к клавише. */
       navigationArrow: {
-        NONE:  '[&_.keycap-path-arrow]:invisible',
-        UP:    `[&_.keycap-path-arrow]:rotate-0
+        NONE: '[&_.keycap-path-arrow]:invisible',
+        UP: `[&_.keycap-path-arrow]:rotate-0
                 [&_.keycap-path-arrow]:-top-1/2
                 [&_.keycap-path-arrow]:left-1/2
                 [&_.keycap-path-arrow]:-translate-x-1/2`,
-        DOWN:  `[&_.keycap-path-arrow]:rotate-180
+        DOWN: `[&_.keycap-path-arrow]:rotate-180
                 [&_.keycap-path-arrow]:-bottom-1/2
                 [&_.keycap-path-arrow]:left-1/2
                 [&_.keycap-path-arrow]:-translate-x-1/2`,
-        LEFT:  `[&_.keycap-path-arrow]:-rotate-90
+        LEFT: `[&_.keycap-path-arrow]:-rotate-90
                 [&_.keycap-path-arrow]:top-1/2
                 [&_.keycap-path-arrow]:-left-1/2
                 [&_.keycap-path-arrow]:-translate-y-1/2`,
@@ -120,14 +111,21 @@ const keyCapVariants = cva(
                 [&_.keycap-path-arrow]:-right-1/2
                 [&_.keycap-path-arrow]:-translate-y-1/2`,
       } satisfies Record<KeyCapNavigationArrow, string>,
-    },
 
-    compoundVariants: [
-      {
-        navigationRole: ["TARGET"],
-        pressResult: "INCORRECT",
-        class: "outline-red-300",
+      /** Результат нажатия клавиши. */
+      pressResult: {
+        NEUTRAL: "animate-none",
+        CORRECT: "animate-bounce",
+        INCORRECT: "bg-red-400 text-red-700",
+      } satisfies Record<KeyCapPressResult, string>,
+
+      /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
+      isHomeKey: {
+        true: "ring-4",
+        false: "ring-0",
       },
+    },
+    compoundVariants: [
       {
         visibility: "INVISIBLE",
         centerPointVisibility: "VISIBLE",
@@ -137,7 +135,7 @@ const keyCapVariants = cva(
 
     defaultVariants: {
       visibility: "VISIBLE",
-      centerPointVisibility: "VISIBLE",
+      centerPointVisibility: "INVISIBLE",
       navigationRole: "NONE",
       unitWidth: "1U",
       symbolSize: "MD",

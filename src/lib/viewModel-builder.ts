@@ -1,3 +1,10 @@
+/**
+ * @file View Model Builder for Hands Scene
+ * @description This module is responsible for generating the complete visual state
+ * for the hands scene based on the current application state. It translates
+ * the abstract training state into a concrete view model that UI components
+ * can render.
+ */
 import { SnapshotFrom } from 'xstate';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
@@ -13,12 +20,14 @@ import { getFingerByKeyCap } from './symbol-utils';
 type AppMachineState = SnapshotFrom<typeof appMachine>;
 
 // Create utility maps once at the module level for performance.
+// These are used for pathfinding and determining navigation arrows.
 const keyboardGraph = createKeyboardGraph(keyboardLayoutANSI);
 const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
 
 /**
  * Returns a completely idle view model where all fingers are IDLE.
- * @returns A HandsSceneViewModel.
+ * This is the default state when no training is active.
+ * @returns A HandsSceneViewModel with all fingers in 'IDLE' state.
  */
 function getIdleViewModel(): HandsSceneViewModel {
   const idleState: FingerState = 'IDLE';
@@ -33,8 +42,15 @@ function getIdleViewModel(): HandsSceneViewModel {
 /**
  * Generates the complete HandsSceneViewModel from the current state of the app machine.
  * This is the core "factory" for the visual representation of the trainer.
+ * The view model contains all information needed by the UI components to render
+ * the hands, fingers, and keys with appropriate states (active, inactive, incorrect, etc.).
  *
- * @param state The current state of the AppMachine.
+ * The process involves:
+ * 1. Determining which keys and fingers are required for the current symbol.
+ * 2. Calculating finger and hand states based on active fingers and errors.
+ * 3. Building detailed key states including navigation paths and press results.
+ *
+ * @param state The current state of the AppMachine, containing training context.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
 export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneViewModel {
@@ -49,7 +65,8 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
   const { stream, currentIndex, lastAttempt } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
   const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
-  
+
+  // Identify which fingers are needed to press the required keys
   const activeFingers = new Set<FingerId>();
   requiredKeyCapIds.forEach((keyId: KeyCapId) => {
     const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
@@ -123,7 +140,7 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
 
     const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
     const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
-    
+
     // Find which of the required keys this finger is responsible for
     const targetKey = requiredKeyCapIds.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
 
@@ -162,12 +179,12 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
       if (lastAttempt && !lastAttempt.isCorrect && lastAttempt.keys.includes(keyId)) {
         pressResult = 'INCORRECT';
       }
-      
+
       keyCapStates[keyId] = {
         visibility: 'VISIBLE',
         navigationRole: role,
         pressResult: pressResult,
-        navigationArrow: arrow, 
+        navigationArrow: arrow,
       };
     });
 
@@ -178,7 +195,7 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
                 visibility: 'VISIBLE',
                 navigationRole: getFingerByKeyCap(keyId, fingerLayoutASDF) === fingerId ? 'TARGET' : 'NONE',
                 pressResult: 'NEUTRAL',
-                navigationArrow: 'NONE', 
+                navigationArrow: 'NONE',
             }
         }
     })
