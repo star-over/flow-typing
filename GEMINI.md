@@ -64,19 +64,19 @@
 # Сборка и запуск
 
 ## Разработка
-`npm run dev`
+`make dev`
 Запускает сервер разработки Next.js по адресу `http://localhost:3000`.
 
 ## Storybook
-`npm run storybook`
+`make storybook`
 Запускает сервер разработки Storybook по адресу `http://localhost:6006`.
 
 ## Сборка
-`npm run build`
+`make build`
 Создает готовую к продакшену сборку в каталоге `.next`.
 
 ## Тестирование
-`npm run test`
+`make test`
 Запускает тесты с использованием Vitest.
 
 # Соглашения по разработке
@@ -188,10 +188,7 @@
 *   **Строго деловой и нейтральный тон:** Общение ведется в строго деловом ключе, без эмоциональной окраски. **Запрещены** извинения, обещания, личные мнения, чрезмерная вежливость и другие формы эмоциональных выражений.
 *   **Обоснованность утверждений:** Избегать безосновательной уверенности в правильности предложенных решений до их фактической проверки. Признавать итеративный характер процесса разработки и возможность необходимости корректировок.
 
-### Проверка и Валидация
 
-*   **Приоритет автоматизированных проверок:** При выполнении задач, связанных с анализом или модификацией кода, необходимо в первую очередь использовать автоматизированные средства проверки (`npm run test`). Этот подход является основным инструментом для выявления синтаксических ошибок, проблем с типами и регрессий, и ему следует отдавать предпочтение перед исключительно визуальным анализом кода.
-*   **Обязательная верификация после изменений:** После каждого изменения кода, внесенного мной, я буду запускать команды `npm run type-check` и `npm run lint`. Задача будет считаться выполненной только после успешного выполнения обеих команд без ошибок.
 
 ## Работа с XState v5
 
@@ -238,7 +235,7 @@ This protocol is a user-mandated, non-negotiable directive established to elimin
 
 This protocol is triggered **IMMEDIATELY** after any operation that modifies one or more files in the project repository. This includes, but is not limited to:
 - Tool calls such as `replace`, `write_file`, `delete_file`.
-- Any modification to any file, regardless of its type or purpose: `.ts`, `.tsx`, `.js`, `.mjs`, `.json`, `.css`, `.md`, configuration files, data files, etc.
+- Any modification to any file, regardless of its type or purpose: `.ts`, `.tsx`, `.js`, `.mjs`, `.json`, configuration files, data files, etc.
 
 There are **NO EXCEPTIONS**.
 
