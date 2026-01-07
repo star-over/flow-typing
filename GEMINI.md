@@ -246,28 +246,15 @@ There are **NO EXCEPTIONS**.
 
 The following commands **MUST** be executed in this exact order. The sequence must halt immediately if any command fails (exits with a non-zero status code).
 
-1.  **Run Tests:**
+1.  **Run All Checks:**
     ```bash
-    npm run test
-    ```
-2.  **Run Linter:**
-    ```bash
-    npm run lint
-    ```
-3.  **Run Type Check:**
-    ```bash
-    npm run type-check
-    ```
-4.  **Run Production Build:**
-    ```bash
-    npm run build
+    make check-all
     ```
 
 ## 4. PROTOCOL OUTCOME
 
 -   **ON FAILURE:** If any command in the sequence fails, the modification task is considered a **FAILED OPERATION**. All other activities must cease. The immediate and sole priority becomes fixing the error reported by the failed command. No commits can be made, and no task completion summaries (e.g., "Task complete") can be issued until the entire verification sequence is re-run from the beginning and passes completely.
 
--   **ON SUCCESS:** Only after all commands in the sequence (`test`, `lint`, `type-check`, `build`) have executed and passed successfully can the modification task be considered complete. Only then is it permissible to proceed to the next step, such as creating a commit or confirming task completion to the user.
+-   **ON SUCCESS:** Only after all commands in the sequence (`eslint`, `tsc`, `vitest`, `next build`, and `storybook build`) have executed and passed successfully can the modification task be considered complete. Only then is it permissible to proceed to the next step, such as creating a commit or confirming task completion to the user.
 
 **This protocol is now an immutable part of the operational logic for this project.**
-
