@@ -233,6 +233,7 @@ export type VirtualKey = {
   symbolSize?: KeyCapSymbolSize;
   homeKeyMarker?: KeyCapHomeKeyMarker;
   colorGroup?: KeyCapColorGroup;
+  type: KeyCapType;
 
   // --- From SymbolLayout ---
   /** Символ, отображаемый на клавише в текущем состоянии (с учетом Shift). */
