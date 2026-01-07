@@ -56,21 +56,22 @@ function getActiveFingersAndHands(trainingContext: TrainingContext): {
  */
 function processErrors(trainingContext: TrainingContext, activeFingers: Set<FingerId>): Set<FingerId> {
   const errorFingers = new Set<FingerId>();
-  const { lastAttempt } = trainingContext;
+  const { stream, currentIndex } = trainingContext;
+  const currentSymbol = stream[currentIndex];
+  const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
-  if (lastAttempt && !lastAttempt.isCorrect) {
+  if (lastAttempt && !lastAttempt.typedKey.isCorrect) {
     const incorrectPressFingers = new Set<FingerId>();
-    lastAttempt.keys.forEach((keyId: KeyCapId) => {
-      if (keyId === 'Space') {
-        incorrectPressFingers.add('L1');
-        return;
-      }
+    
+    // NOTE: lastAttempt.keys doesn't exist anymore, we use lastAttempt.typedKey.keyCapId
+    const keyId = lastAttempt.typedKey.keyCapId;
+    if (keyId === 'Space') {
+      incorrectPressFingers.add('L1');
+    } else {
       const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
       if (finger) incorrectPressFingers.add(finger);
-    });
-
-    // An "in-cluster" error is when the finger that made the error is the same as the target finger.
-    // In this case, we don't mark the finger as INCORRECT, but rather the key itself.
+    }
+    
     const isErrorInCluster =
       incorrectPressFingers.size === activeFingers.size &&
       [...incorrectPressFingers].every(finger => activeFingers.has(finger));
@@ -109,9 +110,12 @@ function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<'l
 function buildKeyCapStates(
   trainingContext: TrainingContext,
   fingerId: FingerId,
-  lastAttempt: TrainingContext['lastAttempt'], // Используем тип из TrainingContext
   requiredKeyCapIds: KeyCapId[]
 ): Partial<Record<KeyCapId, KeySceneState>> {
+  const { stream, currentIndex } = trainingContext;
+  const currentSymbol = stream[currentIndex];
+  const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
+
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
   const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
   const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
@@ -150,7 +154,7 @@ function buildKeyCapStates(
     }
 
     // Check if this key was part of an incorrect attempt
-    if (lastAttempt && !lastAttempt.isCorrect && lastAttempt.keys.includes(keyId)) {
+    if (lastAttempt && !lastAttempt.typedKey.isCorrect && lastAttempt.typedKey.keyCapId === keyId) {
       pressResult = 'INCORRECT';
     }
 
@@ -215,7 +219,6 @@ export function generateHandsSceneViewModel(
   }
 
   const viewModel = getIdleViewModel();
-  const { lastAttempt } = trainingContext;
   // --- 1. Determine Target and Active Keys/Fingers ---
   const { activeFingers, activeHands } = getActiveFingersAndHands(trainingContext);
   const { stream, currentIndex } = trainingContext;
@@ -251,7 +254,7 @@ export function generateHandsSceneViewModel(
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
-    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, lastAttempt, requiredKeyCapIds);
+    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, requiredKeyCapIds);
   });
 
   return viewModel;

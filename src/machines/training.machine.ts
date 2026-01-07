@@ -14,10 +14,6 @@ export interface TrainingContext {
   currentIndex: number;
   pressedKeys: KeyCapId[] | null;
   errors: number;
-  lastAttempt: {
-    keys: KeyCapId[];
-    isCorrect: boolean;
-  } | null;
 }
 
 export type TrainingEvent =
@@ -44,7 +40,6 @@ export const trainingMachine = createMachine({
     currentIndex: 0,
     pressedKeys: null,
     errors: 0,
-    lastAttempt: null,
   }),
   on: {
     PAUSE_TRAINING: '.paused',
@@ -113,10 +108,6 @@ export const trainingMachine = createMachine({
           return newStream;
         },
         currentIndex: ({ context }) => context.currentIndex + 1,
-        lastAttempt: ({ context }) => ({
-          keys: context.pressedKeys!,
-          isCorrect: true,
-        }),
       }),
       always: [
         {
@@ -145,10 +136,6 @@ export const trainingMachine = createMachine({
           newStream[context.currentIndex] = updatedSymbol;
           return newStream;
         },
-        lastAttempt: ({ context }) => ({
-          keys: context.pressedKeys!,
-          isCorrect: false,
-        }),
       }),
       always: 'awaitingInput',
     },

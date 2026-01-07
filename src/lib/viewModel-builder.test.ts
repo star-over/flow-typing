@@ -53,21 +53,23 @@ describe('viewModel-builder', () => {
     });
 
     it('should handle in-cluster errors correctly', () => {
-      const trainingStream: StreamSymbol[] = [{
-        targetSymbol: 'f',
-        requiredKeyCapIds: ['KeyF'],
-        attempts: []
-      }];
-
       const mockTrainingContext = {
-        stream: trainingStream,
+        stream: [
+          {
+            targetSymbol: 'f',
+            requiredKeyCapIds: ['KeyF'] as KeyCapId[],
+            attempts: [
+              {
+                typedKey: { keyCapId: 'KeyG' as KeyCapId, shift: false, isCorrect: false },
+                startAt: 0,
+                endAt: 0,
+              },
+            ],
+          },
+        ],
         currentIndex: 0,
         pressedKeys: ['KeyG'] as KeyCapId[],
         errors: 1,
-        lastAttempt: {
-          keys: ['KeyG'] as KeyCapId[],
-          isCorrect: false,
-        },
       };
 
       const viewModel = generateHandsSceneViewModel(mockTrainingContext);
@@ -76,21 +78,23 @@ describe('viewModel-builder', () => {
     });
 
     it('should handle out-of-cluster errors correctly', () => {
-      const trainingStream: StreamSymbol[] = [{
-        targetSymbol: 'f',
-        requiredKeyCapIds: ['KeyF'],
-        attempts: []
-      }];
-
       const mockTrainingContext = {
-        stream: trainingStream,
+        stream: [
+          {
+            targetSymbol: 'f',
+            requiredKeyCapIds: ['KeyF'] as KeyCapId[],
+            attempts: [
+              {
+                typedKey: { keyCapId: 'KeyJ' as KeyCapId, shift: false, isCorrect: false },
+                startAt: 0,
+                endAt: 0,
+              },
+            ],
+          },
+        ],
         currentIndex: 0,
         pressedKeys: ['KeyJ'] as KeyCapId[],
         errors: 1,
-        lastAttempt: {
-          keys: ['KeyJ'] as KeyCapId[],
-          isCorrect: false,
-        },
       };
 
       const viewModel = generateHandsSceneViewModel(mockTrainingContext);
