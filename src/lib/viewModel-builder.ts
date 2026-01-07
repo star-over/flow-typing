@@ -46,7 +46,8 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
   }
 
   // --- 1. Determine Target and Active Keys/Fingers ---
-  const currentStreamSymbol = trainingContext.stream[trainingContext.currentIndex];
+  const { stream, currentIndex, lastAttempt } = trainingContext;
+  const currentStreamSymbol = stream[currentIndex];
   const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
   
   const activeFingers = new Set<FingerId>();
@@ -63,6 +64,36 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
   if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
   if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
 
+  // --- 2.5 Process Errors ---
+  const errorFingers = new Set<FingerId>();
+  if (lastAttempt && !lastAttempt.isCorrect) {
+    const incorrectPressFingers = new Set<FingerId>();
+    lastAttempt.keys.forEach((keyId: KeyCapId) => {
+      if (keyId === 'Space') {
+        incorrectPressFingers.add('L1');
+        return;
+      }
+      const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
+      if (finger) incorrectPressFingers.add(finger);
+    });
+
+    // An "in-cluster" error is when the finger that made the error is the same as the target finger.
+    // In this case, we don't mark the finger as INCORRECT, but rather the key itself.
+    const isErrorInCluster =
+      incorrectPressFingers.size === activeFingers.size &&
+      [...incorrectPressFingers].every(finger => activeFingers.has(finger));
+
+    if (!isErrorInCluster) {
+      incorrectPressFingers.forEach(fingerId => errorFingers.add(fingerId));
+    }
+
+    // Ensure the hand that made the error is active to be visible
+    errorFingers.forEach(fingerId => {
+      if (isLeftHandFinger(fingerId)) activeHands.add('left');
+      else activeHands.add('right');
+    });
+  }
+
   // Apply INACTIVE state based on the Active Hand Rule
   if (activeHands.size > 0) {
     if (!activeHands.has('left')) {
@@ -78,9 +109,16 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
     viewModel[fingerId].fingerState = 'ACTIVE';
   });
 
+  // Set INCORRECT state for out-of-cluster error fingers. This overrides other states.
+  errorFingers.forEach(fingerId => {
+    viewModel[fingerId].fingerState = 'INCORRECT';
+  });
+
+
   // --- 3. Build detailed keyCapStates for each ACTIVE finger ---
   activeFingers.forEach(fingerId => {
     const fingerData = viewModel[fingerId];
+    // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
     const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
@@ -98,6 +136,7 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
     keyCluster.forEach(keyId => {
       let role: KeySceneState['navigationRole'] = 'NONE';
       let arrow: KeySceneState['navigationArrow'] = 'NONE';
+      let pressResult: KeySceneState['pressResult'] = 'NEUTRAL';
 
       const pathIndex = path.indexOf(keyId);
 
@@ -118,11 +157,16 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
           }
         }
       }
+
+      // Check if this key was part of an incorrect attempt
+      if (lastAttempt && !lastAttempt.isCorrect && lastAttempt.keys.includes(keyId)) {
+        pressResult = 'INCORRECT';
+      }
       
       keyCapStates[keyId] = {
         visibility: 'VISIBLE',
         navigationRole: role,
-        pressResult: 'NEUTRAL',
+        pressResult: pressResult,
         navigationArrow: arrow, 
       };
     });
