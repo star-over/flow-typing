@@ -309,6 +309,10 @@ export interface TrainingContext {
   currentIndex: number;
   pressedKeys: KeyCapId[] | null;
   errors: number;
+  lastAttempt: {
+    keys: KeyCapId[];
+    isCorrect: boolean;
+  } | null;
   targetKeyCapId: KeyCapId | undefined;
   targetFingerId: FingerId | undefined;
   shiftRequired: boolean;

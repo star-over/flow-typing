@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import { createVirtualLayout } from './virtual-layout';
-import { FingerLayout, KeyboardLayout, SymbolLayout, ModifierKey } from '@/interfaces/types';
+import { describe, expect, it, vi } from 'vitest';
+
+import { FingerLayout, KeyboardLayout, ModifierKey,SymbolLayout } from '@/interfaces/types';
+
 import * as SymbolUtils from './symbol-utils'; // Import the module to mock getSymbol
+import { createVirtualLayout } from './virtual-layout';
 
 // Mock getSymbol to control its behavior in tests
 vi.mock('./symbol-utils', async (importOriginal) => {

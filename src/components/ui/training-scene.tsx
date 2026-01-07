@@ -5,10 +5,9 @@
  * `FlowLine`, `HandsExt` и кнопки управления тренировкой.
  */
 import { useSelector } from "@xstate/react";
-import type { ActorRefFrom, SnapshotFrom } from "xstate";
+import type { ActorRefFrom } from "xstate";
 
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
-import { appMachine } from "@/machines/app.machine";
 import { trainingMachine } from "@/machines/training.machine";
 
 import { FlowLine } from "./flow-line";
@@ -18,7 +17,6 @@ import { HandsExt } from "./hands-ext";
 type TrainingSceneProps = {
   /** Актор (живой экземпляр) запущенной `trainingMachine`. */
   trainingActor: ActorRefFrom<typeof trainingMachine>;
-  appState: SnapshotFrom<typeof appMachine>;
 };
 
 /**
@@ -29,13 +27,13 @@ type TrainingSceneProps = {
  * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ trainingActor, appState }: TrainingSceneProps) => {
+export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
   const send = trainingActor.send;
   const { stream, currentIndex } = trainingState.context;
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel = generateHandsSceneViewModel(appState);
+  const viewModel = generateHandsSceneViewModel(trainingState.context);
 
   return (
     <div className="flex flex-col items-center gap-8">

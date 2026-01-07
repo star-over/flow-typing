@@ -5,24 +5,177 @@
  * the abstract training state into a concrete view model that UI components
  * can render.
  */
-import { SnapshotFrom } from 'xstate';
-
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
-import { appMachine } from '@/machines/app.machine';
+import { TrainingContext } from '@/machines/training.machine';
 
 import { getHomeKeyForFinger, getKeyCapIdsByFingerId, isLeftHandFinger } from './hand-utils';
 import { createKeyCoordinateMap } from './layout-utils';
 import { createKeyboardGraph, findOptimalPath } from './pathfinding';
 import { getFingerByKeyCap } from './symbol-utils';
 
-type AppMachineState = SnapshotFrom<typeof appMachine>;
-
 // Create utility maps once at the module level for performance.
 // These are used for pathfinding and determining navigation arrows.
 const keyboardGraph = createKeyboardGraph(keyboardLayoutANSI);
 const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
+
+/**
+ * Определяет активные пальцы и руки на основе текущего символа потока тренировки.
+ * @param trainingContext Контекст тренировочной машины.
+ * @returns Объект, содержащий наборы активных пальцев и активных рук.
+ */
+function getActiveFingersAndHands(trainingContext: TrainingContext): {
+  activeFingers: Set<FingerId>;
+  activeHands: Set<'left' | 'right'>;
+} {
+  const { stream, currentIndex } = trainingContext;
+  const currentStreamSymbol = stream[currentIndex];
+  const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
+
+  const activeFingers = new Set<FingerId>();
+  requiredKeyCapIds.forEach((keyId: KeyCapId) => {
+    const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
+    if (finger) {
+      activeFingers.add(finger);
+    }
+  });
+
+  const activeHands = new Set<'left' | 'right'>();
+  if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
+  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
+
+  return { activeFingers, activeHands };
+}
+
+/**
+ * Обрабатывает ошибки ввода, определяя пальцы, которые должны быть помечены как INCORRECT.
+ * @param trainingContext Контекст тренировочной машины.
+ * @param activeFingers Набор активных пальцев.
+ * @returns Набор пальцев, которые должны быть помечены как INCORRECT.
+ */
+function processErrors(trainingContext: TrainingContext, activeFingers: Set<FingerId>): Set<FingerId> {
+  const errorFingers = new Set<FingerId>();
+  const { lastAttempt } = trainingContext;
+
+  if (lastAttempt && !lastAttempt.isCorrect) {
+    const incorrectPressFingers = new Set<FingerId>();
+    lastAttempt.keys.forEach((keyId: KeyCapId) => {
+      if (keyId === 'Space') {
+        incorrectPressFingers.add('L1');
+        return;
+      }
+      const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
+      if (finger) incorrectPressFingers.add(finger);
+    });
+
+    // An "in-cluster" error is when the finger that made the error is the same as the target finger.
+    // In this case, we don't mark the finger as INCORRECT, but rather the key itself.
+    const isErrorInCluster =
+      incorrectPressFingers.size === activeFingers.size &&
+      [...incorrectPressFingers].every(finger => activeFingers.has(finger));
+
+    if (!isErrorInCluster) {
+      incorrectPressFingers.forEach(fingerId => errorFingers.add(fingerId));
+    }
+  }
+  return errorFingers;
+}
+
+/**
+ * Применяет состояние INACTIVE к пальцам неактивных рук.
+ * @param viewModel Текущий HandsSceneViewModel.
+ * @param activeHands Набор активных рук.
+ */
+function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<'left' | 'right'>): void {
+  if (activeHands.size > 0) {
+    if (!activeHands.has('left')) {
+      ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
+    }
+    if (!activeHands.has('right')) {
+      ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
+    }
+  }
+}
+
+/**
+ * Строит детальные keyCapStates для одного активного пальца.
+ * @param trainingContext Контекст тренировочной машины.
+ * @param fingerId Идентификатор активного пальца.
+ * @param lastAttempt Последняя попытка ввода.
+ * @param requiredKeyCapIds Обязательные KeyCapId для текущего символа.
+ * @returns Объект Partial<Record<KeyCapId, KeySceneState>> с состояниями клавиш.
+ */
+function buildKeyCapStates(
+  trainingContext: TrainingContext,
+  fingerId: FingerId,
+  lastAttempt: TrainingContext['lastAttempt'], // Используем тип из TrainingContext
+  requiredKeyCapIds: KeyCapId[]
+): Partial<Record<KeyCapId, KeySceneState>> {
+  const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
+  const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
+  const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
+
+  // Find which of the required keys this finger is responsible for
+  const targetKey = requiredKeyCapIds.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
+
+  let path: KeyCapId[] = [];
+  if (homeKey && targetKey) {
+    path = findOptimalPath(homeKey, targetKey, keyboardGraph);
+  }
+
+  keyCluster.forEach(keyId => {
+    let role: KeySceneState['navigationRole'] = 'NONE';
+    let arrow: KeySceneState['navigationArrow'] = 'NONE';
+    let pressResult: KeySceneState['pressResult'] = 'NEUTRAL';
+
+    const pathIndex = path.indexOf(keyId);
+
+    if (keyId === targetKey) {
+      role = 'TARGET';
+    } else if (pathIndex > -1) {
+      role = 'PATH';
+      // Determine arrow direction
+      const nextKeyInPath = path[pathIndex + 1];
+      if (nextKeyInPath) {
+        const currentCoords = keyCoordinateMap.get(keyId);
+        const nextCoords = keyCoordinateMap.get(nextKeyInPath);
+        if (currentCoords && nextCoords) {
+          if (nextCoords.r < currentCoords.r) arrow = 'UP';
+          else if (nextCoords.r > currentCoords.r) arrow = 'DOWN';
+          else if (nextCoords.c < currentCoords.c) arrow = 'LEFT';
+          else if (nextCoords.c > currentCoords.c) arrow = 'RIGHT';
+        }
+      }
+    }
+
+    // Check if this key was part of an incorrect attempt
+    if (lastAttempt && !lastAttempt.isCorrect && lastAttempt.keys.includes(keyId)) {
+      pressResult = 'INCORRECT';
+    }
+
+    keyCapStates[keyId] = {
+      visibility: 'VISIBLE',
+      navigationRole: role,
+      pressResult: pressResult,
+      navigationArrow: arrow,
+    };
+  });
+
+  // Also make any other required keys (like shift on another hand) visible in this cluster
+  requiredKeyCapIds.forEach((keyId: KeyCapId) => {
+      if (!keyCapStates[keyId]) {
+          keyCapStates[keyId] = {
+              visibility: 'VISIBLE',
+              navigationRole: getFingerByKeyCap(keyId, fingerLayoutASDF) === fingerId ? 'TARGET' : 'NONE',
+              pressResult: 'NEUTRAL',
+              navigationArrow: 'NONE',
+          }
+      }
+  })
+
+  return keyCapStates;
+}
 
 /**
  * Returns a completely idle view model where all fingers are IDLE.
@@ -53,73 +206,33 @@ function getIdleViewModel(): HandsSceneViewModel {
  * @param state The current state of the AppMachine, containing training context.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneViewModel {
-  const trainingContext = state.children.trainingService?.getSnapshot()?.context;
-
+export function generateHandsSceneViewModel(
+  trainingContext: TrainingContext | undefined
+): HandsSceneViewModel {
   // If training is not active, return a completely idle view.
-  if (!trainingContext || !state.matches('training')) {
+  if (!trainingContext) {
     return getIdleViewModel();
   }
 
+  const viewModel = getIdleViewModel();
+  const { lastAttempt } = trainingContext;
   // --- 1. Determine Target and Active Keys/Fingers ---
-  const { stream, currentIndex, lastAttempt } = trainingContext;
+  const { activeFingers, activeHands } = getActiveFingersAndHands(trainingContext);
+  const { stream, currentIndex } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
   const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
 
-  // Identify which fingers are needed to press the required keys
-  const activeFingers = new Set<FingerId>();
-  requiredKeyCapIds.forEach((keyId: KeyCapId) => {
-    const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
-    if (finger) {
-      activeFingers.add(finger);
-    }
+  // --- 2.5 Process Errors ---
+  const errorFingers = processErrors(trainingContext, activeFingers);
+
+  // Ensure the hand that made the error is active to be visible
+  errorFingers.forEach(fingerId => {
+    if (isLeftHandFinger(fingerId)) activeHands.add('left');
+    else activeHands.add('right');
   });
 
-  // --- 2. Determine Finger and Hand States (ACTIVE, INACTIVE, IDLE) ---
-  const viewModel = getIdleViewModel();
-  const activeHands = new Set<'left' | 'right'>();
-  if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
-  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
-
-  // --- 2.5 Process Errors ---
-  const errorFingers = new Set<FingerId>();
-  if (lastAttempt && !lastAttempt.isCorrect) {
-    const incorrectPressFingers = new Set<FingerId>();
-    lastAttempt.keys.forEach((keyId: KeyCapId) => {
-      if (keyId === 'Space') {
-        incorrectPressFingers.add('L1');
-        return;
-      }
-      const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
-      if (finger) incorrectPressFingers.add(finger);
-    });
-
-    // An "in-cluster" error is when the finger that made the error is the same as the target finger.
-    // In this case, we don't mark the finger as INCORRECT, but rather the key itself.
-    const isErrorInCluster =
-      incorrectPressFingers.size === activeFingers.size &&
-      [...incorrectPressFingers].every(finger => activeFingers.has(finger));
-
-    if (!isErrorInCluster) {
-      incorrectPressFingers.forEach(fingerId => errorFingers.add(fingerId));
-    }
-
-    // Ensure the hand that made the error is active to be visible
-    errorFingers.forEach(fingerId => {
-      if (isLeftHandFinger(fingerId)) activeHands.add('left');
-      else activeHands.add('right');
-    });
-  }
-
   // Apply INACTIVE state based on the Active Hand Rule
-  if (activeHands.size > 0) {
-    if (!activeHands.has('left')) {
-      ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
-    }
-    if (!activeHands.has('right')) {
-      ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
-    }
-  }
+  applyHandInactivity(viewModel, activeHands);
 
   // Set ACTIVE state for the required fingers
   activeFingers.forEach(fingerId => {
@@ -138,70 +251,7 @@ export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneV
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
-    const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
-    const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
-
-    // Find which of the required keys this finger is responsible for
-    const targetKey = requiredKeyCapIds.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
-
-    let path: KeyCapId[] = [];
-    if (homeKey && targetKey) {
-      path = findOptimalPath(homeKey, targetKey, keyboardGraph);
-    }
-
-    const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-    keyCluster.forEach(keyId => {
-      let role: KeySceneState['navigationRole'] = 'NONE';
-      let arrow: KeySceneState['navigationArrow'] = 'NONE';
-      let pressResult: KeySceneState['pressResult'] = 'NEUTRAL';
-
-      const pathIndex = path.indexOf(keyId);
-
-      if (keyId === targetKey) {
-        role = 'TARGET';
-      } else if (pathIndex > -1) {
-        role = 'PATH';
-        // Determine arrow direction
-        const nextKeyInPath = path[pathIndex + 1];
-        if (nextKeyInPath) {
-          const currentCoords = keyCoordinateMap.get(keyId);
-          const nextCoords = keyCoordinateMap.get(nextKeyInPath);
-          if (currentCoords && nextCoords) {
-            if (nextCoords.r < currentCoords.r) arrow = 'UP';
-            else if (nextCoords.r > currentCoords.r) arrow = 'DOWN';
-            else if (nextCoords.c < currentCoords.c) arrow = 'LEFT';
-            else if (nextCoords.c > currentCoords.c) arrow = 'RIGHT';
-          }
-        }
-      }
-
-      // Check if this key was part of an incorrect attempt
-      if (lastAttempt && !lastAttempt.isCorrect && lastAttempt.keys.includes(keyId)) {
-        pressResult = 'INCORRECT';
-      }
-
-      keyCapStates[keyId] = {
-        visibility: 'VISIBLE',
-        navigationRole: role,
-        pressResult: pressResult,
-        navigationArrow: arrow,
-      };
-    });
-
-    // Also make any other required keys (like shift on another hand) visible in this cluster
-    requiredKeyCapIds.forEach((keyId: KeyCapId) => {
-        if (!keyCapStates[keyId]) {
-            keyCapStates[keyId] = {
-                visibility: 'VISIBLE',
-                navigationRole: getFingerByKeyCap(keyId, fingerLayoutASDF) === fingerId ? 'TARGET' : 'NONE',
-                pressResult: 'NEUTRAL',
-                navigationArrow: 'NONE',
-            }
-        }
-    })
-
-
-    fingerData.keyCapStates = keyCapStates;
+    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, lastAttempt, requiredKeyCapIds);
   });
 
   return viewModel;

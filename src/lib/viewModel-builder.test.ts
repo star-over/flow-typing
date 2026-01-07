@@ -1,8 +1,7 @@
 import { describe, expect,it } from 'vitest';
 import { createActor } from 'xstate';
 
-import { StreamSymbol } from '@/interfaces/types';
-import { appMachine } from '@/machines/app.machine';
+import { KeyCapId,StreamSymbol } from '@/interfaces/types';
 import { trainingMachine } from '@/machines/training.machine';
 
 import { generateHandsSceneViewModel } from './viewModel-builder';
@@ -10,10 +9,7 @@ import { generateHandsSceneViewModel } from './viewModel-builder';
 describe('viewModel-builder', () => {
   describe('getIdleViewModel', () => {
     it('should return a view model with all fingers in IDLE state', () => {
-      const actor = createActor(appMachine);
-      actor.start();
-      const state = actor.getSnapshot();
-      const viewModel = generateHandsSceneViewModel(state);
+      const viewModel = generateHandsSceneViewModel(undefined);
       Object.values(viewModel).forEach(fingerScene => {
         expect(fingerScene.fingerState).toBe('IDLE');
         expect(fingerScene.keyCapStates).toBeUndefined();
@@ -23,10 +19,7 @@ describe('viewModel-builder', () => {
 
   describe('generateHandsSceneViewModel', () => {
     it('should return an idle view model when not in the training state', () => {
-      const actor = createActor(appMachine);
-      actor.start();
-      const state = actor.getSnapshot();
-      const viewModel = generateHandsSceneViewModel(state);
+      const viewModel = generateHandsSceneViewModel(undefined);
       expect(Object.values(viewModel).every(f => f.fingerState === 'IDLE')).toBe(true);
     });
 
@@ -39,15 +32,8 @@ describe('viewModel-builder', () => {
 
       const trainingActor = createActor(trainingMachine, { input: { stream: trainingStream } });
       trainingActor.start();
-      const appActor = createActor(appMachine);
-      appActor.start();
-      appActor.send({ type: 'START_TRAINING' });
-      const appState = appActor.getSnapshot();
-      appState.children.trainingService = trainingActor;
-
-
-      const viewModel = generateHandsSceneViewModel(appState);
-      expect(viewModel['L2'].fingerState).toBe('ACTIVE'); 
+      const viewModel = generateHandsSceneViewModel(trainingActor.getSnapshot().context);
+      expect(viewModel['L2'].fingerState).toBe('ACTIVE');
       expect(viewModel['R1'].fingerState).toBe('INACTIVE');
     });
 
@@ -60,15 +46,10 @@ describe('viewModel-builder', () => {
 
       const trainingActor = createActor(trainingMachine, { input: { stream: trainingStream } });
       trainingActor.start();
-      const appActor = createActor(appMachine);
-      appActor.start();
-      appActor.send({ type: 'START_TRAINING' });
-      const appState = appActor.getSnapshot();
-      appState.children.trainingService = trainingActor;
 
-      const viewModel = generateHandsSceneViewModel(appState);
-      expect(viewModel['L2'].fingerState).toBe('ACTIVE'); 
-      expect(viewModel['R5'].fingerState).toBe('ACTIVE'); 
+      const viewModel = generateHandsSceneViewModel(trainingActor.getSnapshot().context);
+      expect(viewModel['L2'].fingerState).toBe('ACTIVE');
+      expect(viewModel['R5'].fingerState).toBe('ACTIVE');
     });
 
     it('should handle in-cluster errors correctly', () => {
@@ -78,17 +59,18 @@ describe('viewModel-builder', () => {
         attempts: []
       }];
 
-      const trainingActor = createActor(trainingMachine, { input: { stream: trainingStream } });
-      trainingActor.start();
-      trainingActor.send({ type: 'KEY_PRESS', keys: ['KeyG'] });
+      const mockTrainingContext = {
+        stream: trainingStream,
+        currentIndex: 0,
+        pressedKeys: ['KeyG'] as KeyCapId[],
+        errors: 1,
+        lastAttempt: {
+          keys: ['KeyG'] as KeyCapId[],
+          isCorrect: false,
+        },
+      };
 
-      const appActor = createActor(appMachine);
-      appActor.start();
-      appActor.send({ type: 'START_TRAINING' });
-      const appState = appActor.getSnapshot();
-      appState.children.trainingService = trainingActor;
-
-      const viewModel = generateHandsSceneViewModel(appState);
+      const viewModel = generateHandsSceneViewModel(mockTrainingContext);
       expect(viewModel['L2'].fingerState).toBe('ACTIVE');
       expect(viewModel['L2'].keyCapStates?.['KeyG']?.pressResult).toBe('INCORRECT');
     });
@@ -100,18 +82,19 @@ describe('viewModel-builder', () => {
         attempts: []
       }];
 
-      const trainingActor = createActor(trainingMachine, { input: { stream: trainingStream } });
-      trainingActor.start();
-      trainingActor.send({ type: 'KEY_PRESS', keys: ['KeyJ'] });
+      const mockTrainingContext = {
+        stream: trainingStream,
+        currentIndex: 0,
+        pressedKeys: ['KeyJ'] as KeyCapId[],
+        errors: 1,
+        lastAttempt: {
+          keys: ['KeyJ'] as KeyCapId[],
+          isCorrect: false,
+        },
+      };
 
-      const appActor = createActor(appMachine);
-      appActor.start();
-      appActor.send({ type: 'START_TRAINING' });
-      const appState = appActor.getSnapshot();
-      appState.children.trainingService = trainingActor;
-
-      const viewModel = generateHandsSceneViewModel(appState);
-      expect(viewModel['L2'].fingerState).toBe('ACTIVE'); 
+      const viewModel = generateHandsSceneViewModel(mockTrainingContext);
+      expect(viewModel['L2'].fingerState).toBe('ACTIVE');
       expect(viewModel['R2'].fingerState).toBe('INCORRECT');
     });
   });
