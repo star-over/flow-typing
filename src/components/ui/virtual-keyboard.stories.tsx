@@ -5,11 +5,11 @@ import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { ModifierKey } from "@/interfaces/types";
-import { createVirtualLayout, findPath } from "@/lib/virtual-layout";
+import { createVirtualLayout } from "@/lib/virtual-layout";
 
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";
 
-type StoryArgs = VirtualKeyboardProps & { activeModifiers: ModifierKey[], target: string };
+type StoryArgs = VirtualKeyboardProps & { activeModifiers: ModifierKey[] };
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -30,12 +30,6 @@ const meta  = {
       control: 'check',
       options: ['shift', 'ctrl', 'alt', 'meta'],
       description: 'Select active modifier keys.',
-    },
-    target: {
-      name: 'Target symbol',
-      options: ["Q", "Z", "S", "3", "F", "G", "6", "y", "m", ",", "-", "]", "=", ".", "/"],
-      control: "inline-radio",
-      description: 'Target symbol than need to be reached by user',
     },
     virtualLayout: {
       control: false,
@@ -66,21 +60,5 @@ export const WholeKeyboard: Story = {
     });
 
     return <VirtualKeyboard  {...{ virtualLayout, activeModifiers }} />;
-  },
-};
-
-export const JustPath: Story = {
-  args: {
-    target: meta.argTypes.target.options[0],
-  },
-  render: ({ target }) => {
-    const virtualLayout = findPath({
-      keyboardLayout: keyboardLayoutANSI,
-      symbolLayout: symbolLayoutEnQwerty,
-      fingerLayout: fingerLayoutASDF,
-      targetSymbol: target,
-    });
-
-    return <VirtualKeyboard virtualLayout={virtualLayout} />;
   },
 };

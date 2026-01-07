@@ -3,7 +3,7 @@ import { describe, expect,it } from "vitest";
 import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
 import { FingerLayout, HandStates, SymbolLayout, TypedKey } from "../interfaces/types";
-import { getHandStates, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
+import { getHandStates, getHomeKeyForFinger, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
 
 describe("getHandStates", () => {
   const symbolLayout: SymbolLayout = symbolLayoutEnQwerty;
@@ -147,6 +147,26 @@ describe("getHandStates", () => {
       expect(handStates.L5).toBe("INACTIVE");
       expect(handStates.LB).toBe("INACTIVE");
     });
+  });
+});
+
+describe("getHomeKeyForFinger", () => {
+  it("should return the correct home key for a given finger", () => {
+    expect(getHomeKeyForFinger("L5", fingerLayoutASDF)).toBe("KeyA");
+    expect(getHomeKeyForFinger("L4", fingerLayoutASDF)).toBe("KeyS");
+    expect(getHomeKeyForFinger("R2", fingerLayoutASDF)).toBe("KeyJ");
+    expect(getHomeKeyForFinger("R5", fingerLayoutASDF)).toBe("Semicolon");
+  });
+
+  it("should return the correct home key for thumbs", () => {
+    expect(getHomeKeyForFinger("L1", fingerLayoutASDF)).toBe("SpaceLeft");
+    expect(getHomeKeyForFinger("R1", fingerLayoutASDF)).toBe("SpaceRight");
+  });
+
+  it("should return undefined for fingers with no home key", () => {
+    // Assuming LB and RB don't have home keys
+    expect(getHomeKeyForFinger("LB", fingerLayoutASDF)).toBeUndefined();
+    expect(getHomeKeyForFinger("RB", fingerLayoutASDF)).toBeUndefined();
   });
 });
 

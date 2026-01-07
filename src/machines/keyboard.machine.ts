@@ -87,6 +87,9 @@ export const keyboardMachine = setup({
       event
     }) => {
       if (event.type !== "KEY_DOWN") return false;
+      // The physical spacebar 'Space' should be treated as a text key
+      // even though our virtual layout uses 'SpaceLeft' and 'SpaceRight'.
+      if (event.keyCapId === 'Space') return true;
       const result = isTextKey(event.keyCapId);
       return result;
     },

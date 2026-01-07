@@ -1,102 +1,147 @@
 import { SnapshotFrom } from 'xstate';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { FingerId, FingerState, HandsSceneViewModel, KeyCapId,KeySceneState } from '@/interfaces/types';
+import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
+import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
 import { appMachine } from '@/machines/app.machine';
 
+import { getHomeKeyForFinger, getKeyCapIdsByFingerId, isLeftHandFinger } from './hand-utils';
+import { createKeyCoordinateMap } from './layout-utils';
+import { createKeyboardGraph, findOptimalPath } from './pathfinding';
 import { getFingerByKeyCap } from './symbol-utils';
 
 type AppMachineState = SnapshotFrom<typeof appMachine>;
 
+// Create utility maps once at the module level for performance.
+const keyboardGraph = createKeyboardGraph(keyboardLayoutANSI);
+const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
+
+/**
+ * Returns a completely idle view model where all fingers are IDLE.
+ * @returns A HandsSceneViewModel.
+ */
+function getIdleViewModel(): HandsSceneViewModel {
+  const idleState: FingerState = 'IDLE';
+  const viewModel: Partial<HandsSceneViewModel> = {};
+  const allFingerIds: FingerId[] = ['L1', 'L2', 'L3', 'L4', 'L5', 'LB', 'R1', 'R2', 'R3', 'R4', 'R5', 'RB'];
+  allFingerIds.forEach(id => {
+    viewModel[id] = { fingerState: idleState };
+  });
+  return viewModel as HandsSceneViewModel;
+}
+
 /**
  * Generates the complete HandsSceneViewModel from the current state of the app machine.
+ * This is the core "factory" for the visual representation of the trainer.
  *
  * @param state The current state of the AppMachine.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
 export function generateHandsSceneViewModel(state: AppMachineState): HandsSceneViewModel {
   const trainingContext = state.children.trainingService?.getSnapshot()?.context;
-  const keyboardContext = state.children.keyboardService?.getSnapshot()?.context;
 
-  if (!trainingContext || !keyboardContext) {
-    // Return an idle view model if machines are not ready
+  // If training is not active, return a completely idle view.
+  if (!trainingContext || !state.matches('training')) {
     return getIdleViewModel();
   }
 
-  // Step 1: Determine target keys and fingers
+  // --- 1. Determine Target and Active Keys/Fingers ---
   const currentStreamSymbol = trainingContext.stream[trainingContext.currentIndex];
   const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
   
-  const targetFingers = new Set<FingerId>();
+  const activeFingers = new Set<FingerId>();
   requiredKeyCapIds.forEach((keyId: KeyCapId) => {
     const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
     if (finger) {
-      targetFingers.add(finger);
+      activeFingers.add(finger);
     }
   });
 
-  // Step 2: Determine finger states (ACTIVE, INACTIVE, IDLE, INCORRECT)
-  // This is a complex step that involves checking for errors and active hands.
-  // Placeholder logic:
-  const fingerStates = {} as Record<FingerId, { fingerState: FingerState }>;
-  // ... to be implemented based on VisualContract.md rules ...
-  
-  // For now, let's just create a basic active/idle state
-  const allFingerIds: FingerId[] = Object.values(fingerLayoutASDF).map(f => f.fingerId).filter((v, i, a) => a.indexOf(v) === i) as FingerId[];
-  allFingerIds.forEach(id => {
-    if (targetFingers.has(id)) {
-      fingerStates[id] = { fingerState: 'ACTIVE' };
-    } else {
-      fingerStates[id] = { fingerState: 'IDLE' };
+  // --- 2. Determine Finger and Hand States (ACTIVE, INACTIVE, IDLE) ---
+  const viewModel = getIdleViewModel();
+  const activeHands = new Set<'left' | 'right'>();
+  if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
+  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
+
+  // Apply INACTIVE state based on the Active Hand Rule
+  if (activeHands.size > 0) {
+    if (!activeHands.has('left')) {
+      ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
     }
-  });
-
-
-  // Step 3: Determine KeyCap states for active fingers
-  // This involves pathfinding and error checking.
-  // Placeholder logic:
-  const finalViewModel: HandsSceneViewModel = { ...getIdleViewModel() };
-
-  for (const fingerId in fingerStates) {
-    finalViewModel[fingerId as FingerId] = { fingerState: fingerStates[fingerId as FingerId].fingerState };
+    if (!activeHands.has('right')) {
+      ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
+    }
   }
 
-  targetFingers.forEach(fingerId => {
-    // ... complex logic to build keyCapStates for each active finger ...
-    // This will involve pathfinding from home key to target key.
+  // Set ACTIVE state for the required fingers
+  activeFingers.forEach(fingerId => {
+    viewModel[fingerId].fingerState = 'ACTIVE';
+  });
+
+  // --- 3. Build detailed keyCapStates for each ACTIVE finger ---
+  activeFingers.forEach(fingerId => {
+    const fingerData = viewModel[fingerId];
+    if (fingerData.fingerState !== 'ACTIVE') return;
+
+    const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
+    const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
+    
+    // Find which of the required keys this finger is responsible for
+    const targetKey = requiredKeyCapIds.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
+
+    let path: KeyCapId[] = [];
+    if (homeKey && targetKey) {
+      path = findOptimalPath(homeKey, targetKey, keyboardGraph);
+    }
+
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
+    keyCluster.forEach(keyId => {
+      let role: KeySceneState['navigationRole'] = 'NONE';
+      let arrow: KeySceneState['navigationArrow'] = 'NONE';
+
+      const pathIndex = path.indexOf(keyId);
+
+      if (keyId === targetKey) {
+        role = 'TARGET';
+      } else if (pathIndex > -1) {
+        role = 'PATH';
+        // Determine arrow direction
+        const nextKeyInPath = path[pathIndex + 1];
+        if (nextKeyInPath) {
+          const currentCoords = keyCoordinateMap.get(keyId);
+          const nextCoords = keyCoordinateMap.get(nextKeyInPath);
+          if (currentCoords && nextCoords) {
+            if (nextCoords.r < currentCoords.r) arrow = 'UP';
+            else if (nextCoords.r > currentCoords.r) arrow = 'DOWN';
+            else if (nextCoords.c < currentCoords.c) arrow = 'LEFT';
+            else if (nextCoords.c > currentCoords.c) arrow = 'RIGHT';
+          }
+        }
+      }
+      
+      keyCapStates[keyId] = {
+        visibility: 'VISIBLE',
+        navigationRole: role,
+        pressResult: 'NEUTRAL',
+        navigationArrow: arrow, 
+      };
+    });
+
+    // Also make any other required keys (like shift on another hand) visible in this cluster
     requiredKeyCapIds.forEach((keyId: KeyCapId) => {
-        // Simplified for now
-        const stateForKey = keyCapStates[keyId];
-        if(stateForKey) {
-            stateForKey.visibility = 'VISIBLE';
-            stateForKey.navigationRole = 'TARGET';
-            stateForKey.pressResult = 'NEUTRAL';
-            stateForKey.navigationArrow = 'NONE';
+        if (!keyCapStates[keyId]) {
+            keyCapStates[keyId] = {
+                visibility: 'VISIBLE',
+                navigationRole: getFingerByKeyCap(keyId, fingerLayoutASDF) === fingerId ? 'TARGET' : 'NONE',
+                pressResult: 'NEUTRAL',
+                navigationArrow: 'NONE', 
+            }
         }
     })
 
-    if (finalViewModel[fingerId]) {
-      finalViewModel[fingerId].keyCapStates = keyCapStates;
-    }
+
+    fingerData.keyCapStates = keyCapStates;
   });
 
-
-  // Step 4: Assemble and return the final ViewModel
-  // The placeholder logic above is a temporary stand-in.
-  // The full implementation will be required.
-  return finalViewModel;
-}
-
-
-/**
- * Returns a completely idle view model.
- * @returns A HandsSceneViewModel where all fingers are IDLE.
- */
-function getIdleViewModel(): HandsSceneViewModel {
-  const idleState: FingerState = 'IDLE';
-  return {
-    L1: { fingerState: idleState }, L2: { fingerState: idleState }, L3: { fingerState: idleState }, L4: { fingerState: idleState }, L5: { fingerState: idleState }, LB: { fingerState: idleState },
-    R1: { fingerState: idleState }, R2: { fingerState: idleState }, R3: { fingerState: idleState }, R4: { fingerState: idleState }, R5: { fingerState: idleState }, RB: { fingerState: idleState },
-  };
+  return viewModel;
 }

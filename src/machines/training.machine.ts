@@ -65,30 +65,23 @@ export const trainingMachine = createMachine({
             if (!currentSymbol) return false;
 
             const requiredKeys = new Set(currentSymbol.requiredKeyCapIds);
-            const pressedKeys = new Set(event.keys);
+            const keysToCheck = new Set(event.keys);
 
-            // Special handling for the spacebar
+            // If the target is a virtual space and the user pressed the physical space,
+            // substitute the physical key with the virtual one for the comparison.
             const isTargetVirtualSpace = currentSymbol.requiredKeyCapIds.some(key => key.startsWith('Space'));
-            if (isTargetVirtualSpace && pressedKeys.has('Space')) {
-                // The user pressed the physical spacebar when a virtual one was expected.
-                // We substitute the physical 'Space' with the specific virtual one to check for a match.
-                // This assumes only ONE virtual space can be a target at a time.
+            if (isTargetVirtualSpace && keysToCheck.has('Space')) {
                 const virtualSpaceTarget = currentSymbol.requiredKeyCapIds.find(key => key.startsWith('Space'));
-                // Create a new set for comparison, replacing 'Space' with the required virtual space
-                const substitutedPressedKeys = new Set(Array.from(pressedKeys).map(k => k === 'Space' ? virtualSpaceTarget! : k));
-                
-                // Now compare the substituted set with the required set.
-                if (requiredKeys.size !== substitutedPressedKeys.size) return false;
-                for (const key of requiredKeys) {
-                  if (!substitutedPressedKeys.has(key)) return false;
+                if (virtualSpaceTarget) {
+                    keysToCheck.delete('Space');
+                    keysToCheck.add(virtualSpaceTarget);
                 }
-                return true;
             }
             
-            // Default comparison for all other keys
-            if (requiredKeys.size !== pressedKeys.size) return false;
+            // Now, perform a single, universal comparison.
+            if (requiredKeys.size !== keysToCheck.size) return false;
             for (const key of requiredKeys) {
-              if (!pressedKeys.has(key)) return false;
+              if (!keysToCheck.has(key)) return false;
             }
             return true;
           },

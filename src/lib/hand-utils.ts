@@ -165,3 +165,19 @@ export function getKeyCapIdsByFingerId(
     .filter(([, fingerKey]) => fingerKey.fingerId === fingerId)
     .map(([keyCapId]) => keyCapId as KeyCapId);
 }
+
+/**
+ * Получает `keyCapId` домашней клавиши для заданного пальца.
+ * @param fingerId Идентификатор пальца.
+ * @param fingerLayout Схема расположения пальцев.
+ * @returns `KeyCapId` домашней клавиши или `undefined`, если не найдена.
+ */
+export function getHomeKeyForFinger(
+  fingerId: FingerId,
+  fingerLayout: FingerLayout
+): KeyCapId | undefined {
+  const entry = Object.entries(fingerLayout).find(
+    ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
+  );
+  return entry ? (entry[0] as KeyCapId) : undefined;
+}

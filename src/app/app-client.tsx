@@ -23,6 +23,10 @@ export function AppClient() {
    */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Prevent default browser actions for certain keys during training
+      if (state.matches('training') && event.code === 'Space') {
+        event.preventDefault();
+      }
       const appEvent: AppEvent = { type: "KEY_DOWN", keyCapId: event.code as KeyCapId };
       send(appEvent);
     };
@@ -39,7 +43,7 @@ export function AppClient() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [send]);
+  }, [send, state]);
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
