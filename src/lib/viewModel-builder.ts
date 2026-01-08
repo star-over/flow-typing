@@ -7,7 +7,7 @@
  */
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
+import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
 import { TrainingContext } from '@/machines/training.machine';
 
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
@@ -50,10 +50,10 @@ function getActiveFingers(trainingContext: TrainingContext): Set<FingerId> {
  * @param activeFingers Набор активных пальцев.
  * @returns Набор активных рук.
  */
-function getActiveHands(activeFingers: Set<FingerId>): Set<'left' | 'right'> {
-  const activeHands = new Set<'left' | 'right'>();
-  if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
-  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
+function getActiveHands(activeFingers: Set<FingerId>): Set<HandSide> {
+  const activeHands = new Set<HandSide>();
+  if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add(HAND_SIDES[0]); // 'LEFT'
+  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add(HAND_SIDES[1]); // 'RIGHT'
   return activeHands;
 }
 
@@ -96,12 +96,12 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
  * @param viewModel Текущий HandsSceneViewModel.
  * @param activeHands Набор активных рук.
  */
-function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<'left' | 'right'>): void {
+function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<HandSide>): void {
   if (activeHands.size > 0) {
-    if (!activeHands.has('left')) {
+    if (!activeHands.has(HAND_SIDES[0])) { // 'LEFT'
       ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
     }
-    if (!activeHands.has('right')) {
+    if (!activeHands.has(HAND_SIDES[1])) { // 'RIGHT'
       ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
     }
   }
@@ -237,8 +237,8 @@ export function generateHandsSceneViewModel(trainingContext: TrainingContext | u
 
   // Ensure the hand that made the error is active to be visible
   errorFingers.forEach(fingerId => {
-    if (isLeftHandFinger(fingerId)) activeHands.add('left');
-    else activeHands.add('right');
+    if (isLeftHandFinger(fingerId)) activeHands.add(HAND_SIDES[0]); // 'LEFT'
+    else activeHands.add(HAND_SIDES[1]); // 'RIGHT'
   });
 
   // Apply INACTIVE state based on the Active Hand Rule

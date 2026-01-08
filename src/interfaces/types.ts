@@ -114,6 +114,10 @@ export type FingerState = typeof FINGER_STATES[number];
 /** Объединение всех идентификаторов пальцев и кистей. */
 export type HandFingerId = FingerId | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
 
+/** Идентификаторы сторон рук. */
+export const HAND_SIDES = ["LEFT", "RIGHT"] as const;
+export type HandSide = typeof HAND_SIDES[number];
+
 // --- FlowLine Types ---
 
 /** Состояние компонента FlowLine. */
