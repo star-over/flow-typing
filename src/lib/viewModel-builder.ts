@@ -7,7 +7,7 @@
  */
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
+import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState, LEFT_HAND_BASE, LEFT_HAND_FINGERS, RIGHT_HAND_BASE, RIGHT_HAND_FINGERS } from '@/interfaces/types';
 import { TrainingContext } from '@/machines/training.machine';
 
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
@@ -197,10 +197,8 @@ function buildKeyCapStates(
 function getIdleViewModel(): HandsSceneViewModel {
   const idleState: FingerState = 'IDLE';
   const viewModel: Partial<HandsSceneViewModel> = {};
-  const allFingerIds: FingerId[] = ['L1', 'L2', 'L3', 'L4', 'L5', 'LB', 'R1', 'R2', 'R3', 'R4', 'R5', 'RB'];
-  allFingerIds.forEach(id => {
-    viewModel[id] = { fingerState: idleState };
-  });
+  const allFingerIds: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE, ...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
+  allFingerIds.forEach(id => { viewModel[id] = { fingerState: idleState } });
   return viewModel as HandsSceneViewModel;
 }
 
