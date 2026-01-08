@@ -62,7 +62,7 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
 
   if (lastAttempt && !lastAttempt.typedKey.isCorrect) {
     const incorrectPressFingers = new Set<FingerId>();
-    
+
     // NOTE: lastAttempt.keys doesn't exist anymore, we use lastAttempt.typedKey.keyCapId
     const keyId = lastAttempt.typedKey.keyCapId;
     if (keyId === 'Space') {
@@ -71,7 +71,7 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
       const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
       if (finger) incorrectPressFingers.add(finger);
     }
-    
+
     const isErrorInCluster =
       incorrectPressFingers.size === activeFingers.size &&
       [...incorrectPressFingers].every(finger => activeFingers.has(finger));
@@ -210,9 +210,7 @@ function getIdleViewModel(): HandsSceneViewModel {
  * @param state The current state of the AppMachine, containing training context.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function generateHandsSceneViewModel(
-  trainingContext: TrainingContext | undefined
-): HandsSceneViewModel {
+export function generateHandsSceneViewModel(trainingContext: TrainingContext | undefined): HandsSceneViewModel {
   // If training is not active, return a completely idle view.
   if (!trainingContext) {
     return getIdleViewModel();
