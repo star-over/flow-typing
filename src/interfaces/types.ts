@@ -171,8 +171,7 @@ export type StreamAttempt = {
 export interface StreamSymbol {
   /** Целевой символ для отображения (напр., 'F'). */
   targetSymbol: string;
-  /** Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight']). */
-  requiredKeyCapIds: KeyCapId[];
+  targetKeyCaps: KeyCapId[]; // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
   /** Массив всех попыток набора этого символа. */
   attempts: StreamAttempt[];
 }

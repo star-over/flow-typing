@@ -31,7 +31,7 @@ export function generateLesson(): TypingStream {
 
       return {
         targetSymbol: char,
-        requiredKeyCapIds,
+        targetKeyCaps: requiredKeyCapIds,
         attempts: [],
       };
     })

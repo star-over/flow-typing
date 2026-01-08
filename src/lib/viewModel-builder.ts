@@ -31,10 +31,10 @@ function getActiveFingersAndHands(trainingContext: TrainingContext): {
 } {
   const { stream, currentIndex } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
-  const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
+  const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
 
   const activeFingers = new Set<FingerId>();
-  requiredKeyCapIds.forEach((keyId: KeyCapId) => {
+  targetKeyCaps.forEach((keyId: KeyCapId) => {
     const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
     if (finger) {
       activeFingers.add(finger);
@@ -110,7 +110,7 @@ function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<'l
 function buildKeyCapStates(
   trainingContext: TrainingContext,
   fingerId: FingerId,
-  requiredKeyCapIds: KeyCapId[]
+  targetKeyCaps: KeyCapId[]
 ): Partial<Record<KeyCapId, KeySceneState>> {
   const { stream, currentIndex } = trainingContext;
   const currentSymbol = stream[currentIndex];
@@ -121,7 +121,7 @@ function buildKeyCapStates(
   const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
 
   // Find which of the required keys this finger is responsible for
-  const targetKey = requiredKeyCapIds.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
+  const targetKey = targetKeyCaps.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
 
   let path: KeyCapId[] = [];
   if (homeKey && targetKey) {
@@ -167,7 +167,7 @@ function buildKeyCapStates(
   });
 
   // Also make any other required keys (like shift on another hand) visible in this cluster
-  requiredKeyCapIds.forEach((keyId: KeyCapId) => {
+  targetKeyCaps.forEach((keyId: KeyCapId) => {
       if (!keyCapStates[keyId]) {
           keyCapStates[keyId] = {
               visibility: 'VISIBLE',
@@ -223,7 +223,7 @@ export function generateHandsSceneViewModel(
   const { activeFingers, activeHands } = getActiveFingersAndHands(trainingContext);
   const { stream, currentIndex } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
-  const requiredKeyCapIds = currentStreamSymbol?.requiredKeyCapIds || [];
+  const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
 
   // --- 2.5 Process Errors ---
   const errorFingers = processErrors(trainingContext, activeFingers);
@@ -254,7 +254,7 @@ export function generateHandsSceneViewModel(
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
-    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, requiredKeyCapIds);
+    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, targetKeyCaps);
   });
 
   return viewModel;

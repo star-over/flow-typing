@@ -26,7 +26,7 @@ describe('viewModel-builder', () => {
     it('should correctly generate a view model for a simple character', () => {
       const trainingStream: StreamSymbol[] = [{
         targetSymbol: 'f',
-        requiredKeyCapIds: ['KeyF'],
+        targetKeyCaps: ['KeyF'],
         attempts: []
       }];
 
@@ -40,7 +40,7 @@ describe('viewModel-builder', () => {
     it('should correctly generate a view model for a shifted character', () => {
       const trainingStream: StreamSymbol[] = [{
         targetSymbol: 'F',
-        requiredKeyCapIds: ['KeyF', 'ShiftRight'],
+        targetKeyCaps: ['KeyF', 'ShiftRight'],
         attempts: []
       }];
 
@@ -57,7 +57,7 @@ describe('viewModel-builder', () => {
         stream: [
           {
             targetSymbol: 'f',
-            requiredKeyCapIds: ['KeyF'] as KeyCapId[],
+            targetKeyCaps: ['KeyF'] as KeyCapId[],
             attempts: [
               {
                 typedKey: { keyCapId: 'KeyG' as KeyCapId, shift: false, isCorrect: false },
@@ -82,7 +82,7 @@ describe('viewModel-builder', () => {
         stream: [
           {
             targetSymbol: 'f',
-            requiredKeyCapIds: ['KeyF'] as KeyCapId[],
+            targetKeyCaps: ['KeyF'] as KeyCapId[],
             attempts: [
               {
                 typedKey: { keyCapId: 'KeyJ' as KeyCapId, shift: false, isCorrect: false },
@@ -109,12 +109,12 @@ describe('trainingMachine', () => {
     const trainingStream: StreamSymbol[] = [
       {
         targetSymbol: ' ',
-        requiredKeyCapIds: ['Space'],
+        targetKeyCaps: ['Space'],
         attempts: [],
       },
       {
         targetSymbol: 'a',
-        requiredKeyCapIds: ['KeyA'],
+        targetKeyCaps: ['KeyA'],
         attempts: [],
       },
     ];
@@ -132,7 +132,7 @@ describe('trainingMachine', () => {
     const trainingStream: StreamSymbol[] = [
       {
         targetSymbol: ' ',
-        requiredKeyCapIds: ['Space'],
+        targetKeyCaps: ['Space'],
         attempts: [],
       },
     ];

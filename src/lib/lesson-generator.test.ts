@@ -25,7 +25,7 @@ describe('generateLesson', () => {
     expect(stream[0]).toEqual({
       targetSymbol: firstLessonText[0],
       attempts: [],
-      requiredKeyCapIds: ['KeyT'],
+      targetKeyCaps: ['KeyT'],
     });
   });
 

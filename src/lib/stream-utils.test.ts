@@ -72,14 +72,14 @@ describe("getSymbolType", () => {
   const incorrectTypedKey: TypedKey = { keyCapId: "KeyB", shift: false, isCorrect: false };
 
   it('should return "PENDING" for a symbol with an empty attempts array', () => {
-    const symbol: StreamSymbol = { targetSymbol: "a", requiredKeyCapIds: ['KeyA'], attempts: [] };
+    const symbol: StreamSymbol = { targetSymbol: "a", targetKeyCaps: ['KeyA'], attempts: [] };
     expect(getSymbolType(symbol)).toBe("PENDING");
   });
 
   it('should return "CORRECT" for a correct first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      requiredKeyCapIds: ['KeyA'],
+      targetKeyCaps: ['KeyA'],
       attempts: [{ typedKey: correctTypedKey, startAt: 0, endAt: 1 }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
@@ -88,7 +88,7 @@ describe("getSymbolType", () => {
   it('should return "INCORRECT" for an incorrect first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      requiredKeyCapIds: ['KeyA'],
+      targetKeyCaps: ['KeyA'],
       attempts: [{ typedKey: incorrectTypedKey, startAt: 0, endAt: 1 }],
     };
     expect(getSymbolType(symbol)).toBe("INCORRECT");
@@ -97,7 +97,7 @@ describe("getSymbolType", () => {
   it('should return "CORRECTED" for a correct attempt after an incorrect one', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      requiredKeyCapIds: ['KeyA'],
+      targetKeyCaps: ['KeyA'],
       attempts: [
         { typedKey: incorrectTypedKey, startAt: 0, endAt: 1 },
         { typedKey: correctTypedKey, startAt: 1, endAt: 2 },
@@ -109,7 +109,7 @@ describe("getSymbolType", () => {
   it('should return "INCORRECTS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      requiredKeyCapIds: ['KeyA'],
+      targetKeyCaps: ['KeyA'],
       attempts: [
         { typedKey: incorrectTypedKey, startAt: 0, endAt: 1 },
         { typedKey: incorrectTypedKey, startAt: 1, endAt: 2 },
@@ -121,12 +121,12 @@ describe("getSymbolType", () => {
 
 describe("getSymbolChar", () => {
   it("should return the target symbol for a regular character", () => {
-    const streamSymbol: StreamSymbol = { targetSymbol: 'a', requiredKeyCapIds: ['KeyA'], attempts: [] };
+    const streamSymbol: StreamSymbol = { targetSymbol: 'a', targetKeyCaps: ['KeyA'], attempts: [] };
     expect(getSymbolChar(streamSymbol)).toBe("a");
   });
 
   it("should return a non-breaking space for a space character", () => {
-    const streamSymbol: StreamSymbol = { targetSymbol: ' ', requiredKeyCapIds: ['Space'], attempts: [] };
+    const streamSymbol: StreamSymbol = { targetSymbol: ' ', targetKeyCaps: ['Space'], attempts: [] };
     expect(getSymbolChar(streamSymbol)).toBe(nbsp);
   });
 

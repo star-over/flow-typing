@@ -64,7 +64,7 @@ export const trainingMachine = createMachine({
             const currentSymbol = context.stream[context.currentIndex];
             if (!currentSymbol) return false;
 
-            const requiredKeys = new Set(currentSymbol.requiredKeyCapIds);
+            const requiredKeys = new Set(currentSymbol.targetKeyCaps);
             const keysToCheck = new Set(event.keys);
 
             // Now, perform a single, universal comparison.

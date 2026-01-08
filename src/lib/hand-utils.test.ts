@@ -3,7 +3,7 @@ import { describe, expect,it } from "vitest";
 import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
 import { FingerLayout, HandStates, SymbolLayout, TypedKey } from "../interfaces/types";
-import { getHandStates, getHomeKeyForFinger, isLeftHandFinger, isRightHandFinger, getFingerKeys } from "./hand-utils";
+import { getFingerKeys,getHandStates, getHomeKeyForFinger, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
 
 describe("getHandStates", () => {
   const symbolLayout: SymbolLayout = symbolLayoutEnQwerty;
