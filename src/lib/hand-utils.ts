@@ -162,15 +162,12 @@ export function getHandStates(
 }
 
 /**
- * Получает все клавиши, назначенные на указанный палец.
+ * Получает все клавиши, назначенные на указанный палец. Т.н. Кластер клавишь
  * @param fingerId Идентификатор пальца.
  * @param fingerLayout Объект `FingerLayout`.
  * @returns Массив `KeyCapId`, связанных с пальцем.
  */
-export function getFingerKeys(
-  fingerId: FingerId,
-  fingerLayout: FingerLayout
-): KeyCapId[] {
+export function getFingerKeys(fingerId: FingerId, fingerLayout: FingerLayout): KeyCapId[] {
   return Object.entries(fingerLayout)
     .filter(([, fingerKey]) => fingerKey.fingerId === fingerId)
     .map(([keyCapId]) => keyCapId as KeyCapId);
@@ -182,10 +179,7 @@ export function getFingerKeys(
  * @param fingerLayout Схема расположения пальцев.
  * @returns `KeyCapId` домашней клавиши или `undefined`, если не найдена.
  */
-export function getHomeKeyForFinger(
-  fingerId: FingerId,
-  fingerLayout: FingerLayout
-): KeyCapId | undefined {
+export function getHomeKeyForFinger(fingerId: FingerId, fingerLayout: FingerLayout): KeyCapId | undefined {
   const entry = Object.entries(fingerLayout).find(
     ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
   );
