@@ -67,17 +67,6 @@ export const trainingMachine = createMachine({
             const requiredKeys = new Set(currentSymbol.requiredKeyCapIds);
             const keysToCheck = new Set(event.keys);
 
-            // If the target is a virtual space and the user pressed the physical space,
-            // substitute the physical key with the virtual one for the comparison.
-            const isTargetVirtualSpace = currentSymbol.requiredKeyCapIds.some(key => key.startsWith('Space'));
-            if (isTargetVirtualSpace && keysToCheck.has('Space')) {
-                const virtualSpaceTarget = currentSymbol.requiredKeyCapIds.find(key => key.startsWith('Space'));
-                if (virtualSpaceTarget) {
-                    keysToCheck.delete('Space');
-                    keysToCheck.add(virtualSpaceTarget);
-                }
-            }
-            
             // Now, perform a single, universal comparison.
             if (requiredKeys.size !== keysToCheck.size) return false;
             for (const key of requiredKeys) {

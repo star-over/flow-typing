@@ -159,8 +159,8 @@ describe("getHomeKeyForFinger", () => {
   });
 
   it("should return the correct home key for thumbs", () => {
-    expect(getHomeKeyForFinger("L1", fingerLayoutASDF)).toBe("SpaceLeft");
-    expect(getHomeKeyForFinger("R1", fingerLayoutASDF)).toBe("SpaceRight");
+    expect(getHomeKeyForFinger("L1", fingerLayoutASDF)).toBeUndefined();
+    expect(getHomeKeyForFinger("R1", fingerLayoutASDF)).toBe("Space");
   });
 
   it("should return undefined for fingers with no home key", () => {

@@ -158,24 +158,13 @@ const simpleKError: HandsSceneViewModel = {
   },
 };
 
-const spaceLeft: HandsSceneViewModel = {
-  ...idleViewModel,
-  ...leftInactive,
-  L1: {
-    fingerState: "ACTIVE",
-    keyCapStates: {
-      "SpaceLeft": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
-    }
-  },
-};
-
-const spaceRight: HandsSceneViewModel = {
+const space: HandsSceneViewModel = {
   ...idleViewModel,
   ...rightInactive,
   R1: {
     fingerState: "ACTIVE",
     keyCapStates: {
-      "SpaceRight": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+      "Space": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
     }
   },
 };
@@ -422,17 +411,9 @@ export const Simple2: Story = {
   },
 };
 
-export const SpaceLeft: Story = {
+export const Space: Story = {
   args: {
-    viewModel: spaceLeft,
-    centerPointVisibility: 'VISIBLE',
-    className: 'pt-12',
-  },
-};
-
-export const SpaceRight: Story = {
-  args: {
-    viewModel: spaceRight,
+    viewModel: space,
     centerPointVisibility: 'VISIBLE',
     className: 'pt-12',
   },

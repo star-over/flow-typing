@@ -103,3 +103,47 @@ describe('viewModel-builder', () => {
     });
   });
 });
+
+describe('trainingMachine', () => {
+  it('should transition to correctInput on correct spacebar press', () => {
+    const trainingStream: StreamSymbol[] = [
+      {
+        targetSymbol: ' ',
+        requiredKeyCapIds: ['Space'],
+        attempts: [],
+      },
+      {
+        targetSymbol: 'a',
+        requiredKeyCapIds: ['KeyA'],
+        attempts: [],
+      },
+    ];
+
+    const actor = createActor(trainingMachine, { input: { stream: trainingStream } });
+    actor.start();
+    actor.send({ type: 'KEY_PRESS', keys: ['Space'] });
+
+    const state = actor.getSnapshot();
+    expect(state.value).toBe('awaitingInput');
+    expect(state.context.currentIndex).toBe(1);
+  });
+
+  it('should transition to incorrectInput on incorrect spacebar press', () => {
+    const trainingStream: StreamSymbol[] = [
+      {
+        targetSymbol: ' ',
+        requiredKeyCapIds: ['Space'],
+        attempts: [],
+      },
+    ];
+
+    const actor = createActor(trainingMachine, { input: { stream: trainingStream } });
+    actor.start();
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+
+    const state = actor.getSnapshot();
+    expect(state.value).toBe('awaitingInput');
+    expect(state.context.currentIndex).toBe(0);
+    expect(state.context.errors).toBe(1);
+  });
+});

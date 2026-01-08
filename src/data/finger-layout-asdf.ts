@@ -48,9 +48,6 @@ export const fingerLayoutASDF: FingerLayout = {
   "MetaLeft":     { fingerId: "L5" },
   "AltLeft":      { fingerId: "L5" },
 
-  "SpaceLeft":    { fingerId: "L1", isHomeKey: true },
-
-
   // Right Hand
   "Digit6":       { fingerId: "R2" },
   "Digit7":       { fingerId: "R2" },
@@ -91,5 +88,5 @@ export const fingerLayoutASDF: FingerLayout = {
   "Fn":           { fingerId: "R5" },
   "ContextMenu":  { fingerId: "R5" },
 
-  "SpaceRight":   { fingerId: "R1", isHomeKey: true },
+  "Space":   { fingerId: "R1", isHomeKey: true },
 };

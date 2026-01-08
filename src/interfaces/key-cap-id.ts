@@ -77,8 +77,6 @@ export const KEY_CAP_IDS = [
   "Semicolon",          // ; / :
   "Slash",              // / / ?
   "Space",              // " "
-  "SpaceLeft",          // " " special Id for lett | right hand pressing
-  "SpaceRight"         // " " special Id for lett | right hand pressing
 ] as const;
 
 export type KeyCapId = typeof KEY_CAP_IDS[number];

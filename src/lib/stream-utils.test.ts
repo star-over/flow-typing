@@ -126,7 +126,7 @@ describe("getSymbolChar", () => {
   });
 
   it("should return a non-breaking space for a space character", () => {
-    const streamSymbol: StreamSymbol = { targetSymbol: ' ', requiredKeyCapIds: ['SpaceLeft'], attempts: [] };
+    const streamSymbol: StreamSymbol = { targetSymbol: ' ', requiredKeyCapIds: ['Space'], attempts: [] };
     expect(getSymbolChar(streamSymbol)).toBe(nbsp);
   });
 

@@ -31,8 +31,6 @@ export const symbolLayoutEnQwerty: SymbolLayout = {
   "Sh R": ["ShiftRight"],
   "xx": ["ContextMenu"],
   " ": ["Space"],
-  "L sp": ["SpaceLeft"],
-  "R sp": ["SpaceRight"],
   "\u2190": ["ArrowLeft"],
   "\u2191": ["ArrowUp"],
   "\u2192": ["ArrowRight"],
