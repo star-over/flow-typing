@@ -25,10 +25,12 @@ const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
  * @param trainingContext Контекст тренировочной машины.
  * @returns Объект, содержащий наборы активных пальцев и активных рук.
  */
-function getActiveFingersAndHands(trainingContext: TrainingContext): {
-  activeFingers: Set<FingerId>;
-  activeHands: Set<'left' | 'right'>;
-} {
+/**
+ * Определяет активные пальцы на основе текущего символа потока тренировки.
+ * @param trainingContext Контекст тренировочной машины.
+ * @returns Набор активных пальцев.
+ */
+function getActiveFingers(trainingContext: TrainingContext): Set<FingerId> {
   const { stream, currentIndex } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
   const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
@@ -40,12 +42,19 @@ function getActiveFingersAndHands(trainingContext: TrainingContext): {
       activeFingers.add(finger);
     }
   });
+  return activeFingers;
+}
 
+/**
+ * Определяет активные руки на основе набора активных пальцев.
+ * @param activeFingers Набор активных пальцев.
+ * @returns Набор активных рук.
+ */
+function getActiveHands(activeFingers: Set<FingerId>): Set<'left' | 'right'> {
   const activeHands = new Set<'left' | 'right'>();
   if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add('left');
   if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add('right');
-
-  return { activeFingers, activeHands };
+  return activeHands;
 }
 
 /**
@@ -217,7 +226,8 @@ export function generateHandsSceneViewModel(trainingContext: TrainingContext | u
 
   const viewModel = getIdleViewModel();
   // --- 1. Determine Target and Active Keys/Fingers ---
-  const { activeFingers, activeHands } = getActiveFingersAndHands(trainingContext);
+  const activeFingers = getActiveFingers(trainingContext);
+  const activeHands = getActiveHands(activeFingers);
   const { stream, currentIndex } = trainingContext;
   const currentStreamSymbol = stream[currentIndex];
   const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
