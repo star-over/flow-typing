@@ -19,10 +19,6 @@ export const nbsp = '\u00A0';
  */
 export const sp = '\u0020';
 
-
-// --- Key Type Definitions ---
-
-
 /**
  * Проверяет, является ли клавиша модификатором.
  * @param key Код клавиши (`KeyboardEvent.code`).
@@ -50,8 +46,6 @@ export function isTextKey(key: string, keyboardLayout: KeyboardLayout): boolean 
     .map((k) => k.keyCapId)
     .includes(key as KeyCapId);
 }
-
-// --- End of Key Type Definitions ---
 
 const modifierKeyToKeyCapId: Record<ModifierKey, KeyCapId[]> = {
   shift: ['ShiftLeft', 'ShiftRight'],
@@ -177,10 +171,7 @@ export function isShiftRequired(char: string, symbolLayout: SymbolLayout): boole
  * @param fingerLayout Схема расположения пальцев.
  * @returns `FingerId` или `undefined`, если не найден.
  */
-export function getFingerByKeyCap(
-  keyCapId: KeyCapId,
-  fingerLayout: FingerLayout,
-): FingerId | undefined {
+export function getFingerByKeyCap( keyCapId: KeyCapId, fingerLayout: FingerLayout ): FingerId | undefined {
   const entry = fingerLayout[keyCapId];
   return entry ? entry.fingerId : undefined;
 }

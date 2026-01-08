@@ -11,9 +11,9 @@ import {
   HandFingerId,
   HandStates,
   LEFT_HAND_BASE,
-  LEFT_HAND_FINGER_IDS,
+  LEFT_HAND_FINGERS,
   RIGHT_HAND_BASE,
-  RIGHT_HAND_FINGER_IDS,
+  RIGHT_HAND_FINGERS,
   SymbolLayout,
   TypedKey,
 } from "@/interfaces/types";
@@ -25,8 +25,8 @@ import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from "./symbo
  * @param fingerId Идентификатор пальца для проверки.
  * @returns `true`, если палец принадлежит левой руке.
  */
-export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HAND_FINGER_IDS[number] | typeof LEFT_HAND_BASE {
-  return LEFT_HAND_FINGER_IDS.includes(fingerId as typeof LEFT_HAND_FINGER_IDS[number]) || fingerId === LEFT_HAND_BASE;
+export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HAND_FINGERS[number] | typeof LEFT_HAND_BASE {
+  return LEFT_HAND_FINGERS.includes(fingerId as typeof LEFT_HAND_FINGERS[number]) || fingerId === LEFT_HAND_BASE;
 }
 
 /**
@@ -34,8 +34,8 @@ export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HA
  * @param fingerId Идентификатор пальца для проверки.
  * @returns `true`, если палец принадлежит правой руке.
  */
-export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_HAND_FINGER_IDS[number] | typeof RIGHT_HAND_BASE {
-  return RIGHT_HAND_FINGER_IDS.includes(fingerId as typeof RIGHT_HAND_FINGER_IDS[number]) || fingerId === RIGHT_HAND_BASE;
+export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_HAND_FINGERS[number] | typeof RIGHT_HAND_BASE {
+  return RIGHT_HAND_FINGERS.includes(fingerId as typeof RIGHT_HAND_FINGERS[number]) || fingerId === RIGHT_HAND_BASE;
 }
 
 /**
@@ -44,8 +44,8 @@ export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_
  */
 function initializeHandStates(): HandStates {
   const states = {} as HandStates;
-  LEFT_HAND_FINGER_IDS.forEach(id => states[id] = "IDLE");
-  RIGHT_HAND_FINGER_IDS.forEach(id => states[id] = "IDLE");
+  LEFT_HAND_FINGERS.forEach(id => states[id] = "IDLE");
+  RIGHT_HAND_FINGERS.forEach(id => states[id] = "IDLE");
   states[LEFT_HAND_BASE] = "IDLE";
   states[RIGHT_HAND_BASE] = "IDLE";
   return states;
@@ -64,7 +64,7 @@ function getTargetFinger(
 ): FingerId | undefined {
   const keyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayout);
   if (!keyCapIds) return undefined;
-  
+
   const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
   if (!primaryKey) return undefined;
 
@@ -96,8 +96,8 @@ function updateHandStatesForError(
       handStates[typedFinger] = "INCORRECT";
     } else {
       const handFingerIds: readonly HandFingerId[] = isLeftHandFinger(typedFinger)
-        ? [...LEFT_HAND_FINGER_IDS, LEFT_HAND_BASE]
-        : [...RIGHT_HAND_FINGER_IDS, RIGHT_HAND_BASE];
+        ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
+        : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
       handFingerIds.forEach((fingerId) => {
         handStates[fingerId] = "INCORRECT";
       });
@@ -113,8 +113,8 @@ function updateHandStatesForError(
  */
 function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId): void {
   const handIds: readonly HandFingerId[] = isLeftHandFinger(targetFinger)
-    ? [...LEFT_HAND_FINGER_IDS, LEFT_HAND_BASE]
-    : [...RIGHT_HAND_FINGER_IDS, RIGHT_HAND_BASE];
+    ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
+    : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
   handIds.forEach((fingerId) => {
     if (handStates[fingerId] === "IDLE") {
       handStates[fingerId] = "INACTIVE";
@@ -151,7 +151,7 @@ export function getHandStates(
       handStates["L5"] = "ACTIVE"; // Left pinky
     }
   }
-  
+
   if (typedKey && !typedKey.isCorrect) {
     updateHandStatesForError(handStates, targetFinger, typedKey, fingerLayout);
   }

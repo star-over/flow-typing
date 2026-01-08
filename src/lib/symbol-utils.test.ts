@@ -1,9 +1,10 @@
 import { describe, expect,it } from 'vitest';
 
+import { fingerLayoutASDF } from '@/data/finger-layout-asdf'; // Import fingerLayoutASDF
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
 
-import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi'; // Added keyboardLayoutANSI
-import { getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
+import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
+import { getFingerByKeyCap,getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
@@ -126,5 +127,17 @@ describe('isModifierKey', () => {
   it('should return false for an invalid or non-existent KeyCapId', () => {
     expect(isModifierKey('InvalidKey', keyboardLayoutANSI)).toBe(false);
     expect(isModifierKey('Shift', keyboardLayoutANSI)).toBe(false);
+  });
+});
+
+describe('getFingerByKeyCap', () => {
+  it('should return the correct fingerId for a given KeyCapId', () => {
+    expect(getFingerByKeyCap('KeyA', fingerLayoutASDF)).toBe('L5');
+    expect(getFingerByKeyCap('KeyJ', fingerLayoutASDF)).toBe('R2');
+    expect(getFingerByKeyCap('Space', fingerLayoutASDF)).toBe('R1');
+  });
+
+  it('should return undefined for a KeyCapId not in the finger layout', () => {
+    expect(getFingerByKeyCap('Unknown', fingerLayoutASDF)).toBeUndefined();
   });
 });

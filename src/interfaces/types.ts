@@ -82,18 +82,18 @@ export type Visibility = typeof VISIBILITY_STATES[number];
 // --- Finger and Hand Types ---
 
 /** Константы для идентификаторов пальцев левой руки. */
-export const LEFT_HAND_FINGER_IDS = ["L1", "L2", "L3", "L4", "L5"] as const;
+export const LEFT_HAND_FINGERS = ["L1", "L2", "L3", "L4", "L5"] as const;
 /** Константы для идентификаторов пальцев правой руки. */
-export const RIGHT_HAND_FINGER_IDS = ["R1", "R2", "R3", "R4", "R5"] as const;
+export const RIGHT_HAND_FINGERS = ["R1", "R2", "R3", "R4", "R5"] as const;
 /** Константы для идентификаторов ладони левой руки. */
 export const LEFT_HAND_BASE = "LB" as const;
 /** Константы для идентификаторов ладони правой руки. */
 export const RIGHT_HAND_BASE = "RB" as const;
 
 /** Идентификаторы пальцев левой руки. */
-export type LeftHandFingerId = typeof LEFT_HAND_FINGER_IDS[number];
+export type LeftHandFingerId = typeof LEFT_HAND_FINGERS[number];
 /** Идентификаторы пальцев правой руки. */
-export type RightHandFingerId = typeof RIGHT_HAND_FINGER_IDS[number];
+export type RightHandFingerId = typeof RIGHT_HAND_FINGERS[number];
 
 /**
  * Уникальный идентификатор пальца.
