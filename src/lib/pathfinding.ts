@@ -5,7 +5,7 @@
 
 import { KeyboardLayout,KeyCapId } from "@/interfaces/types";
 
-type AdjacencyList = Map<KeyCapId, KeyCapId[]>;
+export type AdjacencyList = Map<KeyCapId, KeyCapId[]>;
 
 /**
  * Creates a graph representation (adjacency list) of the keyboard layout.

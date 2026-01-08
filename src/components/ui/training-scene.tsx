@@ -7,6 +7,10 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 
+import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
+import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
+import { createKeyCoordinateMap,KeyCoordinateMap } from '@/lib/layout-utils';
+import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
 import { trainingMachine } from "@/machines/training.machine";
 
@@ -32,8 +36,11 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
   const send = trainingActor.send;
   const { stream, currentIndex } = trainingState.context;
 
+  const keyboardGraph: AdjacencyList = createKeyboardGraph(keyboardLayoutANSI);
+  const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
+
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex]);
+  const viewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardLayoutANSI, keyboardGraph, keyCoordinateMap);
 
   return (
     <div className="flex flex-col items-center gap-8">

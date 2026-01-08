@@ -5,19 +5,15 @@
  * the abstract training state into a concrete view model that UI components
  * can render.
  */
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState, LEFT_HAND_BASE, LEFT_HAND_FINGERS, RIGHT_HAND_BASE, RIGHT_HAND_FINGERS, StreamSymbol } from '@/interfaces/types';
+
+import { FingerId, FingerLayout, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyboardLayout, KeyCapId, KeySceneState, LEFT_HAND_BASE, LEFT_HAND_FINGERS, RIGHT_HAND_BASE, RIGHT_HAND_FINGERS, StreamSymbol } from '@/interfaces/types';
 
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
-import { createKeyCoordinateMap } from './layout-utils';
-import { createKeyboardGraph, findOptimalPath } from './pathfinding';
+import { KeyCoordinateMap } from './layout-utils';
+import { AdjacencyList, findOptimalPath } from './pathfinding';
 import { areKeyCapIdArraysEqual, getFingerByKeyCap } from './symbol-utils';
 
-// Create utility maps once at the module level for performance.
-// These are used for pathfinding and determining navigation arrows.
-const keyboardGraph = createKeyboardGraph(keyboardLayoutANSI);
-const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
+
 
 /**
  * Определяет активные пальцы и руки на основе текущего символа потока тренировки.
@@ -29,12 +25,12 @@ const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
  * @param trainingContext Контекст тренировочной машины.
  * @returns Набор активных пальцев.
  */
-function getActiveFingers(currentStreamSymbol: StreamSymbol | undefined): Set<FingerId> {
+function getActiveFingers(currentStreamSymbol: StreamSymbol | undefined, fingerLayout: FingerLayout): Set<FingerId> {
   const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
 
   const activeFingers = new Set<FingerId>();
   targetKeyCaps.forEach((keyId: KeyCapId) => {
-    const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
+    const finger = getFingerByKeyCap(keyId, fingerLayout);
     if (finger) {
       activeFingers.add(finger);
     }
@@ -60,7 +56,7 @@ function getActiveHands(activeFingers: Set<FingerId>): Set<HandSide> {
  * @param activeFingers Набор активных пальцев.
  * @returns Набор пальцев, которые должны быть помечены как INCORRECT.
  */
-function processErrors(currentStreamSymbol: StreamSymbol | undefined, activeFingers: Set<FingerId>): Set<FingerId> {
+function processErrors(currentStreamSymbol: StreamSymbol | undefined, activeFingers: Set<FingerId>, fingerLayout: FingerLayout): Set<FingerId> {
   const errorFingers = new Set<FingerId>();
   const currentSymbol = currentStreamSymbol; // Use the directly passed symbol
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
@@ -72,7 +68,7 @@ function processErrors(currentStreamSymbol: StreamSymbol | undefined, activeFing
     if (keyId === 'Space') {
       incorrectPressFingers.add('L1');
     } else {
-      const finger = getFingerByKeyCap(keyId, fingerLayoutASDF);
+      const finger = getFingerByKeyCap(keyId, fingerLayout); // Use injected fingerLayout
       if (finger) incorrectPressFingers.add(finger);
     }
 
@@ -113,21 +109,24 @@ function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<Ha
 function buildKeyCapStates(
   currentStreamSymbol: StreamSymbol | undefined,
   fingerId: FingerId,
-  targetKeyCaps: KeyCapId[]
+  targetKeyCaps: KeyCapId[],
+  fingerLayout: FingerLayout,
+  keyboardGraph: AdjacencyList,
+  keyCoordinateMap: KeyCoordinateMap
 ): Partial<Record<KeyCapId, KeySceneState>> {
   const currentSymbol = currentStreamSymbol;
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-  const keyCluster = getFingerKeys(fingerId, fingerLayoutASDF);
-  const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
+  const keyCluster = getFingerKeys(fingerId, fingerLayout); // Use injected fingerLayout
+  const homeKey = getHomeKeyForFinger(fingerId, fingerLayout); // Use injected fingerLayout
 
   // Find which of the required keys this finger is responsible for
-  const targetKey = targetKeyCaps.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayoutASDF) === fingerId);
+  const targetKey = targetKeyCaps.find((k: KeyCapId) => getFingerByKeyCap(k, fingerLayout) === fingerId); // Use injected fingerLayout
 
   let path: KeyCapId[] = [];
   if (homeKey && targetKey) {
-    path = findOptimalPath(homeKey, targetKey, keyboardGraph);
+    path = findOptimalPath(homeKey, targetKey, keyboardGraph); // Use injected keyboardGraph
   }
 
   keyCluster.forEach((keyId) => {
@@ -144,8 +143,8 @@ function buildKeyCapStates(
       // Determine arrow direction
       const nextKeyInPath = path[pathIndex + 1];
       if (nextKeyInPath) {
-        const currentCoords = keyCoordinateMap.get(keyId);
-        const nextCoords = keyCoordinateMap.get(nextKeyInPath);
+        const currentCoords = keyCoordinateMap.get(keyId); // Use injected keyCoordinateMap
+        const nextCoords = keyCoordinateMap.get(nextKeyInPath); // Use injected keyCoordinateMap
         if (currentCoords && nextCoords) {
           if (nextCoords.r < currentCoords.r) arrow = 'UP';
           else if (nextCoords.r > currentCoords.r) arrow = 'DOWN';
@@ -173,7 +172,7 @@ function buildKeyCapStates(
       if (!keyCapStates[keyId]) {
           keyCapStates[keyId] = {
               visibility: 'VISIBLE',
-              navigationRole: getFingerByKeyCap(keyId, fingerLayoutASDF) === fingerId ? 'TARGET' : 'NONE',
+              navigationRole: getFingerByKeyCap(keyId, fingerLayout) === fingerId ? 'TARGET' : 'NONE', // Use injected fingerLayout
               pressResult: 'NEUTRAL',
               navigationArrow: 'NONE',
           }
@@ -210,7 +209,13 @@ function getIdleViewModel(): HandsSceneViewModel {
  * @param state The current state of the AppMachine, containing training context.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function generateHandsSceneViewModel(currentStreamSymbol: StreamSymbol | undefined): HandsSceneViewModel {
+export function generateHandsSceneViewModel(
+  currentStreamSymbol: StreamSymbol | undefined,
+  fingerLayout: FingerLayout,
+  keyboardLayout: KeyboardLayout, // Not directly used here, but for completeness and potential future use
+  keyboardGraph: AdjacencyList,
+  keyCoordinateMap: KeyCoordinateMap
+): HandsSceneViewModel {
   // If training is not active, return a completely idle view.
   if (!currentStreamSymbol) { // Changed condition to use currentStreamSymbol
     return getIdleViewModel();
@@ -218,12 +223,12 @@ export function generateHandsSceneViewModel(currentStreamSymbol: StreamSymbol | 
 
   const viewModel = getIdleViewModel();
   // --- 1. Determine Target and Active Keys/Fingers ---
-  const activeFingers = getActiveFingers(currentStreamSymbol);
+  const activeFingers = getActiveFingers(currentStreamSymbol, fingerLayout); // Pass fingerLayout
   const activeHands = getActiveHands(activeFingers);
   const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
 
   // --- 2.5 Process Errors ---
-  const errorFingers = processErrors(currentStreamSymbol, activeFingers);
+  const errorFingers = processErrors(currentStreamSymbol, activeFingers, fingerLayout); // Pass fingerLayout
 
   // Ensure the hand that made the error is active to be visible
   errorFingers.forEach((fingerId) => {
@@ -251,7 +256,7 @@ export function generateHandsSceneViewModel(currentStreamSymbol: StreamSymbol | 
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
-    fingerData.keyCapStates = buildKeyCapStates(currentStreamSymbol, fingerId, targetKeyCaps);
+    fingerData.keyCapStates = buildKeyCapStates(currentStreamSymbol, fingerId, targetKeyCaps, fingerLayout, keyboardGraph, keyCoordinateMap); // Pass all dependencies
   });
 
   return viewModel;
