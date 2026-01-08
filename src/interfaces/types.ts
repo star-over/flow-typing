@@ -145,12 +145,9 @@ export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
  * Включает в себя информацию о нажатой клавише и времени.
  */
 export type StreamAttempt = {
-  /** Данные о нажатой клавише. */
-  pressedKeyCups: KeyCapId[];
-  /** Время начала нажатия (timestamp). */
-  startAt: number;
-  /** Время окончания нажатия (timestamp). */
-  endAt: number;
+  pressedKeyCups: KeyCapId[];   // Данные о нажатом сочетании клавише. Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
+  startAt: number;              //Время начала нажатия (timestamp).
+  endAt: number;                //Время окончания нажатия (timestamp).
 };
 
 /**
@@ -158,11 +155,9 @@ export type StreamAttempt = {
  * Включает сам символ и заранее вычисленные целевые клавиши.
  */
 export interface StreamSymbol {
-  /** Целевой символ для отображения (напр., 'F'). */
-  targetSymbol: string;
-  targetKeyCaps: KeyCapId[]; // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
-  /** Массив всех попыток набора этого символа. */
-  attempts: StreamAttempt[];
+  targetSymbol: string;       //Целевой символ для отображения (напр., 'F').
+  targetKeyCaps: KeyCapId[];  // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
+  attempts: StreamAttempt[];  //Массив всех попыток набора этого символа.
 }
 
 /**
@@ -175,18 +170,18 @@ export type TypingStream = StreamSymbol[];
 
 /** Описывает одну физическую клавишу: ее геометрию и базовый тип. */
 export type PhysicalKey = {
-  keyCapId: KeyCapId;
-  unitWidth?: KeyCapUnitWidth;
-  symbolSize?: KeyCapSymbolSize;
-  homeKeyMarker?: KeyCapHomeKeyMarker;
-  colorGroup?: KeyCapColorGroup;
-  type: KeyCapType;
+  keyCapId: KeyCapId;                   // (напр. 'KeyF'
+  unitWidth?: KeyCapUnitWidth;          // Ширина клавиши
+  symbolSize?: KeyCapSymbolSize;        // Размер надписи
+  homeKeyMarker?: KeyCapHomeKeyMarker;  // Тип Home Маркета
+  colorGroup?: KeyCapColorGroup;        // Цветовая группа
+  type: KeyCapType;                     // Тип: буквенная, системная или текстовая клавиша
 };
 /**
  * Физический макет клавиатуры (холост).
  * Описывает геометрию: расположение, размер и форму клавиш в виде двумерного массива.
  */
-export type KeyboardLayout =  PhysicalKey[][];
+export type KeyboardLayout = PhysicalKey[][];
 
 /** Описывает привязку пальца к клавише. */
 export type FingerKey = {
