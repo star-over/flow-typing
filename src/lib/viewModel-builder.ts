@@ -7,8 +7,7 @@
  */
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState, LEFT_HAND_BASE, LEFT_HAND_FINGERS, RIGHT_HAND_BASE, RIGHT_HAND_FINGERS } from '@/interfaces/types';
-import { TrainingContext } from '@/machines/training.machine';
+import { FingerId, FingerState, HAND_SIDES, HandSide, HandsSceneViewModel, KeyCapId, KeySceneState, LEFT_HAND_BASE, LEFT_HAND_FINGERS, RIGHT_HAND_BASE, RIGHT_HAND_FINGERS, StreamSymbol } from '@/interfaces/types';
 
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
 import { createKeyCoordinateMap } from './layout-utils';
@@ -30,9 +29,7 @@ const keyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
  * @param trainingContext Контекст тренировочной машины.
  * @returns Набор активных пальцев.
  */
-function getActiveFingers(trainingContext: TrainingContext): Set<FingerId> {
-  const { stream, currentIndex } = trainingContext;
-  const currentStreamSymbol = stream[currentIndex];
+function getActiveFingers(currentStreamSymbol: StreamSymbol | undefined): Set<FingerId> {
   const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
 
   const activeFingers = new Set<FingerId>();
@@ -63,13 +60,12 @@ function getActiveHands(activeFingers: Set<FingerId>): Set<HandSide> {
  * @param activeFingers Набор активных пальцев.
  * @returns Набор пальцев, которые должны быть помечены как INCORRECT.
  */
-function processErrors(trainingContext: TrainingContext, activeFingers: Set<FingerId>): Set<FingerId> {
+function processErrors(currentStreamSymbol: StreamSymbol | undefined, activeFingers: Set<FingerId>): Set<FingerId> {
   const errorFingers = new Set<FingerId>();
-  const { stream, currentIndex } = trainingContext;
-  const currentSymbol = stream[currentIndex];
+  const currentSymbol = currentStreamSymbol; // Use the directly passed symbol
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
-  if (lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, currentSymbol.targetKeyCaps)) {
+  if (lastAttempt && currentSymbol && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, currentSymbol.targetKeyCaps)) {
     const incorrectPressFingers = new Set<FingerId>();
 
     const keyId = lastAttempt.pressedKeyCups[0]; // Assuming the first key in the array is the main key pressed
@@ -90,7 +86,6 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
   }
   return errorFingers;
 }
-
 /**
  * Применяет состояние INACTIVE к пальцам неактивных рук.
  * @param viewModel Текущий HandsSceneViewModel.
@@ -116,12 +111,11 @@ function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<Ha
  * @returns Объект Partial<Record<KeyCapId, KeySceneState>> с состояниями клавиш.
  */
 function buildKeyCapStates(
-  trainingContext: TrainingContext,
+  currentStreamSymbol: StreamSymbol | undefined,
   fingerId: FingerId,
   targetKeyCaps: KeyCapId[]
 ): Partial<Record<KeyCapId, KeySceneState>> {
-  const { stream, currentIndex } = trainingContext;
-  const currentSymbol = stream[currentIndex];
+  const currentSymbol = currentStreamSymbol;
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
@@ -162,7 +156,7 @@ function buildKeyCapStates(
     }
 
     // Check if this key was part of an incorrect attempt
-    if (lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps) && lastAttempt.pressedKeyCups.includes(keyId)) {
+    if (lastAttempt && currentSymbol && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps) && lastAttempt.pressedKeyCups.includes(keyId)) {
       pressResult = 'INCORRECT';
     }
 
@@ -216,22 +210,20 @@ function getIdleViewModel(): HandsSceneViewModel {
  * @param state The current state of the AppMachine, containing training context.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function generateHandsSceneViewModel(trainingContext: TrainingContext | undefined): HandsSceneViewModel {
+export function generateHandsSceneViewModel(currentStreamSymbol: StreamSymbol | undefined): HandsSceneViewModel {
   // If training is not active, return a completely idle view.
-  if (!trainingContext) {
+  if (!currentStreamSymbol) { // Changed condition to use currentStreamSymbol
     return getIdleViewModel();
   }
 
   const viewModel = getIdleViewModel();
   // --- 1. Determine Target and Active Keys/Fingers ---
-  const activeFingers = getActiveFingers(trainingContext);
+  const activeFingers = getActiveFingers(currentStreamSymbol);
   const activeHands = getActiveHands(activeFingers);
-  const { stream, currentIndex } = trainingContext;
-  const currentStreamSymbol = stream[currentIndex];
-  const targetKeyCaps = currentStreamSymbol?.targetKeyCaps || [];
+  const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
 
   // --- 2.5 Process Errors ---
-  const errorFingers = processErrors(trainingContext, activeFingers);
+  const errorFingers = processErrors(currentStreamSymbol, activeFingers);
 
   // Ensure the hand that made the error is active to be visible
   errorFingers.forEach((fingerId) => {
@@ -259,7 +251,7 @@ export function generateHandsSceneViewModel(trainingContext: TrainingContext | u
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;
 
-    fingerData.keyCapStates = buildKeyCapStates(trainingContext, fingerId, targetKeyCaps);
+    fingerData.keyCapStates = buildKeyCapStates(currentStreamSymbol, fingerId, targetKeyCaps);
   });
 
   return viewModel;

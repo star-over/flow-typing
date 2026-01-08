@@ -33,7 +33,7 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
   const { stream, currentIndex } = trainingState.context;
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel = generateHandsSceneViewModel(trainingState.context);
+  const viewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex]);
 
   return (
     <div className="flex flex-col items-center gap-8">
