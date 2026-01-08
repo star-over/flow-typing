@@ -36,7 +36,7 @@ const meta  = {
     },
   },
   decorators: [
-    Story => (
+    (Story) => (
       <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Story />
       </div>

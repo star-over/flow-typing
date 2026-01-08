@@ -26,7 +26,7 @@ const generateVirtualLayoutForFinger = (fingerId: FingerId, viewModel: HandsScen
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = fingerSceneState?.keyCapStates || {};
 
   // Находим данные пальца из статического макета, чтобы определить, является ли он "домашней" клавишей
-  const fingerData = Object.values(fingerLayoutASDF).find(d => d.fingerId === fingerId);
+  const fingerData = Object.values(fingerLayoutASDF).find((d) => d.fingerId === fingerId);
 
   // Проходим по стандартному макету клавиатуры ANSI, чтобы создать виртуальный макет для пальца
   return keyboardLayoutANSI.map((row, rowIndex) =>
@@ -119,7 +119,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
   // Эффект для позиционирования виртуальных клавиатур относительно центральных точек пальцев
   useEffect(() => {
-    fingerIds.forEach(fingerId => {
+    fingerIds.forEach((fingerId) => {
       // Находим "домашнюю" клавишу для текущего пальца из его раскладки
       const homeKeyEntry = Object.entries(fingerLayoutASDF).find(
         ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
@@ -198,7 +198,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
           Слой клавиатур: Рендерится *после* SVG рук, чтобы гарантировать,
           что кластеры клавиш будут отображаться поверх (выше по z-оси).
         */}
-        {fingerIds.map(fingerId => {
+        {fingerIds.map((fingerId) => {
           const fingerSceneState = viewModel[fingerId];
           // Рендерим клавиатуру только если палец не в состоянии 'IDLE' и у него есть ассоциированные клавиши
           if (fingerSceneState.fingerState === 'IDLE' || !fingerSceneState.keyCapStates) {
@@ -212,23 +212,23 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
           // Это нужно, чтобы модификаторы были подсвечены на всех клавиатурах, если они являются целевыми
           const activeModifiers: ModifierKey[] = [];
           const allTargetKeyCaps = Object.values(viewModel)
-            .filter(f => f.fingerState === 'ACTIVE' && f.keyCapStates) // Ищем активные пальцы с клавишами
-            .flatMap(f =>
+            .filter((f) => f.fingerState === 'ACTIVE' && f.keyCapStates) // Ищем активные пальцы с клавишами
+            .flatMap((f) =>
                 Object.entries(f.keyCapStates!)
                     .filter(([, state]) => state.navigationRole === 'TARGET') // Фильтруем по целевым клавишам
                     .map(([keyCapId]) => keyCapId as KeyCapId) // Извлекаем KeyCapId
             );
 
           // Проверяем, является ли какой-либо модификатор целевой клавишей
-          if (allTargetKeyCaps.some(k => k === 'ShiftLeft' || k === 'ShiftRight')) activeModifiers.push('shift');
-          if (allTargetKeyCaps.some(k => k === 'ControlLeft' || k === 'ControlRight')) activeModifiers.push('ctrl');
-          if (allTargetKeyCaps.some(k => k === 'AltLeft' || k === 'AltRight')) activeModifiers.push('alt');
-          if (allTargetKeyCaps.some(k => k === 'MetaLeft' || k === 'MetaRight')) activeModifiers.push('meta');
+          if (allTargetKeyCaps.some((k) => k === 'ShiftLeft' || k === 'ShiftRight')) activeModifiers.push('shift');
+          if (allTargetKeyCaps.some((k) => k === 'ControlLeft' || k === 'ControlRight')) activeModifiers.push('ctrl');
+          if (allTargetKeyCaps.some((k) => k === 'AltLeft' || k === 'AltRight')) activeModifiers.push('alt');
+          if (allTargetKeyCaps.some((k) => k === 'MetaLeft' || k === 'MetaRight')) activeModifiers.push('meta');
 
           return (
             <div
               key={fingerId}
-              ref={el => { keyboardRefs.current[fingerId] = el; }} // Сохраняем ссылку на контейнер клавиатуры
+              ref={(el) => { keyboardRefs.current[fingerId] = el; }} // Сохраняем ссылку на контейнер клавиатуры
               className="absolute top-0 left-0" // Позиционируем абсолютно для дальнейшего смещения
             >
               <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers}/>

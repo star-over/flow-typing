@@ -43,8 +43,8 @@ export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_
  */
 function initializeHandStates(): HandStates {
   const states = {} as HandStates;
-  LEFT_HAND_FINGERS.forEach(id => states[id] = "IDLE");
-  RIGHT_HAND_FINGERS.forEach(id => states[id] = "IDLE");
+  LEFT_HAND_FINGERS.forEach((id) => states[id] = "IDLE");
+  RIGHT_HAND_FINGERS.forEach((id) => states[id] = "IDLE");
   states[LEFT_HAND_BASE] = "IDLE";
   states[RIGHT_HAND_BASE] = "IDLE";
   return states;
@@ -64,7 +64,7 @@ function getTargetFinger(
   const keyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayout);
   if (!keyCapIds) return undefined;
 
-  const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
+  const primaryKey = keyCapIds.find((id) => !id.includes('Shift')) || keyCapIds[0];
   if (!primaryKey) return undefined;
 
   return getFingerByKeyCap(primaryKey, fingerLayout);

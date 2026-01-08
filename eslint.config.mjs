@@ -73,6 +73,9 @@ export default defineConfig([
        "react/react-in-jsx-scope": "off", // Не требуется в новых версиях React
       "react/prop-types": "off", // TypeScript предоставляет проверку типов
 
+      // Arrow function parentheses
+      'arrow-parens': ['warn', 'always'],
+
       // --- НОВЫЕ ПРАВИЛА ---
       // Правила для React Hooks
       'react-hooks/rules-of-hooks': 'error',

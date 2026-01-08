@@ -23,5 +23,5 @@ export function areKeyCapIdArraysEqual(arr1: KeyCapId[], arr2: KeyCapId[]): bool
 
   // If lengths are equal and there are no duplicates within each array,
   // then checking if every element of arr1 is in arr2 is sufficient.
-  return arr1.every(item => arr2.includes(item));
+  return arr1.every((item) => arr2.includes(item));
 }

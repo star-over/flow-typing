@@ -53,7 +53,7 @@ function getActiveFingers(trainingContext: TrainingContext): Set<FingerId> {
 function getActiveHands(activeFingers: Set<FingerId>): Set<HandSide> {
   const activeHands = new Set<HandSide>();
   if (Array.from(activeFingers).some(isLeftHandFinger)) activeHands.add(HAND_SIDES[0]); // 'LEFT'
-  if (Array.from(activeFingers).some(finger => !isLeftHandFinger(finger))) activeHands.add(HAND_SIDES[1]); // 'RIGHT'
+  if (Array.from(activeFingers).some((finger) => !isLeftHandFinger(finger))) activeHands.add(HAND_SIDES[1]); // 'RIGHT'
   return activeHands;
 }
 
@@ -82,10 +82,10 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
 
     const isErrorInCluster =
       incorrectPressFingers.size === activeFingers.size &&
-      [...incorrectPressFingers].every(finger => activeFingers.has(finger));
+      [...incorrectPressFingers].every((finger) => activeFingers.has(finger));
 
     if (!isErrorInCluster) {
-      incorrectPressFingers.forEach(fingerId => errorFingers.add(fingerId));
+      incorrectPressFingers.forEach((fingerId) => errorFingers.add(fingerId));
     }
   }
   return errorFingers;
@@ -99,10 +99,10 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
 function applyHandInactivity(viewModel: HandsSceneViewModel, activeHands: Set<HandSide>): void {
   if (activeHands.size > 0) {
     if (!activeHands.has(HAND_SIDES[0])) { // 'LEFT'
-      ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
+      ['L1', 'L2', 'L3', 'L4', 'L5', 'LB'].forEach((id) => viewModel[id as FingerId].fingerState = 'INACTIVE');
     }
     if (!activeHands.has(HAND_SIDES[1])) { // 'RIGHT'
-      ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach(id => viewModel[id as FingerId].fingerState = 'INACTIVE');
+      ['R1', 'R2', 'R3', 'R4', 'R5', 'RB'].forEach((id) => viewModel[id as FingerId].fingerState = 'INACTIVE');
     }
   }
 }
@@ -136,7 +136,7 @@ function buildKeyCapStates(
     path = findOptimalPath(homeKey, targetKey, keyboardGraph);
   }
 
-  keyCluster.forEach(keyId => {
+  keyCluster.forEach((keyId) => {
     let role: KeySceneState['navigationRole'] = 'NONE';
     let arrow: KeySceneState['navigationArrow'] = 'NONE';
     let pressResult: KeySceneState['pressResult'] = 'NEUTRAL';
@@ -198,7 +198,7 @@ function getIdleViewModel(): HandsSceneViewModel {
   const idleState: FingerState = 'IDLE';
   const viewModel: Partial<HandsSceneViewModel> = {};
   const allFingerIds: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE, ...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
-  allFingerIds.forEach(id => { viewModel[id] = { fingerState: idleState } });
+  allFingerIds.forEach((id) => { viewModel[id] = { fingerState: idleState } });
   return viewModel as HandsSceneViewModel;
 }
 
@@ -234,7 +234,7 @@ export function generateHandsSceneViewModel(trainingContext: TrainingContext | u
   const errorFingers = processErrors(trainingContext, activeFingers);
 
   // Ensure the hand that made the error is active to be visible
-  errorFingers.forEach(fingerId => {
+  errorFingers.forEach((fingerId) => {
     if (isLeftHandFinger(fingerId)) activeHands.add(HAND_SIDES[0]); // 'LEFT'
     else activeHands.add(HAND_SIDES[1]); // 'RIGHT'
   });
@@ -243,18 +243,18 @@ export function generateHandsSceneViewModel(trainingContext: TrainingContext | u
   applyHandInactivity(viewModel, activeHands);
 
   // Set ACTIVE state for the required fingers
-  activeFingers.forEach(fingerId => {
+  activeFingers.forEach((fingerId) => {
     viewModel[fingerId].fingerState = 'ACTIVE';
   });
 
   // Set INCORRECT state for out-of-cluster error fingers. This overrides other states.
-  errorFingers.forEach(fingerId => {
+  errorFingers.forEach((fingerId) => {
     viewModel[fingerId].fingerState = 'INCORRECT';
   });
 
 
   // --- 3. Build detailed keyCapStates for each ACTIVE finger ---
-  activeFingers.forEach(fingerId => {
+  activeFingers.forEach((fingerId) => {
     const fingerData = viewModel[fingerId];
     // Only build clusters for fingers that are meant to be active (not the ones that made an error)
     if (fingerData.fingerState !== 'ACTIVE') return;

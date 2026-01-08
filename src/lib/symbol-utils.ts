@@ -91,7 +91,7 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
   for (const [symbol, requiredKeys] of Object.entries(symbolLayout)) {
     // Create a canonical set for the current symbol's required keys.
     const canonicalLayoutKeys = new Set<KeyCapId>();
-    requiredKeys.forEach(key => {
+    requiredKeys.forEach((key) => {
       if (modifierKeyToKeyCapId.shift.includes(key)) canonicalLayoutKeys.add('ShiftLeft');
       else if (modifierKeyToKeyCapId.ctrl.includes(key)) canonicalLayoutKeys.add('ControlLeft');
       else if (modifierKeyToKeyCapId.alt.includes(key)) canonicalLayoutKeys.add('AltLeft');
@@ -102,7 +102,7 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
     // 3. Compare the canonical sets.
     if (
       lookupKeys.size === canonicalLayoutKeys.size &&
-      [...lookupKeys].every(key => canonicalLayoutKeys.has(key))
+      [...lookupKeys].every((key) => canonicalLayoutKeys.has(key))
     ) {
       return symbol; // Exact match found.
     }
@@ -161,7 +161,7 @@ export function getKeyCapIdsForChar(char: string, symbolLayout: SymbolLayout): K
  */
 export function isShiftRequired(char: string, symbolLayout: SymbolLayout): boolean {
   const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
-  return keyCapIds?.some(id => id.includes('Shift')) ?? false;
+  return keyCapIds?.some((id) => id.includes('Shift')) ?? false;
 }
 
 
