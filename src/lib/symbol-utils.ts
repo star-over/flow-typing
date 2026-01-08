@@ -1,4 +1,3 @@
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
@@ -23,25 +22,6 @@ export const sp = '\u0020';
 
 // --- Key Type Definitions ---
 
-const allKeys = keyboardLayoutANSI.flat();
-
-/**
- * `Set` всех `KeyCapId` для символьных клавиш.
- */
-export const symbolKeyCapIdSet = new Set<KeyCapId>(
-  allKeys
-    .filter((key) => key.type === "SYMBOL")
-    .map((key) => key.keyCapId)
-);
-
-/**
- * `Set` всех `KeyCapId` для системных (функциональных) клавиш.
- */
-export const functionalKeyCapIdSet = new Set<KeyCapId>(
-  allKeys
-    .filter((key) => key.type === "SYSTEM")
-    .map((key) => key.keyCapId)
-);
 
 /**
  * Проверяет, является ли клавиша модификатором.
@@ -49,13 +29,11 @@ export const functionalKeyCapIdSet = new Set<KeyCapId>(
  * @param keyboardLayout Макет клавиатуры, используемый для определения модификаторов.
  * @returns `true`, если клавиша является модификатором.
  */
-export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): key is KeyCapId {
-  const modifierKeyCapIdSet = new Set<KeyCapId>(
-    keyboardLayout.flat()
-      .filter((k) => k.type === "MODIFIER")
-      .map((k) => k.keyCapId)
-  );
-  return modifierKeyCapIdSet.has(key as KeyCapId);
+export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): boolean {
+  return keyboardLayout.flat()
+    .filter((k) => k.type === "MODIFIER")
+    .map((k) => k.keyCapId)
+    .includes(key as KeyCapId);
 }
 
 /**
@@ -66,8 +44,11 @@ export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): key 
  * @param key Код клавиши (`KeyboardEvent.code`).
  * @returns `true`, если клавиша является символьной.
  */
-export function isTextKey(key: string): key is KeyCapId {
-  return symbolKeyCapIdSet.has(key as KeyCapId);
+export function isTextKey(key: string, keyboardLayout: KeyboardLayout): boolean {
+  return keyboardLayout.flat()
+    .filter((k) => k.type === "SYMBOL")
+    .map((k) => k.keyCapId)
+    .includes(key as KeyCapId);
 }
 
 // --- End of Key Type Definitions ---

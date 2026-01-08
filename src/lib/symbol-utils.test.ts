@@ -70,11 +70,11 @@ describe('getSymbol', () => {
   it('should return the correct symbol for a number key with shift modifier', () => {
     expect(getSymbol('Digit1', ['shift'], symbolLayoutEnQwerty)).toBe('!');
   });
-  
+
   it('should return the base symbol if a modifier combination is not found (Level 2 Fallback)', () => {
     expect(getSymbol('KeyA', ['ctrl'], symbolLayoutEnQwerty)).toBe('a');
   });
-  
+
   it('should return the base symbol if multiple modifiers are not found (Level 2 Fallback)', () => {
     expect(getSymbol('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty)).toBe('a');
   });
@@ -92,20 +92,20 @@ describe('getSymbol', () => {
 
 describe('isTextKey', () => {
   it('should return true for a valid symbol KeyCapId', () => {
-    expect(isTextKey('KeyA')).toBe(true);
-    expect(isTextKey('Digit1')).toBe(true);
-    expect(isTextKey('Comma')).toBe(true);
+    expect(isTextKey('KeyA', keyboardLayoutANSI)).toBe(true);
+    expect(isTextKey('Digit1', keyboardLayoutANSI)).toBe(true);
+    expect(isTextKey('Comma', keyboardLayoutANSI)).toBe(true);
   });
 
   it('should return false for a non-symbol KeyCapId', () => {
-    expect(isTextKey('ShiftLeft')).toBe(false);
-    expect(isTextKey('CapsLock')).toBe(false);
-    expect(isTextKey('Enter')).toBe(false);
+    expect(isTextKey('ShiftLeft', keyboardLayoutANSI)).toBe(false);
+    expect(isTextKey('CapsLock', keyboardLayoutANSI)).toBe(false);
+    expect(isTextKey('Enter', keyboardLayoutANSI)).toBe(false);
   });
 
   it('should return false for an invalid or non-existent KeyCapId', () => {
-    expect(isTextKey('InvalidKey')).toBe(false);
-    expect(isTextKey('KeyZz')).toBe(false);
+    expect(isTextKey('InvalidKey', keyboardLayoutANSI)).toBe(false);
+    expect(isTextKey('KeyZz', keyboardLayoutANSI)).toBe(false);
   });
 });
 
