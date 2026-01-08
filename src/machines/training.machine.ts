@@ -12,7 +12,6 @@ import { KeyCapId, TypingStream } from '@/interfaces/types';
 export interface TrainingContext {
   stream: TypingStream;
   currentIndex: number;
-  pressedKeys: KeyCapId[] | null;
   errors: number;
 }
 
@@ -38,7 +37,6 @@ export const trainingMachine = createMachine({
   context: ({ input }) => ({
     stream: input.stream,
     currentIndex: 0,
-    pressedKeys: null,
     errors: 0,
   }),
   on: {
@@ -49,11 +47,7 @@ export const trainingMachine = createMachine({
       on: {
         KEY_PRESS: {
           target: 'processingInput',
-          actions: assign({
-            pressedKeys: ({ event }) => event.keys,
-          }),
-        },
-      },
+        },      },
     },
     processingInput: {
       always: [
@@ -80,12 +74,12 @@ export const trainingMachine = createMachine({
     },
     correctInput: {
       entry: assign({
-        stream: ({ context }) => {
+        stream: ({ context, event }) => {
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
             // Faking timestamp for now as it's not critical for this feature
-            pressedKeyCups: context.pressedKeys!,
+            pressedKeyCups: (event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: Date.now(),
             endAt: Date.now(),
           };
@@ -109,12 +103,12 @@ export const trainingMachine = createMachine({
     incorrectInput: {
       entry: assign({
         errors: ({ context }) => context.errors + 1,
-        stream: ({ context }) => {
+        stream: ({ context, event }) => {
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
             // Faking timestamp for now as it's not critical for this feature
-            pressedKeyCups: context.pressedKeys!,
+            pressedKeyCups: (event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: Date.now(),
             endAt: Date.now(),
           };
