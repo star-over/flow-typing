@@ -7,10 +7,11 @@
 import { JSX, useReducer } from "react";
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { FingerId, KeyCapId, TypedKey } from "@/interfaces/types";
 import { HandsSceneViewModel, KeySceneState } from "@/interfaces/types";
-import { getFingerByKeyCap,getKeyCapIdsForChar, isShiftRequired, isTextKey } from "@/lib/symbol-utils";
+import { getFingerByKeyCap,getKeyCapIdsForChar, isModifierKey,isShiftRequired } from "@/lib/symbol-utils";
 import {
   initialTrainerState,
   reducer,
@@ -42,7 +43,7 @@ export function Trainer(
    * @param e Объект события клавиатуры.
    */
   const handleOnKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (isTextKey(e.code)) {
+    if (!isModifierKey(e.code, keyboardLayoutANSI)) {
       e.stopPropagation();
       e.preventDefault();
 
@@ -56,7 +57,7 @@ export function Trainer(
       const isCorrect = e.code === primaryKey && e.shiftKey === shiftNeeded;
 
       const typedKey: TypedKey = {
-        keyCapId: e.code,
+        keyCapId: e.code as KeyCapId,
         shift: e.shiftKey,
         isCorrect: isCorrect,
       };

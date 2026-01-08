@@ -1,5 +1,6 @@
 import { type ActorRefFrom,assign, sendTo, setup } from "xstate";
 
+ import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
 
@@ -66,7 +67,7 @@ export const keyboardMachine = setup({
         // Оставляем только другие модификаторы
         return new Set(
           Array.from(context.pressedKeys).filter(
-            (key) => isModifierKey(key) && key !== event.keyCapId
+            (key) => isModifierKey(key, keyboardLayoutANSI) && key !== event.keyCapId
           )
         );
       },

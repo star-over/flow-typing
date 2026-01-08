@@ -181,6 +181,39 @@
 
 # Требования к взаимодействию с ИИ
 
+### Рекомендации по рефакторингу функций, зависящих от `KeyboardLayout`
+
+При модификации или создании новых утилит, которые зависят от статических данных макета клавиатуры (таких как `keyboardLayoutANSI`), таких как `isModifierKey` или `isTextKey`, следует применять принцип Dependency Injection (DI) следующим образом:
+
+1.  **Явная передача `keyboardLayout`:** Функции должны принимать объект `keyboardLayout: KeyboardLayout` в качестве одного из своих аргументов. Это делает функцию чистой, облегчает тестирование и явным образом указывает на ее зависимость.
+
+    *Пример:*
+    ```typescript
+    export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): key is KeyCapId {
+      const modifierKeyCapIdSet = new Set<KeyCapId>(
+        keyboardLayout.flat()
+          .filter((k) => k.type === "MODIFIER")
+          .map((k) => k.keyCapId)
+      );
+      return modifierKeyCapIdSet.has(key as KeyCapId);
+    }
+    ```
+
+2.  **Централизованный импорт `keyboardLayoutANSI`:** Статический макет `keyboardLayoutANSI` должен импортироваться в точке использования (например, в файлах, где вызывается `isModifierKey`).
+
+    *Пример в компоненте/машине состояний:*
+    ```typescript
+    import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
+    import { isModifierKey } from "@/lib/symbol-utils";
+
+    // ... внутри функции или логики ...
+    if (isModifierKey(e.code, keyboardLayoutANSI)) {
+      // ...
+    }
+    ```
+
+Этот подход помогает избежать глобальных неявных зависимостей, повышает тестируемость и поддерживает чистоту функций.
+
 ## Стиль общения
 
 *   **Строго деловой и нейтральный тон:** Общение ведется в строго деловом ключе, без эмоциональной окраски. **Запрещены** извинения, обещания, личные мнения, чрезмерная вежливость и другие формы эмоциональных выражений.

@@ -1,19 +1,15 @@
-/**
- * @file Утилиты для работы с символами и типами клавиш.
- * @description Содержит функции для определения типа клавиши, получения
- * информации о символах и их связи с физическими клавишами.
- */
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
+  KeyboardLayout, // Added KeyboardLayout
   ModifierKey,
   SymbolLayout,
 } from "@/interfaces/types";
 
 /**
- * Символ неразрывного пробела (non-breaking space).
+ * Символ неразрывного пробеса (non-breaking space).
  * @type {string}
  */
 export const nbsp = '\u00A0';
@@ -28,15 +24,6 @@ export const sp = '\u0020';
 // --- Key Type Definitions ---
 
 const allKeys = keyboardLayoutANSI.flat();
-
-/**
- * `Set` всех `KeyCapId` для клавиш-модификаторов.
- */
-export const modifierKeyCapIdSet = new Set<KeyCapId>(
-  allKeys
-    .filter((key) => key.type === "MODIFIER")
-    .map((key) => key.keyCapId)
-);
 
 /**
  * `Set` всех `KeyCapId` для символьных клавиш.
@@ -59,14 +46,23 @@ export const functionalKeyCapIdSet = new Set<KeyCapId>(
 /**
  * Проверяет, является ли клавиша модификатором.
  * @param key Код клавиши (`KeyboardEvent.code`).
+ * @param keyboardLayout Макет клавиатуры, используемый для определения модификаторов.
  * @returns `true`, если клавиша является модификатором.
  */
-export function isModifierKey(key: string): key is KeyCapId {
+export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): key is KeyCapId {
+  const modifierKeyCapIdSet = new Set<KeyCapId>(
+    keyboardLayout.flat()
+      .filter((k) => k.type === "MODIFIER")
+      .map((k) => k.keyCapId)
+  );
   return modifierKeyCapIdSet.has(key as KeyCapId);
 }
 
 /**
  * Проверяет, является ли клавиша символьной (текстовой).
+ * Зависит от глобальной переменной `symbolKeyCapIdSet`, которая инициализируется с `keyboardLayoutANSI`.
+ * Для обеспечения полной чистоты и тестируемости, эта функция также должна быть рефакторизована
+ * для принятия `KeyboardLayout` в качестве аргумента.
  * @param key Код клавиши (`KeyboardEvent.code`).
  * @returns `true`, если клавиша является символьной.
  */

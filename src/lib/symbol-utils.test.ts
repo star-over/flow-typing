@@ -2,6 +2,7 @@ import { describe, expect,it } from 'vitest';
 
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
 
+import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi'; // Added keyboardLayoutANSI
 import { getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
 
 describe('getKeyCapIdsForChar', () => {
@@ -110,20 +111,20 @@ describe('isTextKey', () => {
 
 describe('isModifierKey', () => {
   it('should return true for a valid modifier KeyCapId', () => {
-    expect(isModifierKey('ShiftLeft')).toBe(true);
-    expect(isModifierKey('ControlRight')).toBe(true);
-    expect(isModifierKey('AltLeft')).toBe(true);
-    expect(isModifierKey('MetaRight')).toBe(true);
+    expect(isModifierKey('ShiftLeft', keyboardLayoutANSI)).toBe(true);
+    expect(isModifierKey('ControlRight', keyboardLayoutANSI)).toBe(true);
+    expect(isModifierKey('AltLeft', keyboardLayoutANSI)).toBe(true);
+    expect(isModifierKey('MetaRight', keyboardLayoutANSI)).toBe(true);
   });
 
   it('should return false for a non-modifier KeyCapId', () => {
-    expect(isModifierKey('KeyA')).toBe(false);
-    expect(isModifierKey('Enter')).toBe(false);
-    expect(isModifierKey('Tab')).toBe(false);
+    expect(isModifierKey('KeyA', keyboardLayoutANSI)).toBe(false);
+    expect(isModifierKey('Enter', keyboardLayoutANSI)).toBe(false);
+    expect(isModifierKey('Tab', keyboardLayoutANSI)).toBe(false);
   });
 
   it('should return false for an invalid or non-existent KeyCapId', () => {
-    expect(isModifierKey('InvalidKey')).toBe(false);
-    expect(isModifierKey('Shift')).toBe(false);
+    expect(isModifierKey('InvalidKey', keyboardLayoutANSI)).toBe(false);
+    expect(isModifierKey('Shift', keyboardLayoutANSI)).toBe(false);
   });
 });
