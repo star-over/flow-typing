@@ -6,11 +6,11 @@ import {
   FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,
   FLOW_LINE_SIZES,
-  TypedKey,
+  KeyCapId,
   TypingStream
 } from '@/interfaces/types';
 import { addAttempt,createTypingStream } from '@/lib/stream-utils';
-import { getKeyCapIdsForChar, isShiftRequired } from '@/lib/symbol-utils';
+import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
 
 import { FlowLine } from './flow-line';
 
@@ -62,16 +62,11 @@ type Story = StoryObj<typeof meta>;
 
 const fullStreamText = 'The quick brown fo xxx xxx xxx xxx xxx jumps over the lazy dog.';
 
-// --- Helper to create TypedKey from a character ---
-const createTypedKeyFromChar = (char: string, isCorrect: boolean): TypedKey | null => {
+// --- Helper to create KeyCapId[] from a character ---
+const createPressedKeyCupsFromChar = (char: string): KeyCapId[] | null => {
   const keyCapIds = getKeyCapIdsForChar(char, symbolLayoutEnQwerty);
   if (!keyCapIds) return null;
-  const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
-  return {
-    keyCapId: primaryKey,
-    shift: isShiftRequired(char, symbolLayoutEnQwerty),
-    isCorrect,
-  };
+  return keyCapIds;
 };
 
 
@@ -84,12 +79,12 @@ const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
 let baseStreamCompleted = createTypingStream(fullStreamText);
 for (let i = 0; i < baseStreamCompleted.length; i++) {
   const targetChar = baseStreamCompleted[i].targetSymbol;
-  const typedKey = createTypedKeyFromChar(targetChar, true);
-  if (typedKey) {
+  const pressedKeyCups = createPressedKeyCupsFromChar(targetChar); // Use new function
+  if (pressedKeyCups) {
     baseStreamCompleted = addAttempt({
       stream: baseStreamCompleted,
       cursorPosition: i,
-      typedKey: typedKey,
+      pressedKeyCups: pressedKeyCups, // Use new parameter name
       startAt: 0,
       endAt: 100,
     });
@@ -100,48 +95,48 @@ for (let i = 0; i < baseStreamCompleted.length; i++) {
 let streamWithOneError = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithOneError.length; i++) {
   const targetChar = streamWithOneError[i].targetSymbol;
-  const correctTypedKey = createTypedKeyFromChar(targetChar, true)!;
+  const correctPressedKeyCups = createPressedKeyCupsFromChar(targetChar)!; // Use new function and variable name
 
   if (i === 4) { // Incorrect attempt on 'q'
-    const wrongTypedKey = createTypedKeyFromChar('w', false);
-    if (wrongTypedKey) {
-      streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
+    const wrongPressedKeyCups = createPressedKeyCupsFromChar('w'); // Use new function and variable name
+    if (wrongPressedKeyCups) {
+      streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups, startAt: 0, endAt: 50 }); // Use new parameter name
     }
   }
   // Final correct attempt for all characters
-  streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, typedKey: correctTypedKey, startAt: 50, endAt: 100 })
+  streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, pressedKeyCups: correctPressedKeyCups, startAt: 50, endAt: 100 }) // Use new parameter name
 }
 
 // 4. A stream with multiple errors on 'q' (index 4) and 'i' (index 6)
 let streamWithMultipleErrors = createTypingStream(fullStreamText);
 for (let i = 0; i < streamWithMultipleErrors.length; i++) {
   const targetChar = streamWithMultipleErrors[i].targetSymbol;
-  const correctTypedKey = createTypedKeyFromChar(targetChar, true)!;
+  const correctPressedKeyCups = createPressedKeyCupsFromChar(targetChar)!;
 
   if (i === 0) { // Errors on 'T'
-    const wrongTypedKey = createTypedKeyFromChar('w', false);
-    if (wrongTypedKey) {
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey, startAt: 0, endAt: 50 });
+    const wrongPressedKeyCups = createPressedKeyCupsFromChar('w');
+    if (wrongPressedKeyCups) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups, startAt: 0, endAt: 50 });
     }
   } else if (i === 1) { // Errors on 'h'
-    const wrongTypedKey1 = createTypedKeyFromChar('w', false);
-    const wrongTypedKey2 = createTypedKeyFromChar('e', false);
-    if (wrongTypedKey1 && wrongTypedKey2) {
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
+    const wrongPressedKeyCups1 = createPressedKeyCupsFromChar('w');
+    const wrongPressedKeyCups2 = createPressedKeyCupsFromChar('e');
+    if (wrongPressedKeyCups1 && wrongPressedKeyCups2) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups1, startAt: 0, endAt: 50 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups2, startAt: 50, endAt: 100 });
     }
   } else if (i === 2) { // Errors on 'e'
-    const wrongTypedKey1 = createTypedKeyFromChar('a', false);
-    const wrongTypedKey2 = createTypedKeyFromChar('b', false);
-    const wrongTypedKey3 = createTypedKeyFromChar('c', false);
-    if (wrongTypedKey1 && wrongTypedKey2 && wrongTypedKey3) {
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey1, startAt: 0, endAt: 50 });
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey2, startAt: 50, endAt: 100 });
-      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: wrongTypedKey3, startAt: 100, endAt: 150 });
+    const wrongPressedKeyCups1 = createPressedKeyCupsFromChar('a');
+    const wrongPressedKeyCups2 = createPressedKeyCupsFromChar('b');
+    const wrongPressedKeyCups3 = createPressedKeyCupsFromChar('c');
+    if (wrongPressedKeyCups1 && wrongPressedKeyCups2 && wrongPressedKeyCups3) {
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups1, startAt: 0, endAt: 50 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups2, startAt: 50, endAt: 100 });
+      streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: wrongPressedKeyCups3, startAt: 100, endAt: 150 });
     }
   }
   // Final correct attempt for all characters
-  streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, typedKey: correctTypedKey, startAt: 50, endAt: 100 })
+  streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCups: correctPressedKeyCups, startAt: 50, endAt: 100 })
 }
 
 export const Default: Story = {

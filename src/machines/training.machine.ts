@@ -85,7 +85,7 @@ export const trainingMachine = createMachine({
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
             // Faking timestamp for now as it's not critical for this feature
-            typedKey: { keyCapId: context.pressedKeys![0], shift: false, isCorrect: true },
+            pressedKeyCups: context.pressedKeys!,
             startAt: Date.now(),
             endAt: Date.now(),
           };
@@ -114,7 +114,7 @@ export const trainingMachine = createMachine({
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
             // Faking timestamp for now as it's not critical for this feature
-            typedKey: { keyCapId: context.pressedKeys![0], shift: false, isCorrect: false },
+            pressedKeyCups: context.pressedKeys!,
             startAt: Date.now(),
             endAt: Date.now(),
           };

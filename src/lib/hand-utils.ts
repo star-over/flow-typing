@@ -15,7 +15,6 @@ import {
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
   SymbolLayout,
-  TypedKey,
 } from "@/interfaces/types";
 
 import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from "./symbol-utils";
@@ -81,10 +80,10 @@ function getTargetFinger(
 function updateHandStatesForError(
   handStates: HandStates,
   targetFinger: FingerId,
-  typedKey: TypedKey,
+  pressedKeyCups: KeyCapId[],
   fingerLayout: FingerLayout
 ): void {
-  const typedFinger = getFingerByKeyCap(typedKey.keyCapId, fingerLayout);
+  const typedFinger = getFingerByKeyCap(pressedKeyCups[0], fingerLayout);
 
   if (typedFinger) {
     if (typedFinger === targetFinger) {
@@ -132,7 +131,8 @@ function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId)
  */
 export function getHandStates(
   targetSymbol: string | undefined,
-  typedKey: TypedKey | undefined,
+  pressedKeyCups: KeyCapId[] | undefined,
+  isIncorrect: boolean,
   fingerLayout: FingerLayout,
 ): HandStates {
   const handStates = initializeHandStates();
@@ -152,9 +152,11 @@ export function getHandStates(
     }
   }
 
-  if (typedKey && !typedKey.isCorrect) {
-    updateHandStatesForError(handStates, targetFinger, typedKey, fingerLayout);
+  if (isIncorrect && pressedKeyCups) {
+    updateHandStatesForError(handStates, targetFinger, pressedKeyCups, fingerLayout);
   }
+
+
 
   setOtherFingersInactive(handStates, targetFinger);
 

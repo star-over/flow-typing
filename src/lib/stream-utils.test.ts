@@ -1,7 +1,7 @@
 import { describe, expect,it } from "vitest";
 
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
-import { StreamSymbol, TypedKey } from "@/interfaces/types";
+import { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
 import { getKeyCapIdsForChar, nbsp } from "./symbol-utils";
@@ -40,37 +40,37 @@ describe("createTypingStream", () => {
 });
 
 describe("addAttempt", () => {
-  const typedKeyA: TypedKey = { keyCapId: getKeyCapIdsForChar("a", symbolLayoutEnQwerty)![0], shift: false, isCorrect: true };
-  const typedKeyB: TypedKey = { keyCapId: getKeyCapIdsForChar("b", symbolLayoutEnQwerty)![0], shift: false, isCorrect: false };
+  const pressedKeyCupsA: KeyCapId[] = ["KeyA"];
+  const pressedKeyCupsB: KeyCapId[] = ["KeyB"];
 
   it("should add an attempt to a symbol", () => {
     const stream = createTypingStream("a");
-    const newStream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 0, endAt: 100 });
 
     expect(newStream[0].attempts).toHaveLength(1);
-    expect(newStream[0].attempts[0].typedKey).toEqual(typedKeyA);
+    expect(newStream[0].attempts[0].pressedKeyCups).toEqual(pressedKeyCupsA);
   });
 
   it("should add multiple attempts", () => {
     let stream = createTypingStream("a");
-    stream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyB, startAt: 0, endAt: 100 });
-    stream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 100, endAt: 200 });
+    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsB, startAt: 0, endAt: 100 });
+    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 100, endAt: 200 });
 
     expect(stream[0].attempts).toHaveLength(2);
-    expect(stream[0].attempts[1].typedKey).toEqual(typedKeyA);
+    expect(stream[0].attempts[1].pressedKeyCups).toEqual(pressedKeyCupsA);
   });
 
   it("should be immutable", () => {
     const stream = createTypingStream("a");
-    const newStream = addAttempt({ stream, cursorPosition: 0, typedKey: typedKeyA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 0, endAt: 100 });
     expect(newStream).not.toBe(stream);
     expect(newStream[0]).not.toBe(stream[0]);
   });
 });
 
 describe("getSymbolType", () => {
-  const correctTypedKey: TypedKey = { keyCapId: "KeyA", shift: false, isCorrect: true };
-  const incorrectTypedKey: TypedKey = { keyCapId: "KeyB", shift: false, isCorrect: false };
+  const correctPressedKeyCups: KeyCapId[] = ["KeyA"];
+  const incorrectPressedKeyCups: KeyCapId[] = ["KeyB"];
 
   it('should return "PENDING" for a symbol with an empty attempts array', () => {
     const symbol: StreamSymbol = { targetSymbol: "a", targetKeyCaps: ['KeyA'], attempts: [] };
@@ -81,7 +81,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ['KeyA'],
-      attempts: [{ typedKey: correctTypedKey, startAt: 0, endAt: 1 }],
+      attempts: [{ pressedKeyCups: correctPressedKeyCups, startAt: 0, endAt: 1 }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
@@ -90,7 +90,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ['KeyA'],
-      attempts: [{ typedKey: incorrectTypedKey, startAt: 0, endAt: 1 }],
+      attempts: [{ pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 }],
     };
     expect(getSymbolType(symbol)).toBe("INCORRECT");
   });
@@ -100,8 +100,8 @@ describe("getSymbolType", () => {
       targetSymbol: "a",
       targetKeyCaps: ['KeyA'],
       attempts: [
-        { typedKey: incorrectTypedKey, startAt: 0, endAt: 1 },
-        { typedKey: correctTypedKey, startAt: 1, endAt: 2 },
+        { pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 },
+        { pressedKeyCups: correctPressedKeyCups, startAt: 1, endAt: 2 },
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
@@ -112,8 +112,8 @@ describe("getSymbolType", () => {
       targetSymbol: "a",
       targetKeyCaps: ['KeyA'],
       attempts: [
-        { typedKey: incorrectTypedKey, startAt: 0, endAt: 1 },
-        { typedKey: incorrectTypedKey, startAt: 1, endAt: 2 },
+        { pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 },
+        { pressedKeyCups: incorrectPressedKeyCups, startAt: 1, endAt: 2 },
       ],
     };
     expect(getSymbolType(symbol)).toBe("INCORRECTS");

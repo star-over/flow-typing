@@ -2,7 +2,7 @@ import { describe, expect,it } from "vitest";
 
 import { fingerLayoutASDF } from "../data/finger-layout-asdf";
 import { symbolLayoutEnQwerty } from "../data/symbol-layout-en-qwerty";
-import { FingerLayout, HandStates, SymbolLayout, TypedKey } from "../interfaces/types";
+import { FingerLayout, HandStates, KeyCapId, SymbolLayout } from "../interfaces/types";
 import { getFingerKeys,getHandStates, getHomeKeyForFinger, isLeftHandFinger, isRightHandFinger } from "./hand-utils";
 
 describe("getHandStates", () => {
@@ -14,17 +14,17 @@ describe("getHandStates", () => {
   };
 
   it("should return all IDLE when targetSymbol is undefined", () => {
-    const handStates = getHandStates(undefined, undefined, fingerLayout);
+    const handStates = getHandStates(undefined, undefined, false, fingerLayout);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should return all IDLE for a symbol not in the layout", () => {
-    const handStates = getHandStates("€", undefined, fingerLayout);
+    const handStates = getHandStates("€", undefined, false, fingerLayout);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should activate L3 for 'e' and set the rest of the left hand to INACTIVE", () => {
-    const handStates = getHandStates("e", undefined, fingerLayout);
+    const handStates = getHandStates("e", undefined, false, fingerLayout);
 
     expect(handStates.L3).toBe("ACTIVE");
     expect(handStates.L1).toBe("INACTIVE");
@@ -43,7 +43,7 @@ describe("getHandStates", () => {
   });
 
   it("should activate R3 for 'i' and set the rest of the right hand to INACTIVE", () => {
-    const handStates = getHandStates("i", undefined, fingerLayout);
+    const handStates = getHandStates("i", undefined, false, fingerLayout);
 
     expect(handStates.R3).toBe("ACTIVE");
     expect(handStates.R1).toBe("INACTIVE");
@@ -66,12 +66,12 @@ describe("getHandStates", () => {
     const mockFingerLayout = { ...fingerLayout };
     delete mockFingerLayout.Backquote;
 
-    const handStates = getHandStates("`", undefined, mockFingerLayout);
+    const handStates = getHandStates("`", undefined, false, mockFingerLayout);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should activate L3 for 'E' and R5 for shift", () => {
-    const handStates = getHandStates("E", undefined, fingerLayout);
+    const handStates = getHandStates("E", undefined, false, fingerLayout);
 
     expect(handStates.L3).toBe("ACTIVE"); // 'e' key
     expect(handStates.R5).toBe("ACTIVE"); // opposite pinky for shift
@@ -93,9 +93,9 @@ describe("getHandStates", () => {
   describe("error indication", () => {
     it("should not change algorithm when error is made by the same finger", () => {
       const targetSymbol = "e"; // L3 finger
-      const typedKey: TypedKey = { keyCapId: "KeyD", shift: false, isCorrect: false }; // Also L3 finger
+      const pressedKeyCups: KeyCapId[] = ["KeyD"]; // Also L3 finger
 
-      const handStates = getHandStates(targetSymbol, typedKey, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Should only show the target finger as ACTIVE
       expect(handStates.L3).toBe("ACTIVE");
@@ -109,9 +109,9 @@ describe("getHandStates", () => {
 
     it("should mark erroneous finger as INCORRECT when error is made by different finger but same hand", () => {
       const targetSymbol = "e"; // L3 finger
-      const typedKey: TypedKey = { keyCapId: "KeyS", shift: false, isCorrect: false }; // L4 finger (same hand)
+      const pressedKeyCups: KeyCapId[] = ["KeyS"]; // L4 finger (same hand)
 
-      const handStates = getHandStates(targetSymbol, typedKey, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Target finger should be ACTIVE
       expect(handStates.L3).toBe("ACTIVE");
@@ -126,9 +126,9 @@ describe("getHandStates", () => {
 
     it("should mark entire erroneous hand as INCORRECT when error is made by different hand", () => {
       const targetSymbol = "e"; // L3 finger
-      const typedKey: TypedKey = { keyCapId: "KeyI", shift: false, isCorrect: false }; // R3 finger (different hand)
+      const pressedKeyCups: KeyCapId[] = ["KeyI"]; // R3 finger (different hand)
 
-      const handStates = getHandStates(targetSymbol, typedKey, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Target finger should be ACTIVE
       expect(handStates.L3).toBe("ACTIVE");

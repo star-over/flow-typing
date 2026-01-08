@@ -138,18 +138,7 @@ export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
 
 // --- Typing Stream and Attempts ---
 
-/**
- * Представляет одно конкретное нажатие клавиши пользователем.
- * Эта структура данных является частью "Попытки" (`StreamAttempt`).
- */
-export type TypedKey = {
-  /** Идентификатор нажатой физической клавиши (например, `KeyA`). */
-  keyCapId: KeyCapId;
-  /** Была ли зажата клавиша Shift во время нажатия. */
-  shift: boolean;
-  /** Было ли это нажатие правильным для целевого символа. */
-  isCorrect: boolean;
-};
+
 
 /**
  * Представляет одну попытку пользователя набрать целевой символ.
@@ -157,7 +146,7 @@ export type TypedKey = {
  */
 export type StreamAttempt = {
   /** Данные о нажатой клавише. */
-  typedKey: TypedKey;
+  pressedKeyCups: KeyCapId[];
   /** Время начала нажатия (timestamp). */
   startAt: number;
   /** Время окончания нажатия (timestamp). */

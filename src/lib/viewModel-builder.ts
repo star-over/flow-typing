@@ -13,7 +13,7 @@ import { TrainingContext } from '@/machines/training.machine';
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
 import { createKeyCoordinateMap } from './layout-utils';
 import { createKeyboardGraph, findOptimalPath } from './pathfinding';
-import { getFingerByKeyCap } from './symbol-utils';
+import { areKeyCapIdArraysEqual, getFingerByKeyCap } from './symbol-utils';
 
 // Create utility maps once at the module level for performance.
 // These are used for pathfinding and determining navigation arrows.
@@ -60,11 +60,10 @@ function processErrors(trainingContext: TrainingContext, activeFingers: Set<Fing
   const currentSymbol = stream[currentIndex];
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
-  if (lastAttempt && !lastAttempt.typedKey.isCorrect) {
+  if (lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, currentSymbol.targetKeyCaps)) {
     const incorrectPressFingers = new Set<FingerId>();
 
-    // NOTE: lastAttempt.keys doesn't exist anymore, we use lastAttempt.typedKey.keyCapId
-    const keyId = lastAttempt.typedKey.keyCapId;
+    const keyId = lastAttempt.pressedKeyCups[0]; // Assuming the first key in the array is the main key pressed
     if (keyId === 'Space') {
       incorrectPressFingers.add('L1');
     } else {
@@ -154,7 +153,7 @@ function buildKeyCapStates(
     }
 
     // Check if this key was part of an incorrect attempt
-    if (lastAttempt && !lastAttempt.typedKey.isCorrect && lastAttempt.typedKey.keyCapId === keyId) {
+    if (lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps) && lastAttempt.pressedKeyCups.includes(keyId)) {
       pressResult = 'INCORRECT';
     }
 

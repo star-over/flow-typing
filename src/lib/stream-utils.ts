@@ -4,9 +4,9 @@
  * который представляет собой упражнение для пользователя.
  */
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
-import { FlowLineSymbolType, StreamAttempt, StreamSymbol, TypedKey,TypingStream } from '@/interfaces/types';
+import { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, TypingStream } from '@/interfaces/types';
 
-import { getKeyCapIdsForChar, nbsp, sp } from './symbol-utils';
+import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, nbsp, sp } from "./symbol-utils";
 
 /**
  * Создает `TypingStream` из строки.
@@ -43,13 +43,13 @@ export function createTypingStream(text: string): TypingStream {
 export function addAttempt({
   stream,
   cursorPosition,
-  typedKey,
+  pressedKeyCups,
   startAt,
   endAt,
 }: {
   stream: TypingStream;
   cursorPosition: number;
-  typedKey: TypedKey;
+  pressedKeyCups: KeyCapId[];
   startAt: number;
   endAt: number;
 }): TypingStream {
@@ -61,7 +61,7 @@ export function addAttempt({
   const targetSymbol = newStream[cursorPosition];
 
   const newAttempt: StreamAttempt = {
-    typedKey: typedKey,
+    pressedKeyCups: pressedKeyCups,
     startAt,
     endAt,
   };
@@ -89,7 +89,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   }
 
   const lastAttempt = attempts.at(-1)!;
-  const isCorrect = lastAttempt.typedKey.isCorrect;
+  const isCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, (symbol as StreamSymbol).targetKeyCaps);
 
   if (isCorrect) {
     return attempts.length > 1 ? "CORRECTED" : "CORRECT";

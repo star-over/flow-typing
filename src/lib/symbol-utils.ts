@@ -175,3 +175,15 @@ export function getFingerByKeyCap( keyCapId: KeyCapId, fingerLayout: FingerLayou
   const entry = fingerLayout[keyCapId];
   return entry ? entry.fingerId : undefined;
 }
+
+export function areKeyCapIdArraysEqual(arr1: KeyCapId[], arr2: KeyCapId[]): boolean {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
+}

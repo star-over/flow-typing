@@ -188,11 +188,10 @@ describe('viewModel-builder', () => {
             targetKeyCaps: ['KeyF'] as KeyCapId[],
             attempts: [
               {
-                typedKey: { keyCapId: 'KeyG' as KeyCapId, shift: false, isCorrect: false },
-                startAt: 0,
-                endAt: 0,
-              },
-            ],
+                            pressedKeyCups: ['KeyG'] as KeyCapId[],
+                            startAt: 0,
+                            endAt: 0,
+                          },            ],
           },
         ],
         currentIndex: 0,
@@ -213,7 +212,7 @@ describe('viewModel-builder', () => {
             targetKeyCaps: ['KeyF'] as KeyCapId[],
             attempts: [
               {
-                typedKey: { keyCapId: 'KeyJ' as KeyCapId, shift: false, isCorrect: false },
+                pressedKeyCups: ['KeyJ'] as KeyCapId[],
                 startAt: 0,
                 endAt: 0,
               },
