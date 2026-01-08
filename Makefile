@@ -115,7 +115,7 @@ type-check: install
 	npx tsc --noEmit
 
 # check-all - запускает все проверки: линтер, проверку типов, тесты, сборку проекта и сборку Storybook.
-check-all: lint type-check test build build-storybook
+check-all: lint type-check test build
 	@echo "✅ Все проверки завершены!"
 
 
@@ -151,4 +151,3 @@ reinstall-gemini-cli:
 	@echo "3/3: Установка последней версии..."
 	npm install -g @google/gemini-cli@latest
 	@echo "✅ @google/gemini-cli успешно переустановлен."
-

@@ -10,7 +10,7 @@ import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
 import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState } from '@/interfaces/types';
 import { TrainingContext } from '@/machines/training.machine';
 
-import { getHomeKeyForFinger, getKeyCapIdsByFingerId, isLeftHandFinger } from './hand-utils';
+import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from './hand-utils';
 import { createKeyCoordinateMap } from './layout-utils';
 import { createKeyboardGraph, findOptimalPath } from './pathfinding';
 import { getFingerByKeyCap } from './symbol-utils';
@@ -117,7 +117,7 @@ function buildKeyCapStates(
   const lastAttempt = currentSymbol?.attempts[currentSymbol.attempts.length - 1];
 
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-  const keyCluster = getKeyCapIdsByFingerId(fingerId, fingerLayoutASDF);
+  const keyCluster = getFingerKeys(fingerId, fingerLayoutASDF);
   const homeKey = getHomeKeyForFinger(fingerId, fingerLayoutASDF);
 
   // Find which of the required keys this finger is responsible for

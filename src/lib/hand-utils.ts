@@ -161,12 +161,12 @@ export function getHandStates(
 }
 
 /**
- * Получает все `keyCapId` для заданного `fingerId`.
+ * Получает все клавиши, назначенные на указанный палец.
  * @param fingerId Идентификатор пальца.
  * @param fingerLayout Объект `FingerLayout`.
  * @returns Массив `KeyCapId`, связанных с пальцем.
  */
-export function getKeyCapIdsByFingerId(
+export function getFingerKeys(
   fingerId: FingerId,
   fingerLayout: FingerLayout
 ): KeyCapId[] {
