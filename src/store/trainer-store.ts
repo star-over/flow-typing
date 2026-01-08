@@ -1,5 +1,4 @@
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import {
   HandStates,
   TypedKey,
@@ -25,14 +24,13 @@ export type TrainerAction = {
 };
 
 // Layouts are static and don't need to be in the state
-const symbolLayout = symbolLayoutEnQwerty;
 const fingerLayout = fingerLayoutASDF;
 
 export function createInitialState(text: string): TrainerState {
   const cursorPosition = 0;
   const stream = createTypingStream(text);
   const targetSymbol = stream[cursorPosition].targetSymbol;
-  const handStates = getHandStates(targetSymbol, undefined, symbolLayout, fingerLayout);
+  const handStates = getHandStates(targetSymbol, undefined, fingerLayout);
 
   return {
     stream,
@@ -66,7 +64,6 @@ export function reducer(
       const newHandStates = getHandStates(
         currentTargetSymbol,
         typedKey, // Pass the typed key for error indication
-        symbolLayout,
         fingerLayout,
       );
 
@@ -96,7 +93,6 @@ export function reducer(
       const nextHandStates = getHandStates(
         newTargetSymbol,
         undefined, // No error on correct typing
-        symbolLayout,
         fingerLayout,
       );
 

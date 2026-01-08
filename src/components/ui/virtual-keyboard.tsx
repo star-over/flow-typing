@@ -7,6 +7,7 @@
  */
 import { JSX } from "react";
 
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { ModifierKey, VirtualKey, } from "@/interfaces/types";
 import { getSymbol } from "@/lib/symbol-utils";
 
@@ -66,7 +67,7 @@ function VirtualRow({ row, activeModifiers }: VirtualRowProps): JSX.Element {
       <KeyCap
         key={virtualKey.keyCapId}
         {...virtualKey}
-        symbol={getSymbol(virtualKey.keyCapId, activeModifiers || [])}
+        symbol={getSymbol(virtualKey.keyCapId, activeModifiers || [], symbolLayoutEnQwerty)}
         navigationRole={virtualKey.navigationRole}
         visibility={virtualKey.visibility}
       />

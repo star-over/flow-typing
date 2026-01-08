@@ -7,6 +7,7 @@
 import { JSX, useReducer } from "react";
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { FingerId, KeyCapId, TypedKey } from "@/interfaces/types";
 import { HandsSceneViewModel, KeySceneState } from "@/interfaces/types";
 import { getFingerByKeyCap,getKeyCapIdsForChar, isShiftRequired, isTextKey } from "@/lib/symbol-utils";
@@ -48,9 +49,9 @@ export function Trainer(
       const { stream, cursorPosition } = state;
       const targetSymbol = stream[cursorPosition].targetSymbol;
 
-      const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol);
+      const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayoutEnQwerty);
       const primaryKey = requiredKeyCapIds?.find(id => !id.includes('Shift')) || requiredKeyCapIds?.[0];
-      const shiftNeeded = isShiftRequired(targetSymbol);
+      const shiftNeeded = isShiftRequired(targetSymbol, symbolLayoutEnQwerty);
       
       const isCorrect = e.code === primaryKey && e.shiftKey === shiftNeeded;
 
@@ -65,7 +66,7 @@ export function Trainer(
 
   // Генерируем `highlightedFingerKeys` для `HandsExt` на основе текущего целевого символа.
   const targetSymbol = state.stream[state.cursorPosition].targetSymbol;
-  const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol) || [];
+  const requiredKeyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayoutEnQwerty) || [];
 
   const highlightedFingerKeys: Partial<Record<FingerId, KeyCapId[]>> = {};
   requiredKeyCapIds.forEach(keyCapId => {

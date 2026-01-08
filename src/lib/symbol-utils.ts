@@ -4,12 +4,12 @@
  * информации о символах и их связи с физическими клавишами.
  */
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
   ModifierKey,
+  SymbolLayout,
 } from "@/interfaces/types";
 
 /**
@@ -90,17 +90,17 @@ const modifierKeyToKeyCapId: Record<ModifierKey, KeyCapId[]> = {
  * @returns The matching symbol character or null if no exact match is found.
  *
  * @architectural_note
- * The core of this function is a "canonicalization" step. Both the input keys 
+ * The core of this function is a "canonicalization" step. Both the input keys
  * (keyCapId + activeModifiers) and the keys from the symbol layout are converted
  * to a standard form (e.g., 'ShiftLeft' is used for any shift key). This allows
  * for a reliable, set-based comparison and correctly handles variations like
  * ShiftLeft vs. ShiftRight. It also correctly resolves the symbol for the
  * modifier key itself (e.g., finding "Sh L" for the "ShiftLeft" key).
  */
-function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierKey[]): string | null {
+function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout): string | null {
   // 1. Create the canonical set of keys we are looking for.
   const lookupKeys = new Set<KeyCapId>();
-  
+
   // Add canonical modifiers from the activeModifiers array.
   if (activeModifiers.includes('shift')) lookupKeys.add('ShiftLeft');
   if (activeModifiers.includes('ctrl')) lookupKeys.add('ControlLeft');
@@ -113,11 +113,11 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
   else if (modifierKeyToKeyCapId.ctrl.includes(keyCapId)) canonicalKeyCap = 'ControlLeft';
   else if (modifierKeyToKeyCapId.alt.includes(keyCapId)) canonicalKeyCap = 'AltLeft';
   else if (modifierKeyToKeyCapId.meta.includes(keyCapId)) canonicalKeyCap = 'MetaLeft';
-  
+
   lookupKeys.add(canonicalKeyCap);
 
   // 2. Iterate through the symbol layout and compare.
-  for (const [symbol, requiredKeys] of Object.entries(symbolLayoutEnQwerty)) {
+  for (const [symbol, requiredKeys] of Object.entries(symbolLayout)) {
     // Create a canonical set for the current symbol's required keys.
     const canonicalLayoutKeys = new Set<KeyCapId>();
     requiredKeys.forEach(key => {
@@ -153,16 +153,16 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
  * @param activeModifiers An array of active modifiers (e.g., ['shift', 'ctrl']).
  * @returns The display symbol (e.g., 'A', 'a', '?') or '...' if no symbol is found.
  */
-export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[]): string {
+export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout): string {
   // Level 1: Try exact match with all modifiers.
-  const exactMatch = findSymbolForCombination(keyCapId, activeModifiers);
+  const exactMatch = findSymbolForCombination(keyCapId, activeModifiers, symbolLayout);
   if (exactMatch) {
     return exactMatch;
   }
 
   // Level 2: If modifiers were present but no match was found, try with no modifiers.
   if (activeModifiers.length > 0) {
-    const baseMatch = findSymbolForCombination(keyCapId, []);
+    const baseMatch = findSymbolForCombination(keyCapId, [], symbolLayout);
     if (baseMatch) {
       return baseMatch;
     }
@@ -179,8 +179,8 @@ export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[]): s
  * @param char Символ для поиска.
  * @returns Массив `KeyCapId` или `undefined`, если символ не найден.
  */
-export function getKeyCapIdsForChar(char: string): KeyCapId[] | undefined {
-  return symbolLayoutEnQwerty[char];
+export function getKeyCapIdsForChar(char: string, symbolLayout: SymbolLayout): KeyCapId[] | undefined {
+  return symbolLayout[char];
 }
 
 /**
@@ -188,8 +188,8 @@ export function getKeyCapIdsForChar(char: string): KeyCapId[] | undefined {
  * @param char Символ для проверки.
  * @returns `true`, если требуется Shift.
  */
-export function isShiftRequired(char: string): boolean {
-  const keyCapIds = getKeyCapIdsForChar(char);
+export function isShiftRequired(char: string, symbolLayout: SymbolLayout): boolean {
+  const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
   return keyCapIds?.some(id => id.includes('Shift')) ?? false;
 }
 

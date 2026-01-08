@@ -26,13 +26,13 @@ interface CreateVirtualLayoutOptions {
 export function createVirtualLayout(
   options: CreateVirtualLayoutOptions
 ): VirtualLayout {
-  const { keyboardLayout, fingerLayout, activeModifiers = [] } = options;
+  const { keyboardLayout, symbolLayout, fingerLayout, activeModifiers = [] } = options;
 
   const virtualLayout: VirtualLayout = keyboardLayout
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         const keyCapId = physicalKey.keyCapId;
-        const symbol = getSymbol(keyCapId, activeModifiers);
+        const symbol = getSymbol(keyCapId, activeModifiers, symbolLayout);
         const fingerKey = fingerLayout[physicalKey.keyCapId];
 
         const virtualKey: VirtualKey = {

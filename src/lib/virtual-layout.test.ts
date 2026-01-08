@@ -10,7 +10,7 @@ vi.mock('./symbol-utils', async (importOriginal) => {
     const mod = await importOriginal<typeof SymbolUtils>();
     return {
         ...mod,
-        getSymbol: vi.fn((keyCapId: string, activeModifiers: ModifierKey[] = []) => {
+        getSymbol: vi.fn((keyCapId: string, activeModifiers: ModifierKey[] = [], symbolLayout: SymbolLayout) => {
             if (keyCapId === 'KeyA') {
                 return activeModifiers.includes('shift') ? 'A' : 'a';
             }
@@ -161,6 +161,6 @@ describe('createVirtualLayout', () => {
 
     const keyA = virtualLayout[0][0];
     expect(keyA.symbol).toBe('A');
-    expect(SymbolUtils.getSymbol).toHaveBeenCalledWith('KeyA', ['shift', 'alt']);
+    expect(SymbolUtils.getSymbol).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout);
   });
 });

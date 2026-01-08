@@ -1,3 +1,4 @@
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
@@ -22,7 +23,7 @@ export function generateLesson(): TypingStream {
   const stream: TypingStream = lessonText
     .split('')
     .map((char): TypingStream[number] | null => {
-      const requiredKeyCapIds = getKeyCapIdsForChar(char);
+      const requiredKeyCapIds = getKeyCapIdsForChar(char, symbolLayoutEnQwerty);
 
       if (!requiredKeyCapIds) {
         console.warn(`Character "${char}" not found in symbol layout.`);

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
 import {
   FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,
@@ -63,12 +64,12 @@ const fullStreamText = 'The quick brown fo xxx xxx xxx xxx xxx jumps over the la
 
 // --- Helper to create TypedKey from a character ---
 const createTypedKeyFromChar = (char: string, isCorrect: boolean): TypedKey | null => {
-  const keyCapIds = getKeyCapIdsForChar(char);
+  const keyCapIds = getKeyCapIdsForChar(char, symbolLayoutEnQwerty);
   if (!keyCapIds) return null;
   const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
   return {
     keyCapId: primaryKey,
-    shift: isShiftRequired(char),
+    shift: isShiftRequired(char, symbolLayoutEnQwerty),
     isCorrect,
   };
 };

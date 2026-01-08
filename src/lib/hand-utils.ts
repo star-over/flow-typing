@@ -3,6 +3,7 @@
  * @description Содержит функции для определения состояний рук и пальцев,
  * их принадлежности, и для получения связанных с ними данных.
  */
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
@@ -58,9 +59,10 @@ function initializeHandStates(): HandStates {
  */
 function getTargetFinger(
   targetSymbol: string,
-  fingerLayout: FingerLayout
+  fingerLayout: FingerLayout,
+  symbolLayout: SymbolLayout
 ): FingerId | undefined {
-  const keyCapIds = getKeyCapIdsForChar(targetSymbol);
+  const keyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayout);
   if (!keyCapIds) return undefined;
   
   const primaryKey = keyCapIds.find(id => !id.includes('Shift')) || keyCapIds[0];
@@ -131,19 +133,18 @@ function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId)
 export function getHandStates(
   targetSymbol: string | undefined,
   typedKey: TypedKey | undefined,
-  symbolLayout: SymbolLayout,
   fingerLayout: FingerLayout,
 ): HandStates {
   const handStates = initializeHandStates();
 
   if (!targetSymbol) return handStates;
 
-  const targetFinger = getTargetFinger(targetSymbol, fingerLayout);
+  const targetFinger = getTargetFinger(targetSymbol, fingerLayout, symbolLayoutEnQwerty);
   if (!targetFinger) return handStates;
 
   handStates[targetFinger] = "ACTIVE";
 
-  if (isShiftRequired(targetSymbol)) {
+  if (isShiftRequired(targetSymbol, symbolLayoutEnQwerty)) {
     if (isLeftHandFinger(targetFinger)) {
       handStates["R5"] = "ACTIVE"; // Right pinky
     } else {

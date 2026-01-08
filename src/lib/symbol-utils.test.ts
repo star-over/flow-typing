@@ -1,89 +1,91 @@
 import { describe, expect,it } from 'vitest';
 
+import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
+
 import { getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils';
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
-    const keyCapIds = getKeyCapIdsForChar('a');
+    const keyCapIds = getKeyCapIdsForChar('a', symbolLayoutEnQwerty);
     expect(keyCapIds).toEqual(['KeyA']);
   });
 
   it('should return the correct KeyCapIds for an uppercase character', () => {
-    const keyCapIds = getKeyCapIdsForChar('A');
+    const keyCapIds = getKeyCapIdsForChar('A', symbolLayoutEnQwerty);
     expect(keyCapIds).toEqual(['KeyA', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapIds for a symbol character', () => {
-    const keyCapIds = getKeyCapIdsForChar('!');
+    const keyCapIds = getKeyCapIdsForChar('!', symbolLayoutEnQwerty);
     expect(keyCapIds).toEqual(['Digit1', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapId for a space character', () => {
-    const keyCapIds = getKeyCapIdsForChar(' ');
+    const keyCapIds = getKeyCapIdsForChar(' ', symbolLayoutEnQwerty);
     expect(keyCapIds).toEqual(['Space']);
   });
 
   it('should return undefined for a character not in the layout', () => {
-    const keyCapIds = getKeyCapIdsForChar('€');
+    const keyCapIds = getKeyCapIdsForChar('€', symbolLayoutEnQwerty);
     expect(keyCapIds).toBeUndefined();
   });
 });
 
 describe('isShiftRequired', () => {
   it('should return false for a lowercase character', () => {
-    expect(isShiftRequired('a')).toBe(false);
+    expect(isShiftRequired('a', symbolLayoutEnQwerty)).toBe(false);
   });
 
   it('should return true for an uppercase character', () => {
-    expect(isShiftRequired('A')).toBe(true);
+    expect(isShiftRequired('A', symbolLayoutEnQwerty)).toBe(true);
   });
 
   it('should return true for a shifted symbol character', () => {
-    expect(isShiftRequired('!')).toBe(true);
+    expect(isShiftRequired('!', symbolLayoutEnQwerty)).toBe(true);
   });
 
   it('should return false for an unshifted symbol character', () => {
-    expect(isShiftRequired('1')).toBe(false);
+    expect(isShiftRequired('1', symbolLayoutEnQwerty)).toBe(false);
   });
 
   it('should return false for a space character', () => {
-    expect(isShiftRequired(' ')).toBe(false);
+    expect(isShiftRequired(' ', symbolLayoutEnQwerty)).toBe(false);
   });
 
   it('should return false for a character not in the layout', () => {
-    expect(isShiftRequired('€')).toBe(false);
+    expect(isShiftRequired('€', symbolLayoutEnQwerty)).toBe(false);
   });
 });
 
 describe('getSymbol', () => {
   it('should return the correct symbol for a base key with no modifiers', () => {
-    expect(getSymbol('KeyA', [])).toBe('a');
+    expect(getSymbol('KeyA', [], symbolLayoutEnQwerty)).toBe('a');
   });
 
   it('should return the correct symbol for a base key with shift modifier', () => {
-    expect(getSymbol('KeyA', ['shift'])).toBe('A');
+    expect(getSymbol('KeyA', ['shift'], symbolLayoutEnQwerty)).toBe('A');
   });
 
   it('should return the correct symbol for a number key with shift modifier', () => {
-    expect(getSymbol('Digit1', ['shift'])).toBe('!');
+    expect(getSymbol('Digit1', ['shift'], symbolLayoutEnQwerty)).toBe('!');
   });
   
   it('should return the base symbol if a modifier combination is not found (Level 2 Fallback)', () => {
-    expect(getSymbol('KeyA', ['ctrl'])).toBe('a');
+    expect(getSymbol('KeyA', ['ctrl'], symbolLayoutEnQwerty)).toBe('a');
   });
   
   it('should return the base symbol if multiple modifiers are not found (Level 2 Fallback)', () => {
-    expect(getSymbol('KeyA', ['ctrl', 'shift'])).toBe('a');
+    expect(getSymbol('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty)).toBe('a');
   });
 
   it('should return a placeholder for a key that does not map to any symbol (Level 3 Fallback)', () => {
     // 'Escape' is a valid KeyCapId but is not in the symbol layout.
-    expect(getSymbol('Escape', [])).toBe('...');
+    expect(getSymbol('Escape', [], symbolLayoutEnQwerty)).toBe('...');
   });
 
   it('should return a placeholder if even the base key is not found after modifier lookup fails (Level 3 Fallback)', () => {
     // 'Escape' is a valid KeyCapId but is not in the symbol layout.
-    expect(getSymbol('Escape', ['shift'])).toBe('...');
+    expect(getSymbol('Escape', ['shift'], symbolLayoutEnQwerty)).toBe('...');
   });
 });
 

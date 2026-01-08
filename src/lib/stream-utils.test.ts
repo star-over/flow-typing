@@ -1,5 +1,6 @@
 import { describe, expect,it } from "vitest";
 
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { StreamSymbol, TypedKey } from "@/interfaces/types";
 
 import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
@@ -39,8 +40,8 @@ describe("createTypingStream", () => {
 });
 
 describe("addAttempt", () => {
-  const typedKeyA: TypedKey = { keyCapId: getKeyCapIdsForChar("a")![0], shift: false, isCorrect: true };
-  const typedKeyB: TypedKey = { keyCapId: getKeyCapIdsForChar("b")![0], shift: false, isCorrect: false };
+  const typedKeyA: TypedKey = { keyCapId: getKeyCapIdsForChar("a", symbolLayoutEnQwerty)![0], shift: false, isCorrect: true };
+  const typedKeyB: TypedKey = { keyCapId: getKeyCapIdsForChar("b", symbolLayoutEnQwerty)![0], shift: false, isCorrect: false };
 
   it("should add an attempt to a symbol", () => {
     const stream = createTypingStream("a");
