@@ -187,7 +187,7 @@ function buildKeyCapStates(
  * This is the default state when no training is active.
  * @returns A HandsSceneViewModel with all fingers in 'IDLE' state.
  */
-function getIdleViewModel(): HandsSceneViewModel {
+export function getIdleViewModel(): HandsSceneViewModel {
   const idleState: FingerState = 'IDLE';
   const viewModel: Partial<HandsSceneViewModel> = {};
   const allFingerIds: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE, ...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
