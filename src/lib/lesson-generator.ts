@@ -3,11 +3,11 @@ import { TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
 export const lessons = [
-  "the quick brown fox jumps over the lazy dog.",
-  "never underestimate the power of a good book.",
-  "the early bird catches the worm.",
-  "technology has changed the way we live and work.",
-  "to be or not to be, that is the question.",
+  "The Quick Brown Fox Jumps Over The Lazy Dog.",
+  "Never Underestimate The Power Of A Good Book.",
+  "The Early Bird Catches The Worm.",
+  "Technology Has Changed The Way We Live And Work.",
+  "To Be Or Not To Be, That Is The Question.",
 ];
 
 /**

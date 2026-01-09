@@ -10,10 +10,11 @@ import { shiftPlusFixture } from '@/fixtures/hands-ext/shift-plus.fixture';
 import { shiftQuoteFixture } from '@/fixtures/hands-ext/shift-quote.fixture';
 import { simple2Fixture } from '@/fixtures/hands-ext/simple-2.fixture';
 import { simpleCFixture } from '@/fixtures/hands-ext/simple-c.fixture';
-import { simpleKFixture } from '@/fixtures/hands-ext/simple-k.fixture';
+import { k } from '@/fixtures/hands-ext/simple-k.fixture';
 import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
 import { t } from '@/fixtures/hands-ext/t.fixture';
 import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
+import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
 
 import { HandsExt } from './hands-ext';
 
@@ -41,9 +42,23 @@ export const Idle: Story = {
   },
 };
 
-export const SimpleK: Story = {
+export const simpleEErrorShiftF: Story = {
   args: {
-    viewModel: simpleKFixture.expectedOutput,
+    viewModel: simple_e_error_shift_F.expectedOutput,
+    className: 'pt-12',
+  },
+};
+
+export const T: Story = {
+  args: {
+    viewModel: t.expectedOutput,
+    className: 'pt-12',
+  },
+};
+
+export const K: Story = {
+  args: {
+    viewModel: k.expectedOutput,
     className: 'pt-12',
   },
 };
@@ -68,12 +83,7 @@ export const SimpleN: Story = {
   },
 };
 
-export const SimpleT: Story = {
-  args: {
-    viewModel: t.expectedOutput,
-    className: 'pt-12',
-  },
-};
+
 
 export const SimpleC: Story = {
   args: {

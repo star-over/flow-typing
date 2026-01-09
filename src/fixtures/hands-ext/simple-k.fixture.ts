@@ -1,6 +1,6 @@
 import { HandsExtFixture } from './types';
 
-export const simpleKFixture: HandsExtFixture = {
+export const k: HandsExtFixture = {
   input: {
     targetSymbol: 'k',
     targetKeyCaps: ['KeyK'],
@@ -21,4 +21,3 @@ export const simpleKFixture: HandsExtFixture = {
     R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" },
   }
 };
-
