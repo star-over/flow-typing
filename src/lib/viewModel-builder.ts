@@ -122,13 +122,16 @@ function determineAndSetFingerStates(
     )
   ) {
     const incorrectPressFingers = new Set<FingerId>();
-    const keyId = lastAttempt.pressedKeyCups[0];
-    if (keyId === "Space") {
-      incorrectPressFingers.add("L1");
-    } else {
-      const finger = getFingerByKeyCap(keyId, fingerLayout);
-      if (finger) incorrectPressFingers.add(finger);
-    }
+    lastAttempt.pressedKeyCups.forEach((keyId) => {
+      if (keyId === "Space") {
+        incorrectPressFingers.add("L1");
+      } else {
+        const finger = getFingerByKeyCap(keyId, fingerLayout);
+        if (finger) {
+          incorrectPressFingers.add(finger);
+        }
+      }
+    });
 
     const isErrorInCluster =
       incorrectPressFingers.size === activeFingers.size &&
