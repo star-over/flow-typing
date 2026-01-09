@@ -12,7 +12,7 @@ import { simple2Fixture } from '@/fixtures/hands-ext/simple-2.fixture';
 import { simpleCFixture } from '@/fixtures/hands-ext/simple-c.fixture';
 import { simpleKFixture } from '@/fixtures/hands-ext/simple-k.fixture';
 import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
-import { simpleTFixture } from '@/fixtures/hands-ext/simple-t.fixture';
+import { t } from '@/fixtures/hands-ext/t.fixture';
 import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
 
 import { HandsExt } from './hands-ext';
@@ -70,7 +70,7 @@ export const SimpleN: Story = {
 
 export const SimpleT: Story = {
   args: {
-    viewModel: simpleTFixture.expectedOutput,
+    viewModel: t.expectedOutput,
     className: 'pt-12',
   },
 };

@@ -2,6 +2,7 @@ import { describe, expect,it } from 'vitest';
 
 // Import all fixtures
 import { idleFixture } from         '@/fixtures/hands-ext/idle.fixture';
+import { t } from                   '@/fixtures/hands-ext/t.fixture';
 import { k_j } from                 '@/fixtures/hands-ext/k_j.fixture';
 import { r_f } from                 '@/fixtures/hands-ext/r_f.fixture';
 import { shiftCurlyBraceFixture } from '@/fixtures/hands-ext/shift-curly-brace.fixture';
@@ -13,7 +14,6 @@ import { simple2Fixture } from      '@/fixtures/hands-ext/simple-2.fixture';
 import { simpleCFixture } from      '@/fixtures/hands-ext/simple-c.fixture';
 import { simpleKFixture } from      '@/fixtures/hands-ext/simple-k.fixture';
 import { simpleNFixture } from      '@/fixtures/hands-ext/simple-n.fixture';
-import { simpleTFixture } from      '@/fixtures/hands-ext/simple-t.fixture';
 import { spaceFixture } from        '@/fixtures/hands-ext/space.fixture';
 import { fingerLayout, keyboardGraph, keyboardLayout, keyCoordinateMap } from '@/fixtures/hands-ext/test-data';
 
@@ -55,15 +55,15 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(simpleNFixture.expectedOutput);
   });
 
-  it.skip('should correctly generate view model for simple T', () => {
+  it.only('should correctly generate view model for simple T', () => {
     const viewModel = generateHandsSceneViewModel(
-      simpleTFixture.input,
+      t.input,
       fingerLayout,
       keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
-    expect(viewModel).toEqual(simpleTFixture.expectedOutput);
+    expect(viewModel).toEqual(t.expectedOutput);
   });
 
   it.skip('should correctly generate view model for simple C', () => {
