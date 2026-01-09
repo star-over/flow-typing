@@ -333,3 +333,13 @@ export interface FingerSceneState {
  * @see /VisualContract.md
  */
 export type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
+
+/**
+ * Fixture for `FlowLine` component state.
+ * Contains the typing stream and the current cursor position.
+ */
+export interface FlowLineFixture {
+  stream: TypingStream;
+  cursorPosition: number;
+}
+

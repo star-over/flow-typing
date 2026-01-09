@@ -4,7 +4,6 @@ import { defineConfig } from "eslint/config";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import pluginReact from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
 import vitestPlugin from "eslint-plugin-vitest";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -45,7 +44,6 @@ export default defineConfig([
       react: pluginReact,
       '@next/next': pluginNext,
       'react-hooks': reactHooks, // <-- Добавляем плагин Hooks
-      'simple-import-sort': simpleImportSort, // <-- Добавляем плагин сортировки
     },
     languageOptions: {
       parserOptions: commonParserOptions,
@@ -56,8 +54,6 @@ export default defineConfig([
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs['core-web-vitals'].rules,
 
-      // Отключаем базовые правила для неиспользуемых переменных
-      "no-unused-vars": "off",
 
       // Настраиваем TypeScript правило для неиспользуемых переменных
       "@typescript-eslint/no-unused-vars": [
@@ -81,9 +77,6 @@ export default defineConfig([
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
 
-      // Правила для сортировки импортов
-      'simple-import-sort/imports': 'warn',
-      'simple-import-sort/exports': 'warn',
     },
     settings: {
       react: {

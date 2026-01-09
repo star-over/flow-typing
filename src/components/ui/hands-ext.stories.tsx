@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { idleFixture } from '@/fixtures/hands-ext/idle.fixture';
+import { k_j } from '@/fixtures/hands-ext/k_j.fixture';
+import { r_f } from '@/fixtures/hands-ext/r_f.fixture';
 import { shiftCurlyBraceFixture } from '@/fixtures/hands-ext/shift-curly-brace.fixture';
 import { shiftDFixture } from '@/fixtures/hands-ext/shift-d.fixture';
 import { shiftFFixture } from '@/fixtures/hands-ext/shift-f.fixture';
@@ -9,7 +11,6 @@ import { shiftQuoteFixture } from '@/fixtures/hands-ext/shift-quote.fixture';
 import { simple2Fixture } from '@/fixtures/hands-ext/simple-2.fixture';
 import { simpleCFixture } from '@/fixtures/hands-ext/simple-c.fixture';
 import { simpleKFixture } from '@/fixtures/hands-ext/simple-k.fixture';
-import { simpleKErrorFixture } from '@/fixtures/hands-ext/simple-k-error.fixture';
 import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
 import { simpleTFixture } from '@/fixtures/hands-ext/simple-t.fixture';
 import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
@@ -47,9 +48,15 @@ export const SimpleK: Story = {
   },
 };
 
-export const SimpleKError: Story = {
+export const SimpleKErrorJ: Story = {
   args: {
-    viewModel: simpleKErrorFixture.expectedOutput,
+    viewModel: k_j.expectedOutput,
+    className: 'pt-12',
+  },
+};
+export const simpleRErrorF: Story = {
+  args: {
+    viewModel: r_f.expectedOutput,
     className: 'pt-12',
   },
 };

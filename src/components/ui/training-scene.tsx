@@ -9,13 +9,44 @@ import type { ActorRefFrom } from "xstate";
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { createKeyCoordinateMap,KeyCoordinateMap } from '@/lib/layout-utils';
+import { HandsSceneViewModel } from "@/interfaces/types";
+import { createKeyCoordinateMap, KeyCoordinateMap } from '@/lib/layout-utils';
 import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
 import { trainingMachine } from "@/machines/training.machine";
 
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
+
+// Helper component for displaying debug state
+const DebugState = ({ dataFlowLine, dataViewModel }: { dataFlowLine: unknown; dataViewModel: unknown; }) => {
+  // The 'replacer' function is used to handle special cases during JSON serialization.
+  // In this case, it ensures that 'undefined' values are explicitly converted to the string "undefined"
+  // instead of being omitted, which is the default behavior of JSON.stringify.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const replacer = (key: string, value: any) => (typeof value === 'undefined' ? 'undefined' : value);
+
+  const stateString = `
+import { HandsExtFixture } from './types';
+export const simpleKFixture: HandsExtFixture = {
+  input: ${JSON.stringify(dataFlowLine, replacer, 2)?.replace(/"undefined"/g, 'undefined')},
+  expectedOutput: ${JSON.stringify(dataViewModel, replacer, 2)?.replace(/"undefined"/g, 'undefined')},
+};  
+`;
+
+  return (
+    <div className="w-full mt-8">
+      <h3 className="text-lg font-bold">State</h3>
+      <textarea
+        readOnly
+        className="w-full h-48 p-2 font-mono text-xs bg-gray-100 dark:bg-gray-900 border rounded"
+        value={stateString}
+        onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+      />
+    </div>
+  );
+};
+
 
 /** Пропсы для компонента `TrainingScene`. */
 type TrainingSceneProps = {
@@ -40,7 +71,10 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
   const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardLayoutANSI, keyboardGraph, keyCoordinateMap);
+  const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardLayoutANSI, keyboardGraph, keyCoordinateMap);
+
+  const flowLineFixture = stream[currentIndex];
+
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -69,6 +103,10 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
           Pause
         </button>
       )}
+
+      <div className="w-full max-w-4xl">
+        <DebugState dataFlowLine={flowLineFixture} dataViewModel={viewModel} />
+      </div>
     </div>
   );
 };
