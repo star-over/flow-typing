@@ -153,29 +153,29 @@ function determineAndSetFingerStates(
   });
 
   // --- Apply States to ViewModel ---
+  const allLeftFingers: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
+  const allRightFingers: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
 
-  // Apply INACTIVE state based on the Active Hand Rule
-  if (activeHands.size > 0) {
-    if (!activeHands.has(HAND_SIDES[0])) {
-      // 'LEFT'
-      ["L1", "L2", "L3", "L4", "L5", "LB"].forEach(
-        (id) => (newViewModel[id as FingerId].fingerState = "INACTIVE")
-      );
-    }
-    if (!activeHands.has(HAND_SIDES[1])) {
-      // 'RIGHT'
-      ["R1", "R2", "R3", "R4", "R5", "RB"].forEach(
-        (id) => (newViewModel[id as FingerId].fingerState = "INACTIVE")
-      );
-    }
+  // If a hand is active, set its non-participating fingers to INACTIVE.
+  // The other hand's fingers remain IDLE from the initial state.
+  if (activeHands.has('LEFT')) {
+    allLeftFingers.forEach((fingerId) => {
+        newViewModel[fingerId].fingerState = 'INACTIVE';
+    });
   }
 
-  // Set ACTIVE state for the required fingers
+  if (activeHands.has('RIGHT')) {
+    allRightFingers.forEach((fingerId) => {
+        newViewModel[fingerId].fingerState = 'INACTIVE';
+    });
+  }
+
+  // Set ACTIVE state for the required fingers (overrides INACTIVE)
   activeFingers.forEach((fingerId) => {
     newViewModel[fingerId].fingerState = "ACTIVE";
   });
 
-  // Set INCORRECT state for out-of-cluster error fingers. This overrides other states.
+  // Set INCORRECT state for error fingers (overrides INACTIVE and ACTIVE)
   errorFingers.forEach((fingerId) => {
     newViewModel[fingerId].fingerState = "INCORRECT";
   });
