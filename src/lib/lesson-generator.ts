@@ -4,9 +4,7 @@ import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
 export const lessons = [
   "The Quick Brown Fox Jumps Over The Lazy Dog.",
-  "Never Underestimate The Power Of A Good Book.",
-  "The Early Bird Catches The Worm.",
-  "Technology Has Changed The Way We Live And Work.",
+  "-_=+[{]}\\\|'",
   "To Be Or Not To Be, That Is The Question.",
 ];
 

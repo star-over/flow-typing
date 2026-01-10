@@ -1,28 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { idleFixture } from '@/fixtures/hands-ext/idle.fixture';
-import { shift_t_error_shift_n } from '@/fixtures/hands-ext/shift_t_error_shift_n';
-import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
+import { idle } from '@/fixtures/hands-ext/idle';
+import { shift_b } from '@/fixtures/hands-ext/shift_b';
+import { shift_f } from '@/fixtures/hands-ext/shift_f';
+import { shift_o } from '@/fixtures/hands-ext/shift_o';
 import { shift_o_error_simple_o } from '@/fixtures/hands-ext/shift_o_error_simple_o';
+import { shift_t_error_shift_n } from '@/fixtures/hands-ext/shift_t_error_shift_n';
+import { simple_6 } from '@/fixtures/hands-ext/simple_6';
+import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F';
+import { simple_e_error_simple_d } from '@/fixtures/hands-ext/simple_e_error_simple_d';
 import { simple_e_error_space } from '@/fixtures/hands-ext/simple_e_error_space';
-import { k_j } from '@/fixtures/hands-ext/k_j.fixture';
-import { r_f } from '@/fixtures/hands-ext/r_f.fixture';
-import { shiftCurlyBraceFixture } from '@/fixtures/hands-ext/shift-curly-brace.fixture';
-import { shiftDFixture } from '@/fixtures/hands-ext/shift-d.fixture';
-import { shiftFFixture } from '@/fixtures/hands-ext/shift-f.fixture';
-import { shiftPlusFixture } from '@/fixtures/hands-ext/shift-plus.fixture';
-import { shiftQuoteFixture } from '@/fixtures/hands-ext/shift-quote.fixture';
-import { simple2Fixture } from '@/fixtures/hands-ext/simple-2.fixture';
-import { simpleCFixture } from '@/fixtures/hands-ext/simple-c.fixture';
-import { k } from '@/fixtures/hands-ext/simple-k.fixture';
-import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
-import { t } from '@/fixtures/hands-ext/t.fixture';
-import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
-import { shift_o } from '@/fixtures/hands-ext/shift_o.fixture';
+import { simple_k } from '@/fixtures/hands-ext/simple_k';
+import { simple_k_error_simple_j } from '@/fixtures/hands-ext/simple_k_error_simple_j';
+import { simple_r_error_simple_f } from '@/fixtures/hands-ext/simple_r_error_simple_f';
+import { simple_space } from '@/fixtures/hands-ext/simple_space';
+import { simple_t } from '@/fixtures/hands-ext/simple_t';
 
 import { HandsExt } from './hands-ext';
 
-
+const className = 'pt-40';
 const meta = {
   title: 'UI/HandsExt',
   component: HandsExt,
@@ -30,7 +26,6 @@ const meta = {
     layout: 'fullscreen',
   },
   argTypes: { viewModel: {} }
-
 } satisfies Meta<typeof HandsExt>;
 
 export default meta;
@@ -38,135 +33,105 @@ type Story = StoryObj<typeof meta>;
 
 export const Idle: Story = {
   args: {
-    viewModel: idleFixture.expectedOutput,
-    className: 'pt-40',
+    viewModel: idle.expectedOutput,
+    className,
+  },
+};
+
+export const simpleSpace: Story = {
+  args: {
+    viewModel: simple_space.expectedOutput,
+    className,
+  },
+};
+
+export const simpleEErrorSimpleD: Story = {
+  args: {
+    viewModel: simple_e_error_simple_d.expectedOutput,
+    className,
   },
 };
 
 export const shiftTErrorShiftN: Story = {
   args: {
     viewModel: shift_t_error_shift_n.expectedOutput,
-    className: 'pt-40',
+    className,
   },
 };
 
 export const shiftOErrorSimpleO: Story = {
   args: {
     viewModel: shift_o_error_simple_o.expectedOutput,
-    className: 'pt-40',
+    className,
   },
 };
 
 export const shiftO: Story = {
   args: {
     viewModel: shift_o.expectedOutput,
-    className: 'pt-40',
+    className,
   },
 };
 
 export const simpleEErrorShiftF: Story = {
   args: {
     viewModel: simple_e_error_shift_F.expectedOutput,
-    className: 'pt-40',
+    className,
   },
 };
 
 export const simpleEErrorSpace: Story = {
   args: {
     viewModel: simple_e_error_space.expectedOutput,
-    className: 'pt-40',
+    className,
   },
 };
 
-export const T: Story = {
+export const simpleT: Story = {
   args: {
-    viewModel: t.expectedOutput,
-    className: 'pt-40',
+    viewModel: simple_t.expectedOutput,
+    className,
   },
 };
 
-export const K: Story = {
+export const simpleK: Story = {
   args: {
-    viewModel: k.expectedOutput,
-    className: 'pt-40',
+    viewModel: simple_k.expectedOutput,
+    className,
   },
 };
 
-export const SimpleKErrorJ: Story = {
+export const SimpleKErrorSimpleJ: Story = {
   args: {
-    viewModel: k_j.expectedOutput,
-    className: 'pt-40',
+    viewModel: simple_k_error_simple_j.expectedOutput,
+    className,
   },
 };
-export const simpleRErrorF: Story = {
+export const simpleRErrorSimpleF: Story = {
   args: {
-    viewModel: r_f.expectedOutput,
-    className: 'pt-40',
+    viewModel: simple_r_error_simple_f.expectedOutput,
+    className,
   },
 };
 
-export const SimpleN: Story = {
+export const Simple6: Story = {
   args: {
-    viewModel: simpleNFixture.expectedOutput,
-    className: 'pt-40',
+    viewModel: simple_6.expectedOutput,
+    className,
   },
 };
 
-
-
-export const SimpleC: Story = {
-  args: {
-    viewModel: simpleCFixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
 
 export const ShiftF: Story = {
   args: {
-    viewModel: shiftFFixture.expectedOutput,
-    className: 'pt-40',
+    viewModel: shift_f.expectedOutput,
+    className,
   },
 };
 
-export const ShiftD: Story = {
+export const ShiftB: Story = {
   args: {
-    viewModel: shiftDFixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
-
-export const Simple2: Story = {
-  args: {
-    viewModel: simple2Fixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
-
-export const Space: Story = {
-  args: {
-    viewModel: spaceFixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
-
-
-export const ShiftPlus: Story = {
-  args: {
-    viewModel: shiftPlusFixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
-
-export const ShiftCurlyBrace: Story = {
-  args: {
-    viewModel: shiftCurlyBraceFixture.expectedOutput,
-    className: 'pt-40',
-  },
-};
-
-export const ShiftQuote: Story = {
-  args: {
-    viewModel: shiftQuoteFixture.expectedOutput,
-    className: 'pt-40',
+    viewModel: shift_b.expectedOutput,
+    className,
   },
 };

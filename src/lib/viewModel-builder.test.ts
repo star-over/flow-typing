@@ -1,33 +1,113 @@
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 // Import all fixtures
-import { shift_t_error_shift_n } from   '@/fixtures/hands-ext/shift_t_error_shift_n';
-import { idleFixture } from             '@/fixtures/hands-ext/idle.fixture';
-import { shift_o_error_simple_o } from   '@/fixtures/hands-ext/shift_o_error_simple_o';
-import { simple_e_error_space } from   '@/fixtures/hands-ext/simple_e_error_space';
-import { simple_e_error_shift_F } from   '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
-import { shift_o } from                 '@/fixtures/hands-ext/shift_o.fixture';
-import { t } from                   '@/fixtures/hands-ext/t.fixture';
-import { k } from                   '@/fixtures/hands-ext/simple-k.fixture';
-import { k_j } from                 '@/fixtures/hands-ext/k_j.fixture';
-import { r_f } from                 '@/fixtures/hands-ext/r_f.fixture';
-import { shiftCurlyBraceFixture } from '@/fixtures/hands-ext/shift-curly-brace.fixture';
-import { shiftDFixture } from       '@/fixtures/hands-ext/shift-d.fixture';
-import { shiftFFixture } from       '@/fixtures/hands-ext/shift-f.fixture';
-import { shiftPlusFixture } from    '@/fixtures/hands-ext/shift-plus.fixture';
-import { shiftQuoteFixture } from   '@/fixtures/hands-ext/shift-quote.fixture';
-import { simple2Fixture } from      '@/fixtures/hands-ext/simple-2.fixture';
-import { simpleCFixture } from      '@/fixtures/hands-ext/simple-c.fixture';
-import { simpleNFixture } from      '@/fixtures/hands-ext/simple-n.fixture';
-import { spaceFixture } from        '@/fixtures/hands-ext/space.fixture';
+import { idle } from '@/fixtures/hands-ext/idle';
+import { shift_b } from '@/fixtures/hands-ext/shift_b';
+import { shift_f } from '@/fixtures/hands-ext/shift_f';
+import { shift_o } from '@/fixtures/hands-ext/shift_o';
+import { shift_o_error_simple_o } from '@/fixtures/hands-ext/shift_o_error_simple_o';
+import { shift_t_error_shift_n } from '@/fixtures/hands-ext/shift_t_error_shift_n';
+import { simple_6 } from '@/fixtures/hands-ext/simple_6';
+import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F';
+import { simple_e_error_simple_d } from '@/fixtures/hands-ext/simple_e_error_simple_d';
+import { simple_e_error_space } from '@/fixtures/hands-ext/simple_e_error_space';
+import { simple_k } from '@/fixtures/hands-ext/simple_k';
+import { simple_k_error_simple_j } from '@/fixtures/hands-ext/simple_k_error_simple_j';
+import { simple_r_error_simple_f } from '@/fixtures/hands-ext/simple_r_error_simple_f';
+import { simple_space } from '@/fixtures/hands-ext/simple_space';
+import { simple_t } from '@/fixtures/hands-ext/simple_t';
+
 import { fingerLayout, keyboardGraph, keyboardLayout, keyCoordinateMap } from '@/fixtures/hands-ext/test-data';
 
 import { generateHandsSceneViewModel } from './viewModel-builder';
 
-
 describe('generateHandsSceneViewModel', () => {
 
-    it.only('should correctly generate view model for Shift-T with pressed Sift-N', () => {
+    it.only('should correctly generate view model for "Space"', () => {
+    const {input, expectedOutput} = simple_space;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "r" with pressed "f"', () => {
+    const {input, expectedOutput} = simple_r_error_simple_f;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "Shift-F"', () => {
+    const {input, expectedOutput} = shift_f;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "Shift-B"', () => {
+    const {input, expectedOutput} = shift_b;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "6"', () => {
+    const {input, expectedOutput} = simple_6;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "k" with pressed "j"', () => {
+    const {input, expectedOutput} = simple_k_error_simple_j;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "e" with pressed "d"', () => {
+    const {input, expectedOutput} = simple_e_error_simple_d;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
+
+    it.only('should correctly generate view model for "Shift-T" with pressed "Sift-N"', () => {
     const {input, expectedOutput} = shift_t_error_shift_n;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -39,7 +119,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for Shift-O with pressed simple o', () => {
+    it.only('should correctly generate view model for "Shift-O" with pressed "o"', () => {
     const {input, expectedOutput} = shift_o_error_simple_o;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -51,7 +131,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for simple e with pressed Space', () => {
+    it.only('should correctly generate view model for "e" with pressed "Space"', () => {
     const {input, expectedOutput} = simple_e_error_space;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -63,18 +143,19 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should return the idle view model when currentStreamSymbol is undefined', () => {
+  it.only('should return the idle view model when symbol is undefined', () => {
+    const {input, expectedOutput} = idle;
     const viewModel = generateHandsSceneViewModel(
-      idleFixture.input,
+      input,
       fingerLayout,
       keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
-    expect(viewModel).toEqual(idleFixture.expectedOutput);
+    expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for Shift+O', () => {
+  it.only('should correctly generate view model for "Shift-O"', () => {
     const {input, expectedOutput} = shift_o;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -86,7 +167,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for simple e with pressed Shift+F', () => {
+  it.only('should correctly generate view model for "e" with pressed "Shift-F"', () => {
     const {input, expectedOutput} = simple_e_error_shift_F;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -98,146 +179,26 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for simple T', () => {
+  it.only('should correctly generate view model for "t"', () => {
     const viewModel = generateHandsSceneViewModel(
-      t.input,
+      simple_t.input,
       fingerLayout,
       keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
-    expect(viewModel).toEqual(t.expectedOutput);
+    expect(viewModel).toEqual(simple_t.expectedOutput);
   });
 
-  it.only('should correctly generate view model for simple K', () => {
+  it.only('should correctly generate view model for simple "k"', () => {
     const viewModel = generateHandsSceneViewModel(
-      k.input,
+      simple_k.input,
       fingerLayout,
       keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
-    expect(viewModel).toEqual(k.expectedOutput);
+    expect(viewModel).toEqual(simple_k.expectedOutput);
   });
 
-  it.skip('should correctly generate view model for simple N', () => {
-    const viewModel = generateHandsSceneViewModel(
-      simpleNFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(simpleNFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for simple C', () => {
-    const viewModel = generateHandsSceneViewModel(
-      simpleCFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(simpleCFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for simple 2', () => {
-    const viewModel = generateHandsSceneViewModel(
-      simple2Fixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(simple2Fixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Shift F', () => {
-    const viewModel = generateHandsSceneViewModel(
-      shiftFFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(shiftFFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for simple K with error simple J', () => {
-    const viewModel = generateHandsSceneViewModel(
-      k_j.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(k_j.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for simple R with error simple F', () => {
-    const viewModel = generateHandsSceneViewModel(
-      r_f.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(r_f.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Space', () => {
-    const viewModel = generateHandsSceneViewModel(
-      spaceFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(spaceFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Shift D', () => {
-    const viewModel = generateHandsSceneViewModel(
-      shiftDFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(shiftDFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Shift Plus', () => {
-    const viewModel = generateHandsSceneViewModel(
-      shiftPlusFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(shiftPlusFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Shift Curly Brace', () => {
-    const viewModel = generateHandsSceneViewModel(
-      shiftCurlyBraceFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(shiftCurlyBraceFixture.expectedOutput);
-  });
-
-  it.skip('should correctly generate view model for Shift Quote', () => {
-    const viewModel = generateHandsSceneViewModel(
-      shiftQuoteFixture.input,
-      fingerLayout,
-      keyboardLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    );
-    expect(viewModel).toEqual(shiftQuoteFixture.expectedOutput);
-  });
 });

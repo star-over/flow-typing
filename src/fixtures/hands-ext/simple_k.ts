@@ -1,6 +1,6 @@
 import { HandsExtFixture } from './types';
 
-export const k: HandsExtFixture = {
+export const simple_k: HandsExtFixture = {
   input: {
     targetSymbol: 'k',
     targetKeyCaps: ['KeyK'],

@@ -112,7 +112,6 @@ function determineAndSetFingerStates(
   const errorFingers = new Set<FingerId>();
   const lastAttempt =
     currentStreamSymbol?.attempts[currentStreamSymbol.attempts.length - 1];
-
   if (
     lastAttempt &&
     !areKeyCapIdArraysEqual(
@@ -120,26 +119,30 @@ function determineAndSetFingerStates(
       currentStreamSymbol.targetKeyCaps
     )
   ) {
-    const pressedKeyCups = lastAttempt.pressedKeyCups;
-    const targetKeyCupsSet = new Set(currentStreamSymbol.targetKeyCaps);
-
-    pressedKeyCups.forEach((keyId) => {
-      if (!targetKeyCupsSet.has(keyId)) {
-        // This key was pressed but was not required. This is an error.
-        if (keyId === "Space") {
+    const incorrectPressFingers = new Set<FingerId>();
+    lastAttempt.pressedKeyCups.forEach((keyId) => {
+      // Special Space logic first
+      if (keyId === 'Space') {
           const targetFingers = Array.from(activeFingers);
           const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
           if (isTargetLeftHand) {
-            errorFingers.add("R1"); // Opposite hand's thumb
+            incorrectPressFingers.add("R1");
           } else {
-            errorFingers.add("L1"); // Opposite hand's thumb
+            incorrectPressFingers.add("L1");
           }
-        } else {
-          const finger = getFingerByKeyCap(keyId, fingerLayout);
-          if (finger) {
-            errorFingers.add(finger);
-          }
-        }
+          return; // continue to next keyId
+      }
+
+      const finger = getFingerByKeyCap(keyId, fingerLayout);
+      if (finger) {
+        incorrectPressFingers.add(finger);
+      }
+    });
+
+    // An error finger is one that made a press AND is not one of the active fingers for the target
+    incorrectPressFingers.forEach((finger) => {
+      if (!activeFingers.has(finger)) {
+        errorFingers.add(finger);
       }
     });
   }

@@ -1,19 +1,19 @@
 import { HandsExtFixture } from './types';
 
-export const k_j: HandsExtFixture = {
+export const simple_k_error_simple_j: HandsExtFixture = {
   input: {
     targetSymbol: 'k',
     targetKeyCaps: ['KeyK'],
     attempts: [
       {
-        pressedKeyCups: ['KeyJ'], // Assuming 'KeyJ' was the incorrect key pressed, associated with R2
+        pressedKeyCups: ['KeyJ'],
         startAt: 0,
         endAt: 0,
       }
     ],
   },
   expectedOutput: {
-    L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" }, L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" }, L5: { fingerState: "INACTIVE" }, LB: { fingerState: "INACTIVE" },
+    L1: { fingerState: "IDLE" }, L2: { fingerState: "IDLE" }, L3: { fingerState: "IDLE" }, L4: { fingerState: "IDLE" }, L5: { fingerState: "IDLE" }, LB: { fingerState: "IDLE" },
     R1: { fingerState: "INACTIVE" }, R2: { fingerState: "INCORRECT" },
     R3: {
       fingerState: "ACTIVE",
