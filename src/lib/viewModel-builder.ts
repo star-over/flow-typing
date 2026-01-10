@@ -7,7 +7,7 @@
  *
  * The core of this module is the `generateHandsSceneViewModel` function, which
  * operates as a pipeline. The process starts with an initial "idle" view model,
- * which is then passed sequentially through a series of transformation functions.
+ * which is then passed sequentially through a series of transformation functions.  
  * Each function in the pipeline is responsible for a specific aspect of the
  * view model, such as setting finger states or defining key visibility and roles.
  *
@@ -20,23 +20,22 @@
  *
  * 1.  **`getIdleViewModel`**: Creates the initial 'IDLE' state.
  *
- * 2.  **`determineTypingContext`**: A pure helper function that analyzes the
+ * 2.  **`determineTypingContext`**: A pure helper that analyzes the
  *     current typing symbol and last attempt to determine `activeFingers`,
  *     `errorFingers`, and `activeHands`. It does not modify the ViewModel.
  *
- * 3.  **`applyFingerStates`**: Uses the context from `determineTypingContext` to
- *     set the `fingerState` (`ACTIVE`, `INACTIVE`, `INCORRECT`) for all fingers
- *     in the ViewModel.
+ * 3.  **`applyTargetFingerStates`**: Sets the `ACTIVE` and `INACTIVE` states
+ *     on fingers to show what the user *should* do.
  *
  * 4.  **`buildVisibleClusters`**: For each `ACTIVE` finger, it makes the
  *     entire cluster of keys associated with that finger `VISIBLE`.
  *
- * 5.  **`applyNavigationPaths`**: Calculates the optimal path from a finger's
- *     home key to the `TARGET` key, and sets the `navigationRole` and
- *     `navigationArrow` for keys along the path.
+ * 5.  **`applyNavigationPaths`**: Calculates the optimal path and sets
+ *     navigation roles and arrows, completing the "target" view.
  *
- * 6.  **`applyPressResults`**: Analyzes the user's last attempt and updates
- *     the `pressResult` (`CORRECT`, `INCORRECT`) for each affected key.
+ * 6.  **`applyAttemptFeedback`**: A consolidated stage that applies all
+ *     visual feedback based on the user's last attempt. It sets `INCORRECT`
+ *     finger states and all `pressResult` states on keys.
  *
  * This sequential process ensures that the final `HandsSceneViewModel` is
  * built up logically, step-by-step, providing a clear and predictable
@@ -159,13 +158,13 @@ function determineTypingContext(
     return { activeFingers, errorFingers, activeHands, lastAttempt, targetKeyCaps, wasAttemptIncorrect };
 }
 
-// STAGE 2: Apply Finger States to ViewModel
-function applyFingerStates(
+// STAGE 2: Apply Target Finger States to ViewModel
+function applyTargetFingerStates(
     viewModel: HandsSceneViewModel,
     typingContext: TypingContext
 ): HandsSceneViewModel {
     const newViewModel = { ...viewModel };
-    const { activeFingers, errorFingers, activeHands } = typingContext;
+    const { activeFingers, activeHands } = typingContext;
 
     const allLeftFingers: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
     const allRightFingers: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -184,10 +183,6 @@ function applyFingerStates(
 
     activeFingers.forEach((fingerId) => {
         newViewModel[fingerId].fingerState = "ACTIVE";
-    });
-
-    errorFingers.forEach((fingerId) => {
-        newViewModel[fingerId].fingerState = "INCORRECT";
     });
 
     return newViewModel;
@@ -232,7 +227,7 @@ function applyNavigationPaths(
   keyCoordinateMap: KeyCoordinateMap
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
-  const targetKeyCaps = typingContext.targetKeyCaps;
+  const { targetKeyCaps } = typingContext;
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
@@ -273,17 +268,24 @@ function applyNavigationPaths(
   return newViewModel;
 }
 
-// STAGE 5: Apply press results based on the last attempt
-function applyPressResults(
+// STAGE 5: Apply all feedback from the user's attempt
+function applyAttemptFeedback(
   viewModel: HandsSceneViewModel,
   typingContext: TypingContext
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
-  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
+  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect, errorFingers } = typingContext;
   
+  // Apply INCORRECT state to error fingers (out-of-cluster errors)
+  errorFingers.forEach((fingerId) => {
+    newViewModel[fingerId].fingerState = "INCORRECT";
+  });
+
+  // If the attempt was correct, there's no more feedback to apply
   if (!wasAttemptIncorrect) return newViewModel;
 
-  const pressedSet = new Set(lastAttempt!.pressedKeyCups); // lastAttempt is guaranteed to be defined here
+  // Apply press results to keys
+  const pressedSet = new Set(lastAttempt!.pressedKeyCups);
   const targetSet = new Set(targetKeyCaps);
   const extraKeysPressed = lastAttempt!.pressedKeyCups.filter((k) => !targetSet.has(k));
 
@@ -342,8 +344,8 @@ export function generateHandsSceneViewModel(
   // Data Analysis Stage: Determine the context for the current typing step
   const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);
 
-  // Stage 1: Apply finger states (ACTIVE, INACTIVE, INCORRECT)
-  viewModel = applyFingerStates(
+  // Stage 1: Apply TARGET finger states (ACTIVE, INACTIVE)
+  viewModel = applyTargetFingerStates(
     viewModel,
     typingContext
   );
@@ -363,8 +365,8 @@ export function generateHandsSceneViewModel(
     keyCoordinateMap
   );
 
-  // Stage 4: Apply press results based on the last attempt
-  viewModel = applyPressResults(
+  // Stage 4: Apply all feedback from the user's attempt (INCORRECT fingers and key press results)
+  viewModel = applyAttemptFeedback(
     viewModel,
     typingContext
   );
