@@ -20,18 +20,22 @@
  *
  * 1.  **`getIdleViewModel`**: Creates the initial 'IDLE' state.
  *
- * 2.  **`determineAndSetFingerStates`**: Determines which fingers are `ACTIVE`,
- *     `INCORRECT`, or `INACTIVE` based on the target and the user's last
- *     attempt.
+ * 2.  **`determineTypingContext`**: A pure helper function that analyzes the
+ *     current typing symbol and last attempt to determine `activeFingers`,
+ *     `errorFingers`, and `activeHands`. It does not modify the ViewModel.
  *
- * 3.  **`buildVisibleClusters`**: For each `ACTIVE` finger, it makes the
+ * 3.  **`applyFingerStates`**: Uses the context from `determineTypingContext` to
+ *     set the `fingerState` (`ACTIVE`, `INACTIVE`, `INCORRECT`) for all fingers
+ *     in the ViewModel.
+ *
+ * 4.  **`buildVisibleClusters`**: For each `ACTIVE` finger, it makes the
  *     entire cluster of keys associated with that finger `VISIBLE`.
  *
- * 4.  **`applyNavigationPaths`**: Calculates the optimal path from a finger's
+ * 5.  **`applyNavigationPaths`**: Calculates the optimal path from a finger's
  *     home key to the `TARGET` key, and sets the `navigationRole` and
  *     `navigationArrow` for keys along the path.
  *
- * 5.  **`applyPressResults`**: Analyzes the user's last attempt and updates
+ * 6.  **`applyPressResults`**: Analyzes the user's last attempt and updates
  *     the `pressResult` (`CORRECT`, `INCORRECT`) for each affected key.
  *
  * This sequential process ensures that the final `HandsSceneViewModel` is
@@ -85,107 +89,112 @@ export function getIdleViewModel(): HandsSceneViewModel {
   return viewModel as HandsSceneViewModel;
 }
 
-// STAGE 1: Determine Finger and Hand States
-function determineAndSetFingerStates(
-  viewModel: HandsSceneViewModel,
-  currentStreamSymbol: StreamSymbol,
-  fingerLayout: FingerLayout
-): HandsSceneViewModel {
-  const newViewModel = { ...viewModel };
-
-  // --- Determine Target and Error Fingers ---
-  const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
-  const activeFingers = new Set<FingerId>();
-  targetKeyCaps.forEach((keyId: KeyCapId) => {
-    const finger = getFingerByKeyCap(keyId, fingerLayout);
-    if (finger) {
-      activeFingers.add(finger);
-    }
-  });
-
-  const errorFingers = new Set<FingerId>();
-  const lastAttempt =
-    currentStreamSymbol?.attempts[currentStreamSymbol.attempts.length - 1];
-  if (
-    lastAttempt &&
-    !areKeyCapIdArraysEqual(
-      lastAttempt.pressedKeyCups,
-      currentStreamSymbol.targetKeyCaps
-    )
-  ) {
-    const incorrectPressFingers = new Set<FingerId>();
-    lastAttempt.pressedKeyCups.forEach((keyId) => {
-      // Special Space logic first
-      if (keyId === 'Space') {
-          const targetFingers = Array.from(activeFingers);
-          const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
-          if (isTargetLeftHand) {
-            incorrectPressFingers.add("R1");
-          } else {
-            incorrectPressFingers.add("L1");
-          }
-          return; // continue to next keyId
-      }
-
-      const finger = getFingerByKeyCap(keyId, fingerLayout);
-      if (finger) {
-        incorrectPressFingers.add(finger);
-      }
-    });
-
-    // An error finger is one that made a press AND is not one of the active fingers for the target
-    incorrectPressFingers.forEach((finger) => {
-      if (!activeFingers.has(finger)) {
-        errorFingers.add(finger);
-      }
-    });
-  }
-
-  // --- Determine Active Hands ---
-  const activeHands = new Set<HandSide>();
-  if (Array.from(activeFingers).some(isLeftHandFinger))
-    activeHands.add(HAND_SIDES[0]); // 'LEFT'
-  if (Array.from(activeFingers).some((finger) => !isLeftHandFinger(finger)))
-    activeHands.add(HAND_SIDES[1]); // 'RIGHT'
-
-  // Ensure the hand that made the error is also considered active
-  errorFingers.forEach((fingerId) => {
-    if (isLeftHandFinger(fingerId)) activeHands.add(HAND_SIDES[0]);
-    else activeHands.add(HAND_SIDES[1]);
-  });
-
-  // --- Apply States to ViewModel ---
-  const allLeftFingers: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
-  const allRightFingers: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
-
-  // If a hand is active, set its non-participating fingers to INACTIVE.
-  // The other hand's fingers remain IDLE from the initial state.
-  if (activeHands.has('LEFT')) {
-    allLeftFingers.forEach((fingerId) => {
-        newViewModel[fingerId].fingerState = 'INACTIVE';
-    });
-  }
-
-  if (activeHands.has('RIGHT')) {
-    allRightFingers.forEach((fingerId) => {
-        newViewModel[fingerId].fingerState = 'INACTIVE';
-    });
-  }
-
-  // Set ACTIVE state for the required fingers (overrides INACTIVE)
-  activeFingers.forEach((fingerId) => {
-    newViewModel[fingerId].fingerState = "ACTIVE";
-  });
-
-  // Set INCORRECT state for error fingers (overrides INACTIVE and ACTIVE)
-  errorFingers.forEach((fingerId) => {
-    newViewModel[fingerId].fingerState = "INCORRECT";
-  });
-
-  return newViewModel;
+interface TypingContext {
+    activeFingers: Set<FingerId>;
+    errorFingers: Set<FingerId>;
+    activeHands: Set<HandSide>;
+    lastAttempt: StreamSymbol["attempts"][number] | undefined;
+    targetKeyCaps: KeyCapId[];
+    wasAttemptIncorrect: boolean;
 }
 
-// STAGE 2: Build initial visible clusters for active fingers
+// STAGE 1: Determine Typing Context (Pure helper function)
+function determineTypingContext(
+    currentStreamSymbol: StreamSymbol,
+    fingerLayout: FingerLayout
+): TypingContext {
+    const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
+    const activeFingers = new Set<FingerId>();
+    targetKeyCaps.forEach((keyId: KeyCapId) => {
+        const finger = getFingerByKeyCap(keyId, fingerLayout);
+        if (finger) {
+            activeFingers.add(finger);
+        }
+    });
+
+    const errorFingers = new Set<FingerId>();
+    const lastAttempt =
+        currentStreamSymbol?.attempts[currentStreamSymbol.attempts.length - 1];
+    const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
+
+    if (wasAttemptIncorrect) {
+        const incorrectPressFingers = new Set<FingerId>();
+        lastAttempt.pressedKeyCups.forEach((keyId) => {
+            // Special Space logic first
+            if (keyId === 'Space') {
+                const targetFingers = Array.from(activeFingers);
+                const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
+                if (isTargetLeftHand) {
+                    incorrectPressFingers.add("R1");
+                } else {
+                    incorrectPressFingers.add("L1");
+                }
+                return;
+            }
+
+            const finger = getFingerByKeyCap(keyId, fingerLayout);
+            if (finger) {
+                incorrectPressFingers.add(finger);
+            }
+        });
+
+        incorrectPressFingers.forEach((finger) => {
+            if (!activeFingers.has(finger)) {
+                errorFingers.add(finger);
+            }
+        });
+    }
+
+    const activeHands = new Set<HandSide>();
+    if (Array.from(activeFingers).some(isLeftHandFinger))
+        activeHands.add(HAND_SIDES[0]);
+    if (Array.from(activeFingers).some((finger) => !isLeftHandFinger(finger)))
+        activeHands.add(HAND_SIDES[1]);
+
+    errorFingers.forEach((fingerId) => {
+        if (isLeftHandFinger(fingerId)) activeHands.add(HAND_SIDES[0]);
+        else activeHands.add(HAND_SIDES[1]);
+    });
+
+    return { activeFingers, errorFingers, activeHands, lastAttempt, targetKeyCaps, wasAttemptIncorrect };
+}
+
+// STAGE 2: Apply Finger States to ViewModel
+function applyFingerStates(
+    viewModel: HandsSceneViewModel,
+    typingContext: TypingContext
+): HandsSceneViewModel {
+    const newViewModel = { ...viewModel };
+    const { activeFingers, errorFingers, activeHands } = typingContext;
+
+    const allLeftFingers: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
+    const allRightFingers: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
+
+    if (activeHands.has('LEFT')) {
+        allLeftFingers.forEach((fingerId) => {
+            newViewModel[fingerId].fingerState = 'INACTIVE';
+        });
+    }
+
+    if (activeHands.has('RIGHT')) {
+        allRightFingers.forEach((fingerId) => {
+            newViewModel[fingerId].fingerState = 'INACTIVE';
+        });
+    }
+
+    activeFingers.forEach((fingerId) => {
+        newViewModel[fingerId].fingerState = "ACTIVE";
+    });
+
+    errorFingers.forEach((fingerId) => {
+        newViewModel[fingerId].fingerState = "INCORRECT";
+    });
+
+    return newViewModel;
+}
+
+
+// STAGE 3: Build initial visible clusters for active fingers
 function buildVisibleClusters(
   viewModel: HandsSceneViewModel,
   fingerLayout: FingerLayout
@@ -214,16 +223,16 @@ function buildVisibleClusters(
   return newViewModel;
 }
 
-// STAGE 3: Apply navigation paths and roles to visible clusters
+// STAGE 4: Apply navigation paths and roles to visible clusters
 function applyNavigationPaths(
   viewModel: HandsSceneViewModel,
-  currentStreamSymbol: StreamSymbol,
+  typingContext: TypingContext,
   fingerLayout: FingerLayout,
   keyboardGraph: AdjacencyList,
   keyCoordinateMap: KeyCoordinateMap
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
-  const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
+  const targetKeyCaps = typingContext.targetKeyCaps;
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
@@ -264,21 +273,19 @@ function applyNavigationPaths(
   return newViewModel;
 }
 
-// STAGE 4: Apply press results based on the last attempt
+// STAGE 5: Apply press results based on the last attempt
 function applyPressResults(
   viewModel: HandsSceneViewModel,
-  currentStreamSymbol: StreamSymbol
+  typingContext: TypingContext
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
-  const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
-  const lastAttempt = currentStreamSymbol.attempts[currentStreamSymbol.attempts.length - 1];
+  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
   
-  const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
   if (!wasAttemptIncorrect) return newViewModel;
 
-  const pressedSet = new Set(lastAttempt.pressedKeyCups);
+  const pressedSet = new Set(lastAttempt!.pressedKeyCups); // lastAttempt is guaranteed to be defined here
   const targetSet = new Set(targetKeyCaps);
-  const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
+  const extraKeysPressed = lastAttempt!.pressedKeyCups.filter((k) => !targetSet.has(k));
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
@@ -331,12 +338,14 @@ export function generateHandsSceneViewModel(
 
   // --- Pipeline Start ---
   let viewModel = getIdleViewModel();
+  
+  // Data Analysis Stage: Determine the context for the current typing step
+  const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);
 
-  // Stage 1: Determine and set finger states (ACTIVE, INACTIVE, INCORRECT)
-  viewModel = determineAndSetFingerStates(
+  // Stage 1: Apply finger states (ACTIVE, INACTIVE, INCORRECT)
+  viewModel = applyFingerStates(
     viewModel,
-    currentStreamSymbol,
-    fingerLayout
+    typingContext
   );
 
   // Stage 2: Build initial visible clusters for active fingers
@@ -348,7 +357,7 @@ export function generateHandsSceneViewModel(
   // Stage 3: Apply navigation paths and roles to visible clusters
   viewModel = applyNavigationPaths(
     viewModel,
-    currentStreamSymbol,
+    typingContext,
     fingerLayout,
     keyboardGraph,
     keyCoordinateMap
@@ -357,7 +366,7 @@ export function generateHandsSceneViewModel(
   // Stage 4: Apply press results based on the last attempt
   viewModel = applyPressResults(
     viewModel,
-    currentStreamSymbol
+    typingContext
   );
 
   return viewModel;
