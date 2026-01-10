@@ -172,6 +172,32 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
     Object.entries(viewModel).map(([fingerId, fingerSceneState]) => [fingerId, fingerSceneState.fingerState])
   ) as Record<FingerId, FingerState>;
 
+  // ✅ Вычисляем активные модификаторы ОДИН РАЗ за рендер для эффективности
+  const activeModifiers: ModifierKey[] = useMemo(() => {
+    const modifiers: ModifierKey[] = [];
+    const allTargetKeyCaps = Object.values(viewModel)
+      .filter((f) => f.fingerState === 'ACTIVE' && f.keyCapStates)
+      .flatMap((f) =>
+          Object.entries(f.keyCapStates!)
+              .filter(([, state]) => state.navigationRole === 'TARGET')
+              .map(([keyCapId]) => keyCapId as KeyCapId)
+      );
+
+    if (allTargetKeyCaps.some((k) => k === 'ShiftLeft' || k === 'ShiftRight')) {
+      modifiers.push('shift');
+    }
+    if (allTargetKeyCaps.some((k) => k === 'ControlLeft' || k === 'ControlRight')) {
+      modifiers.push('ctrl');
+    }
+    if (allTargetKeyCaps.some((k) => k === 'AltLeft' || k === 'AltRight')) {
+      modifiers.push('alt');
+    }
+    if (allTargetKeyCaps.some((k) => k === 'MetaLeft' || k === 'MetaRight')) {
+      modifiers.push('meta');
+    }
+    return modifiers;
+  }, [viewModel]);
+  
   return (
     <div
       className={cn("relative w-full h-full", className)}
@@ -218,23 +244,6 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
           // Генерируем виртуальный макет для текущего пальца
           const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
-
-          // Определяем активные модификаторы (Shift, Ctrl, Alt, Meta) из всей сцены
-          // Это нужно, чтобы модификаторы были подсвечены на всех клавиатурах, если они являются целевыми
-          const activeModifiers: ModifierKey[] = [];
-          const allTargetKeyCaps = Object.values(viewModel)
-            .filter((f) => f.fingerState === 'ACTIVE' && f.keyCapStates) // Ищем активные пальцы с клавишами
-            .flatMap((f) =>
-                Object.entries(f.keyCapStates!)
-                    .filter(([, state]) => state.navigationRole === 'TARGET') // Фильтруем по целевым клавишам
-                    .map(([keyCapId]) => keyCapId as KeyCapId) // Извлекаем KeyCapId
-            );
-
-          // Проверяем, является ли какой-либо модификатор целевой клавишей
-          if (allTargetKeyCaps.some((k) => k === 'ShiftLeft' || k === 'ShiftRight')) activeModifiers.push('shift');
-          if (allTargetKeyCaps.some((k) => k === 'ControlLeft' || k === 'ControlRight')) activeModifiers.push('ctrl');
-          if (allTargetKeyCaps.some((k) => k === 'AltLeft' || k === 'AltRight')) activeModifiers.push('alt');
-          if (allTargetKeyCaps.some((k) => k === 'MetaLeft' || k === 'MetaRight')) activeModifiers.push('meta');
 
           return (
             <div
