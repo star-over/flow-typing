@@ -12,10 +12,10 @@ export const simple2Fixture: HandsExtFixture = {
     L4: {
       fingerState: "ACTIVE",
       keyCapStates: {
-        "Digit2": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "KeyW":   { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "UP", pressResult: "NEUTRAL" },
-        "KeyS":   { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "UP", pressResult: "NEUTRAL" },
-        "KeyX":   { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" }
+        Digit2: { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        KeyW:   { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "UP", pressResult: "NEUTRAL" },
+        KeyS:   { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "UP", pressResult: "NEUTRAL" },
+        KeyX:   { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" }
       }
     },
   }

@@ -12,7 +12,7 @@ export const spaceFixture: HandsExtFixture = {
     R1: {
       fingerState: "ACTIVE",
       keyCapStates: {
-        "Space": { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Space: { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NEUTRAL" },
       }
     },
   }

@@ -59,9 +59,9 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
-          "varsIgnorePattern": "^_",
-          "argsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_"
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_"
         }
       ],
 
@@ -71,6 +71,9 @@ export default defineConfig([
 
       // Arrow function parentheses
       'arrow-parens': ['warn', 'always'],
+
+      // Object keys quotes
+      "quote-props": ["warn", "as-needed"],
 
       // --- НОВЫЕ ПРАВИЛА ---
       // Правила для React Hooks

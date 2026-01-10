@@ -33,9 +33,9 @@ const keyCapVariants = cva(
 
       /** Размер символа на клавише. */
       symbolSize: {
-        "MD": "[&_.keycap-label]:text-xl",
-        "SM": "[&_.keycap-label]:text-sm",
-        "XS": "[&_.keycap-label]:text-xs",
+        MD: "[&_.keycap-label]:text-xl",
+        SM: "[&_.keycap-label]:text-sm",
+        XS: "[&_.keycap-label]:text-xs",
       } satisfies Record<KeyCapSymbolSize, string>,
 
       /** Ширина клавиши в юнитах (1U ~ 19мм). */

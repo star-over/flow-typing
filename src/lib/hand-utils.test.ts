@@ -9,8 +9,18 @@ describe("getHandStates", () => {
   const fingerLayout: FingerLayout = fingerLayoutASDF;
 
   const idleHands: HandStates = {
-    L1: "IDLE", L2: "IDLE", L3: "IDLE", L4: "IDLE", L5: "IDLE", LB: "IDLE",
-    R1: "IDLE", R2: "IDLE", R3: "IDLE", R4: "IDLE", R5: "IDLE", RB: "IDLE",
+    L1: "IDLE",
+L2: "IDLE",
+L3: "IDLE",
+L4: "IDLE",
+L5: "IDLE",
+LB: "IDLE",
+    R1: "IDLE",
+R2: "IDLE",
+R3: "IDLE",
+R4: "IDLE",
+R5: "IDLE",
+RB: "IDLE",
   };
 
   it("should return all IDLE when targetSymbol is undefined", () => {

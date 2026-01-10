@@ -12,34 +12,34 @@ export const shiftQuoteFixture: HandsExtFixture = {
     L5: {
       fingerState: "ACTIVE",
       keyCapStates: {
-        "Backquote":   { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Digit1":      { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "KeyA":        { visibility: "VISIBLE", navigationRole: "PATH",     navigationArrow: "DOWN", pressResult: "NEUTRAL" }, // Home key
-        "KeyQ":        { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "CapsLock":    { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "Tab":         { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "KeyZ":        { visibility: "VISIBLE", navigationRole: "PATH",     navigationArrow: "LEFT", pressResult: "NEUTRAL" }, // Home key
-        "ShiftLeft":   { visibility: "VISIBLE", navigationRole: "TARGET",   navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "ControlLeft": { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "MetaLeft":    { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
-        "AltLeft":     { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        Backquote:   { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Digit1:      { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        KeyA:        { visibility: "VISIBLE", navigationRole: "PATH",     navigationArrow: "DOWN", pressResult: "NEUTRAL" }, // Home key
+        KeyQ:        { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        CapsLock:    { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        Tab:         { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        KeyZ:        { visibility: "VISIBLE", navigationRole: "PATH",     navigationArrow: "LEFT", pressResult: "NEUTRAL" }, // Home key
+        ShiftLeft:   { visibility: "VISIBLE", navigationRole: "TARGET",   navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        ControlLeft: { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        MetaLeft:    { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
+        AltLeft:     { visibility: "VISIBLE", navigationRole: "NONE",     navigationArrow: "NONE", pressResult: "NEUTRAL" }, // Home key
       }
     },
     R5: {
       fingerState: "ACTIVE",
       keyCapStates: {
-        "Semicolon":    { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "RIGHT", pressResult: "NEUTRAL" },
-        "Quote":        { visibility: "VISIBLE", navigationRole: "TARGET",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "ShiftRight":   { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Digit0":       { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Minus":        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Equal":        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Backspace":    { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "KeyP":         { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "BracketLeft":  { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "BracketRight": { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Backslash":    { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
-        "Enter":        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Semicolon:    { visibility: "VISIBLE", navigationRole: "PATH",   navigationArrow: "RIGHT", pressResult: "NEUTRAL" },
+        Quote:        { visibility: "VISIBLE", navigationRole: "TARGET",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        ShiftRight:   { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Digit0:       { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Minus:        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Equal:        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Backspace:    { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        KeyP:         { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        BracketLeft:  { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        BracketRight: { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Backslash:    { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
+        Enter:        { visibility: "VISIBLE", navigationRole: "NONE",   navigationArrow: "NONE", pressResult: "NEUTRAL" },
       }
     },
   }

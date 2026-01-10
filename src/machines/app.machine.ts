@@ -44,13 +44,13 @@ export const appMachine = createMachine({
     events: AppEvent;
   },
   on: {
-    'KEY_DOWN': {
+    KEY_DOWN: {
       actions: sendTo('keyboardService', ({ event }) => ({
         type: 'KEY_DOWN',
         keyCapId: (event as { type: 'KEY_DOWN'; keyCapId: KeyCapId }).keyCapId,
       })),
     },
-    'KEY_UP': {
+    KEY_UP: {
       actions: sendTo('keyboardService', ({ event }) => ({
         type: 'KEY_UP',
         keyCapId: (event as { type: 'KEY_UP'; keyCapId: KeyCapId }).keyCapId,

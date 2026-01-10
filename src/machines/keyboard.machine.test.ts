@@ -19,19 +19,19 @@ const testParentMachine = createMachine({
     input: ({ self }) => ({ parentActor: self }), // Pass the testParentMachine's actor reference
   },
   on: {
-    "KEY_DOWN": {
+    KEY_DOWN: {
       actions: sendTo("keyboard", ({ event }) => ({
         type: "KEY_DOWN",
         keyCapId: event.keyCapId,
       })),
     },
-    "KEY_UP": {
+    KEY_UP: {
       actions: sendTo("keyboard", ({ event }) => ({
         type: "KEY_UP",
         keyCapId: event.keyCapId,
       })),
     },
-    "RESET": {
+    RESET: {
       actions: sendTo("keyboard", { type: "RESET" }),
     },
     "KEYBOARD.RECOGNIZED": {

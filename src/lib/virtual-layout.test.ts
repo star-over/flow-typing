@@ -38,9 +38,9 @@ describe('createVirtualLayout', () => {
   ];
 
   const mockSymbolLayout: SymbolLayout = {
-    'a': ['KeyA'],
-    'b': ['KeyB'],
-    'A': ['KeyA', 'ShiftLeft'],
+    a: ['KeyA'],
+    b: ['KeyB'],
+    A: ['KeyA', 'ShiftLeft'],
   };
 
   const mockFingerLayout: FingerLayout = {
