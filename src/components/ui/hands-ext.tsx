@@ -124,7 +124,9 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
       const homeKeyEntry = Object.entries(fingerLayoutASDF).find(
         ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
       );
-      if (!homeKeyEntry) return; // Если домашняя клавиша не найдена, пропускаем
+      if (!homeKeyEntry) {
+        return;
+      } // Если домашняя клавиша не найдена, пропускаем
 
       const homeKeyId = homeKeyEntry[0] as KeyCapId;
       // Находим элемент центральной точки пальца в SVG
@@ -133,6 +135,13 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
       const keyboardContainer = keyboardRefs.current[fingerId];
 
       if (fingerElement && keyboardContainer) {
+        // Если позиция уже была вычислена, не пересчитывать.
+        // Это предотвращает "прыжок" кластера в (0,0) при ре-рендерах из-за обновления viewModel.
+        if (keyboardContainer.style.transform) {
+          keyboardContainer.style.visibility = 'visible';
+          return;
+        }
+
         // ВАЖНО: Поиск `keyElement` должен быть ограничен `keyboardContainer` этого пальца.
         // Глобальный `document.querySelector` может найти клавишу в другом, одновременно
         // отображаемом кластере, что приведет к неверному позиционированию.
@@ -150,6 +159,8 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
 
             // Применяем трансформацию для позиционирования клавиатуры
             keyboardContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            // Делаем контейнер видимым после позиционирования
+            keyboardContainer.style.visibility = 'visible';
           }
         }
       }
@@ -230,6 +241,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
               key={fingerId}
               ref={(el) => { keyboardRefs.current[fingerId] = el; }} // Сохраняем ссылку на контейнер клавиатуры
               className="absolute top-0 left-0" // Позиционируем абсолютно для дальнейшего смещения
+              style={{ visibility: 'hidden' }} // Start hidden to prevent flash of unpositioned content
             >
               <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers}/>
             </div>
