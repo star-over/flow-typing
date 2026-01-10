@@ -220,6 +220,42 @@ function buildVisibleClusters(
   return newViewModel;
 }
 
+// --- Internal helpers for applyNavigationPaths ---
+function _applyNavigationRoles(
+  fingerData: HandsSceneViewModel[FingerId],
+  path: KeyCapId[],
+  targetKey: KeyCapId
+) {
+  fingerData.keyCapStates![targetKey]!.navigationRole = "TARGET";
+  path.forEach((keyId) => {
+    const keyState = fingerData.keyCapStates![keyId];
+    if (keyState && keyId !== targetKey) {
+      keyState.navigationRole = "PATH";
+    }
+  });
+}
+
+function _applyNavigationArrows(
+  fingerData: HandsSceneViewModel[FingerId],
+  path: KeyCapId[],
+  keyCoordinateMap: KeyCoordinateMap
+) {
+  path.forEach((keyId, index) => {
+    const nextKeyInPath = path[index + 1];
+    if (nextKeyInPath) {
+      const keyState = fingerData.keyCapStates![keyId];
+      const currentCoords = keyCoordinateMap.get(keyId);
+      const nextCoords = keyCoordinateMap.get(nextKeyInPath);
+      if (keyState && currentCoords && nextCoords) {
+        if (nextCoords.r < currentCoords.r) keyState.navigationArrow = "UP";
+        else if (nextCoords.r > currentCoords.r) keyState.navigationArrow = "DOWN";
+        else if (nextCoords.c < currentCoords.c) keyState.navigationArrow = "LEFT";
+        else if (nextCoords.c > currentCoords.c) keyState.navigationArrow = "RIGHT";
+      }
+    }
+  });
+}
+
 // STAGE 4: Apply navigation paths and roles to visible clusters
 function applyNavigationPaths(
   viewModel: HandsSceneViewModel,
@@ -247,25 +283,10 @@ function applyNavigationPaths(
       path = findOptimalPath(homeKey, targetKey, keyboardGraph);
     }
     
-    fingerData.keyCapStates[targetKey]!.navigationRole = "TARGET";
-    
-    path.forEach((keyId, index) => {
-      const keyState = fingerData.keyCapStates![keyId];
-      if (!keyState || keyId === targetKey) return;
-      
-      keyState.navigationRole = "PATH";
-      const nextKeyInPath = path[index + 1];
-      if (nextKeyInPath) {
-        const currentCoords = keyCoordinateMap.get(keyId);
-        const nextCoords = keyCoordinateMap.get(nextKeyInPath);
-        if (currentCoords && nextCoords) {
-          if (nextCoords.r < currentCoords.r) keyState.navigationArrow = "UP";
-          else if (nextCoords.r > currentCoords.r) keyState.navigationArrow = "DOWN";
-          else if (nextCoords.c < currentCoords.c) keyState.navigationArrow = "LEFT";
-          else if (nextCoords.c > currentCoords.c) keyState.navigationArrow = "RIGHT";
-        }
-      }
-    });
+    // TODO: Add settings check here in the future
+    _applyNavigationRoles(fingerData, path, targetKey);
+    // TODO: Add settings check here in the future
+    _applyNavigationArrows(fingerData, path, keyCoordinateMap);
   }
   return newViewModel;
 }
