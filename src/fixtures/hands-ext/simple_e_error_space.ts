@@ -11,7 +11,7 @@ export const simple_e_error_space: HandsExtFixture = {
   expectedOutput: {
     L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" },
     L3: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Digit3: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
         KeyE: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NEUTRAL", navigationArrow: "NONE" },
@@ -20,6 +20,6 @@ export const simple_e_error_space: HandsExtFixture = {
       }
     },
     L4: { fingerState: "INACTIVE" }, L5: { fingerState: "INACTIVE" }, LB: { fingerState: "INACTIVE" },
-    R1: { fingerState: "INCORRECT" }, R2: { fingerState: "INACTIVE" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" }
+    R1: { fingerState: "ERROR" }, R2: { fingerState: "INACTIVE" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" }
   },
 };

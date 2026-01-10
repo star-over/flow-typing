@@ -14,12 +14,12 @@ interface KeySceneState {
   visibility: Visibility;                 // VISIBLE, INVISIBLE
   navigationRole: KeyCapNavigationRole;   // NONE, PATH, TARGET
   navigationArrow: KeyCapNavigationArrow; // NONE, UP, DOWN, LEFT, RIGHT...
-  pressResult: KeyCapPressResult;         // NEUTRAL, CORRECT, INCORRECT
+  pressResult: KeyCapPressResult;         // NEUTRAL, CORRECT, ERROR
 }
 
 // Описывает полное состояние одного пальца и его "среза" сцены
 interface FingerSceneState {
-  fingerState: FingerState;             // 'ACTIVE', 'INACTIVE', 'IDLE', 'INCORRECT'
+  fingerState: FingerState;             // 'TARGET', 'INACTIVE', 'NONE', 'ERROR'
   // Словарь состояний для всех клавиш в кластере этого пальца.
   // Присутствует только если у пальца есть видимые клавиши.
   keyCapStates?: Record<KeyCapId, KeySceneState>; 
@@ -42,27 +42,27 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
     const myViewModel: HandsSceneViewModel = {
       ...idleViewModel,
       ...leftInactive, // Левая рука неактивна
-      R3: { fingerState: "ACTIVE", ... } // Правый палец активен
+      R3: { fingerState: "TARGET", ... } // Правый палец активен
     };
     ```
 
 ### 2.2 Правило "Полного Кластера" (Complete Cluster Rule)
 
-Для **каждого** пальца, находящегося в состоянии `fingerState: "ACTIVE"`, в его свойстве `keyCapStates` должен быть определен **полный набор** клавиш, за которые этот палец отвечает согласно `finger-layout-asdf.ts`.
+Для **каждого** пальца, находящегося в состоянии `fingerState: "TARGET"`, в его свойстве `keyCapStates` должен быть определен **полный набор** клавиш, за которые этот палец отвечает согласно `finger-layout-asdf.ts`.
 
 *   **Цель:** Это необходимо, чтобы компонент `HandsExt` мог корректно отображать весь "рабочий" контекст пальца, включая клавиши `PATH` (путь движения) и `NONE` (контекстные, но неактивные клавиши).
 *   **Реализация:** Даже если большинство клавиш будут иметь `navigationRole: "NONE"`, их присутствие в `keyCapStates` обязательно для построения целостной визуальной картины.
 
 ---
 1.  **Состояния пальцев (`fingerState`):**
-    *   `ACTIVE`: Палец, непосредственно выполняющий действие (нажатие целевой или модифицирующей клавиши).
-    *   `INACTIVE`: "Соседний" палец на той же руке, где есть `ACTIVE` или `INCORRECT` палец.
-    *   `IDLE`: Любой палец на полностью неактивной руке.
-    *   `INCORRECT`: Палец, который совершил ошибочное нажатие *не своей* клавиши (перепутал пальцы).
+    *   `TARGET`: Палец, непосредственно выполняющий действие (нажатие целевой или модифицирующей клавиши).
+    *   `INACTIVE`: "Соседний" палец на той же руке, где есть `TARGET` или `ERROR` палец.
+    *   `NONE`: Любой палец на полностью неактивной руке.
+    *   `ERROR`: Палец, который совершил ошибочное нажатие *не своей* клавиши (перепутал пальцы).
 
 2.  **Видимость клавиш (`keyCapStates`):**
-    *   Словарь `keyCapStates` определяется **только для `ACTIVE` пальцев**. 
-    *   Для `INACTIVE`, `IDLE` и `INCORRECT` пальцев это свойство отсутствует. UI-компонент не должен рендерить для них клавиатурный кластер.
+    *   Словарь `keyCapStates` определяется **только для `TARGET` пальцев**. 
+    *   Для `INACTIVE`, `NONE` и `ERROR` пальцев это свойство отсутствует. UI-компонент не должен рендерить для них клавиатурный кластер.
     *   `keyCapStates` для активного пальца содержит **все клавиши из его кластера** (согласно `finger-layout-asdf.ts`).
     *   У всех клавиш, перечисленных в `keyCapStates`, свойство `visibility` должно быть установлено в `"VISIBLE"`.
 
@@ -81,31 +81,31 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 
 4.  **Обработка ошибок**
     * **Ошибка в пределах одного пальца:** (Цель `'k'`, нажата `'i'`).
-        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, так как цель все еще актуальна.
-        * Нажатая по ошибке клавиша (`KeyI`) в своем кластере получает `pressResult: 'INCORRECT'`.
+        * Палец, который должен был действовать (`R3`), остается в состоянии `TARGET`, так как цель все еще актуальна.
+        * Нажатая по ошибке клавиша (`KeyI`) в своем кластере получает `pressResult: 'ERROR'`.
         * Целевая клавиша (`KeyK`) сохраняет `navigationRole: 'TARGET'`.
     * **Ошибка другого пальца (та же рука):** (Цель `'k'`, нажата `'j'`).
-        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`, чтобы продолжать подсвечивать цель.
-        * Палец, который нажал не свою клавишу (`R2`), переходит в состояние `INCORRECT`.
+        * Палец, который должен был действовать (`R3`), остается в состоянии `TARGET`, чтобы продолжать подсвечивать цель.
+        * Палец, который нажал не свою клавишу (`R2`), переходит в состояние `ERROR`.
         * Кластер клавиш для ошибочного пальца (`R2`) **не отображается**. Подсвечивается только сам палец.
-        * Отображается только кластер для `ACTIVE` пальца (`R3`).
+        * Отображается только кластер для `TARGET` пальца (`R3`).
     * **Ошибка другой рукой:** (Цель `'k'`, нажата `'f'`).
-        * Палец, который должен был действовать (`R3`), остается в состоянии `ACTIVE`.
-        * Палец, который нажал не свою клавишу (`L2`), переходит в `INCORRECT`.
+        * Палец, который должен был действовать (`R3`), остается в состоянии `TARGET`.
+        * Палец, который нажал не свою клавишу (`L2`), переходит в `ERROR`.
         * Обе руки считаются "задействованными", поэтому все остальные пальцы на обеих руках переходят в состояние `INACTIVE`.
     * **Ошибка с ненужным модификатором:** (Цель `'k'`, нажато `Shift + K`).
-        * Целевой палец (`R3`) нажал правильную клавишу, но сама попытка неверна. Он остается `ACTIVE`, чтобы показывать цель. В его кластере `KeyK` получает `pressResult: 'INCORRECT'`.
-        * Палец, нажавший ненужный модификатор (`L5` или `R5`), переходит в `INCORRECT`.
+        * Целевой палец (`R3`) нажал правильную клавишу, но сама попытка неверна. Он остается `TARGET`, чтобы показывать цель. В его кластере `KeyK` получает `pressResult: 'ERROR'`.
+        * Палец, нажавший ненужный модификатор (`L5` или `R5`), переходит в `ERROR`.
         * Остальные пальцы на задействованных руках переходят в `INACTIVE`.
     * **Ошибка с пропущенным модификатором:** (Цель `K`, нажато `k`).
-        * Оба пальца, которые должны были участвовать в аккорде (`L5` и `R3`), переходят в состояние `ACTIVE`, чтобы показать полную цель.
+        * Оба пальца, которые должны были участвовать в аккорде (`L5` и `R3`), переходят в состояние `TARGET`, чтобы показать полную цель.
         * Нажатая клавиша (`KeyK`) получает `pressResult: 'CORRECT'`, так как само действие было верным.
-        * Ненажатая клавиша-модификатор (`ShiftLeft`) получает `pressResult: 'INCORRECT'`, сигнализируя о пропуске.
+        * Ненажатая клавиша-модификатор (`ShiftLeft`) получает `pressResult: 'ERROR'`, сигнализируя о пропуске.
     * **Ошибка в аккорде (верный модификатор, неверная клавиша):** (Цель `K`, нажато `J`).
-        * Пальцы, составляющие цель (`L5` и `R3`), остаются `ACTIVE`.
+        * Пальцы, составляющие цель (`L5` и `R3`), остаются `TARGET`.
         * Палец, нажавший верный модификатор (`L5`), получает `pressResult: 'CORRECT'`.
         * Палец, который должен был нажать основную клавишу (`R3`), не действовал, поэтому `pressResult` для `KeyK` — `NEUTRAL`.
-        * Палец, совершивший ошибку (`R2`), переходит в `INCORRECT`.
+        * Палец, совершивший ошибку (`R2`), переходит в `ERROR`.
 
 ## 5. Примеры состояний
 
@@ -116,17 +116,17 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 
 ```json
 {
-  "L1": { "fingerState": "IDLE" }, 
-  "L2": { "fingerState": "IDLE" }, 
-  "L3": { "fingerState": "IDLE" }, 
-  "L4": { "fingerState": "IDLE" }, 
-  "L5": { "fingerState": "IDLE" }, 
-  "LB": { "fingerState": "IDLE" },
+  "L1": { "fingerState": "NONE" }, 
+  "L2": { "fingerState": "NONE" }, 
+  "L3": { "fingerState": "NONE" }, 
+  "L4": { "fingerState": "NONE" }, 
+  "L5": { "fingerState": "NONE" }, 
+  "LB": { "fingerState": "NONE" },
   
   "R1": { "fingerState": "INACTIVE" }, 
   "R2": { "fingerState": "INACTIVE" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -151,7 +151,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "L2": { "fingerState": "INACTIVE" }, 
   "L3": { "fingerState": "INACTIVE" },
   "L4": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit2": { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyW":   { "visibility": "VISIBLE", "navigationRole": "PATH",   "navigationArrow": "UP", "pressResult": "NEUTRAL" },
@@ -161,12 +161,12 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   },
   "L5": { "fingerState": "INACTIVE" }, 
   "LB": { "fingerState": "INACTIVE" },
-  "R1": { "fingerState": "IDLE" }, 
-  "R2": { "fingerState": "IDLE" }, 
-  "R3": { "fingerState": "IDLE" }, 
-  "R4": { "fingerState": "IDLE" }, 
-  "R5": { "fingerState": "IDLE" }, 
-  "RB": { "fingerState": "IDLE" }
+  "R1": { "fingerState": "NONE" }, 
+  "R2": { "fingerState": "NONE" }, 
+  "R3": { "fingerState": "NONE" }, 
+  "R4": { "fingerState": "NONE" }, 
+  "R5": { "fingerState": "NONE" }, 
+  "RB": { "fingerState": "NONE" }
 }
 ```
 
@@ -179,7 +179,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 {
   "L1": { "fingerState": "INACTIVE" },
   "L2": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "KeyF":     { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "Digit4":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -201,7 +201,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R3": { "fingerState": "INACTIVE" }, 
   "R4": { "fingerState": "INACTIVE" },
   "R5": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Semicolon":  { "visibility": "VISIBLE", "navigationRole": "PATH",   "navigationArrow": "RIGHT", "pressResult": "NEUTRAL" },
       "Quote":      { "visibility": "VISIBLE", "navigationRole": "PATH",   "navigationArrow": "RIGHT", "pressResult": "NEUTRAL" },
@@ -230,24 +230,24 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 4: Ошибка в пределах одного пальца
 
 *   **Задача:** Нажать `'k'`, но нажат `'i'`.
-*   **Анализ:** Оба действия выполняет палец `R3`. Целевой палец остается `ACTIVE`, чтобы подсвечивать цель. Нажатая клавиша `'i'` получает статус ошибки.
+*   **Анализ:** Оба действия выполняет палец `R3`. Целевой палец остается `TARGET`, чтобы подсвечивать цель. Нажатая клавиша `'i'` получает статус ошибки.
 
 ```json
 {
-  "L1": { "fingerState": "IDLE" },
-  "L2": { "fingerState": "IDLE" },
-  "L3": { "fingerState": "IDLE" },
-  "L4": { "fingerState": "IDLE" },
-  "L5": { "fingerState": "IDLE" },
-  "LB": { "fingerState": "IDLE" },
+  "L1": { "fingerState": "NONE" },
+  "L2": { "fingerState": "NONE" },
+  "L3": { "fingerState": "NONE" },
+  "L4": { "fingerState": "NONE" },
+  "L5": { "fingerState": "NONE" },
+  "LB": { "fingerState": "NONE" },
 
   "R1": { "fingerState": "INACTIVE" },
   "R2": { "fingerState": "INACTIVE" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
-      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "INCORRECT" },
+      "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "ERROR" },
       "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET",    "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "NEUTRAL" }
     }
@@ -261,23 +261,23 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 5: Ошибка другого пальца (та же рука)
 
 *   **Задача:** Нажать `'k'`, но нажат `'j'`.
-*   **Анализ:** Целевой палец `R3` остается `ACTIVE`, чтобы показывать цель. Палец `R2`, совершивший ошибку, переходит в `INCORRECT`. Кластер клавиш для `R2` не отображается.
+*   **Анализ:** Целевой палец `R3` остается `TARGET`, чтобы показывать цель. Палец `R2`, совершивший ошибку, переходит в `ERROR`. Кластер клавиш для `R2` не отображается.
 
 ```json
 {
-  "L1": { "fingerState": "IDLE" },
-  "L2": { "fingerState": "IDLE" },
-  "L3": { "fingerState": "IDLE" },
-  "L4": { "fingerState": "IDLE" },
-  "L5": { "fingerState": "IDLE" },
-  "LB": { "fingerState": "IDLE" },
+  "L1": { "fingerState": "NONE" },
+  "L2": { "fingerState": "NONE" },
+  "L3": { "fingerState": "NONE" },
+  "L4": { "fingerState": "NONE" },
+  "L5": { "fingerState": "NONE" },
+  "LB": { "fingerState": "NONE" },
 
   "R1": { "fingerState": "INACTIVE" },
   "R2": {
-    "fingerState": "INCORRECT"
+    "fingerState": "ERROR"
   },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE",      "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -294,12 +294,12 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 6: Ошибка другой рукой
 
 *   **Задача:** Нажать `'k'`, но нажат `'f'`.
-*   **Анализ:** Целевой палец `R3` (правая рука) остается `ACTIVE`. Палец `L2` (левая рука), совершивший ошибку, переходит в `INCORRECT`. Так как задействованы обе руки, все остальные пальцы на обеих руках переходят в состояние `INACTIVE`.
+*   **Анализ:** Целевой палец `R3` (правая рука) остается `TARGET`. Палец `L2` (левая рука), совершивший ошибку, переходит в `ERROR`. Так как задействованы обе руки, все остальные пальцы на обеих руках переходят в состояние `INACTIVE`.
 
 ```json
 {
   "L1": { "fingerState": "INACTIVE" },
-  "L2": { "fingerState": "INCORRECT" },
+  "L2": { "fingerState": "ERROR" },
   "L3": { "fingerState": "INACTIVE" },
   "L4": { "fingerState": "INACTIVE" },
   "L5": { "fingerState": "INACTIVE" },
@@ -308,7 +308,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R1": { "fingerState": "INACTIVE" },
   "R2": { "fingerState": "INACTIVE" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -325,7 +325,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 7: Ошибка с ненужным модификатором
 
 *   **Задача:** Нажать `'k'`, но нажат `Shift + K`.
-*   **Анализ:** Нажата верная основная клавиша (`KeyK`), но с лишним модификатором. Целевой палец `R3` остается `ACTIVE`, но сама клавиша `KeyK` получает `pressResult: 'INCORRECT'`. Палец `L5`, нажавший `ShiftLeft`, отмечается как `INCORRECT`. Все остальные пальцы на обеих руках становятся `INACTIVE`.
+*   **Анализ:** Нажата верная основная клавиша (`KeyK`), но с лишним модификатором. Целевой палец `R3` остается `TARGET`, но сама клавиша `KeyK` получает `pressResult: 'ERROR'`. Палец `L5`, нажавший `ShiftLeft`, отмечается как `ERROR`. Все остальные пальцы на обеих руках становятся `INACTIVE`.
 
 ```json
 {
@@ -333,17 +333,17 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "L2": { "fingerState": "INACTIVE" },
   "L3": { "fingerState": "INACTIVE" },
   "L4": { "fingerState": "INACTIVE" },
-  "L5": { "fingerState": "INCORRECT" },
+  "L5": { "fingerState": "ERROR" },
   "LB": { "fingerState": "INACTIVE" },
 
   "R1": { "fingerState": "INACTIVE" },
   "R2": { "fingerState": "INACTIVE" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
-      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "INCORRECT" },
+      "KeyK":   { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "ERROR" },
       "Comma":  { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" }
     }
   },
@@ -355,7 +355,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 8: Ошибка с пропущенным модификатором
 
 *   **Задача:** Нажать `'K'`, но нажат `k`.
-*   **Анализ:** Нажата правильная основная клавиша (`KeyK`), но пропущен `Shift`. Оба пальца (`L5` и `R3`) должны быть `ACTIVE`, чтобы показать полный целевой аккорд. Нажатая `KeyK` получает `pressResult: 'CORRECT'`, так как действие само по себе было верным. Пропущенная `ShiftLeft` получает `pressResult: 'INCORRECT'`.
+*   **Анализ:** Нажата правильная основная клавиша (`KeyK`), но пропущен `Shift`. Оба пальца (`L5` и `R3`) должны быть `TARGET`, чтобы показать полный целевой аккорд. Нажатая `KeyK` получает `pressResult: 'CORRECT'`, так как действие само по себе было верным. Пропущенная `ShiftLeft` получает `pressResult: 'ERROR'`.
 
 ```json
 {
@@ -364,9 +364,9 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "L3": { "fingerState": "INACTIVE" },
   "L4": { "fingerState": "INACTIVE" },
   "L5": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
-      "ShiftLeft": { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "INCORRECT" },
+      "ShiftLeft": { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "ERROR" },
       "Tab": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "CapsLock": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyA": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -380,7 +380,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "R1": { "fingerState": "INACTIVE" },
   "R2": { "fingerState": "INACTIVE" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -397,7 +397,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ### Пример 9: Ошибка в аккорде (верный модификатор, неверная клавиша)
 
 *   **Задача:** Нажать `'K'` (Shift + k), но нажат `J` (Shift + j).
-*   **Анализ:** Пользователь верно нажал модификатор `ShiftLeft` (`L5`), но ошибся с основной клавишей. Пальцы, составляющие цель (`L5` и `R3`), остаются `ACTIVE`. Палец, нажавший верный модификатор (`L5`), получает `pressResult: 'CORRECT'`. Ненажатая целевая клавиша (`KeyK`) остается с `pressResult: 'NEUTRAL'`. Ошибочный палец `R2` переходит в `INCORRECT`.
+*   **Анализ:** Пользователь верно нажал модификатор `ShiftLeft` (`L5`), но ошибся с основной клавишей. Пальцы, составляющие цель (`L5` и `R3`), остаются `TARGET`. Палец, нажавший верный модификатор (`L5`), получает `pressResult: 'CORRECT'`. Ненажатая целевая клавиша (`KeyK`) остается с `pressResult: 'NEUTRAL'`. Ошибочный палец `R2` переходит в `ERROR`.
 
 ```json
 {
@@ -406,7 +406,7 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "L3": { "fingerState": "INACTIVE" },
   "L4": { "fingerState": "INACTIVE" },
   "L5": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "ShiftLeft": { "visibility": "VISIBLE", "navigationRole": "TARGET", "navigationArrow": "NONE", "pressResult": "CORRECT" },
       "Tab": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
@@ -420,9 +420,9 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
   "LB": { "fingerState": "INACTIVE" },
 
   "R1": { "fingerState": "INACTIVE" },
-  "R2": { "fingerState": "INCORRECT" },
+  "R2": { "fingerState": "ERROR" },
   "R3": {
-    "fingerState": "ACTIVE",
+    "fingerState": "TARGET",
     "keyCapStates": {
       "Digit8": { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },
       "KeyI":   { "visibility": "VISIBLE", "navigationRole": "NONE", "navigationArrow": "NONE", "pressResult": "NEUTRAL" },

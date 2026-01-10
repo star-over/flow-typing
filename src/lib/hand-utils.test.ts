@@ -9,26 +9,26 @@ describe("getHandStates", () => {
   const fingerLayout: FingerLayout = fingerLayoutASDF;
 
   const idleHands: HandStates = {
-    L1: "IDLE",
-L2: "IDLE",
-L3: "IDLE",
-L4: "IDLE",
-L5: "IDLE",
-LB: "IDLE",
-    R1: "IDLE",
-R2: "IDLE",
-R3: "IDLE",
-R4: "IDLE",
-R5: "IDLE",
-RB: "IDLE",
+    L1: "NONE",
+L2: "NONE",
+L3: "NONE",
+L4: "NONE",
+L5: "NONE",
+LB: "NONE",
+    R1: "NONE",
+R2: "NONE",
+R3: "NONE",
+R4: "NONE",
+R5: "NONE",
+RB: "NONE",
   };
 
-  it("should return all IDLE when targetSymbol is undefined", () => {
+  it("should return all NONE when targetSymbol is undefined", () => {
     const handStates = getHandStates(undefined, undefined, false, fingerLayout);
     expect(handStates).toEqual(idleHands);
   });
 
-  it("should return all IDLE for a symbol not in the layout", () => {
+  it("should return all NONE for a symbol not in the layout", () => {
     const handStates = getHandStates("€", undefined, false, fingerLayout);
     expect(handStates).toEqual(idleHands);
   });
@@ -36,42 +36,42 @@ RB: "IDLE",
   it("should activate L3 for 'e' and set the rest of the left hand to INACTIVE", () => {
     const handStates = getHandStates("e", undefined, false, fingerLayout);
 
-    expect(handStates.L3).toBe("ACTIVE");
+    expect(handStates.L3).toBe("TARGET");
     expect(handStates.L1).toBe("INACTIVE");
     expect(handStates.L2).toBe("INACTIVE");
     expect(handStates.L4).toBe("INACTIVE");
     expect(handStates.L5).toBe("INACTIVE");
     expect(handStates.LB).toBe("INACTIVE");
 
-    // Right hand should be IDLE
-    expect(handStates.R1).toBe("IDLE");
-    expect(handStates.R2).toBe("IDLE");
-    expect(handStates.R3).toBe("IDLE");
-    expect(handStates.R4).toBe("IDLE");
-    expect(handStates.R5).toBe("IDLE");
-    expect(handStates.RB).toBe("IDLE");
+    // Right hand should be NONE
+    expect(handStates.R1).toBe("NONE");
+    expect(handStates.R2).toBe("NONE");
+    expect(handStates.R3).toBe("NONE");
+    expect(handStates.R4).toBe("NONE");
+    expect(handStates.R5).toBe("NONE");
+    expect(handStates.RB).toBe("NONE");
   });
 
   it("should activate R3 for 'i' and set the rest of the right hand to INACTIVE", () => {
     const handStates = getHandStates("i", undefined, false, fingerLayout);
 
-    expect(handStates.R3).toBe("ACTIVE");
+    expect(handStates.R3).toBe("TARGET");
     expect(handStates.R1).toBe("INACTIVE");
     expect(handStates.R2).toBe("INACTIVE");
     expect(handStates.R4).toBe("INACTIVE");
     expect(handStates.R5).toBe("INACTIVE");
     expect(handStates.RB).toBe("INACTIVE");
 
-    // Left hand should be IDLE
-    expect(handStates.L1).toBe("IDLE");
-    expect(handStates.L2).toBe("IDLE");
-    expect(handStates.L3).toBe("IDLE");
-    expect(handStates.L4).toBe("IDLE");
-    expect(handStates.L5).toBe("IDLE");
-    expect(handStates.LB).toBe("IDLE");
+    // Left hand should be NONE
+    expect(handStates.L1).toBe("NONE");
+    expect(handStates.L2).toBe("NONE");
+    expect(handStates.L3).toBe("NONE");
+    expect(handStates.L4).toBe("NONE");
+    expect(handStates.L5).toBe("NONE");
+    expect(handStates.LB).toBe("NONE");
   });
 
-  it("should return all IDLE for a symbol with no finger mapping", () => {
+  it("should return all NONE for a symbol with no finger mapping", () => {
     // Use a symbol that exists in symbolLayout but remove its finger mapping
     const mockFingerLayout = { ...fingerLayout };
     delete mockFingerLayout.Backquote;
@@ -83,8 +83,8 @@ RB: "IDLE",
   it("should activate L3 for 'E' and R5 for shift", () => {
     const handStates = getHandStates("E", undefined, false, fingerLayout);
 
-    expect(handStates.L3).toBe("ACTIVE"); // 'e' key
-    expect(handStates.R5).toBe("ACTIVE"); // opposite pinky for shift
+    expect(handStates.L3).toBe("TARGET"); // 'e' key
+    expect(handStates.R5).toBe("TARGET"); // opposite pinky for shift
 
     // The rest of the left hand should be INACTIVE
     expect(handStates.L1).toBe("INACTIVE");
@@ -92,11 +92,11 @@ RB: "IDLE",
     expect(handStates.L4).toBe("INACTIVE");
     expect(handStates.L5).toBe("INACTIVE");
 
-    // The rest of the right hand should be IDLE
-    expect(handStates.R1).toBe("IDLE");
-    expect(handStates.R2).toBe("IDLE");
-    expect(handStates.R3).toBe("IDLE");
-    expect(handStates.R4).toBe("IDLE");
+    // The rest of the right hand should be NONE
+    expect(handStates.R1).toBe("NONE");
+    expect(handStates.R2).toBe("NONE");
+    expect(handStates.R3).toBe("NONE");
+    expect(handStates.R4).toBe("NONE");
   });
 
   // Error indication tests
@@ -108,7 +108,7 @@ RB: "IDLE",
       const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Should only show the target finger as ACTIVE
-      expect(handStates.L3).toBe("ACTIVE");
+      expect(handStates.L3).toBe("TARGET");
       // Other fingers on the same hand should be INACTIVE
       expect(handStates.L1).toBe("INACTIVE");
       expect(handStates.L2).toBe("INACTIVE");
@@ -124,9 +124,9 @@ RB: "IDLE",
       const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Target finger should be ACTIVE
-      expect(handStates.L3).toBe("ACTIVE");
+      expect(handStates.L3).toBe("TARGET");
       // Erroneous finger should be INCORRECT
-      expect(handStates.L4).toBe("INCORRECT");
+      expect(handStates.L4).toBe("ERROR");
       // Other fingers should be INACTIVE
       expect(handStates.L1).toBe("INACTIVE");
       expect(handStates.L2).toBe("INACTIVE");
@@ -141,14 +141,14 @@ RB: "IDLE",
       const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
 
       // Target finger should be ACTIVE
-      expect(handStates.L3).toBe("ACTIVE");
+      expect(handStates.L3).toBe("TARGET");
       // All fingers on the erroneous hand should be INCORRECT
-      expect(handStates.R1).toBe("INCORRECT");
-      expect(handStates.R2).toBe("INCORRECT");
-      expect(handStates.R3).toBe("INCORRECT");
-      expect(handStates.R4).toBe("INCORRECT");
-      expect(handStates.R5).toBe("INCORRECT");
-      expect(handStates.RB).toBe("INCORRECT");
+      expect(handStates.R1).toBe("ERROR");
+      expect(handStates.R2).toBe("ERROR");
+      expect(handStates.R3).toBe("ERROR");
+      expect(handStates.R4).toBe("ERROR");
+      expect(handStates.R5).toBe("ERROR");
+      expect(handStates.RB).toBe("ERROR");
       // Other fingers on the correct hand should be INACTIVE
       expect(handStates.L1).toBe("INACTIVE");
       expect(handStates.L2).toBe("INACTIVE");

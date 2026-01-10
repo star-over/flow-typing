@@ -86,13 +86,13 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
 
-  it('should return "INCORRECT" for an incorrect first attempt', () => {
+  it('should return "ERROR" for an incorrect first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ['KeyA'],
       attempts: [{ pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 }],
     };
-    expect(getSymbolType(symbol)).toBe("INCORRECT");
+    expect(getSymbolType(symbol)).toBe("ERROR");
   });
 
   it('should return "CORRECTED" for a correct attempt after an incorrect one', () => {

@@ -73,22 +73,22 @@ const handsVariants = cva("",
         VISIBLE: "[&_.finger-center-point]:fill-blue-500",
         INVISIBLE: "[&_.finger-center-point]:fill-transparent",
       } satisfies Record<Visibility, string>,
-      L1: { ACTIVE: "[&_.L1]:fill-yellow-400", INACTIVE: "[&_.L1]:fill-orange-50", IDLE: "[&_.L1]:fill-gray-200", INCORRECT: "[&_.L1]:fill-rose-600", } satisfies Record<FingerState, string>,
-      L2: { ACTIVE: "[&_.L2]:fill-orange-400", INACTIVE: "[&_.L2]:fill-orange-50", IDLE: "[&_.L2]:fill-gray-200", INCORRECT: "[&_.L2]:fill-rose-600", } satisfies Record<FingerState, string>,
-      L3: { ACTIVE: "[&_.L3]:fill-green-400",  INACTIVE: "[&_.L3]:fill-orange-50", IDLE: "[&_.L3]:fill-gray-200", INCORRECT: "[&_.L3]:fill-rose-600", } satisfies Record<FingerState, string>,
-      L4: { ACTIVE: "[&_.L4]:fill-blue-400",   INACTIVE: "[&_.L4]:fill-orange-50", IDLE: "[&_.L4]:fill-gray-200", INCORRECT: "[&_.L4]:fill-rose-600", } satisfies Record<FingerState, string>,
-      L5: { ACTIVE: "[&_.L5]:fill-purple-400", INACTIVE: "[&_.L5]:fill-orange-50", IDLE: "[&_.L5]:fill-gray-200", INCORRECT: "[&_.L5]:fill-rose-600", } satisfies Record<FingerState, string>,
-      LB: { ACTIVE: "[&_.LB]:fill-orange-50",  INACTIVE: "[&_.LB]:fill-orange-50", IDLE: "[&_.LB]:fill-gray-200", INCORRECT: "[&_.LB]:fill-rose-600", } satisfies Record<FingerState, string>,
-      R1: { ACTIVE: "[&_.R1]:fill-yellow-400", INACTIVE: "[&_.R1]:fill-orange-50", IDLE: "[&_.R1]:fill-gray-200", INCORRECT: "[&_.R1]:fill-rose-600", } satisfies Record<FingerState, string>,
-      R2: { ACTIVE: "[&_.R2]:fill-orange-400", INACTIVE: "[&_.R2]:fill-orange-50", IDLE: "[&_.R2]:fill-gray-200", INCORRECT: "[&_.R2]:fill-rose-600", } satisfies Record<FingerState, string>,
-      R3: { ACTIVE: "[&_.R3]:fill-green-400",  INACTIVE: "[&_.R3]:fill-orange-50", IDLE: "[&_.R3]:fill-gray-200", INCORRECT: "[&_.R3]:fill-rose-600", } satisfies Record<FingerState, string>,
-      R4: { ACTIVE: "[&_.R4]:fill-blue-400",   INACTIVE: "[&_.R4]:fill-orange-50", IDLE: "[&_.R4]:fill-gray-200", INCORRECT: "[&_.R4]:fill-rose-600", } satisfies Record<FingerState, string>,
-      R5: { ACTIVE: "[&_.R5]:fill-purple-400", INACTIVE: "[&_.R5]:fill-orange-50", IDLE: "[&_.R5]:fill-gray-200", INCORRECT: "[&_.R5]:fill-rose-600", } satisfies Record<FingerState, string>,
-      RB: { ACTIVE: "[&_.RB]:fill-orange-50",  INACTIVE: "[&_.RB]:fill-orange-50", IDLE: "[&_.RB]:fill-gray-200", INCORRECT: "[&_.RB]:fill-rose-600", } satisfies Record<FingerState, string>,
+      L1: { TARGET: "[&_.L1]:fill-yellow-400", INACTIVE: "[&_.L1]:fill-orange-50", NONE: "[&_.L1]:fill-gray-200", ERROR: "[&_.L1]:fill-rose-600", } satisfies Record<FingerState, string>,
+      L2: { TARGET: "[&_.L2]:fill-orange-400", INACTIVE: "[&_.L2]:fill-orange-50", NONE: "[&_.L2]:fill-gray-200", ERROR: "[&_.L2]:fill-rose-600", } satisfies Record<FingerState, string>,
+      L3: { TARGET: "[&_.L3]:fill-green-400",  INACTIVE: "[&_.L3]:fill-orange-50", NONE: "[&_.L3]:fill-gray-200", ERROR: "[&_.L3]:fill-rose-600", } satisfies Record<FingerState, string>,
+      L4: { TARGET: "[&_.L4]:fill-blue-400",   INACTIVE: "[&_.L4]:fill-orange-50", NONE: "[&_.L4]:fill-gray-200", ERROR: "[&_.L4]:fill-rose-600", } satisfies Record<FingerState, string>,
+      L5: { TARGET: "[&_.L5]:fill-purple-400", INACTIVE: "[&_.L5]:fill-orange-50", NONE: "[&_.L5]:fill-gray-200", ERROR: "[&_.L5]:fill-rose-600", } satisfies Record<FingerState, string>,
+      LB: { TARGET: "[&_.LB]:fill-orange-50",  INACTIVE: "[&_.LB]:fill-orange-50", NONE: "[&_.LB]:fill-gray-200", ERROR: "[&_.LB]:fill-rose-600", } satisfies Record<FingerState, string>,
+      R1: { TARGET: "[&_.R1]:fill-yellow-400", INACTIVE: "[&_.R1]:fill-orange-50", NONE: "[&_.R1]:fill-gray-200", ERROR: "[&_.R1]:fill-rose-600", } satisfies Record<FingerState, string>,
+      R2: { TARGET: "[&_.R2]:fill-orange-400", INACTIVE: "[&_.R2]:fill-orange-50", NONE: "[&_.R2]:fill-gray-200", ERROR: "[&_.R2]:fill-rose-600", } satisfies Record<FingerState, string>,
+      R3: { TARGET: "[&_.R3]:fill-green-400",  INACTIVE: "[&_.R3]:fill-orange-50", NONE: "[&_.R3]:fill-gray-200", ERROR: "[&_.R3]:fill-rose-600", } satisfies Record<FingerState, string>,
+      R4: { TARGET: "[&_.R4]:fill-blue-400",   INACTIVE: "[&_.R4]:fill-orange-50", NONE: "[&_.R4]:fill-gray-200", ERROR: "[&_.R4]:fill-rose-600", } satisfies Record<FingerState, string>,
+      R5: { TARGET: "[&_.R5]:fill-purple-400", INACTIVE: "[&_.R5]:fill-orange-50", NONE: "[&_.R5]:fill-gray-200", ERROR: "[&_.R5]:fill-rose-600", } satisfies Record<FingerState, string>,
+      RB: { TARGET: "[&_.RB]:fill-orange-50",  INACTIVE: "[&_.RB]:fill-orange-50", NONE: "[&_.RB]:fill-gray-200", ERROR: "[&_.RB]:fill-rose-600", } satisfies Record<FingerState, string>,
     },
     defaultVariants: {
       centerPointVisibility: "INVISIBLE",
-      L1: "IDLE", L2: "IDLE", L3: "IDLE", L4: "IDLE", L5: "IDLE", LB: "IDLE", R1: "IDLE", R2: "IDLE", R3: "IDLE", R4: "IDLE", R5: "IDLE", RB: "IDLE",
+      L1: "NONE", L2: "NONE", L3: "NONE", L4: "NONE", L5: "NONE", LB: "NONE", R1: "NONE", R2: "NONE", R3: "NONE", R4: "NONE", R5: "NONE", RB: "NONE",
     },
   });
 
@@ -176,7 +176,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
   const activeModifiers: ModifierKey[] = useMemo(() => {
     const modifiers: ModifierKey[] = [];
     const allTargetKeyCaps = Object.values(viewModel)
-      .filter((f) => f.fingerState === 'ACTIVE' && f.keyCapStates)
+      .filter((f) => f.fingerState === 'TARGET' && f.keyCapStates)
       .flatMap((f) =>
           Object.entries(f.keyCapStates!)
               .filter(([, state]) => state.navigationRole === 'TARGET')
@@ -238,7 +238,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
         {fingerIds.map((fingerId) => {
           const fingerSceneState = viewModel[fingerId];
           // Рендерим клавиатуру только если палец не в состоянии 'IDLE' и у него есть ассоциированные клавиши
-          if (fingerSceneState.fingerState === 'IDLE' || !fingerSceneState.keyCapStates) {
+          if (fingerSceneState.fingerState === 'NONE' || !fingerSceneState.keyCapStates) {
             return null;
           }
 

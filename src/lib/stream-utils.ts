@@ -94,7 +94,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
   if (isCorrect) {
     return attempts.length > 1 ? "CORRECTED" : "CORRECT";
   } else {
-    return attempts.length > 1 ? "INCORRECTS" : "INCORRECT";
+    return attempts.length > 1 ? "INCORRECTS" : "ERROR";
   }
 }
 

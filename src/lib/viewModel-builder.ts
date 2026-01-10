@@ -18,26 +18,26 @@
  *
  * The pipeline consists of the following key stages:
  *
- * 1.  **`getIdleViewModel`**: Creates the initial 'IDLE' state.
+ * 1.  **`getIdleViewModel`**: Creates the initial 'NONE' state.
  *
  * 2.  **`determineTypingContext`**: A pure helper that analyzes the
  *     current typing symbol and last attempt to determine `activeFingers`,
  *     `errorFingers`, and `activeHands`. It does not modify the ViewModel.
  *
- * 3.  **`applyTargetFingerStates`**: Sets the `ACTIVE` and `INACTIVE` states
+ * 3.  **`applyTargetFingerStates`**: Sets the `TARGET` and `INACTIVE` states
  *     on fingers to show what the user *should* do.
  *
- * 4.  **`buildVisibleClusters`**: For each `ACTIVE` finger, it makes the
+ * 4.  **`buildVisibleClusters`**: For each `TARGET` finger, it makes the
  *     entire cluster of keys associated with that finger `VISIBLE`.
  *
  * 5.  **`applyNavigationPaths`**: Calculates the optimal path and sets
  *     navigation roles and arrows, completing the "target" view.
  *
- * 6.  **`applyErrorFingerStates`**: Sets the `INCORRECT` state for any
+ * 6.  **`applyErrorFingerStates`**: Sets the `ERROR` state for any
  *     fingers that made an out-of-cluster error.
  *
  * 7.  **`applyKeyPressResults`**: Analyzes the user's last attempt and updates
- *     the `pressResult` (`CORRECT`, `INCORRECT`) for each affected key.
+ *     the `pressResult` (`CORRECT`, `ERROR`) for each affected key.
  *
  * This sequential process ensures that the final `HandsSceneViewModel` is
  * built up logically, step-by-step, providing a clear and predictable
@@ -70,12 +70,12 @@ import { AdjacencyList, findOptimalPath } from "./pathfinding";
 import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
 
 /**
- * Returns a completely idle view model where all fingers are IDLE.
+ * Returns a completely idle view model where all fingers are NONE.
  * This is the default state when no training is active.
- * @returns A HandsSceneViewModel with all fingers in 'IDLE' state.
+ * @returns A HandsSceneViewModel with all fingers in 'NONE' state.
  */
 export function getIdleViewModel(): HandsSceneViewModel {
-  const idleState: FingerState = "IDLE";
+  const idleState: FingerState = "NONE";
   const viewModel: Partial<HandsSceneViewModel> = {};
   const allFingerIds: FingerId[] = [
     ...LEFT_HAND_FINGERS,
@@ -183,7 +183,7 @@ function applyTargetFingerStates(
     }
 
     activeFingers.forEach((fingerId) => {
-        newViewModel[fingerId].fingerState = "ACTIVE";
+        newViewModel[fingerId].fingerState = "TARGET";
     });
 
     return newViewModel;
@@ -199,7 +199,7 @@ function buildVisibleClusters(
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
-    if (fingerData.fingerState !== "ACTIVE") continue;
+    if (fingerData.fingerState !== "TARGET") continue;
 
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
     const keyCluster = getFingerKeys(fingerId as FingerId, fingerLayout);
@@ -270,7 +270,7 @@ function applyNavigationPaths(
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
-    if (fingerData.fingerState !== "ACTIVE" || !fingerData.keyCapStates) continue;
+    if (fingerData.fingerState !== "TARGET" || !fingerData.keyCapStates) continue;
 
     const homeKey = getHomeKeyForFinger(fingerId as FingerId, fingerLayout);
     const targetKey = targetKeyCaps.find(
@@ -300,9 +300,9 @@ function applyErrorFingerStates(
   const newViewModel = { ...viewModel };
   const { errorFingers } = typingContext;
   
-  // Apply INCORRECT state to error fingers (out-of-cluster errors)
+  // Apply ERROR state to error fingers (out-of-cluster errors)
   errorFingers.forEach((fingerId) => {
-    newViewModel[fingerId].fingerState = "INCORRECT";
+    newViewModel[fingerId].fingerState = "ERROR";
   });
 
   return newViewModel;
@@ -338,10 +338,10 @@ function applyKeyPressResults(
         if (extraKeysPressed.length > 0) {
           keyState.pressResult = 'NEUTRAL'; 
         } else {
-          keyState.pressResult = 'INCORRECT';
+          keyState.pressResult = 'ERROR';
         }
       } else if (!wasKeyRequired && wasKeyPressed) {
-        keyState.pressResult = 'INCORRECT';
+        keyState.pressResult = 'ERROR';
       }
     }
   }
@@ -376,7 +376,7 @@ export function generateHandsSceneViewModel(
   // Data Analysis Stage: Determine the context for the current typing step
   const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);
 
-  // Stage 1: Apply TARGET finger states (ACTIVE, INACTIVE)
+  // Stage 1: Apply TARGET finger states (TARGET, INACTIVE)
   viewModel = applyTargetFingerStates(
     viewModel,
     typingContext

@@ -11,7 +11,7 @@ export const shift_t_error_shift_n: HandsExtFixture = {
   expectedOutput: {
     L1: { fingerState: "INACTIVE" },
     L2: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
@@ -23,10 +23,10 @@ export const shift_t_error_shift_n: HandsExtFixture = {
         KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" }
       }
     },
-    L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" }, L5: { fingerState: "INCORRECT" }, LB: { fingerState: "INACTIVE" },
-    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "INCORRECT" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" },
+    L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" }, L5: { fingerState: "ERROR" }, LB: { fingerState: "INACTIVE" },
+    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "ERROR" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" },
     R5: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Digit0: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
         Minus: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },

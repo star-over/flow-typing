@@ -45,7 +45,7 @@ export type KeyCapNavigationArrow = typeof KEY_CAP_NAVIGATION_ARROWS[number];
 export const KEY_CAP_PRESS_RESULTS = [
   "NEUTRAL", // Нейтральное состояние, нажатие еще не оценено.
   "CORRECT", // Нажатие было правильным.
-  "INCORRECT", // Нажатие было ошибочным.
+  "ERROR", // Нажатие было ошибочным.
 ] as const;
 export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 
@@ -108,7 +108,7 @@ export type RightHandFingerId = typeof RIGHT_HAND_FINGERS[number];
 export type FingerId = LeftHandFingerId | RightHandFingerId | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
 
 /** Состояние отдельного пальца. */
-export const FINGER_STATES = ["IDLE", "ACTIVE", "INACTIVE", "INCORRECT"] as const;
+export const FINGER_STATES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;
 export type FingerState = typeof FINGER_STATES[number];
 
 /** Объединение всех идентификаторов пальцев и кистей. */
@@ -129,7 +129,7 @@ export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as
 export type FlowLineCursorType = typeof FLOW_LINE_CURSOR_TYPES[number];
 
 /** Состояние отдельного символа в FlowLine. */
-export const FLOW_LINE_SYMBOL_TYPES = ["PENDING", "CORRECT", "INCORRECT", "INCORRECTS", "CORRECTED"] as const;
+export const FLOW_LINE_SYMBOL_TYPES = ["PENDING", "CORRECT", "ERROR", "INCORRECTS", "CORRECTED"] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 
 /** Размер шрифта в FlowLine. */

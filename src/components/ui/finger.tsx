@@ -9,14 +9,14 @@ const fingerVariants = cva(
   {
     variants: {
       state: {
-        IDLE: "fill-gray-200",
-        ACTIVE: "fill-green-600",
+        NONE: "fill-gray-200",
+        TARGET: "fill-green-600",
         INACTIVE: "fill-orange-50",
-        INCORRECT: "fill-rose-500",
+        ERROR: "fill-rose-500",
       } satisfies Record<FingerState, string>,
     },
     defaultVariants: {
-      state: "IDLE",
+      state: "NONE",
     },
   });
 

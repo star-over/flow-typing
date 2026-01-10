@@ -38,15 +38,15 @@ export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_
 }
 
 /**
- * Инициализирует состояния рук, устанавливая всем пальцам состояние 'IDLE'.
- * @returns Объект `HandStates` со всеми пальцами в состоянии 'IDLE'.
+ * Инициализирует состояния рук, устанавливая всем пальцам состояние 'NONE'.
+ * @returns Объект `HandStates` со всеми пальцами в состоянии 'NONE'.
  */
 function initializeHandStates(): HandStates {
   const states = {} as HandStates;
-  LEFT_HAND_FINGERS.forEach((id) => states[id] = "IDLE");
-  RIGHT_HAND_FINGERS.forEach((id) => states[id] = "IDLE");
-  states[LEFT_HAND_BASE] = "IDLE";
-  states[RIGHT_HAND_BASE] = "IDLE";
+  LEFT_HAND_FINGERS.forEach((id) => states[id] = "NONE");
+  RIGHT_HAND_FINGERS.forEach((id) => states[id] = "NONE");
+  states[LEFT_HAND_BASE] = "NONE";
+  states[RIGHT_HAND_BASE] = "NONE";
   return states;
 }
 
@@ -92,15 +92,15 @@ function updateHandStatesForError(
       (isLeftHandFinger(targetFinger) && isLeftHandFinger(typedFinger)) ||
       (isRightHandFinger(targetFinger) && isRightHandFinger(typedFinger))
     ) {
-      handStates[typedFinger] = "INCORRECT";
+      handStates[typedFinger] = "ERROR";
     } else {
       const handFingerIds: readonly HandFingerId[] = isLeftHandFinger(typedFinger)
         ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
         : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
       handFingerIds.forEach((fingerId) => {
-        handStates[fingerId] = "INCORRECT";
+        handStates[fingerId] = "ERROR";
       });
-      handStates[targetFinger] = "ACTIVE";
+      handStates[targetFinger] = "TARGET";
     }
   }
 }
@@ -115,7 +115,7 @@ function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId)
     ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
     : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
   handIds.forEach((fingerId) => {
-    if (handStates[fingerId] === "IDLE") {
+    if (handStates[fingerId] === "NONE") {
       handStates[fingerId] = "INACTIVE";
     }
   });
@@ -142,13 +142,13 @@ export function getHandStates(
   const targetFinger = getTargetFinger(targetSymbol, fingerLayout, symbolLayoutEnQwerty);
   if (!targetFinger) return handStates;
 
-  handStates[targetFinger] = "ACTIVE";
+  handStates[targetFinger] = "TARGET";
 
   if (isShiftRequired(targetSymbol, symbolLayoutEnQwerty)) {
     if (isLeftHandFinger(targetFinger)) {
-      handStates["R5"] = "ACTIVE"; // Right pinky
+      handStates["R5"] = "TARGET"; // Right pinky
     } else {
-      handStates["L5"] = "ACTIVE"; // Left pinky
+      handStates["L5"] = "TARGET"; // Left pinky
     }
   }
 

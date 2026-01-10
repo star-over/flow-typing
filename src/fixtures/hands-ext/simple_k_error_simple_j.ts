@@ -13,10 +13,10 @@ export const simple_k_error_simple_j: HandsExtFixture = {
     ],
   },
   expectedOutput: {
-    L1: { fingerState: "IDLE" }, L2: { fingerState: "IDLE" }, L3: { fingerState: "IDLE" }, L4: { fingerState: "IDLE" }, L5: { fingerState: "IDLE" }, LB: { fingerState: "IDLE" },
-    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "INCORRECT" },
+    L1: { fingerState: "NONE" }, L2: { fingerState: "NONE" }, L3: { fingerState: "NONE" }, L4: { fingerState: "NONE" }, L5: { fingerState: "NONE" }, LB: { fingerState: "NONE" },
+    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "ERROR" },
     R3: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Digit8: { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NEUTRAL" },
         KeyI:   { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NEUTRAL" },

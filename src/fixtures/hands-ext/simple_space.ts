@@ -5,9 +5,9 @@ export const simple_space: HandsExtFixture = {
     targetKeyCaps: ["Space"], attempts: []
   },
   expectedOutput: {
-    L1: { fingerState: "IDLE" }, L2: { fingerState: "IDLE" }, L3: { fingerState: "IDLE" }, L4: { fingerState: "IDLE" }, L5: { fingerState: "IDLE" }, LB: { fingerState: "IDLE" },
+    L1: { fingerState: "NONE" }, L2: { fingerState: "NONE" }, L3: { fingerState: "NONE" }, L4: { fingerState: "NONE" }, L5: { fingerState: "NONE" }, LB: { fingerState: "NONE" },
     R1: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: { Space: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NEUTRAL", navigationArrow: "NONE" } }
     },
     R2: { fingerState: "INACTIVE" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" }

@@ -9,7 +9,7 @@ export const shift_o: HandsExtFixture = {
   expectedOutput: {
     L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" }, L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" },
     L5: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Backquote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
         Digit1: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
@@ -26,7 +26,7 @@ export const shift_o: HandsExtFixture = {
     },
     LB: { fingerState: "INACTIVE" }, R1: { fingerState: "INACTIVE" }, R2: { fingerState: "INACTIVE" }, R3: { fingerState: "INACTIVE" },
     R4: {
-      fingerState: "ACTIVE",
+      fingerState: "TARGET",
       keyCapStates: {
         Digit9: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NEUTRAL", navigationArrow: "NONE" },
         KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NEUTRAL", navigationArrow: "NONE" },

@@ -116,7 +116,7 @@ const keyCapVariants = cva(
       pressResult: {
         NEUTRAL: "animate-none",
         CORRECT: "animate-bounce",
-        INCORRECT: "bg-red-400 text-red-700",
+        ERROR: "bg-red-400 text-red-700",
       } satisfies Record<KeyCapPressResult, string>,
 
       /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
