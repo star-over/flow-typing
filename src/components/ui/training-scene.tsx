@@ -41,7 +41,15 @@ export const simpleKFixture: HandsExtFixture = {
         readOnly
         className="w-full h-48 p-2 font-mono text-xs bg-gray-100 dark:bg-gray-900 border rounded"
         value={stateString}
-        onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+        onClick={async (e) => {
+          const textToCopy = (e.target as HTMLTextAreaElement).value;
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            // console.log('Content copied to clipboard'); // For debugging
+          } catch (err) {
+            console.error('Failed to copy: ', err);
+          }
+        }}
       />
     </div>
   );
