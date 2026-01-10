@@ -124,7 +124,16 @@ function determineAndSetFingerStates(
     const incorrectPressFingers = new Set<FingerId>();
     lastAttempt.pressedKeyCups.forEach((keyId) => {
       if (keyId === "Space") {
-        incorrectPressFingers.add("L1");
+        // When Space is an error, the thumb of the hand opposite the target is marked.
+        const targetFingers = Array.from(activeFingers);
+        // Default to right thumb error if target hand is unclear, though this is an edge case.
+        const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
+        
+        if (isTargetLeftHand) {
+          incorrectPressFingers.add("R1"); // Opposite hand's thumb
+        } else {
+          incorrectPressFingers.add("L1"); // Opposite hand's thumb
+        }
       } else {
         const finger = getFingerByKeyCap(keyId, fingerLayout);
         if (finger) {

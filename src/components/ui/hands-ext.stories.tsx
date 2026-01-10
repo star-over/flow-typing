@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { idleFixture } from '@/fixtures/hands-ext/idle.fixture';
+import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
+import { simple_e_error_space } from '@/fixtures/hands-ext/simple_e_error_space';
 import { k_j } from '@/fixtures/hands-ext/k_j.fixture';
 import { r_f } from '@/fixtures/hands-ext/r_f.fixture';
 import { shiftCurlyBraceFixture } from '@/fixtures/hands-ext/shift-curly-brace.fixture';
@@ -14,7 +16,6 @@ import { k } from '@/fixtures/hands-ext/simple-k.fixture';
 import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
 import { t } from '@/fixtures/hands-ext/t.fixture';
 import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
-import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
 import { shift_o } from '@/fixtures/hands-ext/shift_o.fixture';
 
 import { HandsExt } from './hands-ext';
@@ -26,11 +27,8 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  argTypes: {
-    viewModel: {
-      control: 'object',
-    }
-  }
+  argTypes: { viewModel: {} }
+
 } satisfies Meta<typeof HandsExt>;
 
 export default meta;
@@ -54,6 +52,13 @@ export const simpleEErrorShiftF: Story = {
   args: {
     viewModel: simple_e_error_shift_F.expectedOutput,
     className: 'pt-12',
+  },
+};
+
+export const simpleEErrorSpace: Story = {
+  args: {
+    viewModel: simple_e_error_space.expectedOutput,
+    className: 'pt-40',
   },
 };
 

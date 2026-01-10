@@ -2,6 +2,7 @@ import { describe, expect,it } from 'vitest';
 
 // Import all fixtures
 import { idleFixture } from             '@/fixtures/hands-ext/idle.fixture';
+import { simple_e_error_space } from   '@/fixtures/hands-ext/simple_e_error_space';
 import { simple_e_error_shift_F } from   '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
 import { shift_o } from                 '@/fixtures/hands-ext/shift_o.fixture';
 import { t } from                   '@/fixtures/hands-ext/t.fixture';
@@ -23,6 +24,17 @@ import { generateHandsSceneViewModel } from './viewModel-builder';
 
 
 describe('generateHandsSceneViewModel', () => {
+    it.only('should correctly generate view model for simple e with pressed Space', () => {
+    const {input, expectedOutput} = simple_e_error_space;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
 
   it.only('should return the idle view model when currentStreamSymbol is undefined', () => {
     const viewModel = generateHandsSceneViewModel(
