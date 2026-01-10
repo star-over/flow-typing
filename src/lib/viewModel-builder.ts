@@ -18,27 +18,21 @@
  *
  * The pipeline consists of the following key stages:
  *
- * 1.  **`getIdleViewModel`**:
- *     - Creates the initial, baseline state where all fingers are 'IDLE' and
- *       no key clusters are visible.
+ * 1.  **`getIdleViewModel`**: Creates the initial 'IDLE' state.
  *
- * 2.  **`determineAndSetFingerStates`**:
- *     - Analyzes the target keys and the user's last attempt.
- *     - Determines which fingers are `ACTIVE` (for the target), `INCORRECT`
- *       (for errors), and `INACTIVE` (on an active hand but not in use).
- *     - Sets the `fingerState` for every finger accordingly. This stage also
- *       handles the "Active Hand Rule", ensuring fingers on the non-active
- *       hand are correctly marked.
+ * 2.  **`determineAndSetFingerStates`**: Determines which fingers are `ACTIVE`,
+ *     `INCORRECT`, or `INACTIVE` based on the target and the user's last
+ *     attempt.
  *
- * 3.  **`buildKeyCapStates`**:
- *     - Iterates through all `ACTIVE` fingers.
- *     - For each active finger, it builds the `keyCapStates` object. This
- *       involves:
- *       - Making the finger's entire key cluster visible.
- *       - Identifying the `TARGET` key.
- *       - Calculating the `PATH` from the finger's home key to the target.
- *       - Setting navigation `ARROWS` along the path.
- *       - Marking `INCORRECT` key presses within the cluster.
+ * 3.  **`buildVisibleClusters`**: For each `ACTIVE` finger, it makes the
+ *     entire cluster of keys associated with that finger `VISIBLE`.
+ *
+ * 4.  **`applyNavigationPaths`**: Calculates the optimal path from a finger's
+ *     home key to the `TARGET` key, and sets the `navigationRole` and
+ *     `navigationArrow` for keys along the path.
+ *
+ * 5.  **`applyPressResults`**: Analyzes the user's last attempt and updates
+ *     the `pressResult` (`CORRECT`, `INCORRECT`) for each affected key.
  *
  * This sequential process ensures that the final `HandsSceneViewModel` is
  * built up logically, step-by-step, providing a clear and predictable
@@ -191,8 +185,37 @@ function determineAndSetFingerStates(
   return newViewModel;
 }
 
-// STAGE 2: Build KeyCap States for Active Fingers
-function buildKeyCapStates(
+// STAGE 2: Build initial visible clusters for active fingers
+function buildVisibleClusters(
+  viewModel: HandsSceneViewModel,
+  fingerLayout: FingerLayout
+): HandsSceneViewModel {
+  const newViewModel = { ...viewModel };
+
+  for (const fingerId in newViewModel) {
+    const fingerData = newViewModel[fingerId as FingerId];
+    if (fingerData.fingerState !== "ACTIVE") continue;
+
+    const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
+    const keyCluster = getFingerKeys(fingerId as FingerId, fingerLayout);
+    
+    keyCluster.forEach((keyId) => {
+      keyCapStates[keyId] = {
+        visibility: "VISIBLE",
+        navigationRole: "NONE",
+        pressResult: "NEUTRAL",
+        navigationArrow: "NONE",
+      };
+    });
+    
+    fingerData.keyCapStates = keyCapStates;
+  }
+
+  return newViewModel;
+}
+
+// STAGE 3: Apply navigation paths and roles to visible clusters
+function applyNavigationPaths(
   viewModel: HandsSceneViewModel,
   currentStreamSymbol: StreamSymbol,
   fingerLayout: FingerLayout,
@@ -204,90 +227,84 @@ function buildKeyCapStates(
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
+    if (fingerData.fingerState !== "ACTIVE" || !fingerData.keyCapStates) continue;
 
-    // Only build clusters for fingers that are meant to be active
-    if (fingerData.fingerState !== "ACTIVE") continue;
-
-    const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-    const keyCluster = getFingerKeys(fingerId as FingerId, fingerLayout);
     const homeKey = getHomeKeyForFinger(fingerId as FingerId, fingerLayout);
-
     const targetKey = targetKeyCaps.find(
       (k: KeyCapId) => getFingerByKeyCap(k, fingerLayout) === fingerId
     );
 
+    if (!targetKey) continue;
+
     let path: KeyCapId[] = [];
-    if (homeKey && targetKey) {
+    if (homeKey) {
       path = findOptimalPath(homeKey, targetKey, keyboardGraph);
     }
-
-    const lastAttempt =
-      currentStreamSymbol?.attempts[currentStreamSymbol.attempts.length - 1];
-
-    keyCluster.forEach((keyId) => {
-      let role: KeySceneState["navigationRole"] = "NONE";
-      let arrow: KeySceneState["navigationArrow"] = "NONE";
-      let pressResult: KeySceneState["pressResult"] = "NEUTRAL";
-
-      const pathIndex = path.indexOf(keyId);
-
-      if (keyId === targetKey) {
-        role = "TARGET";
-      } else if (pathIndex > -1) {
-        role = "PATH";
-        const nextKeyInPath = path[pathIndex + 1];
-        if (nextKeyInPath) {
-          const currentCoords = keyCoordinateMap.get(keyId);
-          const nextCoords = keyCoordinateMap.get(nextKeyInPath);
-          if (currentCoords && nextCoords) {
-            if (nextCoords.r < currentCoords.r) arrow = "UP";
-            else if (nextCoords.r > currentCoords.r) arrow = "DOWN";
-            else if (nextCoords.c < currentCoords.c) arrow = "LEFT";
-            else if (nextCoords.c > currentCoords.c) arrow = "RIGHT";
-          }
-        }
-      }
-
-      const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
-
-      if (wasAttemptIncorrect) {
-        const pressedSet = new Set(lastAttempt.pressedKeyCups);
-        const targetSet = new Set(targetKeyCaps);
-
-        const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
-        
-        const wasKeyPressed = pressedSet.has(keyId);
-        const wasKeyRequired = targetSet.has(keyId);
-
-        if (wasKeyRequired && wasKeyPressed) {
-            pressResult = 'CORRECT'; // Correct part of a failed chord
-        } else if (wasKeyRequired && !wasKeyPressed) {
-            // It's a required key that wasn't pressed.
-            // If an extra key was pressed, this should be neutral.
-            // If no extra keys were pressed, it means it's a missed part of a chord.
-            if (extraKeysPressed.length > 0) {
-                pressResult = 'NEUTRAL'; 
-            } else {
-                pressResult = 'INCORRECT';
-            }
-        } else if (!wasKeyRequired && wasKeyPressed) {
-            pressResult = 'INCORRECT'; // Extra, unrequired key pressed
-        }
-      }
-
-      keyCapStates[keyId] = {
-        visibility: "VISIBLE",
-        navigationRole: role,
-        pressResult: pressResult,
-        navigationArrow: arrow,
-      };
-    });
     
-    fingerData.keyCapStates = keyCapStates;
+    fingerData.keyCapStates[targetKey]!.navigationRole = "TARGET";
+    
+    path.forEach((keyId, index) => {
+      const keyState = fingerData.keyCapStates![keyId];
+      if (!keyState || keyId === targetKey) return;
+      
+      keyState.navigationRole = "PATH";
+      const nextKeyInPath = path[index + 1];
+      if (nextKeyInPath) {
+        const currentCoords = keyCoordinateMap.get(keyId);
+        const nextCoords = keyCoordinateMap.get(nextKeyInPath);
+        if (currentCoords && nextCoords) {
+          if (nextCoords.r < currentCoords.r) keyState.navigationArrow = "UP";
+          else if (nextCoords.r > currentCoords.r) keyState.navigationArrow = "DOWN";
+          else if (nextCoords.c < currentCoords.c) keyState.navigationArrow = "LEFT";
+          else if (nextCoords.c > currentCoords.c) keyState.navigationArrow = "RIGHT";
+        }
+      }
+    });
   }
-
   return newViewModel;
 }
+
+// STAGE 4: Apply press results based on the last attempt
+function applyPressResults(
+  viewModel: HandsSceneViewModel,
+  currentStreamSymbol: StreamSymbol
+): HandsSceneViewModel {
+  const newViewModel = { ...viewModel };
+  const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
+  const lastAttempt = currentStreamSymbol.attempts[currentStreamSymbol.attempts.length - 1];
+  
+  const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
+  if (!wasAttemptIncorrect) return newViewModel;
+
+  const pressedSet = new Set(lastAttempt.pressedKeyCups);
+  const targetSet = new Set(targetKeyCaps);
+  const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
+
+  for (const fingerId in newViewModel) {
+    const fingerData = newViewModel[fingerId as FingerId];
+    if (!fingerData.keyCapStates) continue;
+
+    for (const keyId in fingerData.keyCapStates) {
+      const keyState = fingerData.keyCapStates[keyId as KeyCapId]!;
+      const wasKeyPressed = pressedSet.has(keyId as KeyCapId);
+      const wasKeyRequired = targetSet.has(keyId as KeyCapId);
+
+      if (wasKeyRequired && wasKeyPressed) {
+        keyState.pressResult = 'CORRECT';
+      } else if (wasKeyRequired && !wasKeyPressed) {
+        if (extraKeysPressed.length > 0) {
+          keyState.pressResult = 'NEUTRAL'; 
+        } else {
+          keyState.pressResult = 'INCORRECT';
+        }
+      } else if (!wasKeyRequired && wasKeyPressed) {
+        keyState.pressResult = 'INCORRECT';
+      }
+    }
+  }
+  return newViewModel;
+}
+
 
 /**
  * Generates the complete HandsSceneViewModel from the current state of the app machine.
@@ -322,13 +339,25 @@ export function generateHandsSceneViewModel(
     fingerLayout
   );
 
-  // Stage 2: Build detailed keyCapStates for each ACTIVE finger
-  viewModel = buildKeyCapStates(
+  // Stage 2: Build initial visible clusters for active fingers
+  viewModel = buildVisibleClusters(
+    viewModel,
+    fingerLayout
+  );
+
+  // Stage 3: Apply navigation paths and roles to visible clusters
+  viewModel = applyNavigationPaths(
     viewModel,
     currentStreamSymbol,
     fingerLayout,
     keyboardGraph,
     keyCoordinateMap
+  );
+
+  // Stage 4: Apply press results based on the last attempt
+  viewModel = applyPressResults(
+    viewModel,
+    currentStreamSymbol
   );
 
   return viewModel;

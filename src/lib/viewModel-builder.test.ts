@@ -23,7 +23,7 @@ import { generateHandsSceneViewModel } from './viewModel-builder';
 
 describe('generateHandsSceneViewModel', () => {
 
-    it.only('should correctly generate view model for "Space"', () => {
+    it('should correctly generate view model for "Space"', () => {
     const {input, expectedOutput} = simple_space;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -35,7 +35,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "r" with pressed "f"', () => {
+    it('should correctly generate view model for "r" with pressed "f"', () => {
     const {input, expectedOutput} = simple_r_error_simple_f;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -47,7 +47,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "Shift-F"', () => {
+    it('should correctly generate view model for "Shift-F"', () => {
     const {input, expectedOutput} = shift_f;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -59,7 +59,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "Shift-B"', () => {
+    it('should correctly generate view model for "Shift-B"', () => {
     const {input, expectedOutput} = shift_b;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -71,7 +71,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "6"', () => {
+    it('should correctly generate view model for "6"', () => {
     const {input, expectedOutput} = simple_6;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -83,7 +83,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "k" with pressed "j"', () => {
+    it('should correctly generate view model for "k" with pressed "j"', () => {
     const {input, expectedOutput} = simple_k_error_simple_j;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -95,7 +95,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "e" with pressed "d"', () => {
+    it('should correctly generate view model for "e" with pressed "d"', () => {
     const {input, expectedOutput} = simple_e_error_simple_d;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -107,7 +107,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "Shift-T" with pressed "Sift-N"', () => {
+    it('should correctly generate view model for "Shift-T" with pressed "Sift-N"', () => {
     const {input, expectedOutput} = shift_t_error_shift_n;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -119,7 +119,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "Shift-O" with pressed "o"', () => {
+    it('should correctly generate view model for "Shift-O" with pressed "o"', () => {
     const {input, expectedOutput} = shift_o_error_simple_o;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -131,7 +131,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-    it.only('should correctly generate view model for "e" with pressed "Space"', () => {
+    it('should correctly generate view model for "e" with pressed "Space"', () => {
     const {input, expectedOutput} = simple_e_error_space;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -143,7 +143,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should return the idle view model when symbol is undefined', () => {
+  it('should return the idle view model when symbol is undefined', () => {
     const {input, expectedOutput} = idle;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -155,7 +155,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for "Shift-O"', () => {
+  it('should correctly generate view model for "Shift-O"', () => {
     const {input, expectedOutput} = shift_o;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -167,7 +167,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for "e" with pressed "Shift-F"', () => {
+  it('should correctly generate view model for "e" with pressed "Shift-F"', () => {
     const {input, expectedOutput} = simple_e_error_shift_F;
     const viewModel = generateHandsSceneViewModel(
       input,
@@ -179,7 +179,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(expectedOutput);
   });
 
-  it.only('should correctly generate view model for "t"', () => {
+  it('should correctly generate view model for "t"', () => {
     const viewModel = generateHandsSceneViewModel(
       simple_t.input,
       fingerLayout,
@@ -190,7 +190,7 @@ describe('generateHandsSceneViewModel', () => {
     expect(viewModel).toEqual(simple_t.expectedOutput);
   });
 
-  it.only('should correctly generate view model for simple "k"', () => {
+  it('should correctly generate view model for simple "k"', () => {
     const viewModel = generateHandsSceneViewModel(
       simple_k.input,
       fingerLayout,
