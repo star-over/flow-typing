@@ -263,19 +263,6 @@ function buildKeyCapStates(
       };
     });
     
-    // Also make any other required keys (like shift on another hand) visible
-    targetKeyCaps.forEach((keyId: KeyCapId) => {
-        if (!keyCapStates[keyId]) {
-            keyCapStates[keyId] = {
-                visibility: 'VISIBLE',
-                navigationRole: getFingerByKeyCap(keyId, fingerLayout) === fingerId ? 'TARGET' : 'NONE', 
-                pressResult: 'NEUTRAL',
-                navigationArrow: 'NONE',
-            }
-        }
-    })
-
-
     fingerData.keyCapStates = keyCapStates;
   }
 

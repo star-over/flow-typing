@@ -15,6 +15,7 @@ import { simpleNFixture } from '@/fixtures/hands-ext/simple-n.fixture';
 import { t } from '@/fixtures/hands-ext/t.fixture';
 import { spaceFixture } from '@/fixtures/hands-ext/space.fixture';
 import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
+import { shift_o } from '@/fixtures/hands-ext/shift_o.fixture';
 
 import { HandsExt } from './hands-ext';
 
@@ -38,6 +39,13 @@ type Story = StoryObj<typeof meta>;
 export const Idle: Story = {
   args: {
     viewModel: idleFixture.expectedOutput,
+    className: 'pt-12',
+  },
+};
+
+export const shiftO: Story = {
+  args: {
+    viewModel: shift_o.expectedOutput,
     className: 'pt-12',
   },
 };
