@@ -115,40 +115,33 @@ function determineAndSetFingerStates(
 
   if (
     lastAttempt &&
-    currentStreamSymbol &&
     !areKeyCapIdArraysEqual(
       lastAttempt.pressedKeyCups,
       currentStreamSymbol.targetKeyCaps
     )
   ) {
-    const incorrectPressFingers = new Set<FingerId>();
-    lastAttempt.pressedKeyCups.forEach((keyId) => {
-      if (keyId === "Space") {
-        // When Space is an error, the thumb of the hand opposite the target is marked.
-        const targetFingers = Array.from(activeFingers);
-        // Default to right thumb error if target hand is unclear, though this is an edge case.
-        const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
-        
-        if (isTargetLeftHand) {
-          incorrectPressFingers.add("R1"); // Opposite hand's thumb
+    const pressedKeyCups = lastAttempt.pressedKeyCups;
+    const targetKeyCupsSet = new Set(currentStreamSymbol.targetKeyCaps);
+
+    pressedKeyCups.forEach((keyId) => {
+      if (!targetKeyCupsSet.has(keyId)) {
+        // This key was pressed but was not required. This is an error.
+        if (keyId === "Space") {
+          const targetFingers = Array.from(activeFingers);
+          const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
+          if (isTargetLeftHand) {
+            errorFingers.add("R1"); // Opposite hand's thumb
+          } else {
+            errorFingers.add("L1"); // Opposite hand's thumb
+          }
         } else {
-          incorrectPressFingers.add("L1"); // Opposite hand's thumb
-        }
-      } else {
-        const finger = getFingerByKeyCap(keyId, fingerLayout);
-        if (finger) {
-          incorrectPressFingers.add(finger);
+          const finger = getFingerByKeyCap(keyId, fingerLayout);
+          if (finger) {
+            errorFingers.add(finger);
+          }
         }
       }
     });
-
-    const isErrorInCluster =
-      incorrectPressFingers.size === activeFingers.size &&
-      [...incorrectPressFingers].every((finger) => activeFingers.has(finger));
-
-    if (!isErrorInCluster) {
-      incorrectPressFingers.forEach((fingerId) => errorFingers.add(fingerId));
-    }
   }
 
   // --- Determine Active Hands ---
@@ -252,16 +245,31 @@ function buildKeyCapStates(
         }
       }
 
-      if (
-        lastAttempt &&
-        currentStreamSymbol &&
-        !areKeyCapIdArraysEqual(
-          lastAttempt.pressedKeyCups,
-          targetKeyCaps
-        ) &&
-        lastAttempt.pressedKeyCups.includes(keyId)
-      ) {
-        pressResult = "INCORRECT";
+      const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
+
+      if (wasAttemptIncorrect) {
+        const pressedSet = new Set(lastAttempt.pressedKeyCups);
+        const targetSet = new Set(targetKeyCaps);
+
+        const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
+        
+        const wasKeyPressed = pressedSet.has(keyId);
+        const wasKeyRequired = targetSet.has(keyId);
+
+        if (wasKeyRequired && wasKeyPressed) {
+            pressResult = 'CORRECT'; // Correct part of a failed chord
+        } else if (wasKeyRequired && !wasKeyPressed) {
+            // It's a required key that wasn't pressed.
+            // If an extra key was pressed, this should be neutral.
+            // If no extra keys were pressed, it means it's a missed part of a chord.
+            if (extraKeysPressed.length > 0) {
+                pressResult = 'NEUTRAL'; 
+            } else {
+                pressResult = 'INCORRECT';
+            }
+        } else if (!wasKeyRequired && wasKeyPressed) {
+            pressResult = 'INCORRECT'; // Extra, unrequired key pressed
+        }
       }
 
       keyCapStates[keyId] = {

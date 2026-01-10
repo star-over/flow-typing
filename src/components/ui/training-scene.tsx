@@ -29,8 +29,8 @@ const DebugState = ({ dataFlowLine, dataViewModel }: { dataFlowLine: unknown; da
   const stateString = `
 import { HandsExtFixture } from './types';
 export const simpleKFixture: HandsExtFixture = {
-  input: ${JSON.stringify(dataFlowLine, replacer, 2)?.replace(/"undefined"/g, 'undefined')},
-  expectedOutput: ${JSON.stringify(dataViewModel, replacer, 2)?.replace(/"undefined"/g, 'undefined')},
+  input: ${JSON.stringify(dataFlowLine, replacer)?.replace(/"undefined"/g, 'undefined')},
+  expectedOutput: ${JSON.stringify(dataViewModel, replacer)?.replace(/"undefined"/g, 'undefined')},
 };  
 `;
 
