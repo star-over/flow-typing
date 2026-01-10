@@ -7,7 +7,7 @@
  *
  * The core of this module is the `generateHandsSceneViewModel` function, which
  * operates as a pipeline. The process starts with an initial "idle" view model,
- * which is then passed sequentially through a series of transformation functions.  
+ * which is then passed sequentially through a series of transformation functions.
  * Each function in the pipeline is responsible for a specific aspect of the
  * view model, such as setting finger states or defining key visibility and roles.
  *
@@ -203,16 +203,16 @@ function buildVisibleClusters(
 
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
     const keyCluster = getFingerKeys(fingerId as FingerId, fingerLayout);
-    
+
     keyCluster.forEach((keyId) => {
       keyCapStates[keyId] = {
         visibility: "VISIBLE",
         navigationRole: "NONE",
-        pressResult: "NEUTRAL",
+        pressResult: "NONE",
         navigationArrow: "NONE",
       };
     });
-    
+
     fingerData.keyCapStates = keyCapStates;
   }
 
@@ -283,7 +283,7 @@ function applyNavigationPaths(
     if (homeKey) {
       path = findOptimalPath(homeKey, targetKey, keyboardGraph);
     }
-    
+
     // TODO: Add settings check here in the future
     _applyNavigationRoles(fingerData, path, targetKey);
     // TODO: Add settings check here in the future
@@ -299,7 +299,7 @@ function applyErrorFingerStates(
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
   const { errorFingers } = typingContext;
-  
+
   // Apply ERROR state to error fingers (out-of-cluster errors)
   errorFingers.forEach((fingerId) => {
     newViewModel[fingerId].fingerState = "ERROR";
@@ -315,7 +315,7 @@ function applyKeyPressResults(
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
   const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
-  
+
   if (!wasAttemptIncorrect) return newViewModel;
 
   // Apply press results to keys
@@ -336,7 +336,7 @@ function applyKeyPressResults(
         keyState.pressResult = 'CORRECT';
       } else if (wasKeyRequired && !wasKeyPressed) {
         if (extraKeysPressed.length > 0) {
-          keyState.pressResult = 'NEUTRAL'; 
+          keyState.pressResult = 'NONE';
         } else {
           keyState.pressResult = 'ERROR';
         }
@@ -372,7 +372,7 @@ export function generateHandsSceneViewModel(
 
   // --- Pipeline Start ---
   let viewModel = getIdleViewModel();
-  
+
   // Data Analysis Stage: Determine the context for the current typing step
   const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);
 

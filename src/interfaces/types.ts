@@ -40,10 +40,9 @@ export const KEY_CAP_NAVIGATION_ARROWS = [
 ] as const;
 export type KeyCapNavigationArrow = typeof KEY_CAP_NAVIGATION_ARROWS[number];
 
-// TODO: Rename NEUTRAL to NONE for consistency
 /** Результат нажатия клавиши пользователем. */
 export const KEY_CAP_PRESS_RESULTS = [
-  "NEUTRAL", // Нейтральное состояние, нажатие еще не оценено.
+  "NONE", // Нейтральное состояние, нажатие еще не оценено.
   "CORRECT", // Нажатие было правильным.
   "ERROR", // Нажатие было ошибочным.
 ] as const;
