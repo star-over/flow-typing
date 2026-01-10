@@ -1,6 +1,7 @@
 import { describe, expect,it } from 'vitest';
 
 // Import all fixtures
+import { shift_t_error_shift_n } from   '@/fixtures/hands-ext/shift_t_error_shift_n';
 import { idleFixture } from             '@/fixtures/hands-ext/idle.fixture';
 import { shift_o_error_simple_o } from   '@/fixtures/hands-ext/shift_o_error_simple_o';
 import { simple_e_error_space } from   '@/fixtures/hands-ext/simple_e_error_space';
@@ -25,6 +26,18 @@ import { generateHandsSceneViewModel } from './viewModel-builder';
 
 
 describe('generateHandsSceneViewModel', () => {
+
+    it.only('should correctly generate view model for Shift-T with pressed Sift-N', () => {
+    const {input, expectedOutput} = shift_t_error_shift_n;
+    const viewModel = generateHandsSceneViewModel(
+      input,
+      fingerLayout,
+      keyboardLayout,
+      keyboardGraph,
+      keyCoordinateMap
+    );
+    expect(viewModel).toEqual(expectedOutput);
+  });
 
     it.only('should correctly generate view model for Shift-O with pressed simple o', () => {
     const {input, expectedOutput} = shift_o_error_simple_o;

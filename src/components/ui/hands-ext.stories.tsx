@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { idleFixture } from '@/fixtures/hands-ext/idle.fixture';
+import { shift_t_error_shift_n } from '@/fixtures/hands-ext/shift_t_error_shift_n';
 import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F.fixture';
 import { shift_o_error_simple_o } from '@/fixtures/hands-ext/shift_o_error_simple_o';
 import { simple_e_error_space } from '@/fixtures/hands-ext/simple_e_error_space';
@@ -38,6 +39,13 @@ type Story = StoryObj<typeof meta>;
 export const Idle: Story = {
   args: {
     viewModel: idleFixture.expectedOutput,
+    className: 'pt-40',
+  },
+};
+
+export const shiftTErrorShiftN: Story = {
+  args: {
+    viewModel: shift_t_error_shift_n.expectedOutput,
     className: 'pt-40',
   },
 };
