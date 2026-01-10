@@ -28,7 +28,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -40,7 +39,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -52,7 +50,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -64,7 +61,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -76,7 +72,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -88,7 +83,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -100,7 +94,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -112,7 +105,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -124,7 +116,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -136,7 +127,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -148,7 +138,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -160,7 +149,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -172,7 +160,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -183,7 +170,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       simple_t.input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );
@@ -194,7 +180,6 @@ describe('generateHandsSceneViewModel', () => {
     const viewModel = generateHandsSceneViewModel(
       simple_k.input,
       fingerLayout,
-      keyboardLayout,
       keyboardGraph,
       keyCoordinateMap
     );

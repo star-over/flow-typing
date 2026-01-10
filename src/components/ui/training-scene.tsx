@@ -79,7 +79,7 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
   const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardLayoutANSI, keyboardGraph, keyCoordinateMap);
+  const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardGraph, keyCoordinateMap);
 
   const flowLineFixture = stream[currentIndex];
 

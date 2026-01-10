@@ -51,7 +51,6 @@ import {
   HAND_SIDES,
   HandSide,
   HandsSceneViewModel,
-  KeyboardLayout,
   KeyCapId,
   KeySceneState,
   LEFT_HAND_BASE,
@@ -226,6 +225,7 @@ function _applyNavigationRoles(
   path: KeyCapId[],
   targetKey: KeyCapId
 ) {
+  // TODO: Add settings check here in the future to enable/disable roles
   fingerData.keyCapStates![targetKey]!.navigationRole = "TARGET";
   path.forEach((keyId) => {
     const keyState = fingerData.keyCapStates![keyId];
@@ -240,6 +240,7 @@ function _applyNavigationArrows(
   path: KeyCapId[],
   keyCoordinateMap: KeyCoordinateMap
 ) {
+  // TODO: Add settings check here in the future to enable/disable arrows
   path.forEach((keyId, index) => {
     const nextKeyInPath = path[index + 1];
     if (nextKeyInPath) {
@@ -354,7 +355,6 @@ function applyKeyPressResults(
  *
  * @param currentStreamSymbol The current symbol being typed.
  * @param fingerLayout The layout defining which finger presses which key.
- * @param keyboardLayout The physical layout of the keyboard.
  * @param keyboardGraph The graph representation of the keyboard for pathfinding.
  * @param keyCoordinateMap A map of key coordinates.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
@@ -362,7 +362,6 @@ function applyKeyPressResults(
 export function generateHandsSceneViewModel(
   currentStreamSymbol: StreamSymbol | undefined,
   fingerLayout: FingerLayout,
-  keyboardLayout: KeyboardLayout, // Not directly used here, but for completeness
   keyboardGraph: AdjacencyList,
   keyCoordinateMap: KeyCoordinateMap
 ): HandsSceneViewModel {
