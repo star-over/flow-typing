@@ -33,9 +33,11 @@
  * 5.  **`applyNavigationPaths`**: Calculates the optimal path and sets
  *     navigation roles and arrows, completing the "target" view.
  *
- * 6.  **`applyAttemptFeedback`**: A consolidated stage that applies all
- *     visual feedback based on the user's last attempt. It sets `INCORRECT`
- *     finger states and all `pressResult` states on keys.
+ * 6.  **`applyErrorFingerStates`**: Sets the `INCORRECT` state for any
+ *     fingers that made an out-of-cluster error.
+ *
+ * 7.  **`applyKeyPressResults`**: Analyzes the user's last attempt and updates
+ *     the `pressResult` (`CORRECT`, `INCORRECT`) for each affected key.
  *
  * This sequential process ensures that the final `HandsSceneViewModel` is
  * built up logically, step-by-step, providing a clear and predictable
@@ -268,20 +270,30 @@ function applyNavigationPaths(
   return newViewModel;
 }
 
-// STAGE 5: Apply all feedback from the user's attempt
-function applyAttemptFeedback(
+// STAGE 5: Apply error states to fingers
+function applyErrorFingerStates(
   viewModel: HandsSceneViewModel,
   typingContext: TypingContext
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
-  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect, errorFingers } = typingContext;
+  const { errorFingers } = typingContext;
   
   // Apply INCORRECT state to error fingers (out-of-cluster errors)
   errorFingers.forEach((fingerId) => {
     newViewModel[fingerId].fingerState = "INCORRECT";
   });
 
-  // If the attempt was correct, there's no more feedback to apply
+  return newViewModel;
+}
+
+// STAGE 6: Apply press results to keys
+function applyKeyPressResults(
+  viewModel: HandsSceneViewModel,
+  typingContext: TypingContext
+): HandsSceneViewModel {
+  const newViewModel = { ...viewModel };
+  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
+  
   if (!wasAttemptIncorrect) return newViewModel;
 
   // Apply press results to keys
@@ -365,8 +377,14 @@ export function generateHandsSceneViewModel(
     keyCoordinateMap
   );
 
-  // Stage 4: Apply all feedback from the user's attempt (INCORRECT fingers and key press results)
-  viewModel = applyAttemptFeedback(
+  // Stage 4: Apply feedback - incorrect fingers
+  viewModel = applyErrorFingerStates(
+    viewModel,
+    typingContext
+  );
+
+  // Stage 5: Apply feedback - key press results
+  viewModel = applyKeyPressResults(
     viewModel,
     typingContext
   );
