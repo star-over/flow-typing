@@ -3,7 +3,7 @@ import { cva } from 'class-variance-authority';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyCapId, KeyboardLayout, ModifierKey, Visibility } from '@/interfaces/types';
-import { generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
+import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
 import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
@@ -127,30 +127,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
   ) as Record<FingerId, FingerState>;
 
   // ✅ Вычисляем активные модификаторы ОДИН РАЗ за рендер для эффективности
-  const activeModifiers: ModifierKey[] = useMemo(() => {
-    const modifiers: ModifierKey[] = [];
-    const allTargetKeyCaps = Object.values(viewModel)
-      .filter((f) => f.fingerState === 'TARGET' && f.keyCapStates)
-      .flatMap((f) =>
-          Object.entries(f.keyCapStates!)
-              .filter(([, state]) => state.navigationRole === 'TARGET')
-              .map(([keyCapId]) => keyCapId as KeyCapId)
-      );
-
-    if (allTargetKeyCaps.some((k) => k === 'ShiftLeft' || k === 'ShiftRight')) {
-      modifiers.push('shift');
-    }
-    if (allTargetKeyCaps.some((k) => k === 'ControlLeft' || k === 'ControlRight')) {
-      modifiers.push('ctrl');
-    }
-    if (allTargetKeyCaps.some((k) => k === 'AltLeft' || k === 'AltRight')) {
-      modifiers.push('alt');
-    }
-    if (allTargetKeyCaps.some((k) => k === 'MetaLeft' || k === 'MetaRight')) {
-      modifiers.push('meta');
-    }
-    return modifiers;
-  }, [viewModel]);
+  const activeModifiers: ModifierKey[] = useMemo(() => calculateActiveModifiers(viewModel), [viewModel]);
 
   return (
     <div

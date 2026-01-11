@@ -56,6 +56,7 @@ import {
   KeyboardLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
+  ModifierKey,
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
   StreamSymbol,
@@ -468,3 +469,33 @@ export const generateVirtualLayoutForFinger = (
     }),
   );
 };
+
+/**
+ * Вычисляет активные модификаторы (например, Shift, Ctrl) на основе целевых клавиш в модели представления.
+ * @param viewModel Модель представления сцены рук.
+ * @returns Массив активных модификаторов.
+ */
+export function calculateActiveModifiers(viewModel: HandsSceneViewModel): ModifierKey[] {
+  const modifiers: ModifierKey[] = [];
+  const allTargetKeyCaps = Object.values(viewModel)
+    .filter((f) => f.fingerState === 'TARGET' && f.keyCapStates)
+    .flatMap((f) =>
+      Object.entries(f.keyCapStates!)
+        .filter(([, state]) => state.navigationRole === 'TARGET')
+        .map(([keyCapId]) => keyCapId as KeyCapId)
+    );
+
+  if (allTargetKeyCaps.some((k) => k === 'ShiftLeft' || k === 'ShiftRight')) {
+    modifiers.push('shift');
+  }
+  if (allTargetKeyCaps.some((k) => k === 'ControlLeft' || k === 'ControlRight')) {
+    modifiers.push('ctrl');
+  }
+  if (allTargetKeyCaps.some((k) => k === 'AltLeft' || k === 'AltRight')) {
+    modifiers.push('alt');
+  }
+  if (allTargetKeyCaps.some((k) => k === 'MetaLeft' || k === 'MetaRight')) {
+    modifiers.push('meta');
+  }
+  return modifiers;
+}
