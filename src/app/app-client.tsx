@@ -4,6 +4,8 @@ import { useMachine } from "@xstate/react";
 import { useEffect } from "react";
 
 import { TrainingScene } from "@/components/ui/training-scene";
+import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
+import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { AppEvent } from "@/machines/app.machine"; // Import AppEvent from app.machine
 import { appMachine } from "@/machines/app.machine";
@@ -71,7 +73,7 @@ export function AppClient() {
 
         {trainingActor && (
           <div>
-            <TrainingScene trainingActor={trainingActor} />
+            <TrainingScene trainingActor={trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} />
             {state.matches('trainingComplete') && <p className="text-xl font-bold text-green-500 mt-4">Lesson Complete!</p>}
             <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
               Back to Menu

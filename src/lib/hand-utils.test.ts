@@ -24,17 +24,17 @@ RB: "NONE",
   };
 
   it("should return all NONE when targetSymbol is undefined", () => {
-    const handStates = getHandStates(undefined, undefined, false, fingerLayout);
+    const handStates = getHandStates(undefined, undefined, false, fingerLayout, symbolLayoutEnQwerty);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should return all NONE for a symbol not in the layout", () => {
-    const handStates = getHandStates("€", undefined, false, fingerLayout);
+    const handStates = getHandStates("€", undefined, false, fingerLayout, symbolLayoutEnQwerty);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should activate L3 for 'e' and set the rest of the left hand to INACTIVE", () => {
-    const handStates = getHandStates("e", undefined, false, fingerLayout);
+    const handStates = getHandStates("e", undefined, false, fingerLayout, symbolLayoutEnQwerty);
 
     expect(handStates.L3).toBe("TARGET");
     expect(handStates.L1).toBe("INACTIVE");
@@ -53,7 +53,7 @@ RB: "NONE",
   });
 
   it("should activate R3 for 'i' and set the rest of the right hand to INACTIVE", () => {
-    const handStates = getHandStates("i", undefined, false, fingerLayout);
+    const handStates = getHandStates("i", undefined, false, fingerLayout, symbolLayoutEnQwerty);
 
     expect(handStates.R3).toBe("TARGET");
     expect(handStates.R1).toBe("INACTIVE");
@@ -76,12 +76,12 @@ RB: "NONE",
     const mockFingerLayout = { ...fingerLayout };
     delete mockFingerLayout.Backquote;
 
-    const handStates = getHandStates("`", undefined, false, mockFingerLayout);
+    const handStates = getHandStates("`", undefined, false, mockFingerLayout, symbolLayoutEnQwerty);
     expect(handStates).toEqual(idleHands);
   });
 
   it("should activate L3 for 'E' and R5 for shift", () => {
-    const handStates = getHandStates("E", undefined, false, fingerLayout);
+    const handStates = getHandStates("E", undefined, false, fingerLayout, symbolLayoutEnQwerty);
 
     expect(handStates.L3).toBe("TARGET"); // 'e' key
     expect(handStates.R5).toBe("TARGET"); // opposite pinky for shift
@@ -105,7 +105,7 @@ RB: "NONE",
       const targetSymbol = "e"; // L3 finger
       const pressedKeyCups: KeyCapId[] = ["KeyD"]; // Also L3 finger
 
-      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout, symbolLayoutEnQwerty);
 
       // Should only show the target finger as ACTIVE
       expect(handStates.L3).toBe("TARGET");
@@ -121,7 +121,7 @@ RB: "NONE",
       const targetSymbol = "e"; // L3 finger
       const pressedKeyCups: KeyCapId[] = ["KeyS"]; // L4 finger (same hand)
 
-      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout, symbolLayoutEnQwerty);
 
       // Target finger should be ACTIVE
       expect(handStates.L3).toBe("TARGET");
@@ -138,7 +138,7 @@ RB: "NONE",
       const targetSymbol = "e"; // L3 finger
       const pressedKeyCups: KeyCapId[] = ["KeyI"]; // R3 finger (different hand)
 
-      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout);
+      const handStates = getHandStates(targetSymbol, pressedKeyCups, true, fingerLayout, symbolLayoutEnQwerty);
 
       // Target finger should be ACTIVE
       expect(handStates.L3).toBe("TARGET");

@@ -114,7 +114,7 @@ const keyCapVariants = cva(
 
       /** Результат нажатия клавиши. */
       pressResult: {
-        NEUTRAL: "animate-none",
+        NONE: "animate-none",
         CORRECT: "animate-bounce",
         ERROR: "bg-red-400 text-red-700",
       } satisfies Record<KeyCapPressResult, string>,
@@ -140,7 +140,7 @@ const keyCapVariants = cva(
       unitWidth: "1U",
       symbolSize: "MD",
       colorGroup: "PRIMARY",
-      pressResult: "NEUTRAL",
+      pressResult: "NONE",
       homeKeyMarker: "NONE",
       navigationArrow: "NONE",
       isHomeKey: false,

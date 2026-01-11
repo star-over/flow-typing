@@ -98,7 +98,6 @@ export const Default: Story = {
     navigationArrow: meta.argTypes.navigationArrow.options[0],
     unitWidth: meta.argTypes.unitWidth.options[0],
     symbolSize: meta.argTypes.symbolSize.options[0],
-    pressResult: meta.argTypes.pressResult.options[0],
     centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
     symbol: "G",
     keyCapId: 'KeyG',

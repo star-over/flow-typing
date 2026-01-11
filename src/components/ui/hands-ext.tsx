@@ -1,60 +1,12 @@
 'use client';
 import { cva } from 'class-variance-authority';
-import React, { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { FingerId, FingerState, HandsSceneViewModel, KeyCapId, KeySceneState, ModifierKey, VirtualKey, VirtualLayout, Visibility } from '@/interfaces/types';
+import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyCapId, KeyboardLayout, ModifierKey, Visibility } from '@/interfaces/types';
+import { generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
 import { cn } from '@/lib/utils';
 
 import { VirtualKeyboard } from './virtual-keyboard';
-
-
-/**
- * Генерирует виртуальный макет клавиатуры, адаптированный для конкретного пальца на основе общей модели сцены.
- * Эта функция определяет, какие клавиши должны быть видимыми и каково их состояние (например, целевая, путь)
- * для данного пальца, обеспечивая отображение только релевантных клавиш в кластере пальца.
- *
- * @param fingerId Идентификатор пальца, для которого генерируется макет (например, 'L1', 'R3').
- * @param viewModel Общая модель представления сцены рук, содержащая состояние для всех пальцев и колпачков клавиш.
- * @returns Двумерный массив, представляющий виртуальный макет, где каждая клавиша обогащена состоянием сцены.
- */
-const generateVirtualLayoutForFinger = (fingerId: FingerId, viewModel: HandsSceneViewModel): VirtualLayout => {
-  // Получаем состояние сцены конкретно для текущего пальца
-  const fingerSceneState = viewModel[fingerId];
-  // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет
-  const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = fingerSceneState?.keyCapStates || {};
-
-  // Находим данные пальца из статического макета, чтобы определить, является ли он "домашней" клавишей
-  const fingerData = Object.values(fingerLayoutASDF).find((d) => d.fingerId === fingerId);
-
-  // Проходим по стандартному макету клавиатуры ANSI, чтобы создать виртуальный макет для пальца
-  return keyboardLayoutANSI.map((row, rowIndex) =>
-    row.map((physicalKey): VirtualKey => {
-      const { keyCapId } = physicalKey;
-      // Получаем конкретное состояние для этого колпачка клавиши из состояния сцены пальца
-      const keyCapState = keyCapStates[keyCapId];
-
-      // Определяем видимость: клавиша видима, если у нее есть определенное состояние в viewModel для этого пальца
-      const isVisible = !!keyCapState;
-      const visibility: Visibility = isVisible ? 'VISIBLE' : 'INVISIBLE';
-
-      return {
-        ...physicalKey,
-        rowIndex,
-        colIndex: 0, // colIndex не используется в текущей логике макета для этого компонента
-        symbol: keyCapId, // Заполнитель, компонент VirtualKeyboard рассчитает фактический отображаемый символ
-        fingerId: fingerData?.fingerId || 'L1', // Присваиваем идентификатор пальца, с запасным значением
-        isHomeKey: fingerData?.isHomeKey || false, // Отмечаем, является ли это "домашней" клавишей для этого пальца
-        // Динамические свойства из ViewModel
-        visibility: visibility,
-        navigationRole: keyCapState?.navigationRole || 'NONE', // Роль (TARGET, PATH, NONE)
-        navigationArrow: keyCapState?.navigationArrow || 'NONE', // Направление стрелки для навигации
-        pressResult: keyCapState?.pressResult || 'NEUTRAL', // Результат нажатия клавиши (CORRECT, INCORRECT, NEUTRAL)
-      };
-    })
-  );
-};
 
 
 // SVG-пути для отрисовки различных частей руки
@@ -94,6 +46,8 @@ const handsVariants = cva("",
 
 interface HandsExtProps {
   viewModel: HandsSceneViewModel;
+  fingerLayout: FingerLayout;
+  keyboardLayout: KeyboardLayout;
   className?: string;
   centerPointVisibility?: Visibility;
 }
@@ -111,7 +65,7 @@ interface HandsExtProps {
  * @param {Visibility} [props.centerPointVisibility] Определяет видимость центральной точки пальцев.
  * @returns {React.FC<HandsExtProps>} React-элемент, отображающий руки и динамические клавиатуры.
  */
-export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, centerPointVisibility, ...props }) => {
+export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, centerPointVisibility, ...props }: HandsExtProps) => {
   // Определяем массив идентификаторов пальцев для левой и правой руки
   const fingerIds: FingerId[] = useMemo(() => ['L5', 'L4', 'L3', 'L2', 'L1', 'R1', 'R2', 'R3', 'R4', 'R5'], []);
   // Используем useRef для хранения ссылок на контейнеры виртуальных клавиатур каждого пальца
@@ -121,8 +75,8 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
   useEffect(() => {
     fingerIds.forEach((fingerId) => {
       // Находим "домашнюю" клавишу для текущего пальца из его раскладки
-      const homeKeyEntry = Object.entries(fingerLayoutASDF).find(
-        ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
+      const homeKeyEntry = Object.entries(fingerLayout).find(
+        ([, fingerData]) => fingerData && fingerData.fingerId === fingerId && fingerData.isHomeKey
       );
       if (!homeKeyEntry) {
         return;
@@ -165,7 +119,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
         }
       }
     });
-  }, [viewModel, fingerIds]); // Зависимости эффекта: viewModel и fingerIds
+  }, [viewModel, fingerIds, fingerLayout]); // Зависимости эффекта: viewModel и fingerIds
 
   // Извлекаем состояния пальцев из viewModel для применения стилей
   const fingerStates = Object.fromEntries(
@@ -197,7 +151,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
     }
     return modifiers;
   }, [viewModel]);
-  
+
   return (
     <div
       className={cn("relative w-full h-full", className)}
@@ -243,7 +197,7 @@ export const HandsExt: React.FC<HandsExtProps> = ({ viewModel, className, center
           }
 
           // Генерируем виртуальный макет для текущего пальца
-          const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel);
+          const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel, fingerLayout, keyboardLayout);
 
           return (
             <div

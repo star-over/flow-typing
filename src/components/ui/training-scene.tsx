@@ -7,9 +7,7 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { HandsSceneViewModel } from "@/interfaces/types";
+import { FingerLayout, HandsSceneViewModel, KeyboardLayout } from "@/interfaces/types";
 import { createKeyCoordinateMap, KeyCoordinateMap } from '@/lib/layout-utils';
 import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
@@ -60,6 +58,10 @@ export const simpleKFixture: HandsExtFixture = {
 type TrainingSceneProps = {
   /** Актор (живой экземпляр) запущенной `trainingMachine`. */
   trainingActor: ActorRefFrom<typeof trainingMachine>;
+  /** The layout defining which finger presses which key. */
+  fingerLayout: FingerLayout;
+  /** The physical layout of the keyboard. */
+  keyboardLayout: KeyboardLayout;
 };
 
 /**
@@ -70,16 +72,16 @@ type TrainingSceneProps = {
  * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
+export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
   const send = trainingActor.send;
   const { stream, currentIndex } = trainingState.context;
 
-  const keyboardGraph: AdjacencyList = createKeyboardGraph(keyboardLayoutANSI);
-  const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayoutANSI);
+  const keyboardGraph: AdjacencyList = createKeyboardGraph(keyboardLayout);
+  const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayout);
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
-  const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayoutASDF, keyboardGraph, keyCoordinateMap);
+  const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayout, keyboardGraph, keyCoordinateMap);
 
   const flowLineFixture = stream[currentIndex];
 
@@ -93,7 +95,7 @@ export const TrainingScene = ({ trainingActor }: TrainingSceneProps) => {
 
       <FlowLine stream={stream} cursorPosition={currentIndex} />
 
-      <HandsExt viewModel={viewModel} />
+      <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout}/>
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
       {trainingState.matches('paused') ? (

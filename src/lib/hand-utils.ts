@@ -3,7 +3,6 @@
  * @description Содержит функции для определения состояний рук и пальцев,
  * их принадлежности, и для получения связанных с ними данных.
  */
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
@@ -134,17 +133,18 @@ export function getHandStates(
   pressedKeyCups: KeyCapId[] | undefined,
   isIncorrect: boolean,
   fingerLayout: FingerLayout,
+  symbolLayout: SymbolLayout
 ): HandStates {
   const handStates = initializeHandStates();
 
   if (!targetSymbol) return handStates;
 
-  const targetFinger = getTargetFinger(targetSymbol, fingerLayout, symbolLayoutEnQwerty);
+  const targetFinger = getTargetFinger(targetSymbol, fingerLayout, symbolLayout);
   if (!targetFinger) return handStates;
 
   handStates[targetFinger] = "TARGET";
 
-  if (isShiftRequired(targetSymbol, symbolLayoutEnQwerty)) {
+  if (isShiftRequired(targetSymbol, symbolLayout)) {
     if (isLeftHandFinger(targetFinger)) {
       handStates["R5"] = "TARGET"; // Right pinky
     } else {
