@@ -2,6 +2,7 @@
 
 import { useMachine } from "@xstate/react";
 import { useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 import { TrainingScene } from "@/components/ui/training-scene";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
@@ -9,9 +10,43 @@ import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { AppEvent } from "@/machines/app.machine"; // Import AppEvent from app.machine
 import { appMachine } from "@/machines/app.machine";
+import { useSettingsStore } from "@/store/settings.store";
 
 export function AppClient() {
   const [state, send] = useMachine(appMachine);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const isSettingsStoreInitialized = useSettingsStore((state) => state.isInitialized);
+  const exerciseIdFromStore = useSettingsStore((state) => state.shared.exerciseId);
+
+  // Effect to read URL parameters on initial load
+  useEffect(() => {
+    if (isSettingsStoreInitialized) {
+      const exerciseIdFromUrl = searchParams.get('exerciseId');
+      if (exerciseIdFromUrl) {
+        useSettingsStore.getState().updateSettings({ shared: { exerciseId: exerciseIdFromUrl } });
+      }
+    }
+  }, [isSettingsStoreInitialized, searchParams]);
+
+  // Effect to update URL parameters when settings change
+  useEffect(() => {
+    if (isSettingsStoreInitialized) {
+      const currentUrlParams = new URLSearchParams(window.location.search);
+      if (exerciseIdFromStore) {
+        currentUrlParams.set('exerciseId', exerciseIdFromStore);
+      } else {
+        currentUrlParams.delete('exerciseId');
+      }
+      const newUrl = `${pathname}?${currentUrlParams.toString()}`;
+      // Only replace if the URL actually changed to avoid unnecessary navigations
+      if (window.location.search !== `?${currentUrlParams.toString()}`) {
+        router.replace(newUrl, { scroll: false });
+      }
+    }
+  }, [isSettingsStoreInitialized, exerciseIdFromStore, pathname, router]);
 
   // Access the invoked training actor if it exists
   const trainingActor = state.children.trainingService;

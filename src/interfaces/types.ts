@@ -258,14 +258,14 @@ export type HandStates = {
   [F in FingerId]: FingerState;
 };
 
+import { Settings } from "./settings";
+
 // --- XState Machine Types ---
 
 // App Machine Types
 export interface AppContext {
   user: { name: string } | null;
-  settings: {
-    theme: 'dark' | 'light';
-  };
+  settings: Settings;
 }
 
 export type AppEvent =

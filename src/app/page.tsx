@@ -1,9 +1,12 @@
+import { Suspense } from 'react';
 import { AppClient } from "./app-client";
 
 export default function Home() {
   return (
     <main>
-      <AppClient />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppClient />
+      </Suspense>
     </main>
   );
 }
