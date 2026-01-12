@@ -53,19 +53,13 @@ export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "2.5U"
 export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 
 /** Группа цвета клавиши для визуального разделения. */
-export const KEY_CAP_COLOR_GROUPS = ["PRIMARY", "SECONDARY", "ACCENT"] as const;
-export type KeyCapColorGroup = typeof KEY_CAP_COLOR_GROUPS[number];
+export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 
 /**
  * Функциональный тип клавиши.
  * @see /TASKS.md
  */
-export const KEY_CAP_TYPES = [
-  "SYMBOL", // Клавиша, вводящая символ (буква, цифра, знак).
-  "SYSTEM", // Системная/управляющая клавиша (Enter, Backspace, Tab).
-  "MODIFIER", // Клавиша-модификатор (Shift, Alt, Ctrl).
-] as const;
-export type KeyCapType = typeof KEY_CAP_TYPES[number];
+export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 
 /** A key that can modify the output of another key (e.g., Shift, Ctrl). */
 export type ModifierKey = 'shift' | 'ctrl' | 'alt' | 'meta';
@@ -89,11 +83,6 @@ export const LEFT_HAND_BASE = "LB" as const;
 /** Константы для идентификаторов ладони правой руки. */
 export const RIGHT_HAND_BASE = "RB" as const;
 
-/** Идентификаторы пальцев левой руки. */
-export type LeftHandFingerId = typeof LEFT_HAND_FINGERS[number];
-/** Идентификаторы пальцев правой руки. */
-export type RightHandFingerId = typeof RIGHT_HAND_FINGERS[number];
-
 /**
  * Уникальный идентификатор пальца.
  * L/R - левая/правая рука.
@@ -104,24 +93,17 @@ export type RightHandFingerId = typeof RIGHT_HAND_FINGERS[number];
  * 5: Мизинец (Little)
  * B: Основание кисти (Base)
  */
-export type FingerId = LeftHandFingerId | RightHandFingerId | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
+export type FingerId = typeof LEFT_HAND_FINGERS[number] | typeof RIGHT_HAND_FINGERS[number] | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
 
 /** Состояние отдельного пальца. */
 export const FINGER_STATES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;
 export type FingerState = typeof FINGER_STATES[number];
-
-/** Объединение всех идентификаторов пальцев и кистей. */
-export type HandFingerId = FingerId | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
 
 /** Идентификаторы сторон рук. */
 export const HAND_SIDES = ["LEFT", "RIGHT"] as const;
 export type HandSide = typeof HAND_SIDES[number];
 
 // --- FlowLine Types ---
-
-/** Состояние компонента FlowLine. */
-export const FLOW_LINE_STATES = ["START", "TYPING", "PAUSE", "END"] as const;
-export type FlowLineState = typeof FLOW_LINE_STATES[number];
 
 /** Тип курсора в FlowLine. */
 export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as const;
@@ -140,8 +122,6 @@ export const FLOW_LINE_CURSOR_MODES = ["HALF", "THIRD", "QUARTER", "DINAMIC"] as
 export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
 
 // --- Typing Stream and Attempts ---
-
-
 
 /**
  * Представляет одну попытку пользователя набрать целевой символ.
@@ -186,17 +166,15 @@ export type PhysicalKey = {
  */
 export type KeyboardLayout = PhysicalKey[][];
 
-/** Описывает привязку пальца к клавише. */
-export type FingerKey = {
-  fingerId: FingerId;
-  isHomeKey?: boolean;
-};
 /**
  * Пальцевый макет (инструкция).
  * Определяет, каким пальцем следует нажимать каждую клавишу.
  * Представляет собой объект, где ключ - `KeyCapId`, значение - `FingerKey`.
  */
-export type FingerLayout = Partial<Record<KeyCapId, FingerKey>>;
+export type FingerLayout = Partial<Record<KeyCapId, {
+  fingerId: FingerId;
+  isHomeKey?: boolean;
+}>>;
 
 /**
  * Символьный макет (слой краски).
@@ -258,53 +236,6 @@ export type HandStates = {
   [F in FingerId]: FingerState;
 };
 
-import { Settings } from "./settings";
-
-// --- XState Machine Types ---
-
-// App Machine Types
-export interface AppContext {
-  user: { name: string } | null;
-  settings: Settings;
-}
-
-export type AppEvent =
-  | { type: 'START_TRAINING' }
-  | { type: 'QUIT_TRAINING' }
-  | { type: 'GO_TO_SETTINGS' }
-  | { type: 'VIEW_STATS' }
-  | { type: 'BACK_TO_MENU' }
-  | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
-  | { type: 'KEY_UP'; keyCapId: KeyCapId }
-  | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
-
-// Keyboard Machine Types
-export interface KeyboardMachineContext {
-  pressedKeys: Set<KeyCapId>;
-  // parentActor will be typed as ActorRefFrom<AppMachine> in keyboard.machine.ts
-}
-
-export type KeyboardMachineEvent =
-  | { type: "KEY_DOWN"; keyCapId: KeyCapId }
-  | { type: "KEY_UP"; keyCapId: KeyCapId }
-  | { type: "RESET" };
-
-// Training Machine Types
-export interface TrainingContext {
-  stream: TypingStream;
-  currentIndex: number;
-  pressedKeys: KeyCapId[] | null;
-  errors: number;
-  targetKeyCapId: KeyCapId | undefined;
-  targetFingerId: FingerId | undefined;
-  shiftRequired: boolean;
-}
-
-export type TrainingEvent =
-  | { type: 'KEY_PRESS'; keys: KeyCapId[] }
-  | { type: 'PAUSE_TRAINING' }
-  | { type: 'RESUME_TRAINING' };
-
 // --- HandsScene ViewModel ---
 
 /**
@@ -319,25 +250,10 @@ export interface KeySceneState {
 }
 
 /**
- * Описывает полное состояние одного пальца и его "среза" сцены.
- * @see /VisualContract.md
- */
-export interface FingerSceneState {
-  fingerState: FingerState;
-  keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
-}
-
-/**
  * Итоговая модель представления для сцены с руками: словарь состояний для всех 12 элементов.
  * @see /VisualContract.md
  */
-export type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
-
-/**
- * Fixture for `FlowLine` component state.
- * Contains the typing stream and the current cursor position.
- */
-export interface FlowLineFixture {
-  stream: TypingStream;
-  cursorPosition: number;
-}
+export type HandsSceneViewModel = Record<FingerId, {
+  fingerState: FingerState;
+  keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
+}>;

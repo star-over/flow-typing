@@ -7,16 +7,11 @@ import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
-  HandFingerId,
-  HandStates,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
-  SymbolLayout,
 } from "@/interfaces/types";
-
-import { getFingerByKeyCap, getKeyCapIdsForChar, isShiftRequired } from "./symbol-utils";
 
 /**
  * Определяет, принадлежит ли палец левой руке.
@@ -34,133 +29,6 @@ export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HA
  */
 export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_HAND_FINGERS[number] | typeof RIGHT_HAND_BASE {
   return RIGHT_HAND_FINGERS.includes(fingerId as typeof RIGHT_HAND_FINGERS[number]) || fingerId === RIGHT_HAND_BASE;
-}
-
-/**
- * Инициализирует состояния рук, устанавливая всем пальцам состояние 'NONE'.
- * @returns Объект `HandStates` со всеми пальцами в состоянии 'NONE'.
- */
-function initializeHandStates(): HandStates {
-  const states = {} as HandStates;
-  LEFT_HAND_FINGERS.forEach((id) => states[id] = "NONE");
-  RIGHT_HAND_FINGERS.forEach((id) => states[id] = "NONE");
-  states[LEFT_HAND_BASE] = "NONE";
-  states[RIGHT_HAND_BASE] = "NONE";
-  return states;
-}
-
-/**
- * Определяет целевой палец для заданного символа.
- * @param targetSymbol Символ для поиска.
- * @param fingerLayout Схема расположения пальцев.
- * @returns Идентификатор пальца (`FingerId`) или `undefined`, если не найден.
- */
-function getTargetFinger(
-  targetSymbol: string,
-  fingerLayout: FingerLayout,
-  symbolLayout: SymbolLayout
-): FingerId | undefined {
-  const keyCapIds = getKeyCapIdsForChar(targetSymbol, symbolLayout);
-  if (!keyCapIds) return undefined;
-
-  const primaryKey = keyCapIds.find((id) => !id.includes('Shift')) || keyCapIds[0];
-  if (!primaryKey) return undefined;
-
-  return getFingerByKeyCap(primaryKey, fingerLayout);
-}
-
-/**
- * Обновляет состояние рук на основе логики индикации ошибок.
- * @param handStates Текущие состояния рук для обновления.
- * @param targetFinger Целевой палец, который должен быть активен.
- * @param typedKey Клавиша, которая была фактически нажата.
- * @param fingerLayout Схема расположения пальцев.
- */
-function updateHandStatesForError(
-  handStates: HandStates,
-  targetFinger: FingerId,
-  pressedKeyCups: KeyCapId[],
-  fingerLayout: FingerLayout
-): void {
-  const typedFinger = getFingerByKeyCap(pressedKeyCups[0], fingerLayout);
-
-  if (typedFinger) {
-    if (typedFinger === targetFinger) {
-      return;
-    } else if (
-      (isLeftHandFinger(targetFinger) && isLeftHandFinger(typedFinger)) ||
-      (isRightHandFinger(targetFinger) && isRightHandFinger(typedFinger))
-    ) {
-      handStates[typedFinger] = "ERROR";
-    } else {
-      const handFingerIds: readonly HandFingerId[] = isLeftHandFinger(typedFinger)
-        ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
-        : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
-      handFingerIds.forEach((fingerId) => {
-        handStates[fingerId] = "ERROR";
-      });
-      handStates[targetFinger] = "TARGET";
-    }
-  }
-}
-
-/**
- * Устанавливает состояние 'INACTIVE' для остальных пальцев на той же руке.
- * @param handStates Состояния рук для обновления.
- * @param targetFinger Палец, который должен остаться 'ACTIVE'.
- */
-function setOtherFingersInactive(handStates: HandStates, targetFinger: FingerId): void {
-  const handIds: readonly HandFingerId[] = isLeftHandFinger(targetFinger)
-    ? [...LEFT_HAND_FINGERS, LEFT_HAND_BASE]
-    : [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
-  handIds.forEach((fingerId) => {
-    if (handStates[fingerId] === "NONE") {
-      handStates[fingerId] = "INACTIVE";
-    }
-  });
-}
-
-/**
- * Определяет состояние каждого пальца для компонента Hands на основе целевого символа и нажатой клавиши.
- * @param targetSymbol Символ, который необходимо набрать.
- * @param typedKey Фактически нажатая клавиша (для обработки ошибок).
- * @param symbolLayout Схема расположения символов.
- * @param fingerLayout Схема расположения пальцев.
- * @returns Объект с состояниями пальцев, готовый для передачи в компонент `Hands`.
- */
-export function getHandStates(
-  targetSymbol: string | undefined,
-  pressedKeyCups: KeyCapId[] | undefined,
-  isIncorrect: boolean,
-  fingerLayout: FingerLayout,
-  symbolLayout: SymbolLayout
-): HandStates {
-  const handStates = initializeHandStates();
-
-  if (!targetSymbol) return handStates;
-
-  const targetFinger = getTargetFinger(targetSymbol, fingerLayout, symbolLayout);
-  if (!targetFinger) return handStates;
-
-  handStates[targetFinger] = "TARGET";
-
-  if (isShiftRequired(targetSymbol, symbolLayout)) {
-    if (isLeftHandFinger(targetFinger)) {
-      handStates["R5"] = "TARGET"; // Right pinky
-    } else {
-      handStates["L5"] = "TARGET"; // Left pinky
-    }
-  }
-
-  if (isIncorrect && pressedKeyCups) {
-    updateHandStatesForError(handStates, targetFinger, pressedKeyCups, fingerLayout);
-  }
-
-
-
-  setOtherFingersInactive(handStates, targetFinger);
-
-  return handStates;
 }
 
 /**

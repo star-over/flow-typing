@@ -3,8 +3,8 @@
  */
 import { KeyboardLayout,KeyCapId } from "@/interfaces/types";
 
-export type Coordinate = { r: number; c: number };
-export type KeyCoordinateMap = Map<KeyCapId, Coordinate>;
+
+export type KeyCoordinateMap = Map<KeyCapId, { r: number; c: number }>;
 
 /**
  * Creates a map of KeyCapId to its coordinates {r, c} from a KeyboardLayout.
