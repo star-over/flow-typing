@@ -8,9 +8,10 @@ import { TrainingScene } from "@/components/ui/training-scene";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { AppEvent } from "@/machines/app.machine"; // Import AppEvent from app.machine
-import { appMachine } from "@/machines/app.machine";
+import { AppEvent, appMachine } from "@/machines/app.machine";
 import { useSettingsStore } from "@/store/settings.store";
+import { SettingsClientPage } from "@/components/ui/settings-client-page";
+
 
 export function AppClient() {
   const [state, send] = useMachine(appMachine);
@@ -117,12 +118,7 @@ export function AppClient() {
         )}
 
         {state.matches('settings') && (
-          <div>
-            <h2>Settings Screen</h2>
-            <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
-              Back to Menu
-            </button>
-          </div>
+          <SettingsClientPage onBack={() => send({ type: 'BACK_TO_MENU' })} />
         )}
 
         {state.matches('stats') && (

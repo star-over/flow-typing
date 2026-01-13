@@ -1,0 +1,74 @@
+// src/components/ui/settings-client-page.tsx
+'use client';
+
+import { useSettingsStore } from '@/store/settings.store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Settings } from '@/interfaces/settings';
+
+interface SettingsClientPageProps {
+  onBack: () => void;
+}
+
+export function SettingsClientPage({ onBack }: SettingsClientPageProps) {
+  const { language, keyboardLayout, updateSettings } = useSettingsStore();
+
+  const handleLanguageChange = (value: Settings['language']) => {
+    updateSettings({ language: value });
+  };
+
+  const handleKeyboardLayoutChange = (value: Settings['keyboardLayout']) => {
+    updateSettings({ keyboardLayout: value });
+  };
+
+  return (
+    <div className="container mx-auto p-4 max-w-md">
+      <h1 className="text-3xl font-bold mb-6">Настройки</h1>
+
+      <div className="mb-4">
+        <label htmlFor="language-select" className="block text-sm font-medium text-gray-700 mb-1">
+          Язык
+        </label>
+        <Select
+          value={language}
+          onValueChange={handleLanguageChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Выберите язык" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="ru">Русский</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="keyboard-layout-select" className="block text-sm font-medium text-gray-700 mb-1">
+          Раскладка клавиатуры
+        </label>
+        <Select
+          value={keyboardLayout}
+          onValueChange={handleKeyboardLayoutChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Выберите раскладку" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="qwerty">QWERTY (English)</SelectItem>
+            <SelectItem value="йцукен">ЙЦУКЕН (Русский)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <button onClick={onBack} className="p-2 mt-4 bg-red-500 text-white rounded">
+        Назад
+      </button>
+    </div>
+  );
+}
