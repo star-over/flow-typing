@@ -325,3 +325,35 @@ The following commands **MUST** be executed in this exact order. The sequence mu
 -   **ON SUCCESS:** Only after all commands in the sequence (`eslint`, `tsc`, `vitest`, and `next build`) have executed and passed successfully can the modification task be considered complete. Only then is it permissible to proceed to the next step, such as creating a commit or confirming task completion to the user.
 
 **This protocol is now an immutable part of the operational logic for this project.**
+
+# Архитектура интернационализации (i18n)
+
+В проекте используется "родной" подход к i18n, рекомендованный документацией Next.js для App Router, без использования сторонних библиотек типа `next-intl`.
+
+## Ключевые элементы:
+
+1.  **Маршрутизация:** Используется динамический сегмент `app/[locale]/...`. `middleware.ts` в корне проекта отвечает за определение локали пользователя и редирект на нужный URL (например, `/ru` или `/en`).
+2.  **Словари:** Переводы хранятся в JSON-файлах в папке `dictionaries/` в корне проекта.
+3.  **Загрузка переводов:** Для загрузки словарей на сервере используется функция `getDictionary(locale)` из `src/lib/dictionaries.ts`. Она динамически импортирует нужный JSON.
+
+## ВАЖНО: Работа с `params` в асинхронных Server Components
+
+В текущей версии Next.js/Turbopack пропс `params`, передаваемый в **асинхронные** серверные компоненты (`async function Page({ params })`), является **`Promise`**, а не объектом.
+
+Для получения доступа к параметрам маршрута (например, `locale`) **НЕОБХОДИМО** всегда использовать `await` для самого объекта `params`:
+
+```typescript
+// Правильно:
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const awaitedParams = await params;
+  const locale = awaitedParams.locale;
+  // ...
+}
+
+// НЕПРАВИЛЬНО (приведет к падению рендеринга):
+export default async function Page({ params: { locale } }) {
+  // ...
+}
+```
+
+Это поведение является критически важной особенностью текущей кодовой базы.
