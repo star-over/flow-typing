@@ -1,3 +1,23 @@
 {
-  "title": "Добро пожаловать в FlowTyping"
+  "title": "Добро пожаловать в FlowTyping",
+  "app": {
+    "title": "FlowTyping",
+    "app_state": "Состояние приложения",
+    "loading": "Загрузка...",
+    "start_training": "Начать тренировку",
+    "settings": "Настройки",
+    "stats": "Статистика",
+    "lesson_complete": "Урок пройден!",
+    "back_to_menu": "В меню",
+    "stats_screen_title": "Экран статистики",
+    "error_title": "Произошла ошибка"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language_label": "Язык",
+    "keyboard_layout_label": "Раскладка клавиатуры",
+    "language_placeholder": "Выберите язык",
+    "keyboard_layout_placeholder": "Выберите раскладку",
+    "back_button": "Назад"
+  }
 }

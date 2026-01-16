@@ -1,3 +1,23 @@
 {
-  "title": "Welcome to FlowTyping"
+  "title": "Welcome to FlowTyping",
+  "app": {
+    "title": "FlowTyping",
+    "app_state": "App State",
+    "loading": "Loading...",
+    "start_training": "Start Training",
+    "settings": "Settings",
+    "stats": "Stats",
+    "lesson_complete": "Lesson Complete!",
+    "back_to_menu": "Back to Menu",
+    "stats_screen_title": "Stats Screen",
+    "error_title": "An Error Occurred"
+  },
+  "settings": {
+    "title": "Settings",
+    "language_label": "Language",
+    "keyboard_layout_label": "Keyboard Layout",
+    "language_placeholder": "Select language",
+    "keyboard_layout_placeholder": "Select layout",
+    "back_button": "Back"
+  }
 }

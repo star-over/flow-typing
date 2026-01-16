@@ -9,12 +9,11 @@ function getLocale(request: NextRequest): string {
   const negotiatorHeaders: Record<string, string> = {};
   request.headers.forEach((value, key) => (negotiatorHeaders[key] = value));
   
-  // @ts-ignore locales are readonly
   const languages = new Negotiator({ headers: negotiatorHeaders }).languages(
     locales
   );
   
-  return languages.find(lang => locales.includes(lang)) || defaultLocale;
+  return languages.find((lang: string) => locales.includes(lang)) || defaultLocale;
 }
 
 export function middleware(request: NextRequest) {

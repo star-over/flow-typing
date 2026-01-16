@@ -236,6 +236,33 @@ export type HandStates = {
   [F in FingerId]: FingerState;
 };
 
+// --- i18n ---
+export type Locale = 'en' | 'ru';
+
+export type Dictionary = {
+  title: string;
+  app: {
+    title: string;
+    app_state: string;
+    loading: string;
+    start_training: string;
+    settings: string;
+    stats: string;
+    lesson_complete: string;
+    back_to_menu: string;
+    stats_screen_title: string;
+    error_title: string;
+  };
+  settings: {
+    title: string;
+    language_label: string;
+    keyboard_layout_label: string;
+    language_placeholder: string;
+    keyboard_layout_placeholder: string;
+    back_button: string;
+  };
+};
+
 // --- HandsScene ViewModel ---
 
 /**

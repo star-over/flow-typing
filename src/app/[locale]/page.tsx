@@ -1,21 +1,21 @@
+import { Suspense } from 'react';
+import { AppClient } from '@/app/app-client';
 import { getDictionary } from '@/lib/dictionaries';
+import { Locale } from '@/interfaces/types';
 
 export default async function Page({
   params,
 }: {
-  params: Promise<{ locale: string }>; // params теперь ожидается как промис
+  params: Promise<{ locale: Locale }>;
 }) {
-  // Примечание: в этой версии Next.js/Turbopack `params` является промисом.
-  // Необходимо использовать `await`, чтобы получить доступ к его значениям.
-  const awaitedParams = await params;
-  const locale = awaitedParams.locale;
-
-  // Теперь getDictionary получит корректный locale
-  const dict = await getDictionary(locale);
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale);
 
   return (
     <main>
-      <h1>{dict.title}</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AppClient dictionary={dictionary} />
+      </Suspense>
     </main>
   );
 }
