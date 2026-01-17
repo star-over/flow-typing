@@ -31,8 +31,8 @@ const flowLineVariants = cva(
       } satisfies Record<FlowLineSize, string>,
       /** Режим отображения курсора, влияющий на соотношение ширины зон. */
       cursorMode: {
-        HALF: "[&_.completed-symbols]:w-1/2         [&_.pending-symbols]:w-1/2",
-        THIRD: "[&_.completed-symbols]:w-1/3         [&_.pending-symbols]:w-2/3",
+        HALF: "[&_.completed-symbols]:w-1/2            [&_.pending-symbols]:w-1/2",
+        THIRD: "[&_.completed-symbols]:w-1/3           [&_.pending-symbols]:w-2/3",
         QUARTER: "[&_.completed-symbols]:w-1/4         [&_.pending-symbols]:w-3/4",
         DINAMIC: "[&_.completed-symbols]:min-w-1/12    [&_.pending-symbols]:min-w-1/2",
       } satisfies Record<FlowLineCursorMode, string>,
@@ -125,7 +125,7 @@ const regularSymbolVariants = cva(
       /** Тип символа (правильно набран, ошибка и т.д.). */
       symbolType: {
         PENDING: "text-gray-600",
-        CORRECT: "text-gray-400",
+        CORRECT: "text-green-800",
         ERROR: "text-yellow-600",
         INCORRECTS: "text-rose-700",
         CORRECTED: "text-rose-900",

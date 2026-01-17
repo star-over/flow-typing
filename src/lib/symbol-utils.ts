@@ -180,10 +180,7 @@ export function areKeyCapIdArraysEqual(arr1: KeyCapId[], arr2: KeyCapId[]): bool
   if (arr1.length !== arr2.length) {
     return false;
   }
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false;
-    }
-  }
-  return true;
+  // This works correctly under the assumption that neither arr1 nor arr2 contains duplicate entries.
+  // For keyboard chords, this is a safe assumption.
+  return arr1.every((keyCap) => arr2.includes(keyCap));
 }

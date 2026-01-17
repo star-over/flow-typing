@@ -1,4 +1,4 @@
-import { describe, expect,it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { KeyCapId } from '../interfaces/key-cap-id';
 import { areKeyCapIdArraysEqual } from './utils';
@@ -10,12 +10,17 @@ describe('areKeyCapIdArraysEqual', () => {
     expect(areKeyCapIdArraysEqual(arr1, arr2)).toBe(true);
   });
 
-  it('should return true for arrays with same elements but different order', () => {
+  it('should return true for arrays with same elements but different order - 1', () => {
     const arr1: KeyCapId[] = ['KeyA', 'ShiftLeft'];
     const arr2: KeyCapId[] = ['ShiftLeft', 'KeyA'];
     expect(areKeyCapIdArraysEqual(arr1, arr2)).toBe(true);
   });
 
+  it('should return true for arrays with same elements but different order - 2', () => {
+    const arr1: KeyCapId[] = ['KeyA', 'ShiftLeft'];
+    const arr2: KeyCapId[] = ['ShiftLeft', 'KeyA'];
+    expect(areKeyCapIdArraysEqual(arr2, arr1)).toBe(true);
+  });
   it('should return true for empty arrays', () => {
     const arr1: KeyCapId[] = [];
     const arr2: KeyCapId[] = [];

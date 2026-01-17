@@ -35,7 +35,9 @@ const meta = {
   argTypes: {
     stream: { control: false },
     className: { control: false },
-    cursorPosition: { control: { type: 'number', min: 0 } },
+    cursorPosition: {
+      control: { type: 'number', min: 0 }
+    },
     cursorType: {
       options: FLOW_LINE_CURSOR_TYPES,
       control: "inline-radio",
@@ -65,7 +67,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const fullStreamText = 'The quick brown fo xxx xxx xxx xxx xxx jumps over the lazy dog.';
+const fullStreamText = 'The Quick brown fo xxx xxx xxx xxx xxx jumps over the lazy dog.';
 
 // --- Helper to create KeyCapId[] from a character ---
 const createPressedKeyCupsFromChar = (char: string): KeyCapId[] | null => {
@@ -152,6 +154,17 @@ export const Default: Story = {
     cursorType: meta.argTypes.cursorType.options[0],
     pressResult: meta.argTypes.pressResult.options[0],
     stream: baseStreamPending,
+  },
+};
+
+export const BaseStreamCompleted: Story = {
+  args: {
+    cursorPosition: 20,
+    size: meta.argTypes.size.options[0],
+    cursorMode: meta.argTypes.cursorMode.options[0],
+    cursorType: meta.argTypes.cursorType.options[0],
+    pressResult: meta.argTypes.pressResult.options[0],
+    stream: streamWithOneError,
   },
 };
 

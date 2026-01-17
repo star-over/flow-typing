@@ -110,7 +110,14 @@ export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as
 export type FlowLineCursorType = typeof FLOW_LINE_CURSOR_TYPES[number];
 
 /** Состояние отдельного символа в FlowLine. */
-export const FLOW_LINE_SYMBOL_TYPES = ["PENDING", "CORRECT", "ERROR", "INCORRECTS", "CORRECTED"] as const;
+// TODO: Rename INCORRECTS to ERRORS
+export const FLOW_LINE_SYMBOL_TYPES = [
+  "PENDING",    // Еще не был напечатан пользователем, он только показан, ожидается взаимодействие с пользователем
+  "CORRECT",    // Был напечатан пользователем корректно с первой попытки
+  "CORRECTED",  // Был напечатан пользователем корректно не с первой попытки
+  "ERROR",      // Был напечатан пользователем не корректно один раз
+  "INCORRECTS", // Был напечатан пользвателем не корректно несколько раз
+] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 
 /** Размер шрифта в FlowLine. */
@@ -129,8 +136,8 @@ export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
  */
 export type StreamAttempt = {
   pressedKeyCups: KeyCapId[];   // Данные о нажатом сочетании клавише. Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
-  startAt: number;              //Время начала нажатия (timestamp).
-  endAt: number;                //Время окончания нажатия (timestamp).
+  startAt?: number;              //Время начала нажатия (timestamp).
+  endAt?: number;                //Время окончания нажатия (timestamp).
 };
 
 /**

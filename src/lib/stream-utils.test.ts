@@ -69,19 +69,20 @@ describe("addAttempt", () => {
 });
 
 describe("getSymbolType", () => {
-  const correctPressedKeyCups: KeyCapId[] = ["KeyA"];
-  const incorrectPressedKeyCups: KeyCapId[] = ["KeyB"];
-
-  it('should return "PENDING" for a symbol with an empty attempts array', () => {
-    const symbol: StreamSymbol = { targetSymbol: "a", targetKeyCaps: ['KeyA'], attempts: [] };
+  it('should return "PENDING" for a symbol with no attempts', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "a",
+      targetKeyCaps: ["KeyA"],
+      attempts: [],
+    };
     expect(getSymbolType(symbol)).toBe("PENDING");
   });
 
   it('should return "CORRECT" for a correct first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      targetKeyCaps: ['KeyA'],
-      attempts: [{ pressedKeyCups: correctPressedKeyCups, startAt: 0, endAt: 1 }],
+      targetKeyCaps: ["KeyA"],
+      attempts: [{ pressedKeyCups: ["KeyA"] }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
@@ -89,8 +90,8 @@ describe("getSymbolType", () => {
   it('should return "ERROR" for an incorrect first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      targetKeyCaps: ['KeyA'],
-      attempts: [{ pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 }],
+      targetKeyCaps: ["KeyA"],
+      attempts: [{ pressedKeyCups: ["KeyB"] }],
     };
     expect(getSymbolType(symbol)).toBe("ERROR");
   });
@@ -98,10 +99,10 @@ describe("getSymbolType", () => {
   it('should return "CORRECTED" for a correct attempt after an incorrect one', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      targetKeyCaps: ['KeyA'],
+      targetKeyCaps: ["KeyA"],
       attempts: [
-        { pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 },
-        { pressedKeyCups: correctPressedKeyCups, startAt: 1, endAt: 2 },
+        { pressedKeyCups: ["KeyB"] },
+        { pressedKeyCups: ["KeyA"] },
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
@@ -110,15 +111,69 @@ describe("getSymbolType", () => {
   it('should return "INCORRECTS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
-      targetKeyCaps: ['KeyA'],
+      targetKeyCaps: ["KeyA"],
       attempts: [
-        { pressedKeyCups: incorrectPressedKeyCups, startAt: 0, endAt: 1 },
-        { pressedKeyCups: incorrectPressedKeyCups, startAt: 1, endAt: 2 },
+        { pressedKeyCups: ["KeyB"] },
+        { pressedKeyCups: ["KeyC"]},
       ],
     };
     expect(getSymbolType(symbol)).toBe("INCORRECTS");
   });
+
+  // --- Tests for Chord Presses (e.g., Shift + Key) ---
+
+  it('should return "CORRECT" for a correct chord press (e.g., Shift + A)', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "A",
+      targetKeyCaps: ["ShiftLeft", "KeyA"],
+      attempts: [{ pressedKeyCups: ["ShiftLeft", "KeyA"] }],
+    };
+    expect(getSymbolType(symbol)).toBe("CORRECT");
+  });
+
+  it('should return "ERROR" when a required modifier is missing', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "A",
+      targetKeyCaps: ["ShiftLeft", "KeyA"],
+      attempts: [{ pressedKeyCups: ["KeyA"] }],
+    };
+    expect(getSymbolType(symbol)).toBe("ERROR");
+  });
+
+  it('should return "ERROR" when the wrong key is pressed with a correct modifier', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "A",
+      targetKeyCaps: ["ShiftLeft", "KeyA"],
+      attempts: [{ pressedKeyCups: ["ShiftLeft", "KeyB"] }],
+    };
+    expect(getSymbolType(symbol)).toBe("ERROR");
+  });
+
+  it('should return "CORRECTED" for a correct chord press after a failed attempt', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "A",
+      targetKeyCaps: ["ShiftLeft", "KeyA"],
+      attempts: [
+        { pressedKeyCups: ["KeyA"] }, // Incorrect attempt
+        { pressedKeyCups: ["ShiftLeft", "KeyA"] }, // Correct attempt
+      ],
+    };
+    expect(getSymbolType(symbol)).toBe("CORRECTED");
+  });
+
+  it('should return "CORRECTED" for a correct chord press after a failed attempt with any order of KeyCaps', () => {
+    const symbol: StreamSymbol = {
+      targetSymbol: "A",
+      targetKeyCaps: ["ShiftLeft", "KeyA"],
+      attempts: [
+        { pressedKeyCups: ["KeyA"] }, // Incorrect attempt
+        { pressedKeyCups: ["KeyA", "ShiftLeft"] }, // Correct attempt with different KeyCaps order
+      ],
+    };
+    expect(getSymbolType(symbol)).toBe("CORRECTED");
+  });
 });
+
 
 describe("getSymbolChar", () => {
   it("should return the target symbol for a regular character", () => {
