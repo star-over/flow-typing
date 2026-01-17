@@ -6,6 +6,7 @@ import {
   FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,
   FLOW_LINE_SIZES,
+  KEY_CAP_PRESS_RESULTS,
   KeyCapId,
   TypingStream
 } from '@/interfaces/types';
@@ -42,6 +43,10 @@ const meta = {
     size: {
       options: FLOW_LINE_SIZES,
       control: "inline-radio",
+    },
+    pressResult: {
+      options: KEY_CAP_PRESS_RESULTS,
+      control: "inline-radio"
     },
     cursorMode: {
       options: FLOW_LINE_CURSOR_MODES,
@@ -145,6 +150,7 @@ export const Default: Story = {
     size: meta.argTypes.size.options[0],
     cursorMode: meta.argTypes.cursorMode.options[0],
     cursorType: meta.argTypes.cursorType.options[0],
+    pressResult: meta.argTypes.pressResult.options[0],
     stream: baseStreamPending,
   },
 };
@@ -155,6 +161,7 @@ export const WithOneError: Story = {
     size: meta.argTypes.size.options[0],
     cursorMode: meta.argTypes.cursorMode.options[0],
     cursorType: meta.argTypes.cursorType.options[0],
+    pressResult: meta.argTypes.pressResult.options[0],
     stream: streamWithOneError,
   },
 };
@@ -165,6 +172,7 @@ export const WithMultipleErrors: Story = {
     size: meta.argTypes.size.options[0],
     cursorMode: meta.argTypes.cursorMode.options[0],
     cursorType: meta.argTypes.cursorType.options[0],
+    pressResult: meta.argTypes.pressResult.options[0],
     stream: streamWithMultipleErrors,
   },
 };

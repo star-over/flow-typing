@@ -11,13 +11,14 @@ export default function RootPage() {
 
   useEffect(() => {
     const userLanguages = navigator.languages || [navigator.language];
-    const preferredLanguage = userLanguages.find(lang => {
+    const preferredLanguage = userLanguages.find((lang) => {
       const baseLang = lang.split('-')[0];
       return locales.includes(baseLang);
     })?.split('-')[0] || defaultLocale;
-    
+
     router.replace(`/${preferredLanguage}`);
   }, [router]);
 
+  // TODO: move string const to i18n
   return <div>Loading...</div>;
 }

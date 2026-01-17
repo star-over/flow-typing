@@ -11,6 +11,7 @@ import { FingerLayout, HandsSceneViewModel, KeyboardLayout } from "@/interfaces/
 import { createKeyCoordinateMap, KeyCoordinateMap } from '@/lib/layout-utils';
 import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
+import { getPressResult } from "@/lib/press-result-utils";
 import { trainingMachine } from "@/machines/training.machine";
 
 import { FlowLine } from "./flow-line";
@@ -83,6 +84,7 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: T
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
   const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayout, keyboardGraph, keyCoordinateMap);
 
+  const pressResult = getPressResult(trainingState.context.stream?.[trainingState.context.currentIndex]);
   const flowLineFixture = stream[currentIndex];
 
 
@@ -93,7 +95,7 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: T
         Training Machine State: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{trainingState.value.toString()}</code>
       </p>
 
-      <FlowLine stream={stream} cursorPosition={currentIndex} />
+      <FlowLine stream={stream} cursorPosition={currentIndex} pressResult={pressResult} />
 
       <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout}/>
 

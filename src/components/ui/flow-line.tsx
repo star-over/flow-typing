@@ -5,10 +5,10 @@
  * Динамически отображает состояние символов (правильно/неправильно набрано).
  */
 import { cva, VariantProps } from "class-variance-authority";
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, TypingStream } from '@/interfaces/types';
-import { getSymbolChar,getSymbolType } from '@/lib/stream-utils';
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, KeyCapPressResult, TypingStream } from '@/interfaces/types';
+import { getSymbolChar, getSymbolType } from '@/lib/stream-utils';
 import { cn } from '@/lib/utils';
 
 // --- Variants ---
@@ -31,11 +31,17 @@ const flowLineVariants = cva(
       } satisfies Record<FlowLineSize, string>,
       /** Режим отображения курсора, влияющий на соотношение ширины зон. */
       cursorMode: {
-        HALF:    "[&_.completed-symbols]:w-1/2         [&_.pending-symbols]:w-1/2",
-        THIRD:   "[&_.completed-symbols]:w-1/3         [&_.pending-symbols]:w-2/3",
+        HALF: "[&_.completed-symbols]:w-1/2         [&_.pending-symbols]:w-1/2",
+        THIRD: "[&_.completed-symbols]:w-1/3         [&_.pending-symbols]:w-2/3",
         QUARTER: "[&_.completed-symbols]:w-1/4         [&_.pending-symbols]:w-3/4",
         DINAMIC: "[&_.completed-symbols]:min-w-1/12    [&_.pending-symbols]:min-w-1/2",
       } satisfies Record<FlowLineCursorMode, string>,
+      /** Результат нажатия клавиши. */
+      pressResult: {
+        NONE: "",
+        CORRECT: "bg-green-100",
+        ERROR: "bg-red-100",
+      } satisfies Record<KeyCapPressResult, string>,
     },
     defaultVariants: {
       size: "MD",
@@ -64,7 +70,7 @@ export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
  * @param props Пропсы компонента.
  * @returns Элемент JSX, представляющий строку потока ввода.
  */
-export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, className }: FlowLineProps) {
+export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, pressResult, className }: FlowLineProps) {
   const completedSymbols = stream.slice(0, cursorPosition);
   const cursorSymbol = stream[cursorPosition];
   const pendingSymbols = stream.slice(cursorPosition + 1);
@@ -72,10 +78,10 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
   const pendingCount = 100;    // Количество отображаемых ожидающих символов
 
   return (
-    <div className={cn(flowLineVariants({ cursorMode, size, className }))}>
+    <div className={cn(flowLineVariants({ cursorMode, size, pressResult, className }))}>
 
       {/* ---- Completed Symbols ---- */}
-      <span className="completed-symbols flex justify-end whitespace-nowrap text-right overflow-hidden bg-amber-100">
+      <div className="completed-symbols flex justify-end whitespace-nowrap text-right overflow-hidden">
         {completedSymbols.slice(completedCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
@@ -83,7 +89,7 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
             symbolType={getSymbolType(symbol)}
           />
         ))}
-      </span>
+      </div>
 
       {/* ---- Cursor Symbol ---- */}
       <CursorSymbol
@@ -93,14 +99,14 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
       />
 
       {/* ---- Pending Symbols ---- */}
-      <span className="pending-symbols flex justify-start whitespace-pre text-left overflow-hidden bg-rose-100">
+      <div className="pending-symbols flex justify-start whitespace-pre text-left overflow-hidden">
         {pendingSymbols.slice(0, pendingCount).map((symbol, index) => (
           <RegularSymbol
             key={index}
             symbol={getSymbolChar(symbol)}
           />
         ))}
-      </span>
+      </div>
     </div>
   );
 }
@@ -204,7 +210,7 @@ function CursorSymbol({ cursorType, symbol, className, ...props }: CursorSymbolP
   }, [symbol]);
 
   return (
-    <span className="relative">
+    <span className="cursor-symbol relative">
       <span className={cn(cursorSymbolVariants({ cursorType, isTyping, className }))} {...props} />
       <span className="text-gray-50 mix-blend-difference">
         {symbol}
