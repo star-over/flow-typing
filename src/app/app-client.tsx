@@ -1,8 +1,8 @@
 "use client";
 
 import { useMachine } from "@xstate/react";
-import { useEffect } from "react";
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from "react"; // Added useState
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { TrainingScene } from "@/components/ui/training-scene";
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
@@ -11,25 +11,34 @@ import { KeyCapId } from "@/interfaces/key-cap-id";
 import { AppEvent, appMachine } from "@/machines/app.machine";
 import { useSettingsStore } from "@/store/settings.store";
 import { SettingsClientPage } from "@/components/ui/settings-client-page";
-import { Dictionary } from "@/interfaces/types";
+import { Dictionary, Locale } from "@/interfaces/types"; // Added Locale
+import { LanguageSetter } from "@/components/LanguageSetter";
 
 
-export function AppClient({ dictionary }: { dictionary: Dictionary }) {
+export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionary, initialLocale: Locale }) { // Added initialLocale
   const [state, send] = useMachine(appMachine);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
 
-  const { language, isInitialized: isSettingsStoreInitialized, shared, updateSettings } = useSettingsStore();
+  const [currentDictionary, setCurrentDictionary] = useState<Dictionary>(dictionary); // Managed client-side
+  const [currentLocale, setCurrentLocale] = useState<Locale>(initialLocale); // Managed client-side
+
+  const { language: zustandLanguage, isInitialized: isSettingsStoreInitialized, shared, updateSettings } = useSettingsStore(); // Renamed language to zustandLanguage
   const { exerciseId: exerciseIdFromStore } = shared;
 
-  // Effect to synchronize language setting with URL
+  // Effect to correct language client-side if server-rendered language is outdated
   useEffect(() => {
-    const currentLocale = pathname.split('/')[1];
-    if (isSettingsStoreInitialized && language !== currentLocale) {
-      router.push(`/${language}`);
+    if (isSettingsStoreInitialized && zustandLanguage !== currentLocale) {
+      const loadDictionary = async () => {
+        const newDictionary = await import(`../../dictionaries/${zustandLanguage}.json`).then(
+          (module) => module.default
+        );
+        setCurrentDictionary(newDictionary);
+        setCurrentLocale(zustandLanguage);
+      };
+      loadDictionary();
     }
-  }, [language, pathname, router, isSettingsStoreInitialized]);
+  }, [zustandLanguage, currentLocale, isSettingsStoreInitialized]);
 
 
   // Effect to read URL parameters on initial load
@@ -55,10 +64,10 @@ export function AppClient({ dictionary }: { dictionary: Dictionary }) {
       const currentQueryString = window.location.search.substring(1);
 
       if (newQueryString !== currentQueryString) {
-        router.replace(`${pathname}?${newQueryString}`, { scroll: false });
+        router.replace(`/${newQueryString ? `?${newQueryString}` : ''}`, { scroll: false });
       }
     }
-  }, [isSettingsStoreInitialized, exerciseIdFromStore, pathname, router]);
+  }, [isSettingsStoreInitialized, exerciseIdFromStore, router]);
 
 
   // Access the invoked training actor if it exists
@@ -97,24 +106,25 @@ export function AppClient({ dictionary }: { dictionary: Dictionary }) {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_10px] items-center justify-items-center min-h-screen p-4 pb-20">
+      <LanguageSetter />
       <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
-        <h1 className="text-xl font-bold">{dictionary.app.title}</h1>
+        <h1 className="text-xl font-bold">{currentDictionary.app.title}</h1>
         <p className="text-lg">
-        {dictionary.app.app_state}: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{state.value.toString()}</code>
+        {currentDictionary.app.app_state}: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{state.value.toString()}</code>
         </p>
 
-        {state.matches('initializing') && <div>{dictionary.app.loading}</div>}
+        {state.matches('initializing') && <div>{currentDictionary.app.loading}</div>}
 
         {state.matches('idle') && (
           <div className="flex gap-4">
             <button onClick={() => send({ type: 'START_TRAINING' })} className="p-2 bg-blue-500 text-white rounded">
-              {dictionary.app.start_training}
+              {currentDictionary.app.start_training}
             </button>
             <button onClick={() => send({ type: 'GO_TO_SETTINGS' })} className="p-2 bg-gray-500 text-white rounded">
-              {dictionary.app.settings}
+              {currentDictionary.app.settings}
             </button>
             <button onClick={() => send({ type: 'VIEW_STATS' })} className="p-2 bg-gray-500 text-white rounded">
-              {dictionary.app.stats}
+              {currentDictionary.app.stats}
             </button>
           </div>
         )}
@@ -122,31 +132,31 @@ export function AppClient({ dictionary }: { dictionary: Dictionary }) {
         {trainingActor && (
           <div>
             <TrainingScene trainingActor={trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} />
-            {state.matches('trainingComplete') && <p className="text-xl font-bold text-green-500 mt-4">{dictionary.app.lesson_complete}</p>}
+            {state.matches('trainingComplete') && <p className="text-xl font-bold text-green-500 mt-4">{currentDictionary.app.lesson_complete}</p>}
             <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
-              {dictionary.app.back_to_menu}
+              {currentDictionary.app.back_to_menu}
             </button>
           </div>
         )}
 
         {state.matches('settings') && (
-          <SettingsClientPage onBack={() => send({ type: 'BACK_TO_MENU' })} dictionary={dictionary.settings} />
+          <SettingsClientPage onBack={() => send({ type: 'BACK_TO_MENU' })} dictionary={currentDictionary.settings} />
         )}
 
         {state.matches('stats') && (
           <div>
-            <h2>{dictionary.app.stats_screen_title}</h2>
+            <h2>{currentDictionary.app.stats_screen_title}</h2>
             <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
-              {dictionary.app.back_to_menu}
+              {currentDictionary.app.back_to_menu}
             </button>
           </div>
         )}
 
         {state.matches('error') && (
             <div>
-                <h2 className="text-red-500">{dictionary.app.error_title}</h2>
+                <h2 className="text-red-500">{currentDictionary.app.error_title}</h2>
                 <button onClick={() => send({ type: 'BACK_TO_MENU' })} className="p-2 mt-4 bg-red-500 text-white rounded">
-                {dictionary.app.back_to_menu}
+                {currentDictionary.app.back_to_menu}
                 </button>
             </div>
         )}

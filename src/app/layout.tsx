@@ -2,6 +2,11 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from 'next/font/google';
+import { cookies } from "next/headers"; // Import cookies
+import { getDictionary } from "@/lib/dictionaries"; // Import getDictionary
+import { Locale } from "@/interfaces/types"; // Import Locale
+import { AppClient } from "./app-client";
+import { LANG_COOKIE_NAME } from "@/components/LanguageSetter"; // Import LANG_COOKIE_NAME
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -18,17 +23,17 @@ export const metadata: Metadata = {
   description: "AI powered typing training",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout(
+) {
+  const cookiesList = await cookies(); // Await the cookies() function
+  const locale = (cookiesList.get(LANG_COOKIE_NAME)?.value as Locale) || 'en'; // Read locale from cookie
+
+  const dictionary = await getDictionary(locale); // Fetch dictionary
+
   return (
-    // The `lang` attribute will be set in the [locale]/layout.tsx
-    // eslint-disable-next-line jsx-a11y/html-has-lang
-    <html className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body>
-        {children}
+        <AppClient dictionary={dictionary} initialLocale={locale} /> {/* Pass initialLocale */}
       </body>
     </html>
   );

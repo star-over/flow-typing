@@ -1,6 +1,7 @@
 // src/components/ui/settings-client-page.tsx
 'use client';
 
+import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSettingsStore } from '@/store/settings.store';
 import {
   Select,
@@ -19,9 +20,11 @@ interface SettingsClientPageProps {
 
 export function SettingsClientPage({ onBack, dictionary }: SettingsClientPageProps) {
   const { language, keyboardLayout, updateSettings } = useSettingsStore();
+  const router = useRouter(); // Get router instance
 
   const handleLanguageChange = (value: Settings['language']) => {
     updateSettings({ language: value });
+    router.refresh(); // Trigger a refresh after language change
   };
 
   const handleKeyboardLayoutChange = (value: Settings['keyboardLayout']) => {
