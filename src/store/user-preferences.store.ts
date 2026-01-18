@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { UserPreferences } from '@/interfaces/user-preferences';
-import { DEFAULT_USER_PREFERENCES } from '@/data/default-settings';
+import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
 import { deepMerge } from '@/lib/utils';
 
 interface UserPreferencesState extends UserPreferences {
