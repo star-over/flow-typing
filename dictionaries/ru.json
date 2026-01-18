@@ -12,8 +12,8 @@
     "stats_screen_title": "Экран статистики",
     "error_title": "Произошла ошибка"
   },
-  "settings": {
-    "title": "Настройки",
+  "user_preferences": {
+    "title": "Пользовательские Предпочтения",
     "language_label": "Язык",
     "keyboard_layout_label": "Раскладка клавиатуры",
     "language_placeholder": "Выберите язык",

@@ -1,10 +1,10 @@
-// src/interfaces/settings.ts
+// src/interfaces/user-preferences.ts
 
 /**
- * Определяет структуру настроек приложения.
+ * Определяет структуру пользовательских предпочтений приложения.
  * В MVP включает только базовые опции.
  */
-export interface Settings {
+export interface UserPreferences {
   /**
    * Язык интерфейса и упражнений.
    */
@@ -16,7 +16,7 @@ export interface Settings {
   keyboardLayout: 'qwerty' | 'йцукен';
 
   /**
-   * Настройки, предназначенные для обмена через URL.
+   * Предпочтения, предназначенные для обмена через URL.
    * Позволяют делиться ссылками на конкретные упражнения или состояния.
    */
   shared: {

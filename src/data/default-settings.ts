@@ -1,7 +1,7 @@
 // src/data/default-settings.ts
-import { Settings } from '@/interfaces/settings';
+import { UserPreferences } from '@/interfaces/user-preferences';
 
-export const DEFAULT_SETTINGS: Settings = {
+export const DEFAULT_USER_PREFERENCES: UserPreferences = {
   language: 'en',
   keyboardLayout: 'qwerty',
   shared: {},

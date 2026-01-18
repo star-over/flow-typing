@@ -253,14 +253,14 @@ export type Dictionary = {
     app_state: string;
     loading: string;
     start_training: string;
-    settings: string;
+    settings: string; // This refers to the app settings UI button
     stats: string;
     lesson_complete: string;
     back_to_menu: string;
     stats_screen_title: string;
     error_title: string;
   };
-  settings: {
+  user_preferences: { // Renamed from settings
     title: string;
     language_label: string;
     keyboard_layout_label: string;
@@ -269,6 +269,10 @@ export type Dictionary = {
     back_button: string;
   };
 };
+
+// --- HandsScene ViewModel ---
+
+// --- HandsScene ViewModel ---
 
 // --- HandsScene ViewModel ---
 

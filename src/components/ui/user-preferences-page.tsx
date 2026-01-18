@@ -1,8 +1,8 @@
-// src/components/ui/settings-client-page.tsx
+// src/components/ui/user-preferences-page.tsx
 'use client';
 
-import { useRouter } from 'next/navigation'; // Import useRouter
-import { useSettingsStore } from '@/store/settings.store';
+import { useRouter } from 'next/navigation';
+import { useUserPreferencesStore } from '@/store/user-preferences.store';
 import {
   Select,
   SelectContent,
@@ -10,25 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Settings } from '@/interfaces/settings';
+import { UserPreferences } from '@/interfaces/user-preferences';
 import { Dictionary } from '@/interfaces/types';
 
-interface SettingsClientPageProps {
+interface UserPreferencesPageProps {
   onBack: () => void;
-  dictionary: Dictionary['settings'];
+  dictionary: Dictionary['user_preferences'];
 }
 
-export function SettingsClientPage({ onBack, dictionary }: SettingsClientPageProps) {
-  const { language, keyboardLayout, updateSettings } = useSettingsStore();
-  const router = useRouter(); // Get router instance
+export function UserPreferencesPage({ onBack, dictionary }: UserPreferencesPageProps) {
+  const { language, keyboardLayout, updateUserPreferences } = useUserPreferencesStore();
+  const router = useRouter();
 
-  const handleLanguageChange = (value: Settings['language']) => {
-    updateSettings({ language: value });
-    router.refresh(); // Trigger a refresh after language change
+  const handleLanguageChange = (value: UserPreferences['language']) => {
+    updateUserPreferences({ language: value });
+    router.refresh();
   };
 
-  const handleKeyboardLayoutChange = (value: Settings['keyboardLayout']) => {
-    updateSettings({ keyboardLayout: value });
+  const handleKeyboardLayoutChange = (value: UserPreferences['keyboardLayout']) => {
+    updateUserPreferences({ keyboardLayout: value });
   };
 
   return (

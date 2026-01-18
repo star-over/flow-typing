@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSettingsStore } from '@/store/settings.store';
+import { useUserPreferencesStore } from '@/store/user-preferences.store';
 
 export const LANG_COOKIE_NAME = 'NEXT_LOCALE'; // Common name for Next.js locale cookies
 
 export function LanguageSetter() {
-  const language = useSettingsStore((state) => state.language);
+  const language = useUserPreferencesStore((state) => state.language);
 
   useEffect(() => {
     // Set cookie with current language from Zustand store

@@ -12,8 +12,8 @@
     "stats_screen_title": "Stats Screen",
     "error_title": "An Error Occurred"
   },
-  "settings": {
-    "title": "Settings",
+  "user_preferences": {
+    "title": "User Preferences",
     "language_label": "Language",
     "keyboard_layout_label": "Keyboard Layout",
     "language_placeholder": "Select language",

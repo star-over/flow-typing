@@ -9,9 +9,9 @@ import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { KeyCapId } from "@/interfaces/key-cap-id";
 import { AppEvent, appMachine } from "@/machines/app.machine";
-import { useSettingsStore } from "@/store/settings.store";
-import { SettingsClientPage } from "@/components/ui/settings-client-page";
-import { Dictionary, Locale } from "@/interfaces/types"; // Added Locale
+import { useUserPreferencesStore } from "@/store/user-preferences.store";
+import { UserPreferencesPage } from "@/components/ui/user-preferences-page"; // Renamed component
+import { Dictionary, Locale } from "@/interfaces/types";
 import { LanguageSetter } from "@/components/LanguageSetter";
 
 
@@ -23,12 +23,12 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
   const [currentDictionary, setCurrentDictionary] = useState<Dictionary>(dictionary); // Managed client-side
   const [currentLocale, setCurrentLocale] = useState<Locale>(initialLocale); // Managed client-side
 
-  const { language: zustandLanguage, isInitialized: isSettingsStoreInitialized, shared, updateSettings } = useSettingsStore(); // Renamed language to zustandLanguage
+  const { language: zustandLanguage, isInitialized: isUserPreferencesStoreInitialized, shared, updateUserPreferences } = useUserPreferencesStore(); // Renamed language to zustandLanguage
   const { exerciseId: exerciseIdFromStore } = shared;
 
   // Effect to correct language client-side if server-rendered language is outdated
   useEffect(() => {
-    if (isSettingsStoreInitialized && zustandLanguage !== currentLocale) {
+    if (isUserPreferencesStoreInitialized && zustandLanguage !== currentLocale) {
       const loadDictionary = async () => {
         const newDictionary = await import(`../../dictionaries/${zustandLanguage}.json`).then(
           (module) => module.default
@@ -38,22 +38,22 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
       };
       loadDictionary();
     }
-  }, [zustandLanguage, currentLocale, isSettingsStoreInitialized]);
+  }, [zustandLanguage, currentLocale, isUserPreferencesStoreInitialized]);
 
 
   // Effect to read URL parameters on initial load
   useEffect(() => {
-    if (isSettingsStoreInitialized) {
+    if (isUserPreferencesStoreInitialized) {
       const exerciseIdFromUrl = searchParams.get('exerciseId');
       if (exerciseIdFromUrl) {
-        updateSettings({ shared: { exerciseId: exerciseIdFromUrl } });
+        updateUserPreferences({ shared: { exerciseId: exerciseIdFromUrl } });
       }
     }
-  }, [isSettingsStoreInitialized, searchParams, updateSettings]);
+  }, [isUserPreferencesStoreInitialized, searchParams, updateUserPreferences]);
 
   // Effect to update URL parameters when settings change
   useEffect(() => {
-    if (isSettingsStoreInitialized) {
+    if (isUserPreferencesStoreInitialized) {
       const currentUrlParams = new URLSearchParams(window.location.search);
       if (exerciseIdFromStore) {
         currentUrlParams.set('exerciseId', exerciseIdFromStore);
@@ -67,7 +67,7 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
         router.replace(`/${newQueryString ? `?${newQueryString}` : ''}`, { scroll: false });
       }
     }
-  }, [isSettingsStoreInitialized, exerciseIdFromStore, router]);
+  }, [isUserPreferencesStoreInitialized, exerciseIdFromStore, router]);
 
 
   // Access the invoked training actor if it exists
@@ -140,7 +140,7 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
         )}
 
         {state.matches('settings') && (
-          <SettingsClientPage onBack={() => send({ type: 'BACK_TO_MENU' })} dictionary={currentDictionary.settings} />
+          <UserPreferencesPage onBack={() => send({ type: 'BACK_TO_MENU' })} dictionary={currentDictionary.user_preferences} />
         )}
 
         {state.matches('stats') && (
