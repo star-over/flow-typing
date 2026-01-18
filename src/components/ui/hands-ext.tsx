@@ -2,7 +2,7 @@
 import { cva } from 'class-variance-authority';
 import { useEffect, useMemo, useRef } from 'react';
 
-import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, ModifierKey, Visibility } from '@/interfaces/types';
+import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, LEFT_HAND_FINGERS, ModifierKey, RIGHT_HAND_FINGERS, Visibility } from '@/interfaces/types';
 import { calculateClusterTranslation } from '@/lib/positioning-utils';
 import { cn } from '@/lib/utils';
 import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
@@ -18,6 +18,7 @@ const part4 = "M87.2 167.2c-12.4 1.3-26.2-7-32.6-17.1-4-6.5-3.7-10.5 2.1-15.3a23
 const part5 = "M16.2 144.6c1.6-18-6.7-36.4-9.9-55.7-1.6-9.7-2-19.6-2.3-29.5-.1-6 2.7-11.4 9-12.8a11 11 0 0 1 13 7.6c3.8 11 6.5 22.4 9.2 33.7a938 938 0 0 1 8.1 37c1.3 6.3 4.5 10.5 11 12.3 5.8 1.7 7.3 5.4 3.9 10.2a60.4 60.4 0 0 1-32.3 22.3c-5.7 1.7-9.1-1.4-9.6-8.1-.4-5-.1-10-.1-17Z";
 const partB = "M57.8 137.3c13.4 0 77 2.7 88.8 7.4 23 9 30.2 24.7 23.3 48.4a95 95 0 0 0-1.7 42c.4 4.1.6 5.2.5 9.4-.5 14.4-9.6 30.7-14.5 44.2-5.9 16.2-12.7 28.9-31.6 31.2l-25.5.3-21.2-2.9c-34.4-6.2-64.3-14.9-75-52.7-.7-6.9-.4-12.8.7-20.3l.6-3.8c4.2-24 8.8-47.9 12.5-72 2.6-16.5 12.3-25.4 27.7-29.1 5-1.2 10.2-1.6 15.4-2.1Z";
 
+const FINGER_IDS_FOR_RENDER = [...LEFT_HAND_FINGERS, ...RIGHT_HAND_FINGERS];
 
 const handsVariants = cva("",
   {
@@ -68,13 +69,13 @@ interface HandsExtProps {
  */
 export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, centerPointVisibility, ...props }: HandsExtProps) => {
   // Определяем массив идентификаторов пальцев для левой и правой руки
-  const fingerIds: FingerId[] = useMemo(() => ['L5', 'L4', 'L3', 'L2', 'L1', 'R1', 'R2', 'R3', 'R4', 'R5'], []);
+
   // Используем useRef для хранения ссылок на контейнеры виртуальных клавиатур каждого пальца
   const keyboardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Эффект для позиционирования виртуальных клавиатур относительно центральных точек пальцев
   useEffect(() => {
-    fingerIds.forEach((fingerId) => {
+    FINGER_IDS_FOR_RENDER.forEach((fingerId) => {
       // Находим "домашнюю" клавишу для текущего пальца из его раскладки
       const homeKeyEntry = fingerLayout.find(
         (item) => item.fingerId === fingerId && item.isHomeKey
@@ -114,7 +115,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
         }
       }
     });
-  }, [viewModel, fingerIds, fingerLayout]); // Зависимости эффекта: viewModel и fingerIds
+  }, [viewModel, fingerLayout]); // Зависимости эффекта: viewModel и fingerIds
 
   // Извлекаем состояния пальцев из viewModel для применения стилей
   const fingerStates = Object.fromEntries(
@@ -161,7 +162,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
           Слой клавиатур: Рендерится *после* SVG рук, чтобы гарантировать,
           что кластеры клавиш будут отображаться поверх (выше по z-оси).
         */}
-        {fingerIds.map((fingerId) => {
+        {FINGER_IDS_FOR_RENDER.map((fingerId) => {
           const fingerSceneState = viewModel[fingerId];
           // Рендерим клавиатуру только если палец не в состоянии 'IDLE' и у него есть ассоциированные клавиши
           if (fingerSceneState.fingerState === 'NONE' || !fingerSceneState.keyCapStates) {

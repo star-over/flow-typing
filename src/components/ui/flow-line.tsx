@@ -5,11 +5,12 @@
  * Динамически отображает состояние символов (правильно/неправильно набрано).
  */
 import { cva, VariantProps } from "class-variance-authority";
-import { useEffect, useState } from 'react';
 
-import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, FlowLineSymbolType, KeyCapPressResult, TypingStream } from '@/interfaces/types';
+import { FlowLineCursorMode, FlowLineCursorType, FlowLineSize, KeyCapPressResult, TypingStream } from '@/interfaces/types';
 import { getSymbolChar, getSymbolType } from '@/lib/stream-utils';
 import { cn } from '@/lib/utils';
+import { CursorSymbol } from "./cursor-symbol";
+import { RegularSymbol } from "./regular-symbol";
 
 // --- Variants ---
 
@@ -71,20 +72,25 @@ export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
  * @returns Элемент JSX, представляющий строку потока ввода.
  */
 export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, pressResult, className }: FlowLineProps) {
-  const completedSymbols = stream.slice(0, cursorPosition);
-  const cursorSymbol = stream[cursorPosition];
-  const pendingSymbols = stream.slice(cursorPosition + 1);
-  const completedCount = -100; // Количество отображаемых пройденных символов
+  const completedCount = 100; // Количество отображаемых пройденных символов
   const pendingCount = 100;    // Количество отображаемых ожидающих символов
+
+  const startCompleted = Math.max(0, cursorPosition - completedCount);
+  const completedSymbolsToRender = stream.slice(startCompleted, cursorPosition);
+
+  const cursorSymbol = stream[cursorPosition];
+
+  const endPending = cursorPosition + 1 + pendingCount;
+  const pendingSymbolsToRender = stream.slice(cursorPosition + 1, endPending);
 
   return (
     <div className={cn(flowLineVariants({ cursorMode, size, pressResult, className }))}>
 
       {/* ---- Completed Symbols ---- */}
       <div className="completed-symbols flex justify-end whitespace-nowrap text-right overflow-hidden">
-        {completedSymbols.slice(completedCount).map((symbol, index) => (
+        {completedSymbolsToRender.map((symbol, index) => (
           <RegularSymbol
-            key={index}
+            key={startCompleted + index}
             symbol={getSymbolChar(symbol)}
             symbolType={getSymbolType(symbol)}
           />
@@ -100,121 +106,13 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
 
       {/* ---- Pending Symbols ---- */}
       <div className="pending-symbols flex justify-start whitespace-pre text-left overflow-hidden">
-        {pendingSymbols.slice(0, pendingCount).map((symbol, index) => (
+        {pendingSymbolsToRender.map((symbol, index) => (
           <RegularSymbol
-            key={index}
+            key={cursorPosition + 1 + index}
             symbol={getSymbolChar(symbol)}
           />
         ))}
       </div>
     </div>
-  );
-}
-
-// --- Sub-components & Variants ---
-
-// -------- RegularSymbol --------
-/**
- * Варианты стилей для обычного символа в `FlowLine`.
- * Определяет цвет символа в зависимости от его типа (`FlowLineSymbolType`).
- */
-const regularSymbolVariants = cva(
-  "", // Base classes are handled by variants for clarity.
-  {
-    variants: {
-      /** Тип символа (правильно набран, ошибка и т.д.). */
-      symbolType: {
-        PENDING: "text-gray-600",
-        CORRECT: "text-green-800",
-        ERROR: "text-yellow-600",
-        INCORRECTS: "text-rose-700",
-        CORRECTED: "text-rose-900",
-      } satisfies Record<FlowLineSymbolType, string>,
-    },
-    defaultVariants: {
-      symbolType: "PENDING",
-    }
-  }
-);
-
-/** Пропсы для компонента `RegularSymbol`. */
-type RegularSymbolProps = React.ComponentProps<"span">
-  & VariantProps<typeof regularSymbolVariants>
-  & { /** Отображаемый символ. */ symbol: string; }
-
-/**
- * Вспомогательный компонент для отображения обычного символа в `FlowLine`.
- * @param props Пропсы компонента.
- * @returns Элемент JSX, представляющий символ.
- */
-function RegularSymbol({ symbolType, symbol, className, ...props }: RegularSymbolProps) {
-  return (
-    <span className={cn(regularSymbolVariants({ symbolType, className }))} {...props}>
-      {symbol}
-    </span>
-  );
-}
-
-// -------- CursorSymbol --------
-/**
- * Варианты стилей для компонента курсора.
- * Определяет форму курсора и анимацию мигания.
- */
-const cursorSymbolVariants = cva(
-  `absolute left-0 bottom-0 bg-gray-800`,
-  {
-    variants: {
-      /** Тип визуализации курсора. */
-      cursorType: {
-        RECTANGLE: "h-full w-full",
-        VERTICAL: "h-full w-1",
-        UNDERSCORE: "h-1 w-full",
-      } satisfies Record<FlowLineCursorType, string>,
-      /** Флаг, указывающий, идет ли набор текста. Влияет на анимацию мигания. */
-      isTyping: {
-        true: "",
-        false: "animate-caret-blink",
-      },
-    },
-    defaultVariants: {
-      cursorType: "RECTANGLE",
-      isTyping: true,
-    }
-  }
-);
-
-/** Пропсы для компонента `CursorSymbol`. */
-type CursorSymbolProps = React.ComponentProps<"span">
-  & VariantProps<typeof cursorSymbolVariants>
-  & { /** Символ под курсором. */ symbol: string; }
-
-/**
- * Вспомогательный компонент `CursorSymbol` для отображения курсора в `FlowLine`.
- * Включает логику мигания курсора при отсутствии активности.
- * @param props Пропсы компонента.
- * @returns Элемент JSX, представляющий курсор.
- */
-function CursorSymbol({ cursorType, symbol, className, ...props }: CursorSymbolProps) {
-  const [isTyping, setIsTyping] = useState(true);
-  const blinkDelay = 600;
-
-  useEffect(() => {
-    setIsTyping(true);
-    const timer = setTimeout(() => {
-      setIsTyping(false);
-    }, blinkDelay);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [symbol]);
-
-  return (
-    <span className="cursor-symbol relative">
-      <span className={cn(cursorSymbolVariants({ cursorType, isTyping, className }))} {...props} />
-      <span className="text-gray-50 mix-blend-difference">
-        {symbol}
-      </span>
-    </span>
   );
 }
