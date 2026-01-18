@@ -179,10 +179,11 @@ export type KeyboardLayout = PhysicalKey[][];
  * Определяет, каким пальцем следует нажимать каждую клавишу.
  * Представляет собой объект, где ключ - `KeyCapId`, значение - `FingerKey`.
  */
-export type FingerLayout = Partial<Record<KeyCapId, {
+export type FingerLayout = {
+  keyCapId: KeyCapId;
   fingerId: FingerId;
   isHomeKey?: boolean;
-}>>;
+}[];
 
 /**
  * Символьный макет (слой краски).

@@ -38,9 +38,9 @@ export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_
  * @returns Массив `KeyCapId`, связанных с пальцем.
  */
 export function getFingerKeys(fingerId: FingerId, fingerLayout: FingerLayout): KeyCapId[] {
-  return Object.entries(fingerLayout)
-    .filter(([, fingerKey]) => fingerKey.fingerId === fingerId)
-    .map(([keyCapId]) => keyCapId as KeyCapId);
+  return fingerLayout
+    .filter((item) => item.fingerId === fingerId)
+    .map((item) => item.keyCapId);
 }
 
 /**
@@ -50,8 +50,8 @@ export function getFingerKeys(fingerId: FingerId, fingerLayout: FingerLayout): K
  * @returns `KeyCapId` домашней клавиши или `undefined`, если не найдена.
  */
 export function getHomeKeyForFinger(fingerId: FingerId, fingerLayout: FingerLayout): KeyCapId | undefined {
-  const entry = Object.entries(fingerLayout).find(
-    ([, fingerData]) => fingerData.fingerId === fingerId && fingerData.isHomeKey
+  const entry = fingerLayout.find(
+    (item) => item.fingerId === fingerId && item.isHomeKey
   );
-  return entry ? (entry[0] as KeyCapId) : undefined;
+  return entry ? entry.keyCapId : undefined;
 }

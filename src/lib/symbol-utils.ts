@@ -172,7 +172,7 @@ export function isShiftRequired(char: string, symbolLayout: SymbolLayout): boole
  * @returns `FingerId` или `undefined`, если не найден.
  */
 export function getFingerByKeyCap( keyCapId: KeyCapId, fingerLayout: FingerLayout ): FingerId | undefined {
-  const entry = fingerLayout[keyCapId];
+  const entry = fingerLayout.find((item) => item.keyCapId === keyCapId);
   return entry ? entry.fingerId : undefined;
 }
 

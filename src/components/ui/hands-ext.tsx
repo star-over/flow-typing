@@ -2,9 +2,10 @@
 import { cva } from 'class-variance-authority';
 import { useEffect, useMemo, useRef } from 'react';
 
-import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyCapId, KeyboardLayout, ModifierKey, Visibility } from '@/interfaces/types';
-import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
+import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, ModifierKey, Visibility } from '@/interfaces/types';
+import { calculateClusterTranslation } from '@/lib/positioning-utils';
 import { cn } from '@/lib/utils';
+import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
 
 import { VirtualKeyboard } from './virtual-keyboard';
 
@@ -75,14 +76,14 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
   useEffect(() => {
     fingerIds.forEach((fingerId) => {
       // Находим "домашнюю" клавишу для текущего пальца из его раскладки
-      const homeKeyEntry = Object.entries(fingerLayout).find(
-        ([, fingerData]) => fingerData && fingerData.fingerId === fingerId && fingerData.isHomeKey
+      const homeKeyEntry = fingerLayout.find(
+        (item) => item.fingerId === fingerId && item.isHomeKey
       );
       if (!homeKeyEntry) {
         return;
       } // Если домашняя клавиша не найдена, пропускаем
 
-      const homeKeyId = homeKeyEntry[0] as KeyCapId;
+      const homeKeyId = homeKeyEntry.keyCapId;
       // Находим элемент центральной точки пальца в SVG
       const fingerElement = document.querySelector(`[data-finger-id="${fingerId}"] .finger-center-point`);
       // Получаем контейнер виртуальной клавиатуры для этого пальца
@@ -101,18 +102,12 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
         // отображаемом кластере, что приведет к неверному позиционированию.
         const keyElement = keyboardContainer.querySelector(`[data-keycap-id="${homeKeyId}"] .keycap-center-point`);
 
-        if (keyElement) {
-          const fingerRect = fingerElement.getBoundingClientRect(); // Размеры и позиция точки пальца
-          const keyRect = keyElement.getBoundingClientRect();       // Размеры и позиция точки "домашней" клавиши
-          const containerRect = keyboardContainer.parentElement?.getBoundingClientRect(); // Размеры и позиция родительского контейнера клавиатуры
+        if (keyElement && keyboardContainer.parentElement) {
+          const translation = calculateClusterTranslation(fingerElement, keyElement, keyboardContainer.parentElement);
 
-          if (containerRect) {
-            // Вычисляем смещения для перемещения клавиатуры
-            const deltaX = (fingerRect.left - containerRect.left) - (keyRect.left - containerRect.left);
-            const deltaY = (fingerRect.top - containerRect.top) - (keyRect.top - containerRect.top);
-
+          if (translation) {
             // Применяем трансформацию для позиционирования клавиатуры
-            keyboardContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            keyboardContainer.style.transform = `translate(${translation.deltaX}px, ${translation.deltaY}px)`;
             // Делаем контейнер видимым после позиционирования
             keyboardContainer.style.visibility = 'visible';
           }

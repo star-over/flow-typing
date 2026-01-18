@@ -43,11 +43,11 @@ describe('createVirtualLayout', () => {
     A: ['KeyA', 'ShiftLeft'],
   };
 
-  const mockFingerLayout: FingerLayout = {
-    KeyA: { fingerId: 'L1', isHomeKey: true },
-    KeyB: { fingerId: 'L2' },
-    ShiftLeft: { fingerId: 'L5' },
-  };
+  const mockFingerLayout: FingerLayout = [
+    { keyCapId: 'KeyA', fingerId: 'L1', isHomeKey: true },
+    { keyCapId: 'KeyB', fingerId: 'L2' },
+    { keyCapId: 'ShiftLeft', fingerId: 'L5' },
+  ];
 
   it('should create a VirtualLayout with correct dimensions', () => {
     const virtualLayout = createVirtualLayout({
