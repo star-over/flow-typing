@@ -16,7 +16,7 @@
 import { SymbolLayout } from "@/interfaces/types";
 
 export const symbolLayoutEnQwerty: SymbolLayout = {
-  tab: ["Tab"],
+  // tab: ["Tab"],
   del: ["Backspace"],
   caps: ["CapsLock"],
   enter: ["Enter"],
@@ -27,8 +27,8 @@ export const symbolLayoutEnQwerty: SymbolLayout = {
   " ⌥": ["AltRight"],
   " ⌘": ["MetaLeft"],
   "⌘ ": ["MetaRight"],
-  "Sh L": ["ShiftLeft"],
-  "Sh R": ["ShiftRight"],
+  // "Shift L": ["ShiftLeft"],
+  // "Shift R": ["ShiftRight"],
   xx: ["ContextMenu"],
   " ": ["Space"],
   "\u2190": ["ArrowLeft"],

@@ -179,7 +179,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
               className="absolute top-0 left-0" // Позиционируем абсолютно для дальнейшего смещения
               style={{ visibility: 'hidden' }} // Start hidden to prevent flash of unpositioned content
             >
-              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers}/>
+              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers} keyboardLayout={keyboardLayout}/>
             </div>
           );
         })}

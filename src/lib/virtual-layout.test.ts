@@ -10,7 +10,7 @@ vi.mock('./symbol-utils', async (importOriginal) => {
     const mod = await importOriginal<typeof SymbolUtils>();
     return {
         ...mod,
-        getSymbol: vi.fn((keyCapId: string, activeModifiers: ModifierKey[] = [], symbolLayout: SymbolLayout) => {
+        getSymbol: vi.fn((keyCapId: string, activeModifiers: ModifierKey[] = [], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout) => {
             if (keyCapId === 'KeyA') {
                 return activeModifiers.includes('shift') ? 'A' : 'a';
             }
@@ -18,9 +18,11 @@ vi.mock('./symbol-utils', async (importOriginal) => {
                 return 'b';
             }
             if (keyCapId === 'KeyC') { // For the 'KeyUnknown' test case
-                return undefined;
+                return keyboardLayout.flat().find((key) => key.keyCapId === 'KeyC')?.label || '...';
             }
-            return undefined; // Default behavior
+            // For other keys, return the label from keyboardLayout if available, or '...'
+            const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
+            return physicalKey?.label || '...';
         }),
     };
 });
@@ -29,11 +31,11 @@ vi.mock('./symbol-utils', async (importOriginal) => {
 describe('createVirtualLayout', () => {
   const mockKeyboardLayout: KeyboardLayout = [
     [
-      { keyCapId: 'KeyA', type: 'SYMBOL', unitWidth: '1U' },
-      { keyCapId: 'KeyB', type: 'SYMBOL', unitWidth: '1U' },
+      { keyCapId: 'KeyA', type: 'SYMBOL', unitWidth: '1U', label: 'a' },
+      { keyCapId: 'KeyB', type: 'SYMBOL', unitWidth: '1U', label: 'b' },
     ],
     [
-      { keyCapId: 'ShiftLeft', type: 'MODIFIER', unitWidth: '2U' }, // Changed from '2.25U'
+      { keyCapId: 'ShiftLeft', type: 'MODIFIER', unitWidth: '2U', label: 'Sh L' },
     ],
   ];
 
@@ -88,11 +90,11 @@ describe('createVirtualLayout', () => {
     expect(keyB.symbol).toBe('b'); // From mocked getSymbol
   });
 
-  it('should set symbol to "..." if getSymbol returns undefined', () => {
+  it('should set symbol to the label from keyboardLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
     const customKeyboardLayout: KeyboardLayout = [
-      [{ keyCapId: 'KeyC', type: 'SYMBOL' }], // Changed from 'KeyUnknown'
+      [{ keyCapId: 'KeyC', type: 'SYMBOL', label: 'c' }], // Changed from 'KeyUnknown'
     ];
-    // getSymbol mock will return undefined for 'KeyC'
+    // getSymbol mock will return the label for 'KeyC'
 
     const virtualLayout = createVirtualLayout({
       keyboardLayout: customKeyboardLayout,
@@ -100,7 +102,7 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout[0][0].symbol).toBe('...');
+    expect(virtualLayout[0][0].symbol).toBe('c');
   });
 
   it('should correctly derive fingerId and isHomeKey from fingerLayout', () => {
@@ -124,7 +126,7 @@ describe('createVirtualLayout', () => {
 
   it('should use default fingerId "L1" if fingerLayout entry is missing', () => {
     const customKeyboardLayout: KeyboardLayout = [
-      [{ keyCapId: 'KeyD', type: 'SYMBOL' }], // Changed from 'KeyMissingFinger'
+      [{ keyCapId: 'KeyD', type: 'SYMBOL', label: 'd' }], // Changed from 'KeyMissingFinger'
     ];
     // No entry for 'KeyD' in mockFingerLayout
 
@@ -161,6 +163,6 @@ describe('createVirtualLayout', () => {
 
     const keyA = virtualLayout[0][0];
     expect(keyA.symbol).toBe('A');
-    expect(SymbolUtils.getSymbol).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout);
+    expect(SymbolUtils.getSymbol).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout, mockKeyboardLayout);
   });
 });

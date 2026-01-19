@@ -8,7 +8,7 @@
 import { JSX } from "react";
 
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
-import { ModifierKey, VirtualKey, } from "@/interfaces/types";
+import { KeyboardLayout, ModifierKey, VirtualKey, } from "@/interfaces/types";
 import { getSymbol } from "@/lib/symbol-utils";
 
 import { KeyCap } from "./keycap";
@@ -21,6 +21,8 @@ export type VirtualKeyboardProps = React.ComponentProps<"div">
     virtualLayout: VirtualKey[][];
     /** Массив активных в данный момент клавиш-модификаторов. */
     activeModifiers?: ModifierKey[];
+    /** Физический макет клавиатуры, используемый для получения fallback-лейблов. */
+    keyboardLayout: KeyboardLayout;
   }
 
 /** Пропсы для компонента `VirtualRow` (внутренний компонент). */
@@ -29,6 +31,7 @@ type VirtualRowProps = React.ComponentProps<"div">
     /** Массив `VirtualKey`, представляющий один ряд клавиатуры. */
     row: VirtualKey[];
     activeModifiers?: ModifierKey[];
+    keyboardLayout: KeyboardLayout;
   }
 
 /**
@@ -38,12 +41,13 @@ type VirtualRowProps = React.ComponentProps<"div">
  * @param props.activeModifiers Массив активных в данный момент клавиш-модификаторов (например, ['shift', 'ctrl']). Компонент использует этот массив для динамического определения и отображения правильных символов на клавишах.
  * @returns Элемент JSX, представляющий виртуальную клавиатуру.
  */
-export function VirtualKeyboard({ virtualLayout, activeModifiers }: VirtualKeyboardProps): JSX.Element {
+export function VirtualKeyboard({ virtualLayout, activeModifiers, keyboardLayout }: VirtualKeyboardProps): JSX.Element {
   const rows = virtualLayout.map((row: VirtualKey[], rowIndex: number) => (
     <VirtualRow
       row={row}
       key={rowIndex}
       activeModifiers={activeModifiers}
+      keyboardLayout={keyboardLayout}
     />
   ));
 
@@ -61,13 +65,13 @@ export function VirtualKeyboard({ virtualLayout, activeModifiers }: VirtualKeybo
  * @param props.activeModifiers Активные клавиши-модификаторы.
  * @returns Элемент JSX, представляющий ряд клавиш.
  */
-function VirtualRow({ row, activeModifiers }: VirtualRowProps): JSX.Element {
+function VirtualRow({ row, activeModifiers, keyboardLayout }: VirtualRowProps): JSX.Element {
   const keyCaps = row.map((virtualKey) => {
     return (
       <KeyCap
         key={virtualKey.keyCapId}
         {...virtualKey}
-        symbol={getSymbol(virtualKey.keyCapId, activeModifiers || [], symbolLayoutEnQwerty)}
+        symbol={getSymbol(virtualKey.keyCapId, activeModifiers || [], symbolLayoutEnQwerty, keyboardLayout)}
         navigationRole={virtualKey.navigationRole}
         visibility={virtualKey.visibility}
       />

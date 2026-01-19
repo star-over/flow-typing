@@ -2,7 +2,7 @@ import { KeyCapId } from "@/interfaces/key-cap-id";
 import {
   FingerId,
   FingerLayout,
-  KeyboardLayout, // Added KeyboardLayout
+  KeyboardLayout,
   ModifierKey,
   SymbolLayout,
 } from "@/interfaces/types";
@@ -18,6 +18,8 @@ export const nbsp = '\u00A0';
  * @type {string}
  */
 export const sp = '\u0020';
+
+export const nnbsp = '\u202F'
 
 /**
  * Проверяет, является ли клавиша модификатором.
@@ -111,35 +113,42 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
   return null; // No exact match found.
 }
 
-/**
- * Gets the display symbol for a given key and modifier combination with multi-level fallback.
- * This function is critical for the correct visual representation of keys on the virtual keyboard,
- * especially when dealing with complex key combinations and modifiers.
- *
- * Level 1: Tries to find an exact match for the keyCapId with all active modifiers.
- * Level 2: If Level 1 fails and modifiers were present, it falls back to finding the symbol for the base keyCapId alone (no modifiers).
- * Level 3: If no symbol is found even after the fallback, it returns a '...' placeholder.
- *
- * @param keyCapId The base physical key ID (e.g., 'KeyA').
- * @param activeModifiers An array of active modifiers (e.g., ['shift', 'ctrl']).
- * @returns The display symbol (e.g., 'A', 'a', '?') or '...' if no symbol is found.
- */
-export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout): string {
-  // Level 1: Try exact match with all modifiers.
+export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
+  // First, check if the key is a modifier key itself.
+  const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
+  const isModifierKeyCap = physicalKey && physicalKey.type === 'MODIFIER';
+
+  // If it's a modifier key (like ShiftLeft, ControlLeft), and *any* modifier is active,
+  // we typically want to display its primary label (e.g., "Shift-L")
+  // rather than a symbol that might be associated with it in symbolLayout.
+  // This addresses the failing test where ShiftRight with 'shift' active should show "Shift-R".
+  if (isModifierKeyCap && activeModifiers.length > 0) {
+    if (physicalKey && physicalKey.label) {
+      return physicalKey.label;
+    }
+  }
+
+  // Level 1: Try exact match in symbolLayout with active modifiers (for typeable symbols)
   const exactMatch = findSymbolForCombination(keyCapId, activeModifiers, symbolLayout);
   if (exactMatch) {
     return exactMatch;
   }
 
-  // Level 2: If modifiers were present but no match was found, try with no modifiers.
-  if (activeModifiers.length > 0) {
+  // Level 2: If modifiers were present but no exact symbol match was found (for non-modifier keys),
+  // try with no modifiers. This is for keys like 'KeyA' -> 'a' when 'Shift' is active but 'A' wasn't matched.
+  if (activeModifiers.length > 0) { // Condition already implies !isModifierKeyCap from above, and !exactMatch
     const baseMatch = findSymbolForCombination(keyCapId, [], symbolLayout);
     if (baseMatch) {
       return baseMatch;
     }
   }
 
-  // Level 3: If still no match, return the placeholder.
+  // Level 3: Fallback to the label from keyboardLayout (for non-modifier keys or if previous steps failed)
+  if (physicalKey && physicalKey.label) {
+    return physicalKey.label;
+  }
+
+  // Level 4: Final fallback
   return '...';
 }
 

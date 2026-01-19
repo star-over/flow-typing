@@ -99,7 +99,7 @@ export const Default: Story = {
     unitWidth: meta.argTypes.unitWidth.options[0],
     symbolSize: meta.argTypes.symbolSize.options[0],
     centerPointVisibility: meta.argTypes.centerPointVisibility.options[0],
-    symbol: "G",
+    symbol: "=\u202F+",
     keyCapId: 'KeyG',
   },
   render: (args) => <KeyCap {...args} />

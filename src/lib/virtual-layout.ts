@@ -32,7 +32,7 @@ export function createVirtualLayout(
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         const keyCapId = physicalKey.keyCapId;
-        const symbol = getSymbol(keyCapId, activeModifiers, symbolLayout);
+        const symbol = getSymbol(keyCapId, activeModifiers, symbolLayout, keyboardLayout);
         const fingerKey = fingerLayout.find((item) => item.keyCapId === physicalKey.keyCapId);
 
         const virtualKey: VirtualKey = {

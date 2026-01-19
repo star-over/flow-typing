@@ -162,6 +162,7 @@ export type TypingStream = StreamSymbol[];
 /** Описывает одну физическую клавишу: ее геометрию и базовый тип. */
 export type PhysicalKey = {
   keyCapId: KeyCapId;                   // (напр. 'KeyF'
+  label: string;                        // Надпись на клавише (напр. 'F')
   unitWidth?: KeyCapUnitWidth;          // Ширина клавиши
   symbolSize?: KeyCapSymbolSize;        // Размер надписи
   homeKeyMarker?: KeyCapHomeKeyMarker;  // Тип Home Маркета

@@ -59,6 +59,6 @@ export const WholeKeyboard: Story = {
       activeModifiers: activeModifiers,
     });
 
-    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers }} />;
+    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers, keyboardLayout: keyboardLayoutANSI }} />;
   },
 };
