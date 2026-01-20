@@ -90,7 +90,7 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
   lookupKeys.add(canonicalKeyCap);
 
   // 2. Iterate through the symbol layout and compare.
-  for (const [symbol, requiredKeys] of Object.entries(symbolLayout)) {
+  for (const { symbol, keyCaps: requiredKeys } of symbolLayout) {
     // Create a canonical set for the current symbol's required keys.
     const canonicalLayoutKeys = new Set<KeyCapId>();
     requiredKeys.forEach((key) => {
@@ -160,7 +160,8 @@ export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], sy
  * @returns Массив `KeyCapId` или `undefined`, если символ не найден.
  */
 export function getKeyCapIdsForChar(char: string, symbolLayout: SymbolLayout): KeyCapId[] | undefined {
-  return symbolLayout[char];
+  const entry = symbolLayout.find((item) => item.symbol === char);
+  return entry?.keyCaps;
 }
 
 /**
