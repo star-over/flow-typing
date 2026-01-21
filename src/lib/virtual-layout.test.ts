@@ -5,25 +5,12 @@ import { FingerLayout, KeyboardLayout, ModifierKey,SymbolLayout } from '@/interf
 import * as SymbolUtils from './symbol-utils'; // Import the module to mock getSymbol
 import { createVirtualLayout } from './virtual-layout';
 
-// Mock getSymbol to control its behavior in tests
+// Spy on the original getSymbol implementation
 vi.mock('./symbol-utils', async (importOriginal) => {
     const mod = await importOriginal<typeof SymbolUtils>();
     return {
         ...mod,
-        getSymbol: vi.fn((keyCapId: string, activeModifiers: ModifierKey[] = [], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout) => {
-            if (keyCapId === 'KeyA') {
-                return activeModifiers.includes('shift') ? 'A' : 'a';
-            }
-            if (keyCapId === 'KeyB') {
-                return 'b';
-            }
-            if (keyCapId === 'KeyC') { // For the 'KeyUnknown' test case
-                return keyboardLayout.flat().find((key) => key.keyCapId === 'KeyC')?.label || '...';
-            }
-            // For other keys, return the label from keyboardLayout if available, or '...'
-            const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
-            return physicalKey?.label || '...';
-        }),
+        getSymbol: vi.fn(mod.getSymbol),
     };
 });
 
@@ -86,8 +73,8 @@ describe('createVirtualLayout', () => {
 
     const keyA = virtualLayout[0][0];
     const keyB = virtualLayout[0][1];
-    expect(keyA.symbol).toBe('a'); // From mocked getSymbol
-    expect(keyB.symbol).toBe('b'); // From mocked getSymbol
+    expect(keyA.symbol).toBe('A'); // The new getSymbol logic returns the uppercase variant
+    expect(keyB.symbol).toBe('b'); // Only 'b' is defined, so it returns 'b'
   });
 
   it('should set symbol to the label from keyboardLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {

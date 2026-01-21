@@ -114,42 +114,54 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
 }
 
 export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
-  // First, check if the key is a modifier key itself.
   const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
-  const isModifierKeyCap = physicalKey && physicalKey.type === 'MODIFIER';
 
-  // If it's a modifier key (like ShiftLeft, ControlLeft), and *any* modifier is active,
-  // we typically want to display its primary label (e.g., "Shift-L")
-  // rather than a symbol that might be associated with it in symbolLayout.
-  // This addresses the failing test where ShiftRight with 'shift' active should show "Shift-R".
-  if (isModifierKeyCap && activeModifiers.length > 0) {
-    if (physicalKey && physicalKey.label) {
-      return physicalKey.label;
+  // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
+  if (physicalKey?.type !== 'SYMBOL') {
+    return physicalKey?.label || '...';
+  }
+
+  // 2. If SHIFT is active, find the specific symbol to be typed.
+  if (activeModifiers.includes('shift')) {
+    const shiftedSymbol = findSymbolForCombination(keyCapId, ['shift'], symbolLayout);
+    if (shiftedSymbol) {
+      return shiftedSymbol;
     }
   }
 
-  // Level 1: Try exact match in symbolLayout with active modifiers (for typeable symbols)
-  const exactMatch = findSymbolForCombination(keyCapId, activeModifiers, symbolLayout);
-  if (exactMatch) {
-    return exactMatch;
+  // 3. If no active shift (or no specific shifted symbol found), generate the combined label.
+  const baseSymbolEntry = symbolLayout.find((s) => s.keyCaps.length === 1 && s.keyCaps[0] === keyCapId);
+  const shiftedSymbolEntry = symbolLayout.find((s) =>
+    s.keyCaps.length === 2 &&
+    s.keyCaps.includes(keyCapId) &&
+    s.keyCaps.some((k) => k.startsWith('Shift'))
+  );
+
+  // Fallback to physical key label if no base symbol is found
+  if (!baseSymbolEntry) {
+    return physicalKey?.label || '...';
   }
 
-  // Level 2: If modifiers were present but no exact symbol match was found (for non-modifier keys),
-  // try with no modifiers. This is for keys like 'KeyA' -> 'a' when 'Shift' is active but 'A' wasn't matched.
-  if (activeModifiers.length > 0) { // Condition already implies !isModifierKeyCap from above, and !exactMatch
-    const baseMatch = findSymbolForCombination(keyCapId, [], symbolLayout);
-    if (baseMatch) {
-      return baseMatch;
-    }
+  // If there's no shifted symbol, just return the base symbol
+  if (!shiftedSymbolEntry) {
+    return baseSymbolEntry.symbol;
   }
 
-  // Level 3: Fallback to the label from keyboardLayout (for non-modifier keys or if previous steps failed)
-  if (physicalKey && physicalKey.label) {
-    return physicalKey.label;
+  const baseSym = baseSymbolEntry.symbol;
+  const shiftedSym = shiftedSymbolEntry.symbol;
+
+  // If they are the same letter, return the uppercase version
+  if (baseSym.toUpperCase() === shiftedSym.toUpperCase() && baseSym !== shiftedSym) {
+    return shiftedSym;
   }
 
-  // Level 4: Final fallback
-  return '...';
+  // If for some reason they are identical (e.g., Space key might be defined twice)
+  if (baseSym === shiftedSym) {
+    return baseSym;
+  }
+
+  // Otherwise, combine them
+  return `${baseSym}\u202F${shiftedSym}`;
 }
 
 

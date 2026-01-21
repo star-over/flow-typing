@@ -75,7 +75,7 @@ export const keyboardLayoutANSI: KeyboardLayout = [
     { keyCapId: "KeyN", label: "N", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "KeyM", label: "M", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "Comma", label: ",\u202F<", unitWidth: "1U", type: "SYMBOL" },
-    { keyCapId: "Period", label: ".\u202F.", unitWidth: "1U", type: "SYMBOL" },
+    { keyCapId: "Period", label: ".\u202F>", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "Slash", label: "/\u202F?", unitWidth: "1U", type: "SYMBOL" },
     { keyCapId: "ShiftRight", label: "Shift R", unitWidth: "2.5U", type: "MODIFIER" },
   ],

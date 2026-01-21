@@ -60,38 +60,36 @@ describe('isShiftRequired', () => {
 });
 
 describe('getSymbol', () => {
-  it('should return the correct symbol for a base key with no modifiers', () => {
-    expect(getSymbol('KeyA', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('a');
+  it('should return the uppercase symbol for a letter key with no modifiers', () => {
+    expect(getSymbol('KeyA', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
-  it('should return the correct symbol for a base key with shift modifier', () => {
+  it('should return the shifted symbol for a letter key with shift modifier', () => {
     expect(getSymbol('KeyA', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
-  it('should return the correct symbol for a number key with shift modifier', () => {
+  it('should return the combined label for a number key with no modifiers', () => {
+    expect(getSymbol('Digit1', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
+  });
+
+  it('should return the shifted symbol for a number key with shift modifier', () => {
     expect(getSymbol('Digit1', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('!');
   });
 
-  it('should return the base symbol if a modifier combination is not found (Level 2 Fallback)', () => {
-    expect(getSymbol('KeyA', ['ctrl'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('a');
+  it('should return the default label if a non-shift modifier is active', () => {
+    expect(getSymbol('KeyA', ['ctrl'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getSymbol('Digit4', ['alt'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
   });
 
-  it('should return the base symbol if multiple modifiers are not found (Level 2 Fallback)', () => {
-    expect(getSymbol('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('a');
+  it('should return the shifted symbol if multiple modifiers including shift are active', () => {
+    expect(getSymbol('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
-  it('should return a placeholder for Shift Right', () => {
-    // 'Escape' is no longer in keyboardLayoutANSI, so it should fall back to '...'.
-    expect(getSymbol('ShiftRight', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
+  it('should return the correct label for a modifier key', () => {
+    expect(getSymbol('ShiftRight', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
   });
 
-  it('should return a placeholder Shift Left', () => {
-    // 'Escape' is no longer in keyboardLayoutANSI, so it should fall back to '...'.
-    expect(getSymbol('ShiftLeft', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift L');
-  });
-
-  it('should return a placeholder if even the base key is not found after modifier lookup fails and is not in keyboardLayout (Level 4 Fallback)', () => {
-    // 'Escape' is no longer in keyboardLayoutANSI, so it should fall back to '...'.
+  it('should return a placeholder if a key is not in any layout', () => {
     expect(getSymbol('Escape', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
   });
 });
