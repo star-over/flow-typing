@@ -1,4 +1,4 @@
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-ru";
 import { TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 

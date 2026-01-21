@@ -1,7 +1,7 @@
 import { describe, expect,it } from 'vitest';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf'; // Import fingerLayoutASDF
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en-qwerty';
+import { symbolLayoutEnQwerty } from '@/data/symbol-layout-ru';
 
 import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
 import { getFingerByKeyCap,getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap

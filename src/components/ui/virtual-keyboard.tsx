@@ -7,7 +7,7 @@
  */
 import { JSX } from "react";
 
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-ru";
 import { KeyboardLayout, ModifierKey, VirtualKey, } from "@/interfaces/types";
 import { getSymbol } from "@/lib/symbol-utils";
 

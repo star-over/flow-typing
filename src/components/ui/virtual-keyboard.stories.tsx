@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en-qwerty";
+import { symbolLayoutEnQwerty } from "@/data/symbol-layout-ru";
 import { ModifierKey } from "@/interfaces/types";
 import { createVirtualLayout } from "@/lib/virtual-layout";
 
