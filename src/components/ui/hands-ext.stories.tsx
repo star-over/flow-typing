@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
+import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en';
 import { idle } from '@/fixtures/hands-ext/idle';
 import { shift_b } from '@/fixtures/hands-ext/shift_b';
 import { shift_f } from '@/fixtures/hands-ext/shift_f';
@@ -39,6 +40,7 @@ export const Idle: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -48,6 +50,7 @@ export const simpleSpace: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -57,6 +60,7 @@ export const simpleEErrorSimpleD: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -66,6 +70,7 @@ export const shiftTErrorShiftN: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -75,6 +80,7 @@ export const shiftOErrorSimpleO: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -84,6 +90,7 @@ export const shiftO: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -93,6 +100,7 @@ export const simpleEErrorShiftF: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -102,6 +110,7 @@ export const simpleEErrorSpace: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -111,6 +120,7 @@ export const simpleT: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -120,6 +130,7 @@ export const simpleK: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -129,6 +140,7 @@ export const SimpleKErrorSimpleJ: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 export const simpleRErrorSimpleF: Story = {
@@ -137,6 +149,7 @@ export const simpleRErrorSimpleF: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -146,6 +159,7 @@ export const Simple6: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -156,6 +170,7 @@ export const ShiftF: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };
 
@@ -165,5 +180,6 @@ export const ShiftB: Story = {
     className,
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
+    symbolLayout: symbolLayoutEnQwerty,
   },
 };

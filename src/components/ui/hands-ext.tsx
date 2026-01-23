@@ -2,7 +2,7 @@
 import { cva } from 'class-variance-authority';
 import { useEffect, useMemo, useRef } from 'react';
 
-import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, LEFT_HAND_FINGERS, ModifierKey, RIGHT_HAND_FINGERS, Visibility } from '@/interfaces/types';
+import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, LEFT_HAND_FINGERS, ModifierKey, RIGHT_HAND_FINGERS, SymbolLayout, Visibility } from '@/interfaces/types';
 import { calculateClusterTranslation } from '@/lib/positioning-utils';
 import { cn } from '@/lib/utils';
 import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
@@ -50,6 +50,7 @@ interface HandsExtProps {
   viewModel: HandsSceneViewModel;
   fingerLayout: FingerLayout;
   keyboardLayout: KeyboardLayout;
+  symbolLayout: SymbolLayout;
   className?: string;
   centerPointVisibility?: Visibility;
 }
@@ -67,7 +68,7 @@ interface HandsExtProps {
  * @param {Visibility} [props.centerPointVisibility] Определяет видимость центральной точки пальцев.
  * @returns {React.FC<HandsExtProps>} React-элемент, отображающий руки и динамические клавиатуры.
  */
-export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, centerPointVisibility, ...props }: HandsExtProps) => {
+export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, symbolLayout, className, centerPointVisibility, ...props }: HandsExtProps) => {
   // Определяем массив идентификаторов пальцев для левой и правой руки
 
   // Используем useRef для хранения ссылок на контейнеры виртуальных клавиатур каждого пальца
@@ -179,7 +180,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, className, c
               className="absolute top-0 left-0" // Позиционируем абсолютно для дальнейшего смещения
               style={{ visibility: 'hidden' }} // Start hidden to prevent flash of unpositioned content
             >
-              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers} keyboardLayout={keyboardLayout}/>
+              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
             </div>
           );
         })}

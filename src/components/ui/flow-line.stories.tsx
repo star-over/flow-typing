@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-ru';
+import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en'; // Corrected import path
 import {
   FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,
@@ -80,10 +80,10 @@ const createPressedKeyCupsFromChar = (char: string): KeyCapId[] | null => {
 // --- Stream Definitions ---
 
 // 1. A stream with no attempts yet
-const baseStreamPending: TypingStream = createTypingStream(fullStreamText);
+const baseStreamPending: TypingStream = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
 
 // 2. A stream where every character was typed correctly on the first attempt
-let baseStreamCompleted = createTypingStream(fullStreamText);
+let baseStreamCompleted = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
 for (let i = 0; i < baseStreamCompleted.length; i++) {
   const targetChar = baseStreamCompleted[i].targetSymbol;
   const pressedKeyCups = createPressedKeyCupsFromChar(targetChar); // Use new function
@@ -99,7 +99,7 @@ for (let i = 0; i < baseStreamCompleted.length; i++) {
 }
 
 // 3. A stream with one error on 'q' (index 4)
-let streamWithOneError = createTypingStream(fullStreamText);
+let streamWithOneError = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
 for (let i = 0; i < streamWithOneError.length; i++) {
   const targetChar = streamWithOneError[i].targetSymbol;
   const correctPressedKeyCups = createPressedKeyCupsFromChar(targetChar)!; // Use new function and variable name
@@ -115,7 +115,7 @@ for (let i = 0; i < streamWithOneError.length; i++) {
 }
 
 // 4. A stream with multiple errors on 'q' (index 4) and 'i' (index 6)
-let streamWithMultipleErrors = createTypingStream(fullStreamText);
+let streamWithMultipleErrors = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
 for (let i = 0; i < streamWithMultipleErrors.length; i++) {
   const targetChar = streamWithMultipleErrors[i].targetSymbol;
   const correctPressedKeyCups = createPressedKeyCupsFromChar(targetChar)!;

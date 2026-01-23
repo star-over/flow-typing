@@ -3,8 +3,7 @@
  * @description Содержит функции для создания, обновления и анализа потока,
  * который представляет собой упражнение для пользователя.
  */
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-ru';
-import { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, TypingStream } from '@/interfaces/types';
+import { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, SymbolLayout, TypingStream } from '@/interfaces/types';
 
 import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, nbsp, sp } from "./symbol-utils";
 
@@ -14,10 +13,10 @@ import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, nbsp, sp } from "./symbol-
  * @param text Входная строка для преобразования.
  * @returns Массив `TypingStream`.
  */
-export function createTypingStream(text: string): TypingStream {
+export function createTypingStream(text: string, symbolLayout: SymbolLayout): TypingStream {
   const stream: TypingStream = [];
   for (const char of text.split('')) {
-    const keyCapIds = getKeyCapIdsForChar(char, symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
     if (keyCapIds) {
       stream.push({
         targetSymbol: char,

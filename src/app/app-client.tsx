@@ -23,7 +23,13 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
   const [currentDictionary, setCurrentDictionary] = useState<Dictionary>(dictionary); // Managed client-side
   const [currentLocale, setCurrentLocale] = useState<Locale>(initialLocale); // Managed client-side
 
-  const { language: zustandLanguage, isInitialized: isUserPreferencesStoreInitialized, shared, updateUserPreferences } = useUserPreferencesStore(); // Renamed language to zustandLanguage
+  const {
+    language: zustandLanguage,
+    keyboardLayout: zustandKeyboardLayout,
+    isInitialized: isUserPreferencesStoreInitialized,
+    shared,
+    updateUserPreferences,
+  } = useUserPreferencesStore();
   const { exerciseId: exerciseIdFromStore } = shared;
 
   // Effect to correct language client-side if server-rendered language is outdated
@@ -117,7 +123,7 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
 
         {state.matches('idle') && (
           <div className="flex gap-4">
-            <button onClick={() => send({ type: 'START_TRAINING' })} className="p-2 bg-blue-500 text-white rounded">
+            <button onClick={() => send({ type: 'START_TRAINING', keyboardLayout: zustandKeyboardLayout })} className="p-2 bg-blue-500 text-white rounded">
               {currentDictionary.app.start_training}
             </button>
             <button onClick={() => send({ type: 'GO_TO_SETTINGS' })} className="p-2 bg-gray-500 text-white rounded">

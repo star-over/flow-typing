@@ -13,6 +13,7 @@ import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
 import { getPressResult } from "@/lib/press-result-utils";
 import { trainingMachine } from "@/machines/training.machine";
+import { getSymbolLayout } from "@/data/layouts";
 
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";
@@ -39,10 +40,11 @@ type TrainingSceneProps = {
 export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
   const send = trainingActor.send;
-  const { stream, currentIndex } = trainingState.context;
+  const { stream, currentIndex, keyboardLayout: keyboardLayoutPreference } = trainingState.context;
 
   const keyboardGraph: AdjacencyList = createKeyboardGraph(keyboardLayout);
   const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayout);
+  const symbolLayout = getSymbolLayout(keyboardLayoutPreference);
 
   // Генерируем ViewModel для HandsExt на основе текущего состояния машины
   const viewModel: HandsSceneViewModel = generateHandsSceneViewModel(trainingState.context.stream?.[trainingState.context.currentIndex], fingerLayout, keyboardGraph, keyCoordinateMap);
@@ -60,7 +62,7 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: T
 
       <FlowLine stream={stream} cursorPosition={currentIndex} pressResult={pressResult} />
 
-      <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout}/>
+      <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
       {trainingState.matches('paused') ? (

@@ -1,10 +1,10 @@
 import { createMachine, sendTo } from "xstate";
 
 import { KeyCapId } from "@/interfaces/key-cap-id";
-import { generateLesson } from "@/lib/lesson-generator";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
+import { UserPreferences } from "@/interfaces/user-preferences";
 
 // Local types for appMachine
 export interface AppContext {
@@ -15,7 +15,7 @@ export interface AppContext {
 }
 
 export type AppEvent =
-  | { type: 'START_TRAINING' }
+  | { type: 'START_TRAINING', keyboardLayout: UserPreferences['keyboardLayout'] }
   | { type: 'QUIT_TRAINING' }
   | { type: 'GO_TO_SETTINGS' }
   | { type: 'VIEW_STATS' }
@@ -78,8 +78,9 @@ export const appMachine = createMachine({
       invoke: {
         id: 'trainingService',
         src: trainingMachine,
-        input: {
-          stream: generateLesson(),
+        input: ({ event }) => {
+          if (event.type !== 'START_TRAINING') return { keyboardLayout: 'qwerty' };
+          return { keyboardLayout: event.keyboardLayout };
         },
         // When the invoked machine is done, go to trainingComplete
         onDone: 'trainingComplete',
