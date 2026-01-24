@@ -8,7 +8,7 @@
 import { JSX } from "react";
 
 import { KeyboardLayout, ModifierKey, SymbolLayout, VirtualKey } from "@/interfaces/types";
-import { getSymbol } from "@/lib/symbol-utils";
+import { getLabel } from "@/lib/symbol-utils";
 
 import { KeyCap } from "./keycap";
 
@@ -74,7 +74,7 @@ function VirtualRow({ row, activeModifiers, keyboardLayout, symbolLayout }: Virt
       <KeyCap
         key={virtualKey.keyCapId}
         {...virtualKey}
-        symbol={getSymbol(virtualKey.keyCapId, activeModifiers || [], symbolLayout, keyboardLayout)}
+        symbol={getLabel(virtualKey.keyCapId, activeModifiers || [], symbolLayout, keyboardLayout)}
         navigationRole={virtualKey.navigationRole}
         visibility={virtualKey.visibility}
       />

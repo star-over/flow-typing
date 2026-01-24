@@ -10,7 +10,7 @@ vi.mock('./symbol-utils', async (importOriginal) => {
     const mod = await importOriginal<typeof SymbolUtils>();
     return {
         ...mod,
-        getSymbol: vi.fn(mod.getSymbol),
+        getLabel: vi.fn(mod.getLabel),
     };
 });
 
@@ -64,7 +64,7 @@ describe('createVirtualLayout', () => {
     expect(keyA.colIndex).toBe(0);
   });
 
-  it('should correctly derive symbol using getSymbol', () => {
+  it('should correctly derive symbol using getLabel', () => {
     const virtualLayout = createVirtualLayout({
       keyboardLayout: mockKeyboardLayout,
       symbolLayout: mockSymbolLayout,
@@ -150,6 +150,6 @@ describe('createVirtualLayout', () => {
 
     const keyA = virtualLayout[0][0];
     expect(keyA.symbol).toBe('A');
-    expect(SymbolUtils.getSymbol).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout, mockKeyboardLayout);
+    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout, mockKeyboardLayout);
   });
 });

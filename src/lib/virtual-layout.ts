@@ -5,7 +5,7 @@
  */
 import { ModifierKey } from "@/interfaces/types";
 import { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
-import { getSymbol } from "@/lib/symbol-utils";
+import { getLabel } from "@/lib/symbol-utils";
 
 interface CreateVirtualLayoutOptions {
   keyboardLayout: KeyboardLayout;
@@ -32,7 +32,7 @@ export function createVirtualLayout(
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         const keyCapId = physicalKey.keyCapId;
-        const symbol = getSymbol(keyCapId, activeModifiers, symbolLayout, keyboardLayout);
+        const symbol = getLabel(keyCapId, activeModifiers, symbolLayout, keyboardLayout);
         const fingerKey = fingerLayout.find((item) => item.keyCapId === physicalKey.keyCapId);
 
         const virtualKey: VirtualKey = {

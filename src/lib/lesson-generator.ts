@@ -18,19 +18,15 @@ export const lessons = [
 export function generateTypingStream(lessonText: string, symbolLayout: SymbolLayout): TypingStream {
   const stream: TypingStream = lessonText
     .split('')
-    .map((char): TypingStream[number] | null => {
-      const requiredKeyCapIds = getKeyCapIdsForChar(char, symbolLayout);
+    .map((targetSymbol): TypingStream[number] | null => {
+      const targetKeyCaps = getKeyCapIdsForChar(targetSymbol, symbolLayout);
 
-      if (!requiredKeyCapIds) {
-        console.warn(`Character "${char}" not found in symbol layout.`);
+      if (!targetKeyCaps) {
+        console.warn(`Character "${targetSymbol}" not found in symbol layout.`);
         return null; // Skip characters not in the layout
       }
 
-      return {
-        targetSymbol: char,
-        targetKeyCaps: requiredKeyCapIds,
-        attempts: [],
-      };
+      return { targetSymbol, targetKeyCaps, attempts: [], };
     })
     .filter((item): item is TypingStream[number] => item !== null);
 

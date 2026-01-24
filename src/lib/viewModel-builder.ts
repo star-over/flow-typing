@@ -476,6 +476,7 @@ export const generateVirtualLayoutForFinger = (
  * @returns Массив активных модификаторов.
  */
 export function calculateActiveModifiers(viewModel: HandsSceneViewModel): ModifierKey[] {
+  // TODO: no need active Modifiers any more. Remove it safely if it possible
   const modifiers: ModifierKey[] = [];
   const allTargetKeyCaps = Object.values(viewModel)
     .filter((f) => f.fingerState === 'TARGET' && f.keyCapStates)

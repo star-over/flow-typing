@@ -3,7 +3,7 @@ import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en'; // Corrected imp
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf'; // Import fingerLayoutASDF
 
 import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
-import { getFingerByKeyCap,getKeyCapIdsForChar, getSymbol, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
+import { getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
@@ -58,38 +58,38 @@ describe('isShiftRequired', () => {
   });
 });
 
-describe('getSymbol', () => {
+describe('getLabel', () => {
   it('should return the uppercase symbol for a letter key with no modifiers', () => {
-    expect(getSymbol('KeyA', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getLabel('KeyA', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
   it('should return the shifted symbol for a letter key with shift modifier', () => {
-    expect(getSymbol('KeyA', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getLabel('KeyA', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
   it('should return the combined label for a number key with no modifiers', () => {
-    expect(getSymbol('Digit1', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
+    expect(getLabel('Digit1', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
   });
 
   it('should return the shifted symbol for a number key with shift modifier', () => {
-    expect(getSymbol('Digit1', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('!');
+    expect(getLabel('Digit1', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('!');
   });
 
   it('should return the default label if a non-shift modifier is active', () => {
-    expect(getSymbol('KeyA', ['ctrl'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
-    expect(getSymbol('Digit4', ['alt'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
+    expect(getLabel('KeyA', ['ctrl'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getLabel('Digit4', ['alt'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
   });
 
   it('should return the shifted symbol if multiple modifiers including shift are active', () => {
-    expect(getSymbol('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getLabel('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
   it('should return the correct label for a modifier key', () => {
-    expect(getSymbol('ShiftRight', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
+    expect(getLabel('ShiftRight', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
   });
 
   it('should return a placeholder if a key is not in any layout', () => {
-    expect(getSymbol('Escape', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
+    expect(getLabel('Escape', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
   });
 });
 

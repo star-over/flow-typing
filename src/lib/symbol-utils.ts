@@ -113,7 +113,7 @@ function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierK
   return null; // No exact match found.
 }
 
-export function getSymbol(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
+export function getLabel(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
   const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
 
   // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
