@@ -3,7 +3,6 @@
  * @description Содержит функции для построения `VirtualLayout`, которая является
  * финальной, обогащенной моделью клавиатуры для отображения в UI.
  */
-import { ModifierKey } from "@/interfaces/types";
 import { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
 import { getLabel } from "@/lib/symbol-utils";
 
@@ -11,7 +10,6 @@ interface CreateVirtualLayoutOptions {
   keyboardLayout: KeyboardLayout;
   symbolLayout: SymbolLayout;
   fingerLayout: FingerLayout;
-  activeModifiers?: ModifierKey[];
 }
 
 /**
@@ -20,19 +18,18 @@ interface CreateVirtualLayoutOptions {
  * @param options.keyboardLayout Физический макет клавиатуры (расположение, размеры).
  * @param options.symbolLayout Символьный макет (какой символ на какой клавише).
  * @param options.fingerLayout Пальцевый макет (какой палец за какую клавишу отвечает).
- * @param [options.activeModifiers=[]] Список активных клавиш-модификаторов.
  * @returns `VirtualLayout` (двумерный массив `VirtualKey`), готовый для рендеринга в UI.
  */
 export function createVirtualLayout(
   options: CreateVirtualLayoutOptions
 ): VirtualLayout {
-  const { keyboardLayout, symbolLayout, fingerLayout, activeModifiers = [] } = options;
+  const { keyboardLayout, symbolLayout, fingerLayout } = options;
 
   const virtualLayout: VirtualLayout = keyboardLayout
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): VirtualKey => {
         const keyCapId = physicalKey.keyCapId;
-        const symbol = getLabel(keyCapId, activeModifiers, symbolLayout, keyboardLayout);
+        const symbol = getLabel(keyCapId, symbolLayout, keyboardLayout);
         const fingerKey = fingerLayout.find((item) => item.keyCapId === physicalKey.keyCapId);
 
         const virtualKey: VirtualKey = {

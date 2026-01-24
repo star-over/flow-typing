@@ -59,37 +59,24 @@ describe('isShiftRequired', () => {
 });
 
 describe('getLabel', () => {
-  it('should return the uppercase symbol for a letter key with no modifiers', () => {
-    expect(getLabel('KeyA', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+  it('should return the uppercase symbol for a letter key', () => {
+    expect(getLabel('KeyA', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
   });
 
-  it('should return the shifted symbol for a letter key with shift modifier', () => {
-    expect(getLabel('KeyA', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+  it('should return the combined label for a number key', () => {
+    expect(getLabel('Digit1', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
   });
 
-  it('should return the combined label for a number key with no modifiers', () => {
-    expect(getLabel('Digit1', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
-  });
-
-  it('should return the shifted symbol for a number key with shift modifier', () => {
-    expect(getLabel('Digit1', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('!');
-  });
-
-  it('should return the default label if a non-shift modifier is active', () => {
-    expect(getLabel('KeyA', ['ctrl'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
-    expect(getLabel('Digit4', ['alt'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
-  });
-
-  it('should return the shifted symbol if multiple modifiers including shift are active', () => {
-    expect(getLabel('KeyA', ['ctrl', 'shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+  it('should handle symbol keys with combined labels', () => {
+    expect(getLabel('Digit4', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
   });
 
   it('should return the correct label for a modifier key', () => {
-    expect(getLabel('ShiftRight', [], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
+    expect(getLabel('ShiftRight', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
   });
 
   it('should return a placeholder if a key is not in any layout', () => {
-    expect(getLabel('Escape', ['shift'], symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
+    expect(getLabel('Escape', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
   });
 });
 

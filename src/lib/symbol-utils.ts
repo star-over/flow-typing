@@ -3,7 +3,6 @@ import {
   FingerId,
   FingerLayout,
   KeyboardLayout,
-  ModifierKey,
   SymbolLayout,
 } from "@/interfaces/types";
 
@@ -49,12 +48,6 @@ export function isTextKey(key: string, keyboardLayout: KeyboardLayout): boolean 
     .includes(key as KeyCapId);
 }
 
-const modifierKeyToKeyCapId: Record<ModifierKey, KeyCapId[]> = {
-  shift: ['ShiftLeft', 'ShiftRight'],
-  alt: ['AltLeft', 'AltRight'],
-  ctrl: ['ControlLeft', 'ControlRight'],
-  meta: ['MetaLeft', 'MetaRight'],
-};
 
 /**
  * Finds a symbol in the layout that exactly matches a given combination of a base key and modifiers.
@@ -70,50 +63,7 @@ const modifierKeyToKeyCapId: Record<ModifierKey, KeyCapId[]> = {
  * ShiftLeft vs. ShiftRight. It also correctly resolves the symbol for the
  * modifier key itself (e.g., finding "Sh L" for the "ShiftLeft" key).
  */
-function findSymbolForCombination(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout): string | null {
-  // 1. Create the canonical set of keys we are looking for.
-  const lookupKeys = new Set<KeyCapId>();
-
-  // Add canonical modifiers from the activeModifiers array.
-  if (activeModifiers.includes('shift')) lookupKeys.add('ShiftLeft');
-  if (activeModifiers.includes('ctrl')) lookupKeys.add('ControlLeft');
-  if (activeModifiers.includes('alt')) lookupKeys.add('AltLeft');
-  if (activeModifiers.includes('meta')) lookupKeys.add('MetaLeft');
-
-  // Add the canonical version of the base keyCapId itself.
-  let canonicalKeyCap = keyCapId;
-  if (modifierKeyToKeyCapId.shift.includes(keyCapId)) canonicalKeyCap = 'ShiftLeft';
-  else if (modifierKeyToKeyCapId.ctrl.includes(keyCapId)) canonicalKeyCap = 'ControlLeft';
-  else if (modifierKeyToKeyCapId.alt.includes(keyCapId)) canonicalKeyCap = 'AltLeft';
-  else if (modifierKeyToKeyCapId.meta.includes(keyCapId)) canonicalKeyCap = 'MetaLeft';
-
-  lookupKeys.add(canonicalKeyCap);
-
-  // 2. Iterate through the symbol layout and compare.
-  for (const { symbol, keyCaps: requiredKeys } of symbolLayout) {
-    // Create a canonical set for the current symbol's required keys.
-    const canonicalLayoutKeys = new Set<KeyCapId>();
-    requiredKeys.forEach((key) => {
-      if (modifierKeyToKeyCapId.shift.includes(key)) canonicalLayoutKeys.add('ShiftLeft');
-      else if (modifierKeyToKeyCapId.ctrl.includes(key)) canonicalLayoutKeys.add('ControlLeft');
-      else if (modifierKeyToKeyCapId.alt.includes(key)) canonicalLayoutKeys.add('AltLeft');
-      else if (modifierKeyToKeyCapId.meta.includes(key)) canonicalLayoutKeys.add('MetaLeft');
-      else canonicalLayoutKeys.add(key);
-    });
-
-    // 3. Compare the canonical sets.
-    if (
-      lookupKeys.size === canonicalLayoutKeys.size &&
-      [...lookupKeys].every((key) => canonicalLayoutKeys.has(key))
-    ) {
-      return symbol; // Exact match found.
-    }
-  }
-
-  return null; // No exact match found.
-}
-
-export function getLabel(keyCapId: KeyCapId, activeModifiers: ModifierKey[], symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
+export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
   const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
 
   // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
@@ -121,15 +71,7 @@ export function getLabel(keyCapId: KeyCapId, activeModifiers: ModifierKey[], sym
     return physicalKey?.label || '...';
   }
 
-  // 2. If SHIFT is active, find the specific symbol to be typed.
-  if (activeModifiers.includes('shift')) {
-    const shiftedSymbol = findSymbolForCombination(keyCapId, ['shift'], symbolLayout);
-    if (shiftedSymbol) {
-      return shiftedSymbol;
-    }
-  }
-
-  // 3. If no active shift (or no specific shifted symbol found), generate the combined label.
+  // 2. Generate the combined label.
   const baseSymbolEntry = symbolLayout.find((s) => s.keyCaps.length === 1 && s.keyCaps[0] === keyCapId);
   const shiftedSymbolEntry = symbolLayout.find((s) =>
     s.keyCaps.length === 2 &&

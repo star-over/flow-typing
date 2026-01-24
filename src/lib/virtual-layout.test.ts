@@ -75,6 +75,9 @@ describe('createVirtualLayout', () => {
     const keyB = virtualLayout[0][1];
     expect(keyA.symbol).toBe('A'); // The new getSymbol logic returns the uppercase variant
     expect(keyB.symbol).toBe('b'); // Only 'b' is defined, so it returns 'b'
+    // Also check if getLabel was called correctly
+    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', mockSymbolLayout, mockKeyboardLayout);
+    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyB', mockSymbolLayout, mockKeyboardLayout);
   });
 
   it('should set symbol to the label from keyboardLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
@@ -124,32 +127,5 @@ describe('createVirtualLayout', () => {
     });
 
     expect(virtualLayout[0][0].fingerId).toBe('L1');
-  });
-
-  it('should reflect activeModifiers in the symbol', () => {
-    const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
-      symbolLayout: mockSymbolLayout,
-      fingerLayout: mockFingerLayout,
-      activeModifiers: ['shift'],
-    });
-
-    const keyA = virtualLayout[0][0];
-    expect(keyA.symbol).toBe('A'); // Mocked getSymbol returns 'A' for Shift + KeyA
-  });
-
-  it('should reflect activeModifiers in the symbol for multiple modifiers', () => {
-    // This test relies on the mock of getSymbol
-    // The current mock only checks for 'shift'
-    const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
-      symbolLayout: mockSymbolLayout,
-      fingerLayout: mockFingerLayout,
-      activeModifiers: ['shift', 'alt'], // Alt shouldn't change the outcome with current mock
-    });
-
-    const keyA = virtualLayout[0][0];
-    expect(keyA.symbol).toBe('A');
-    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', ['shift', 'alt'], mockSymbolLayout, mockKeyboardLayout);
   });
 });

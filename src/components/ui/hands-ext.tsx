@@ -1,11 +1,11 @@
 'use client';
 import { cva } from 'class-variance-authority';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, LEFT_HAND_FINGERS, ModifierKey, RIGHT_HAND_FINGERS, SymbolLayout, Visibility } from '@/interfaces/types';
+import { FingerId, FingerLayout, FingerState, HandsSceneViewModel, KeyboardLayout, LEFT_HAND_FINGERS, RIGHT_HAND_FINGERS, SymbolLayout, Visibility } from '@/interfaces/types';
 import { calculateClusterTranslation } from '@/lib/positioning-utils';
 import { cn } from '@/lib/utils';
-import { calculateActiveModifiers, generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
+import { generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
 
 import { VirtualKeyboard } from './virtual-keyboard';
 
@@ -123,8 +123,6 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, symbolLayout
     Object.entries(viewModel).map(([fingerId, fingerSceneState]) => [fingerId, fingerSceneState.fingerState])
   ) as Record<FingerId, FingerState>;
 
-  // ✅ Вычисляем активные модификаторы ОДИН РАЗ за рендер для эффективности
-  const activeModifiers: ModifierKey[] = useMemo(() => calculateActiveModifiers(viewModel), [viewModel]);
 
   return (
     <div
@@ -180,7 +178,7 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, symbolLayout
               className="absolute top-0 left-0" // Позиционируем абсолютно для дальнейшего смещения
               style={{ visibility: 'hidden' }} // Start hidden to prevent flash of unpositioned content
             >
-              <VirtualKeyboard virtualLayout={virtualLayout} activeModifiers={activeModifiers} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
+              <VirtualKeyboard virtualLayout={virtualLayout} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
             </div>
           );
         })}

@@ -4,13 +4,12 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en";
-import { symbolLayoutRu } from "@/data/symbol-layout-ru"; // Added import
-import { ModifierKey } from "@/interfaces/types";
+import { symbolLayoutRu } from "@/data/symbol-layout-ru";
 import { createVirtualLayout } from "@/lib/virtual-layout";
 
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";
 
-type StoryArgs = VirtualKeyboardProps & { activeModifiers: ModifierKey[] };
+type StoryArgs = VirtualKeyboardProps;
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -22,16 +21,10 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const meta  = {
+const meta = {
   title: 'UI/VirtualKeyboard',
   component: VirtualKeyboard,
   argTypes: {
-    activeModifiers: {
-      name: 'Active Modifiers',
-      control: 'check',
-      options: ['shift', 'ctrl', 'alt', 'meta'],
-      description: 'Select active modifier keys.',
-    },
     virtualLayout: {
       control: false,
     },
@@ -49,33 +42,25 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 export const WholeKeyboard: Story = {
-  args: {
-    activeModifiers: [],
-  },
-  render: ({ activeModifiers }) => {
+  render: () => {
     const virtualLayout = createVirtualLayout({
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutEnQwerty,
       fingerLayout: fingerLayoutASDF,
-      activeModifiers: activeModifiers,
     });
 
-    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutEnQwerty }} />;
+    return <VirtualKeyboard {...{ virtualLayout, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutEnQwerty }} />;
   },
 };
 
 export const CyrillicKeyboard: Story = {
-  args: {
-    activeModifiers: [],
-  },
-  render: ({ activeModifiers }) => {
+  render: () => {
     const virtualLayout = createVirtualLayout({
       keyboardLayout: keyboardLayoutANSI,
       symbolLayout: symbolLayoutRu, // Use Cyrillic layout
       fingerLayout: fingerLayoutASDF,
-      activeModifiers: activeModifiers,
     });
 
-    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutRu }} />;
+    return <VirtualKeyboard {...{ virtualLayout, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutRu }} />;
   },
 };
