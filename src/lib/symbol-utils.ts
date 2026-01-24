@@ -71,39 +71,36 @@ export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, keyboar
     return physicalKey?.label || '...';
   }
 
-  // 2. Generate the combined label.
-  const baseSymbolEntry = symbolLayout.find((s) => s.keyCaps.length === 1 && s.keyCaps[0] === keyCapId);
-  const shiftedSymbolEntry = symbolLayout.find((s) =>
-    s.keyCaps.length === 2 &&
-    s.keyCaps.includes(keyCapId) &&
-    s.keyCaps.some((k) => k.startsWith('Shift'))
-  );
+  // 2. Find symbols in a single pass
+  let baseSymbol: string | undefined;
+  let shiftedSymbol: string | undefined;
 
-  // Fallback to physical key label if no base symbol is found
-  if (!baseSymbolEntry) {
-    return physicalKey?.label || '...';
+  for (const entry of symbolLayout) {
+    if (entry.keyCaps.length === 1 && entry.keyCaps[0] === keyCapId) {
+      baseSymbol = entry.symbol;
+    } else if (entry.keyCaps.length === 2 && entry.keyCaps.includes(keyCapId) && entry.keyCaps.some((k) => k.startsWith('Shift'))) {
+      shiftedSymbol = entry.symbol;
+    }
+    // Optimization: stop early if both are found
+    if (baseSymbol && shiftedSymbol) {
+      break;
+    }
   }
 
-  // If there's no shifted symbol, just return the base symbol
-  if (!shiftedSymbolEntry) {
-    return baseSymbolEntry.symbol;
+  // 3. Determine the final label based on the found symbols
+  if (!baseSymbol) {
+    return physicalKey?.label || '...'; // Fallback to physical key label
+  }
+  if (!shiftedSymbol || baseSymbol === shiftedSymbol) {
+    return baseSymbol; // No shifted symbol or it's the same (e.g., Space)
+  }
+  // For letters like 'a'/'A', show only the uppercase version
+  if (baseSymbol.toUpperCase() === shiftedSymbol) {
+    return shiftedSymbol;
   }
 
-  const baseSym = baseSymbolEntry.symbol;
-  const shiftedSym = shiftedSymbolEntry.symbol;
-
-  // If they are the same letter, return the uppercase version
-  if (baseSym.toUpperCase() === shiftedSym.toUpperCase() && baseSym !== shiftedSym) {
-    return shiftedSym;
-  }
-
-  // If for some reason they are identical (e.g., Space key might be defined twice)
-  if (baseSym === shiftedSym) {
-    return baseSym;
-  }
-
-  // Otherwise, combine them
-  return `${baseSym}\u202F${shiftedSym}`;
+  // Otherwise, combine them (e.g., '1' and '!')
+  return `${baseSymbol}\u202F${shiftedSymbol}`;
 }
 
 
@@ -117,17 +114,6 @@ export function getKeyCapIdsForChar(char: string, symbolLayout: SymbolLayout): K
   const entry = symbolLayout.find((item) => item.symbol === char);
   return entry?.keyCaps;
 }
-
-/**
- * Проверяет, требуется ли нажатие клавиши Shift для набора заданного символа.
- * @param char Символ для проверки.
- * @returns `true`, если требуется Shift.
- */
-export function isShiftRequired(char: string, symbolLayout: SymbolLayout): boolean {
-  const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
-  return keyCapIds?.some((id) => id.includes('Shift')) ?? false;
-}
-
 
 /**
  * Получает `fingerId` для заданного `KeyCapId` из пальцевого макета.

@@ -3,7 +3,7 @@ import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en'; // Corrected imp
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf'; // Import fingerLayoutASDF
 
 import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
-import { getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey,isShiftRequired, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
+import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
@@ -32,31 +32,7 @@ describe('getKeyCapIdsForChar', () => {
   });
 });
 
-describe('isShiftRequired', () => {
-  it('should return false for a lowercase character', () => {
-    expect(isShiftRequired('a', symbolLayoutEnQwerty)).toBe(false);
-  });
 
-  it('should return true for an uppercase character', () => {
-    expect(isShiftRequired('A', symbolLayoutEnQwerty)).toBe(true);
-  });
-
-  it('should return true for a shifted symbol character', () => {
-    expect(isShiftRequired('!', symbolLayoutEnQwerty)).toBe(true);
-  });
-
-  it('should return false for an unshifted symbol character', () => {
-    expect(isShiftRequired('1', symbolLayoutEnQwerty)).toBe(false);
-  });
-
-  it('should return false for a space character', () => {
-    expect(isShiftRequired(' ', symbolLayoutEnQwerty)).toBe(false);
-  });
-
-  it('should return false for a character not in the layout', () => {
-    expect(isShiftRequired('€', symbolLayoutEnQwerty)).toBe(false);
-  });
-});
 
 describe('getLabel', () => {
   it('should return the uppercase symbol for a letter key', () => {
@@ -128,5 +104,32 @@ describe('getFingerByKeyCap', () => {
 
   it('should return undefined for a KeyCapId not in the finger layout', () => {
     expect(getFingerByKeyCap('Unknown', fingerLayoutASDF)).toBeUndefined();
+  });
+});
+
+describe('areKeyCapIdArraysEqual', () => {
+  it('should return true for arrays with the same elements in the same order', () => {
+    expect(areKeyCapIdArraysEqual(['KeyA', 'ShiftLeft'], ['KeyA', 'ShiftLeft'])).toBe(true);
+  });
+
+  it('should return true for arrays with the same elements in a different order', () => {
+    expect(areKeyCapIdArraysEqual(['KeyA', 'ShiftLeft'], ['ShiftLeft', 'KeyA'])).toBe(true);
+  });
+
+  it('should return false for arrays of different lengths', () => {
+    expect(areKeyCapIdArraysEqual(['KeyA', 'ShiftLeft'], ['KeyA'])).toBe(false);
+  });
+
+  it('should return false for arrays with different elements', () => {
+    expect(areKeyCapIdArraysEqual(['KeyA', 'ShiftLeft'], ['KeyB', 'ShiftLeft'])).toBe(false);
+  });
+
+  it('should return true for two empty arrays', () => {
+    expect(areKeyCapIdArraysEqual([], [])).toBe(true);
+  });
+
+  it('should return false when one array is a subset of another', () => {
+    expect(areKeyCapIdArraysEqual(['KeyA', 'ShiftLeft'], ['KeyA'])).toBe(false);
+    expect(areKeyCapIdArraysEqual(['KeyA'], ['KeyA', 'ShiftLeft'])).toBe(false);
   });
 });

@@ -9,8 +9,6 @@ import {
   FingerLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
-  RIGHT_HAND_BASE,
-  RIGHT_HAND_FINGERS,
 } from "@/interfaces/types";
 
 /**
@@ -22,14 +20,7 @@ export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HA
   return LEFT_HAND_FINGERS.includes(fingerId as typeof LEFT_HAND_FINGERS[number]) || fingerId === LEFT_HAND_BASE;
 }
 
-/**
- * Определяет, принадлежит ли палец правой руке.
- * @param fingerId Идентификатор пальца для проверки.
- * @returns `true`, если палец принадлежит правой руке.
- */
-export function isRightHandFinger(fingerId: FingerId): fingerId is typeof RIGHT_HAND_FINGERS[number] | typeof RIGHT_HAND_BASE {
-  return RIGHT_HAND_FINGERS.includes(fingerId as typeof RIGHT_HAND_FINGERS[number]) || fingerId === RIGHT_HAND_BASE;
-}
+
 
 /**
  * Получает все клавиши, назначенные на указанный палец. Т.н. Кластер клавишь

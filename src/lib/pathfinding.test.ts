@@ -63,5 +63,15 @@ describe("pathfinding utilities", () => {
       const path = findOptimalPath("KeyA", "KeyB", disconnectedGraph);
       expect(path).toEqual([]);
     });
+
+    it("should return an empty array if start or end key is not in the graph", () => {
+      // @ts-expect-error Testing with a non-existent key
+      const path1 = findOptimalPath("KeyA", "NonExistentKey", graph);
+      expect(path1).toEqual([]);
+
+      // @ts-expect-error Testing with a non-existent key
+      const path2 = findOptimalPath("NonExistentKey", "KeyA", graph);
+      expect(path2).toEqual([]);
+    });
   });
 });
