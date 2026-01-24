@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
 import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
 import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en";
+import { symbolLayoutRu } from "@/data/symbol-layout-ru"; // Added import
 import { ModifierKey } from "@/interfaces/types";
 import { createVirtualLayout } from "@/lib/virtual-layout";
 
@@ -60,5 +61,21 @@ export const WholeKeyboard: Story = {
     });
 
     return <VirtualKeyboard  {...{ virtualLayout, activeModifiers, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutEnQwerty }} />;
+  },
+};
+
+export const CyrillicKeyboard: Story = {
+  args: {
+    activeModifiers: [],
+  },
+  render: ({ activeModifiers }) => {
+    const virtualLayout = createVirtualLayout({
+      keyboardLayout: keyboardLayoutANSI,
+      symbolLayout: symbolLayoutRu, // Use Cyrillic layout
+      fingerLayout: fingerLayoutASDF,
+      activeModifiers: activeModifiers,
+    });
+
+    return <VirtualKeyboard  {...{ virtualLayout, activeModifiers, keyboardLayout: keyboardLayoutANSI, symbolLayout: symbolLayoutRu }} />;
   },
 };

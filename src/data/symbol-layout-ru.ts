@@ -64,7 +64,7 @@ export const symbolLayoutRu: SymbolLayout = [
   { symbol: "б", keyCaps: ["Comma"] },
   { symbol: "ю", keyCaps: ["Period"] },
   { symbol: ".", keyCaps: ["Slash"] },
-  { symbol: "Ë", keyCaps: ["Backquote", "ShiftRight"] },
+  { symbol: "Ё", keyCaps: ["Backquote", "ShiftRight"] },
   { symbol: "!", keyCaps: ["Digit1", "ShiftRight"] },
   { symbol: '"', keyCaps: ["Digit2", "ShiftRight"] },
   { symbol: "№", keyCaps: ["Digit3", "ShiftRight"] },
