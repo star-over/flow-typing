@@ -3,7 +3,7 @@ import { SymbolLayout } from '@/interfaces/types';
 import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en';
 import { symbolLayoutRu } from '@/data/symbol-layout-ru';
 
-export const symbolLayouts: Record<UserPreferences['keyboardLayout'], SymbolLayout> = {
+const symbolLayouts: Record<UserPreferences['keyboardLayout'], SymbolLayout> = {
   qwerty: symbolLayoutEnQwerty,
   йцукен: symbolLayoutRu,
 };

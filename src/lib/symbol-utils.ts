@@ -18,7 +18,7 @@ export const nbsp = '\u00A0';
  */
 export const sp = '\u0020';
 
-export const nnbsp = '\u202F'
+
 
 /**
  * Проверяет, является ли клавиша модификатором.

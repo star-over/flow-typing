@@ -2,13 +2,13 @@ import { UserPreferences } from '@/interfaces/user-preferences';
 import { SettingMetadata, SettingOption } from '@/interfaces/types';
 
 // Options for language setting
-export const LANGUAGE_OPTIONS: SettingOption<UserPreferences['language']>[] = [
+const LANGUAGE_OPTIONS: SettingOption<UserPreferences['language']>[] = [
   { value: 'en', labelCode: 'language.en' },
   { value: 'ru', labelCode: 'language.ru' },
 ];
 
 // Options for keyboard layout setting
-export const KEYBOARD_LAYOUT_OPTIONS: SettingOption<UserPreferences['keyboardLayout']>[] = [
+const KEYBOARD_LAYOUT_OPTIONS: SettingOption<UserPreferences['keyboardLayout']>[] = [
   { value: 'qwerty', labelCode: 'keyboardLayout.qwerty' },
   { value: 'йцукен', labelCode: 'keyboardLayout.йцукен' },
 ];
@@ -16,7 +16,7 @@ export const KEYBOARD_LAYOUT_OPTIONS: SettingOption<UserPreferences['keyboardLay
 /**
  * Metadata for all user preferences, defining their structure, display, and storage.
  */
-export const USER_PREFERENCE_METADATA: Array<
+const USER_PREFERENCE_METADATA: Array<
   | SettingMetadata<UserPreferences['language']>
   | SettingMetadata<UserPreferences['keyboardLayout']>
 > = [
