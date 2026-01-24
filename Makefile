@@ -10,7 +10,7 @@ SHELL := /bin/bash
 
 # .PHONY - объявляет цели, которые не связаны с файлами.
 # Это предотвращает конфликты с одноименными файлами и ускоряет выполнение.
-.PHONY: all help install clean dev build start test lint lint-fix type-check storybook build-storybook check-all
+.PHONY: all help install clean dev build start test lint lint-fix type-check storybook storybook-build check-all
 
 # Default - цель по умолчанию, которая выполняется при вызове `make` без аргументов.
 all: help
@@ -42,7 +42,7 @@ help:
 	@echo "  make check-all        - Выполнить все проверки (lint, type-check, test, build)"
 	@echo ""
 	@echo "  make storybook        - Запустить Storybook для разработки компонентов"
-	@echo "  make build-storybook  - Собрать Storybook для публикации"
+	@echo "  make storybook-build  - Собрать Storybook для публикации"
 	@echo "------------------------------------------------------------------"
 
 
@@ -128,8 +128,8 @@ storybook: install
 	@echo "🎨 Запуск Storybook..."
 	npx storybook dev -p 6006
 
-# build-storybook - собирает статическую версию Storybook.
-build-storybook: install
+# storybook-build - собирает статическую версию Storybook.
+storybook-build: install
 	@echo "📚 Сборка Storybook..."
 	npx storybook build
 

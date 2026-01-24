@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { Geist, Geist_Mono } from 'next/font/google';
 
 import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
 import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
@@ -21,6 +22,16 @@ import { simple_t } from '@/fixtures/hands-ext/simple_t';
 
 import { HandsExt } from './hands-ext';
 
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
 const className = 'pt-40';
 const meta = {
   title: 'UI/HandsExt',
@@ -28,7 +39,14 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  argTypes: { viewModel: {} }
+  argTypes: { viewModel: {} },
+  decorators: [
+    (Story) => (
+      <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof HandsExt>;
 
 export default meta;
