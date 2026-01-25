@@ -59,6 +59,7 @@ export const Idle: Story = {
     fingerLayout: fingerLayoutASDF,
     keyboardLayout: keyboardLayoutANSI,
     symbolLayout: symbolLayoutEnQwerty,
+    centerPointVisibility: "VISIBLE", 
   },
 };
 

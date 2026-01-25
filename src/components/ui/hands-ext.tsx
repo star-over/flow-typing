@@ -139,21 +139,21 @@ export const HandsExt = ({ viewModel, fingerLayout, keyboardLayout, symbolLayout
         {/* Левая рука */}
         <svg className="w-3xs" viewBox="0 0 281 321">
           {/* Каждая группа <g> представляет собой палец с его формой и центральной точкой */}
-          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="260" cy="240" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="240" cy="55" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="172" cy="18" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="25" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="15" cy="60" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L1"><path className="L1" d={part1} /><circle cx="270" cy="245" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L2"><path className="L2" d={part2} /><circle cx="249" cy="48" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L3"><path className="L3" d={part3} /><circle cx="176" cy="8" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L4"><path className="L4" d={part4} /><circle cx="90" cy="16" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="L5"><path className="L5" d={part5} /><circle cx="15" cy="50" r="2" className="finger-center-point" /></g>
           <g data-finger-id="LB"><path className="LB" d={partB} /></g> {/* Большой палец левой руки */}
         </svg>
         <div className="w-12" /> {/* Пространство между руками */}
         {/* Правая рука (отзеркаленная левая) */}
         <svg className="w-3xs -scale-x-100" viewBox="0 0 281 321">
-          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="260" cy="240" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="240" cy="55" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="172" cy="18" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="25" r="2" className="finger-center-point" /></g>
-          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="15" cy="60" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R1"><path className="R1" d={part1} /><circle cx="270" cy="245" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R2"><path className="R2" d={part2} /><circle cx="240" cy="48" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R3"><path className="R3" d={part3} /><circle cx="176" cy="8" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R4"><path className="R4" d={part4} /><circle cx="90" cy="16" r="2" className="finger-center-point" /></g>
+          <g data-finger-id="R5"><path className="R5" d={part5} /><circle cx="15" cy="50" r="2" className="finger-center-point" /></g>
           <g data-finger-id="RB"><path className="RB" d={partB} /></g> {/* Большой палец правой руки */}
         </svg>
 

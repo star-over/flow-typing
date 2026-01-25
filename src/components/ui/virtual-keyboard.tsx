@@ -50,7 +50,7 @@ export function VirtualKeyboard({ virtualLayout, keyboardLayout, symbolLayout }:
   ));
 
   return (
-    <div className="flex flex-col w-fit gap-0.5">
+    <div className="flex flex-col w-fit gap-2">
       {rows}
     </div>
   )
@@ -76,7 +76,7 @@ function VirtualRow({ row, keyboardLayout, symbolLayout }: VirtualRowProps): JSX
   });
 
   return (
-    <div className="flex flex-nowrap gap-0.5">
+    <div className="flex flex-nowrap gap-3">
       {keyCaps}
     </div>
   );

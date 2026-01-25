@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
  */
 const keyCapVariants = cva(
   `flex items-center justify-center relative rounded-sm h-8
-  [&_.keycap-marker]:bg-slate-500`,
+  [&_.keycap-marker]:bg-slate-900`,
   {
     variants: {
       /** Видимость клавиши. */
@@ -30,11 +30,10 @@ const keyCapVariants = cva(
         INVISIBLE: "[&_.keycap-center-point]:invisible",
       } satisfies Record<Visibility, string>,
 
-
       /** Размер символа на клавише. */
       symbolSize: {
         MD: "[&_.keycap-label]:text-xl",
-        SM: "[&_.keycap-label]:text-sm",
+        SM: "[&_.keycap-label]:text-md",
         XS: "[&_.keycap-label]:text-xs",
       } satisfies Record<KeyCapSymbolSize, string>,
 
@@ -68,28 +67,21 @@ const keyCapVariants = cva(
 
       /** Идентификатор пальца, ответственного за эту клавишу. */
       fingerId: {
-        L1: "bg-stone-50   border-stone-300   outline-stone-300 ring-stone-400",
-        R1: "bg-stone-50   border-stone-300   outline-stone-300",
-        L5: "bg-purple-50  border-purple-300  outline-purple-300 ",
-        L4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
-        L3: "bg-sky-50     border-sky-300     outline-sky-300    ",
-        L2: "bg-rose-50    border-rose-300    outline-rose-300   ",
-        R2: "bg-amber-50   border-amber-300   outline-amber-300  ",
-        R3: "bg-sky-50     border-sky-300     outline-sky-300    ",
-        R4: "bg-indigo-50  border-indigo-300  outline-indigo-300 ",
-        R5: "bg-purple-50  border-purple-300  outline-purple-300 ",
+        L1: "bg-stone-100/70    border-stone-300   outline-stone-300 ",
+        R1: "bg-stone-100/70    border-stone-300   outline-stone-300",
+        L2: "bg-amber-100/70    border-amber-300    outline-rose-300   ",
+        R2: "bg-amber-100/70   border-amber-300   outline-amber-300  ",
+        L3: "bg-sky-100/70     border-sky-300     outline-sky-500    ",
+        R3: "bg-sky-100/70     border-sky-300     outline-sky-300    ",
+        L4: "bg-indigo-100/70  border-indigo-300  outline-indigo-300 ",
+        R4: "bg-indigo-100/70  border-indigo-300  outline-indigo-300 ",
+        L5: "bg-purple-100/70  border-purple-300  outline-purple-300 ",
+        R5: "bg-purple-100/70  border-purple-300  outline-purple-300 ",
 
         LB: "",
         RB: "",
       } satisfies Partial<Record<FingerId, string>>,
 
-
-      /** Навигационная роль клавиши по движению к целевой клавише. */
-      navigationRole: {
-        NONE: "text-slate-300",
-        PATH: "text-lime-600 bg-slate-100 ",
-        TARGET: "text-lime-700  bg-slate-200 outline-2 outline-green-700",
-      } satisfies Record<KeyCapNavigationRole, string>,
 
       /** Стрелка направления движения пальца к клавише. */
       navigationArrow: {
@@ -121,9 +113,15 @@ const keyCapVariants = cva(
 
       /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
       isHomeKey: {
-        true: "ring-4",
+        true: "ring-2",
         false: "ring-0",
       },
+      /** Навигационная роль клавиши по движению к целевой клавише. */
+      navigationRole: {
+        NONE: "text-sky-900 border font-extralight",
+        PATH: "ring-4 ring-sky-900 text-sky-900 font-bold",
+        TARGET: "ring-4 ring-sky-950/70 text-sky-50  bg-sky-950/70 font-black",
+      } satisfies Record<KeyCapNavigationRole, string>,
     },
     compoundVariants: [
       {
