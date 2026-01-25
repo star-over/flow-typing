@@ -18,6 +18,7 @@ export interface TrainingContext {
   currentIndex: number;
   errors: number;
   keyboardLayout: UserPreferences['keyboardLayout']; // Added to context
+  symbolAppearanceTime: number;
 }
 
 export type TrainingEvent =
@@ -45,7 +46,8 @@ export const trainingMachine = createMachine({
     stream: [],
     currentIndex: 0,
     errors: 0,
-    keyboardLayout: input.keyboardLayout // Initialize keyboardLayout from input
+    keyboardLayout: input.keyboardLayout, // Initialize keyboardLayout from input
+    symbolAppearanceTime: 0
   }),
   on: {
     PAUSE_TRAINING: '.paused',
@@ -65,6 +67,9 @@ export const trainingMachine = createMachine({
       always: 'awaitingInput',
     },
     awaitingInput: {
+      entry: assign({
+        symbolAppearanceTime: () => Date.now()
+      }),
       on: {
         KEY_PRESS: {
           target: 'processingInput',
@@ -99,9 +104,8 @@ export const trainingMachine = createMachine({
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
-            // Faking timestamp for now as it's not critical for this feature
             pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
-            startAt: Date.now(),
+            startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };
           const updatedSymbol = {
@@ -139,9 +143,8 @@ export const trainingMachine = createMachine({
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
           const newAttempt = {
-            // Faking timestamp for now as it's not critical for this feature
             pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
-            startAt: Date.now(),
+            startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };
           const updatedSymbol = {
