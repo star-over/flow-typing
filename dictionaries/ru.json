@@ -10,7 +10,11 @@
     "lesson_complete": "Урок пройден!",
     "back_to_menu": "В меню",
     "stats_screen_title": "Экран статистики",
-    "error_title": "Произошла ошибка"
+    "error_title": "Произошла ошибка",
+    "start_again": "Начать заново",
+    "pause": "Пауза",
+    "resume": "Продолжить",
+    "welcome": "Добро пожаловать в FlowTyping. Выберите действие, чтобы начать."
   },
   "user_preferences": {
     "title": "Пользовательские Предпочтения",
@@ -19,5 +23,12 @@
     "language_placeholder": "Выберите язык",
     "keyboard_layout_placeholder": "Выберите раскладку",
     "back_button": "Назад"
+  },
+  "stats_card": {
+    "title": "Результаты Упражнения",
+    "cpm": "Скорость",
+    "wpm": "Слов в минуту",
+    "accuracy": "Точность",
+    "duration": "Время"
   }
 }

@@ -1,10 +1,11 @@
-import { createMachine, sendTo } from "xstate";
+import { assign, createMachine, sendTo } from "xstate";
 
 import { KeyCapId } from "@/interfaces/key-cap-id";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
 import { UserPreferences } from "@/interfaces/user-preferences";
+import { TypingStream } from "@/interfaces/types";
 
 // Local types for appMachine
 export interface AppContext {
@@ -12,20 +13,23 @@ export interface AppContext {
   settings: {
     theme: 'dark' | 'light';
   };
+  lastTrainingStream: TypingStream | null;
 }
 
 export type AppEvent =
   | { type: 'START_TRAINING', keyboardLayout: UserPreferences['keyboardLayout'] }
-  | { type: 'QUIT_TRAINING' }
-  | { type: 'GO_TO_SETTINGS' }
-  | { type: 'VIEW_STATS' }
-  | { type: 'BACK_TO_MENU' }
+  | { type: 'TO_SETTINGS' }
+  | { type: 'TO_ALL_STAT' }
+  | { type: 'TO_MENU' }
+  | { type: 'PAUSE' }
+  | { type: 'RESUME' }
+  | { type: 'TRAINING.COMPLETE', stream: TypingStream }
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
   | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
 
 export const appMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqB0BLAdlgLlsgDZYBeuUAxANoAMAuoqKgPawFas7MgAeiAJwBmQRkEAOAIwB2AKxy6AFhkA2eTIA0IAJ6IJAJgyqFciYLqqJwmUuFyAvg+1pMWCMTBUAygBUAggBKvgD6voH+AJIAcjEA4vRMSCBsHITcvAIIgkpKGEqqdBLW6jJ0NkraeggywnQYZdYGEnKCCqpKUk4u6NgeXnEA8mHD3gCivr7x3om8qZwZyVkiYpKyCspqGlWIwgb10gaKwqJydVKOziCufZ5UAGqRYwDqIX7+vjOMc+wLPEuIKQGToYYqCAxtKSqfYdSq6RCdPLFKQ5PaCC6CdHda69fAAJ2QuEoVAg3DA2BwADdWABrcn4wl4HBQbxgPGUrAAYzAs2S83S-1AWQMNgwdCkdWESgk8nsbR2CCUmIwwIKEgK8jaqhE2JuDKJzKobLxrDxGFQxGQ+AAZqaALYYfVMllsjnc3ksX4CzKIVSyFWFJQQqy1JRFBV+oyCDooqTq4QSSyXHqYJ3EgCKAFVIqFwlFYtEEt8+V6uIL+L7+QZA8GZVLw-DFeixYoZIm5NDxYZdb1YGB8IRmbAqAAhfwAYQA0iMQgBZMbRTMelKlxZCoSicTSeSKFTqORaRs2eqqBN0AwXSy5VloyHuYWD4K3DsdTmfzxfL-lln0IIEgsEQnIUIwrkCrCCYLYdEccbKHIBTJjiqYEgaUDjqwdoWv2XjvMEYQRDE8Sfqu5bCqK4qStKsqtHICpwaoYpWOY1hSqo2rCHejrIc6aEYZ4+BeERaTfgCCAijIYoSuUlFnNRCr7PUoiCGoFzgUq3ZXDcxqmqOE7Tr4wzvkuxaekJa4Vtkm5rDumz7oe1R+lI+Snmc0brBYShOFcOCsBAcC8K4PymSRiAALSqAqIVyOImKSHIgFKrIdAITcRKECQ5CUIFfw-ocGBAuBOQmAYxUqAq0gYHsEJHHYIguclvTuI4WXeiJUgqSqdRBnUMgWOYYFlKCSWYhc6rKHYqgcWmzLNcJ66KgmKpSHQkh0PILSQgqSoKdYbanLkxU2BxfYDpQ8AlkFOUXg0kjycV56lGB1YYB2MLgUc2oXuxGm9o++BnSZ2WtUGeQoqIMhAvsoP9cIFVDYmbVtMIcaTVxlA8Zh-EzWZWRBnJbX5GGS3lKtIhdhxYl4ljwUINYjl1OKcZnFYIhSBG+Onpe0aQsUEieQ4QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBpAogTQH0ARAeQHUA5AbQAYBdRUVAe1gEsAXN5gO0ZAAeiAIwAmABzCAdAE454mTQBsAFgCs6mcIA0IAJ6IAzKLVSlWyQHZDl8ROEaAvo91pMuQgFUACrQZIQFnYuXn4hBGEVGUMpUUs1Y0NxGkt4pV0DBGNTc2ErGztJJxcQN2x8ACESAEEAJSIpWpwAYRIAcQoASQAtHCI-fiDObj4A8JlLUTMJURVDKKVLB3EMoxMzCxsVUUMxNSVnV3QpNh5h5AAbNgAvU6gMAYChkNHQcOFhJRopcXm1cSU8wmilEqwQSkiZiUEMMMm2hl2cMOpWOAFswDwAK4YADKABU6niCHjatVOl0KG1HkxWMNQmMRB8YkoEvsomphHComDLCypIY1CkNALUh9kW4pOisRg8SQCDicHi8eS2jjqYFaS8wiJRF8pDQLLNVIkVGClHF+RoZKIZL9fmpLDJxccOAAnZCnO4YCC8MAnHgAN2YAGs-W6PWceFAcWBXQG2ABjMDq54jbURD7fOwqX6LGRqB1g4Q0OZmNQ7Gj-OYc6zO1BSWBgDhcKOwGVygCyOAonhTmrTDIicxUUgdKmES055t5ZviUkivI0NEMNHE23Edak4c9UeazFRqAuTbAuIJtSJJLJFKp9EG-fpb0QcKUsQSCnMjpmoP0iF+0iiHzmqIHyRHYm7bpGUB7geR4cCesoEF2PZ9sEA6Pgg4hLFIlg0DQoj4YYH6wpYRYONIEzjuIkg0Hk4j7OB7o7vc3jVJ4CooXSryCCICLSJIeSAjmyh0aaP4IHCMiyNRqQKLsNoHCUEqoMgmKNhgTQ4p4XYcVqg7CNksQ2r8Kg4Y6sJggoUxzJyHyzHM1oKUc9bKap8Gdt2va3k895ce8w6jpY45KHREjRIRPJ8gKKTJNEcKEaIDERncOIcMgrocA8Xk0qhD7cRmep4Soy7BfFcwWWu-KqFRSQSOaVGbi5an4oSxKkuSKo6WheViNE87TgkvLmg4agWbsUgAZ8+EgTmhiblK2IIdUAAyS3ygSeKdbl4wKLIxXzPtBolmaFoClERlJAKG6KcclwXClyAZQhSGef42WcemmHSDheEmMuOF2DoYmLKYC4skVK5rhIzglDwzAQHA-BuHeOW+b+OzYbh+E7ERExgnMUy7IThELCkm6elwlw3HcyPvXpkTSF8YU0XkcTGGC+wvioYO8sueHlioc0YpiNO6ehHz-LEK7jv8NEcvmPKruNagyBCxbQtmTrXfWEHU95KPprZL4KIo1bxQaI1iXCBN5PMkgOcrm6Ns2dzwHrtNiyo2zYYoCL48kJYW5k076vh+b5sBq4OIlTHQYex4i117wfOIshFauyjFhYgOZOLDPbHkhXjjsAta1IjVgAnW0iOozLlirgpiBnYISWYUQltCsL5pE0eQfd6WV6jGaEfqUSe7kDrh6N0gOFoK4q6oJiWJut33RwA8fXYlqpGkjrqCYx2WCHoV0dEgIJNDjhAA */
   id: 'app',
   initial: 'initializing',
   invoke: {
@@ -38,6 +42,7 @@ export const appMachine = createMachine({
     settings: {
       theme: 'dark',
     },
+    lastTrainingStream: null
   } as AppContext,
   types: {} as {
     context: AppContext;
@@ -65,55 +70,80 @@ export const appMachine = createMachine({
   },
   states: {
     initializing: {
-      always: 'idle', // Simulate immediate initialization
+      always: "menu", // Simulate immediate initialization
     },
-    idle: {
+
+    menu: {
       on: {
-        START_TRAINING: 'training',
-        GO_TO_SETTINGS: 'settings',
-        VIEW_STATS: 'stats', // Added transition
+        START_TRAINING: {
+          target: "trainingStart",
+          reenter: true
+        },
+
+        TO_SETTINGS: 'settings',
+        TO_ALL_STAT: "allStat"
       },
     },
+
     training: {
       invoke: {
         id: 'trainingService',
         src: trainingMachine,
-        input: ({ event }) => {
-          if (event.type !== 'START_TRAINING') return { keyboardLayout: 'qwerty' };
-          return { keyboardLayout: event.keyboardLayout };
+
+        input: ({ event, self }) => {
+          if (event.type !== 'START_TRAINING') return { keyboardLayout: 'qwerty', parentActor: self };
+          return { keyboardLayout: event.keyboardLayout, parentActor: self };
         },
-        // When the invoked machine is done, go to trainingComplete
-        onDone: 'trainingComplete',
-        // If the invoked machine has an error, go to the error state
-        onError: 'error',
       },
       on: {
-        // Event to exit training from the outside
-        QUIT_TRAINING: 'idle',
+        'TRAINING.COMPLETE': {
+            target: 'trainingComplete',
+            actions: assign({
+              lastTrainingStream: ({ event }) => event.stream
+            })
+        },
+        PAUSE: {
+          target: "pause",
+          reenter: true
+        }
       },
     },
+
     settings: {
       on: {
-        BACK_TO_MENU: 'idle',
+        TO_MENU: "menu"
       },
     },
-    stats: {
-      on: {
-        BACK_TO_MENU: 'idle',
-      },
-    },
+
     trainingComplete: {
       on: {
-        START_TRAINING: 'training'
+        TO_MENU: {
+          target: "menu",
+          reenter: true
+        },
+        START_TRAINING: {
+          target: "trainingStart",
+          reenter: true
+        }
       },
+    },
 
-      always: 'idle'
-    },
-    error: {
-      // From error state, we can allow going back to the menu
+    pause: {
       on: {
-        BACK_TO_MENU: 'idle',
-      },
+        TO_MENU: "menu",
+        START_TRAINING: "trainingStart",
+        RESUME: "training"
+      }
     },
+
+    trainingStart: {
+      always: "training"
+    },
+
+    allStat: {
+      on: {
+        TO_MENU: "menu"
+      }
+    }
   },
 });

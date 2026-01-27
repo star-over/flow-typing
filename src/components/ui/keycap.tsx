@@ -104,12 +104,7 @@ const keyCapVariants = cva(
                 [&_.keycap-path-arrow]:-translate-y-1/2`,
       } satisfies Record<KeyCapNavigationArrow, string>,
 
-      /** Результат нажатия клавиши. */
-      pressResult: {
-        NONE: "animate-none",
-        CORRECT: "animate-bounce",
-        ERROR: "bg-red-400 text-red-700",
-      } satisfies Record<KeyCapPressResult, string>,
+
 
       /** Флаг, указывающий, является ли клавиша частью домашнего ряда. */
       isHomeKey: {
@@ -122,6 +117,13 @@ const keyCapVariants = cva(
         PATH: "ring-4 ring-sky-900 text-sky-900 font-bold",
         TARGET: "ring-4 ring-sky-950/70 text-sky-50  bg-sky-950/70 font-black",
       } satisfies Record<KeyCapNavigationRole, string>,
+
+      /** Результат нажатия клавиши. */
+      pressResult: {
+        NONE: "animate-none",
+        CORRECT: "font-extrabold bg-green-800/80 text-teal-50 border-green-500 animate-[ping_0.2s_ease-out]",
+        ERROR: "font-extrabold bg-red-500/80 text-red-50 border-red-400 animate-[ping_0.2s_ease-out]",
+      } satisfies Record<KeyCapPressResult, string>,
     },
     compoundVariants: [
       {

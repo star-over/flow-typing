@@ -4,7 +4,7 @@
  * отслеживает ошибки и прогресс, а также управляет визуальным состоянием
  * целевых клавиш и пальцев.
  */
-import { assign,createMachine } from 'xstate';
+import { type ActorRefFrom, assign, createMachine, sendTo } from 'xstate';
 
 import { KeyCapId, TypingStream } from '@/interfaces/types';
 import { UserPreferences } from '@/interfaces/user-preferences';
@@ -19,6 +19,8 @@ export interface TrainingContext {
   errors: number;
   keyboardLayout: UserPreferences['keyboardLayout']; // Added to context
   symbolAppearanceTime: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parentActor: ActorRefFrom<any>;
 }
 
 export type TrainingEvent =
@@ -38,7 +40,11 @@ export const trainingMachine = createMachine({
   types: {} as {
     context: TrainingContext;
     events: TrainingEvent;
-    input: { keyboardLayout: UserPreferences['keyboardLayout'] };
+    input: {
+      keyboardLayout: UserPreferences['keyboardLayout'],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      parentActor: ActorRefFrom<any>
+    };
   },
   context: ({
     input
@@ -46,8 +52,9 @@ export const trainingMachine = createMachine({
     stream: [],
     currentIndex: 0,
     errors: 0,
-    keyboardLayout: input.keyboardLayout, // Initialize keyboardLayout from input
-    symbolAppearanceTime: 0
+    keyboardLayout: input.keyboardLayout,
+    symbolAppearanceTime: 0,
+    parentActor: input.parentActor,
   }),
   on: {
     PAUSE_TRAINING: '.paused',
@@ -163,7 +170,13 @@ export const trainingMachine = createMachine({
       },
     },
     lessonComplete: {
-      type: 'final',
+      entry: sendTo(
+        ({ context }) => context.parentActor,
+        ({ context }) => ({
+          type: 'TRAINING.COMPLETE',
+          stream: context.stream
+        })
+      )
     },
   },
 });

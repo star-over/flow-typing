@@ -265,6 +265,10 @@ export type Dictionary = {
     back_to_menu: string;
     stats_screen_title: string;
     error_title: string;
+    start_again: string;
+    pause: string;
+    resume: string;
+    welcome: string;
   };
   user_preferences: { // Renamed from settings
     title: string;
@@ -273,6 +277,13 @@ export type Dictionary = {
     language_placeholder: string;
     keyboard_layout_placeholder: string;
     back_button: string;
+  };
+  stats_card: {
+    title: string;
+    cpm: string;
+    wpm: string;
+    accuracy: string;
+    duration: string;
   };
 };
 
