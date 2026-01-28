@@ -6,13 +6,11 @@ import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
 import { UserPreferences } from "@/interfaces/user-preferences";
 import { TypingStream } from "@/interfaces/types";
+import { generateTypingStream, lessons } from "@/lib/lesson-generator";
+import { getSymbolLayout } from "@/data/layouts";
 
 // Local types for appMachine
 export interface AppContext {
-  user: { name: string } | null;
-  settings: {
-    theme: 'dark' | 'light';
-  };
   lastTrainingStream: TypingStream | null;
 }
 
@@ -29,7 +27,7 @@ export type AppEvent =
   | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
 
 export const appMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBpAogTQH0ARAeQHUA5AbQAYBdRUVAe1gEsAXN5gO0ZAAeiAIwAmABzCAdAE454mTQBsAFgCs6mcIA0IAJ6IAzKLVSlWyQHZDl8ROEaAvo91pMuQgFUACrQZIQFnYuXn4hBGEVGUMpUUs1Y0NxGkt4pV0DBGNTc2ErGztJJxcQN2x8ACESAEEAJSIpWpwAYRIAcQoASQAtHCI-fiDObj4A8JlLUTMJURVDKKVLB3EMoxMzCxsVUUMxNSVnV3QpNh5h5AAbNgAvU6gMAYChkNHQcOFhJRopcXm1cSU8wmilEqwQSkiZiUEMMMm2hl2cMOpWOAFswDwAK4YADKABU6niCHjatVOl0KG1HkxWMNQmMRB8YkoEvsomphHComDLCypIY1CkNALUh9kW4pOisRg8SQCDicHi8eS2jjqYFaS8wiJRF8pDQLLNVIkVGClHF+RoZKIZL9fmpLDJxccOAAnZCnO4YCC8MAnHgAN2YAGs-W6PWceFAcWBXQG2ABjMDq54jbURD7fOwqX6LGRqB1g4Q0OZmNQ7Gj-OYc6zO1BSWBgDhcKOwGVygCyOAonhTmrTDIicxUUgdKmES055t5ZviUkivI0NEMNHE23Edak4c9UeazFRqAuTbAuIJtSJJLJFKp9EG-fpb0QcKUsQSCnMjpmoP0iF+0iiHzmqIHyRHYm7bpGUB7geR4cCesoEF2PZ9sEA6Pgg4hLFIlg0DQoj4YYH6wpYRYONIEzjuIkg0Hk4j7OB7o7vc3jVJ4CooXSryCCICLSJIeSAjmyh0aaP4IHCMiyNRqQKLsNoHCUEqoMgmKNhgTQ4p4XYcVqg7CNksQ2r8Kg4Y6sJggoUxzJyHyzHM1oKUc9bKap8Gdt2va3k895ce8w6jpY45KHREjRIRPJ8gKKTJNEcKEaIDERncOIcMgrocA8Xk0qhD7cRmep4Soy7BfFcwWWu-KqFRSQSOaVGbi5an4oSxKkuSKo6WheViNE87TgkvLmg4agWbsUgAZ8+EgTmhiblK2IIdUAAyS3ygSeKdbl4wKLIxXzPtBolmaFoClERlJAKG6KcclwXClyAZQhSGef42WcemmHSDheEmMuOF2DoYmLKYC4skVK5rhIzglDwzAQHA-BuHeOW+b+OzYbh+E7ERExgnMUy7IThELCkm6elwlw3HcyPvXpkTSF8YU0XkcTGGC+wvioYO8sueHlioc0YpiNO6ehHz-LEK7jv8NEcvmPKruNagyBCxbQtmTrXfWEHU95KPprZL4KIo1bxQaI1iXCBN5PMkgOcrm6Ns2dzwHrtNiyo2zYYoCL48kJYW5k076vh+b5sBq4OIlTHQYex4i117wfOIshFauyjFhYgOZOLDPbHkhXjjsAta1IjVgAnW0iOozLlirgpiBnYISWYUQltCsL5pE0eQfd6WV6jGaEfqUSe7kDrh6N0gOFoK4q6oJiWJut33RwA8fXYlqpGkjrqCYx2WCHoV0dEgIJNDjhAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBpAogTQH0ARAeQHUA5AbQAYBdRUVAe1gEsAXN5gO0ZAAeiAIwAmABzCAdAE454mTQBsAFgCs6mcIA0IAJ6IAzKLVSlWyQHZDl8ROEaAvo91pMuQgFUACrQZIQFnYuXn4hBGEVGUMpUUs1Y0NxGkt4pV0DBGNTc2ErGztJJxcQN2x8ACESAEEAJSIpWpwAYRIAcQoASQAtHCI-fiDObj4A8JlLUTMJURVDKKVLB3EMoxMzCxsVUUMxNSVnV3QpNh5h5AAbNgAvU6gMAYChkNHQcOFhJRopcXm1cSU8wmilEqwQSkiZiUEMMMm2hl2cMOpWOAFswDwAK4YADKABU6niCHjatVOl0KG1HkxWMNQmMRB8YkoEvsomphHComDLCypIY1CkNALUh9kW4pOisRg8SQCDicHi8eS2jjqYFaS8wiJRF8pDQLLNVIkVGClHF+RoZKIZL9fmpLDJxWiMdjZQRqgAZT3ygl49XPEbahC2mSyGiGQFzOYGmim-SIc2WS1RG12gXiZ2oKQcABOyFOdxlpPJKqkrQAst5PYqcAHNUGGRFhDRvjDRLqlhIwS25lJLFEZPtjNtLHGszn84WePdvNVPAr68FG28RAjpJI8lHkkpxBowXCw7aW6kFLsbQcShLYGAOFwZ7AZXKKzgKJ4l3TXoIRNGpA6VMISyckm6QJuC8RSJEvIaBGNDiNsmZXsceYFmcM7NMwqKoBct5gE+BAvm+H5ak24hLP2rYdjs5jWBMPYONIEwAeIkg0Hke6Xkc2YodOUAYVhOEcHh+KEsSJYUlS9CDA29KriGKhKLECQKDR1p2KCYG-NIUQfOaogfJEdgTqgyCYje+GEe+UlPDJX7vL+-6fHuEjRJGPJ8gKKTJNEcKRqIxmmeZIm1ESJJkhJxErt+EQ2jEnxxAkvLmg4ahglpUg6fF+kfCovwBWZeFNDingvpFsnRcI2SxGm8xjo6sJpdaGWIh8sxzNanEotxU5oVAOIcMguYcA81k0su5XvJ83w0LMEa7n5cxpfB-KqCxSQSOaLETpcFz9cgw3upZZV2YgZHSGOM0mBGY52DoYGLKYUEsiosHwRIzglDwzAQHA-BuNJ40nQgdgxBdVGRhMsKWGCcxTLs8ORgsyhkROhZcJcNx3ADn7Bjl0hfK5bF5HExhgvsikKRovKwSYswTlKmLYyRckfP8sSGHGyxsRyQ48nBGVqDIEIttCdhRBOPG9UzUWTbqPxyHGAp+QaqVgXCcN5PMkgdYLE43nedzwDZgO4yo2z9ooCKw8kcaq5kSb6h2Q5DvpcEOBLPV3Px2G4dLE2MnksgvXBygthYd2ZKz+PbHkM1m2I8z5TeftA5ECRmGoF6CmIocHlEZhRHG0KwkOkQe6hdx7UNKe45VilxlyuQOi7aW7JBguVQa0LbA620XLtA0cDXpF2JaqRpI66gmGaFqXQoe7RICCQfY4QA */
   id: 'app',
   initial: 'initializing',
   invoke: {
@@ -38,10 +36,6 @@ export const appMachine = createMachine({
     input: ({ self }) => ({ parentActor: self }), // Pass the app machine's actor reference
   },
   context: {
-    user: null,
-    settings: {
-      theme: 'dark',
-    },
     lastTrainingStream: null
   } as AppContext,
   types: {} as {
@@ -77,7 +71,15 @@ export const appMachine = createMachine({
       on: {
         START_TRAINING: {
           target: "trainingStart",
-          reenter: true
+          reenter: true,
+          actions: assign({
+            lastTrainingStream: ({ event }) => {
+              const symbolLayout = getSymbolLayout(event.keyboardLayout);
+              const randomIndex = Math.floor(Math.random() * lessons.length);
+              const lessonText = lessons[randomIndex];
+              return generateTypingStream(lessonText, symbolLayout);
+            }
+          })
         },
 
         TO_SETTINGS: 'settings',
@@ -90,9 +92,13 @@ export const appMachine = createMachine({
         id: 'trainingService',
         src: trainingMachine,
 
-        input: ({ event, self }) => {
-          if (event.type !== 'START_TRAINING') return { keyboardLayout: 'qwerty', parentActor: self };
-          return { keyboardLayout: event.keyboardLayout, parentActor: self };
+        input: ({ context, event, self }) => {
+          const keyboardLayout = (event.type === 'START_TRAINING') ? event.keyboardLayout : 'qwerty';
+          return {
+            stream: context.lastTrainingStream!,
+            keyboardLayout,
+            parentActor: self
+          };
         },
       },
       on: {
@@ -123,7 +129,15 @@ export const appMachine = createMachine({
         },
         START_TRAINING: {
           target: "trainingStart",
-          reenter: true
+          reenter: true,
+          actions: assign({
+            lastTrainingStream: ({ event }) => {
+              const symbolLayout = getSymbolLayout(event.keyboardLayout);
+              const randomIndex = Math.floor(Math.random() * lessons.length);
+              const lessonText = lessons[randomIndex];
+              return generateTypingStream(lessonText, symbolLayout);
+            }
+          })
         }
       },
     },
@@ -131,7 +145,17 @@ export const appMachine = createMachine({
     pause: {
       on: {
         TO_MENU: "menu",
-        START_TRAINING: "trainingStart",
+        START_TRAINING: {
+          target: "trainingStart",
+          actions: assign({
+            lastTrainingStream: ({ event }) => {
+              const symbolLayout = getSymbolLayout(event.keyboardLayout);
+              const randomIndex = Math.floor(Math.random() * lessons.length);
+              const lessonText = lessons[randomIndex];
+              return generateTypingStream(lessonText, symbolLayout);
+            }
+          })
+        },
         RESUME: "training"
       }
     },

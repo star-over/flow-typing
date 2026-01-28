@@ -27,6 +27,8 @@ type TrainingSceneProps = {
   fingerLayout: FingerLayout;
   /** The physical layout of the keyboard. */
   keyboardLayout: KeyboardLayout;
+  /** Callback to pause the training. */
+  onPause: () => void;
 };
 
 /**
@@ -37,9 +39,8 @@ type TrainingSceneProps = {
  * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: TrainingSceneProps) => {
+export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout, onPause }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
-  const send = trainingActor.send;
   const { stream, currentIndex, keyboardLayout: keyboardLayoutPreference } = trainingState.context;
 
   const keyboardGraph: AdjacencyList = createKeyboardGraph(keyboardLayout);
@@ -65,21 +66,12 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: T
       <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
 
       {/* Кнопки для тестирования событий паузы/возобновления */}
-      {trainingState.matches('paused') ? (
-        <button
-          onClick={() => send({ type: 'RESUME_TRAINING' })}
-          className="p-2 mt-4 bg-green-500 text-white rounded"
-        >
-          Resume
-        </button>
-      ) : (
-        <button
-          onClick={() => send({ type: 'PAUSE_TRAINING' })}
-          className="p-2 mt-4 bg-yellow-500 text-white rounded"
-        >
-          Pause
-        </button>
-      )}
+      <button
+        onClick={onPause}
+        className="p-2 mt-4 bg-yellow-500 text-white rounded"
+      >
+        Pause
+      </button>
 
       <div className="w-full max-w-4xl">
         <DebugState dataFlowLine={flowLineFixture} dataViewModel={viewModel} />
