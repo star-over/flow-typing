@@ -1,6 +1,7 @@
 import { assign, createMachine, sendTo } from "xstate";
 
 import { KeyCapId } from "@/interfaces/key-cap-id";
+import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi'; // Import keyboardLayoutANSI
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
@@ -34,7 +35,10 @@ export const appMachine = createMachine({
   invoke: {
     id: 'keyboardService',
     src: keyboardMachine,
-    input: ({ self }) => ({ parentActor: self }), // Pass the app machine's actor reference
+    input: ({ self }) => ({ 
+      parentActor: self,
+      keyboardLayout: keyboardLayoutANSI // Pass layout here
+    }), 
   },
   context: {
     lastTrainingStream: null,

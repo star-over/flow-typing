@@ -1,23 +1,16 @@
-import { type ActorRefFrom,assign, sendTo, setup } from "xstate";
+import { assign, sendTo, setup } from "xstate";
 
- import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { KeyCapId } from "@/interfaces/key-cap-id";
+import { KeyCapId, ParentActor, KeyboardLayout } from "@/interfaces/types";
 import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
-
 /**
  * @description Контекст машины `keyboardMachine`.
  * @property {Set<KeyCapId>} pressedKeys - Множество кодов нажатых в данный момент клавиш.
- * @property {ActorRefFrom<any>} parentActor - Ссылка на родительский актор.
- * ВАЖНО: Здесь используется `any` в качестве временного решения для обхода сложной
- * циклической зависимости типов между `keyboardMachine` и `appMachine`.
- * `appMachine` вызывает `keyboardMachine`, а `keyboardMachine` должна знать тип `appMachine`
- * для отправки событий. Это создает цикл, который сложно разрешить со строгой типизацией
- * в текущей конфигурации TypeScript и XState.
+ * @property {ParentActor} parentActor - Ссылка на родительский актор.
  */
 export interface KeyboardMachineContext {
   pressedKeys: Set<KeyCapId>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parentActor: ActorRefFrom<any>; // Using any temporarily to resolve circular dependency
+  parentActor: ParentActor;
+  keyboardLayout: KeyboardLayout; // Added
 }
 
 export type KeyboardMachineEvent =
@@ -29,8 +22,7 @@ export const keyboardMachine = setup({
   types: {
     context: {} as KeyboardMachineContext,
     events: {} as KeyboardMachineEvent,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    input: {} as { parentActor: ActorRefFrom<any> }, // Using any temporarily to resolve circular dependency
+    input: {} as { parentActor: ParentActor; keyboardLayout: KeyboardLayout }, // Added
   },
   actions: {
     addKeyCapId: assign(({
@@ -67,7 +59,7 @@ export const keyboardMachine = setup({
         // Оставляем только другие модификаторы
         return new Set(
           Array.from(context.pressedKeys).filter(
-            (key) => isModifierKey(key, keyboardLayoutANSI) && key !== event.keyCapId
+            (key) => isModifierKey(key, context.keyboardLayout) && key !== event.keyCapId
           )
         );
       },
@@ -85,13 +77,14 @@ export const keyboardMachine = setup({
   },
   guards: {
     isTextKeyGuard: ({
+      context, // Added context to guard arguments
       event
     }) => {
       if (event.type !== "KEY_DOWN") return false;
       // The physical spacebar 'Space' should be treated as a text key
       // even though our virtual layout uses 'SpaceLeft' and 'SpaceRight'.
       if (event.keyCapId === 'Space') return true;
-      const result = isTextKey(event.keyCapId, keyboardLayoutANSI);
+      const result = isTextKey(event.keyCapId, context.keyboardLayout);
       return result;
     },
     areKeysEmpty: ({
@@ -108,6 +101,7 @@ export const keyboardMachine = setup({
   context: ({ input }) => ({
     pressedKeys: new Set<KeyCapId>(),
     parentActor: input.parentActor,
+    keyboardLayout: input.keyboardLayout,
   }),
   on: {
     // Общие обработчики для всех состояний

@@ -4,9 +4,9 @@
  * отслеживает ошибки и прогресс, а также управляет визуальным состоянием
  * целевых клавиш и пальцев.
  */
-import { type ActorRefFrom, assign, createMachine, sendTo } from 'xstate';
+import { assign, createMachine, sendTo } from 'xstate';
 
-import { KeyCapId, TypingStream } from '@/interfaces/types';
+import { KeyCapId, TypingStream, ParentActor } from '@/interfaces/types';
 import { UserPreferences } from '@/interfaces/user-preferences';
 import { areKeyCapIdArraysEqual } from '@/lib/symbol-utils';
 
@@ -17,8 +17,7 @@ export interface TrainingContext {
   errors: number;
   keyboardLayout: UserPreferences['keyboardLayout']; // Added to context
   symbolAppearanceTime: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parentActor: ActorRefFrom<any>;
+  parentActor: ParentActor;
 }
 
 export type TrainingEvent =
@@ -39,11 +38,9 @@ export const trainingMachine = createMachine({
     input: {
       stream: TypingStream;
       keyboardLayout: UserPreferences['keyboardLayout'],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      parentActor: ActorRefFrom<any>
+      parentActor: ParentActor
     };
-  },
-  context: ({
+  },  context: ({
     input
   }) => ({
     stream: input.stream,

@@ -330,3 +330,7 @@ export type HandsSceneViewModel = Record<FingerId, {
   fingerState: FingerState;
   keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
 }>;
+
+import { type ActorRefFrom } from 'xstate';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ParentActor = ActorRefFrom<any>;
