@@ -12,6 +12,7 @@ import { getSymbolLayout } from "@/data/layouts";
 // Local types for appMachine
 export interface AppContext {
   lastTrainingStream: TypingStream | null;
+  currentKeyboardLayout: UserPreferences['keyboardLayout'];
 }
 
 export type AppEvent =
@@ -36,7 +37,8 @@ export const appMachine = createMachine({
     input: ({ self }) => ({ parentActor: self }), // Pass the app machine's actor reference
   },
   context: {
-    lastTrainingStream: null
+    lastTrainingStream: null,
+    currentKeyboardLayout: 'qwerty' // Default value
   } as AppContext,
   types: {} as {
     context: AppContext;
@@ -61,6 +63,11 @@ export const appMachine = createMachine({
         keys: (event as { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] }).keys,
       })),
     },
+    'TRAINING.COMPLETE': {
+      actions: assign({
+        lastTrainingStream: ({ event }) => event.stream
+      })
+    }
   },
   states: {
     initializing: {
@@ -78,7 +85,8 @@ export const appMachine = createMachine({
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex];
               return generateTypingStream(lessonText, symbolLayout);
-            }
+            },
+            currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
           })
         },
 
@@ -92,11 +100,10 @@ export const appMachine = createMachine({
         id: 'trainingService',
         src: trainingMachine,
 
-        input: ({ context, event, self }) => {
-          const keyboardLayout = (event.type === 'START_TRAINING') ? event.keyboardLayout : 'qwerty';
+        input: ({ context, self }) => {
           return {
             stream: context.lastTrainingStream!,
-            keyboardLayout,
+            keyboardLayout: context.currentKeyboardLayout,
             parentActor: self
           };
         },
@@ -136,7 +143,8 @@ export const appMachine = createMachine({
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex];
               return generateTypingStream(lessonText, symbolLayout);
-            }
+            },
+            currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
           })
         }
       },
@@ -153,7 +161,8 @@ export const appMachine = createMachine({
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex];
               return generateTypingStream(lessonText, symbolLayout);
-            }
+            },
+            currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
           })
         },
         RESUME: "training"
