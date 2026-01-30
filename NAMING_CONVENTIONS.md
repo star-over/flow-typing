@@ -37,22 +37,8 @@ type Fingers = "L4" | "L3" | ...;
 ```typescript
 // Описывает одну физическую клавишу (ее геометрию)
 type PhysicalKey = {
-  keyCapId: KeyEventCodes;
+  keyCapId: KeyCapId;
   unitWidth?: KeyCapUnitWidth;
-};
-
-// Описывает связь символа с физической клавишей
-type SymbolKey = {
-  keyCapId: KeyEventCodes;
-  symbol: string;
-  shift: boolean;
-};
-
-// Описывает связь пальца с физической клавишей
-type FingerKey = {
-  keyCapId: KeyEventCodes;
-  fingerId: FingerId;
-  navigationRole?: KeyCapNavigationRole;
 };
 
 // Описывает одну виртуальную клавишу для UI
@@ -77,14 +63,18 @@ type PhysicalKeyItem = { ... };
 
 **Пример:**
 ```typescript
-// Макет пальцев - коллекция FingerKey
-type FingerLayout = FingerKey[];
+// Макет пальцев - коллекция анонимных объектов
+type FingerLayout = {
+  keyCapId: KeyCapId;
+  fingerId: FingerId;
+  isHomeKey?: boolean;
+}[];
 ```
 Однако в большинстве случаев предпочтительнее использовать `T[]` напрямую без создания отдельного типа-псевдонима.
 
 ### 4.2. Сложная структура или концептуальная группа
 
-Если коллекция представляет собой сложную структуру (например, `T[][]`) или единую концепцию (например, раскладку), ей следует дать уникальное описательное имя в **единственном числе** с суффиксом `Layout` или `Keyboard`.
+Если коллекция представляет собой сложную структуру (например, `T[][]`) или единую концепцию (например, раскладку), ей следует дать уникальное описательное имя в **единственном числе** с суффиксом `Layout`.
 
 **Пример:**
 ```typescript
@@ -92,9 +82,12 @@ type FingerLayout = FingerKey[];
 type KeyboardLayout = PhysicalKey[][];
 
 // Описывает всю символьную раскладку как единую систему
-type SymbolLayout = SymbolKey[];
+type SymbolLayout = {
+  symbol: string;
+  keyCaps: KeyCapId[];
+}[];
 
 // Описывает всю виртуальную клавиатуру для UI как единую сущность
-type VirtualKeyboard = VirtualKey[][];
+type VirtualLayout = VirtualKey[][];
 ```
-Здесь `KeyboardLayout`, `SymbolLayout` и `VirtualKeyboard` — это имена, описывающие целостную концепцию.
+Здесь `KeyboardLayout`, `SymbolLayout` и `VirtualLayout` — это имена, описывающие целостную концепцию.

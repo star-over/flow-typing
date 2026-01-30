@@ -16,7 +16,7 @@ const regularSymbolVariants = cva(
         PENDING: "text-gray-600",
         CORRECT: "text-green-800",
         ERROR: "text-yellow-600",
-        INCORRECTS: "text-rose-700",
+        ERRORS: "text-rose-700",
         CORRECTED: "text-rose-900",
       } satisfies Record<FlowLineSymbolType, string>,
     },

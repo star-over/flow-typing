@@ -108,7 +108,7 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECTED");
   });
 
-  it('should return "INCORRECTS" for multiple incorrect attempts', () => {
+  it('should return "ERRORS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
@@ -117,7 +117,7 @@ describe("getSymbolType", () => {
         { pressedKeyCups: ["KeyC"]},
       ],
     };
-    expect(getSymbolType(symbol)).toBe("INCORRECTS");
+    expect(getSymbolType(symbol)).toBe("ERRORS");
   });
 
   // --- Tests for Chord Presses (e.g., Shift + Key) ---

@@ -193,8 +193,8 @@ export function generateHandsSceneViewModel(...) {
     // в src/interfaces/types.ts
     interface StreamSymbol {
       targetSymbol: string;          // Символ для отображения (напр., 'F')
-      requiredKeyCapIds: KeyCapId[]; // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
-      attempts: TypingAttempt[];
+      targetKeyCaps: KeyCapId[]; // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
+      attempts: StreamAttempt[];
     }
     ```
     Эта структура содержит минимально необходимую информацию: что отображать и что считать правильным вводом.
@@ -203,17 +203,17 @@ export function generateHandsSceneViewModel(...) {
 
 *   **`lesson-generator.ts` (Генератор урока):**
     *   **Отвечает за преобразование текста в `TypingStream`.**
-    *   Именно здесь заложена вся логика определения `requiredKeyCapIds` для каждого символа, включая:
+    *   Именно здесь заложена вся логика определения `targetKeyCaps` для каждого символа, включая:
         *   Обработку аккордов (например, `Shift + F`).
 
 *   **`training.machine.ts` (Машина тренировки):**
     *   **Отвечает за валидацию ввода.**
-    *   Получает `requiredKeyCapIds` из текущего `StreamSymbol`.
+    *   Получает `targetKeyCaps` из текущего `StreamSymbol`.
     *   Не знает о пальцах или о том, как `символ` был преобразован в `клавиши`.
 
 *   **UI-слой (ViewModel Builder):**
     *   **Отвечает за визуализацию.**
-    *   Для построения `HandsSceneViewModel` (чтобы знать, какие пальцы подсвечивать), он берет `requiredKeyCapIds` из состояния машины.
+    *   Для построения `HandsSceneViewModel` (чтобы знать, какие пальцы подсвечивать), он берет `targetKeyCaps` из состояния машины.
     *   **В реальном времени** для каждой целевой клавиши определяет соответствующий палец (`getFingerByKeyCap`) и строит `ViewModel`.
 
 Этот подход позволяет хранить в `TypingStream` только суть задания, оставляя детали визуализации на самый последний момент, что обеспечивает гибкость и чистоту архитектуры.

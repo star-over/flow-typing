@@ -10,7 +10,7 @@ export const lessons = [
 
 /**
  * Generates a TypingStream from a given text.
- * For each character, it pre-calculates the `requiredKeyCapIds`.
+ * For each character, it pre-calculates the `targetKeyCaps`.
  * @param lessonText The string to convert into a lesson.
  * @param symbolLayout The symbol layout to use for character-to-key mapping.
  * @returns A TypingStream for the lesson.

@@ -111,13 +111,12 @@ export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as
 export type FlowLineCursorType = typeof FLOW_LINE_CURSOR_TYPES[number];
 
 /** Состояние отдельного символа в FlowLine. */
-// TODO: Rename INCORRECTS to ERRORS
 export const FLOW_LINE_SYMBOL_TYPES = [
   "PENDING",    // Еще не был напечатан пользователем, он только показан, ожидается взаимодействие с пользователем
   "CORRECT",    // Был напечатан пользователем корректно с первой попытки
   "CORRECTED",  // Был напечатан пользователем корректно не с первой попытки
   "ERROR",      // Был напечатан пользователем не корректно один раз
-  "INCORRECTS", // Был напечатан пользвателем не корректно несколько раз
+  "ERRORS", // Был напечатан пользвателем не корректно несколько раз
 ] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 
