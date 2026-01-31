@@ -48,8 +48,8 @@ const cursorSymbolVariants = cva(
       // TODO: тут какой-то глюк, в принципе все работает, но не правильно
       // Надо переосмыслить процедуру "мигания курсора", добавить свойсто isInFocus которые будет отвечать за поведение при наличии фокуса и без.
       isTyping: {
-        false: "",
-        true: "animate-caret-blink",
+        true: "",
+        false: "animate-caret-blink",
       },
     },
     defaultVariants: {
