@@ -7,7 +7,7 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 
-import { FingerLayout, HandsSceneViewModel, KeyboardLayout } from "@/interfaces/types";
+import { Dictionary, FingerLayout, HandsSceneViewModel, KeyboardLayout } from "@/interfaces/types";
 import { createKeyCoordinateMap, KeyCoordinateMap } from '@/lib/layout-utils';
 import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
@@ -27,6 +27,8 @@ type TrainingSceneProps = {
   fingerLayout: FingerLayout;
   /** The physical layout of the keyboard. */
   keyboardLayout: KeyboardLayout;
+  /** The dictionary for i18n. */
+  dictionary: Dictionary;
 };
 
 /**
@@ -37,7 +39,7 @@ type TrainingSceneProps = {
  * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: TrainingSceneProps) => {
+export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout, dictionary }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
   const { stream, currentIndex, keyboardLayout: keyboardLayoutPreference } = trainingState.context;
 
@@ -54,9 +56,9 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: T
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <h2 className="text-2xl font-semibold">Training In Progress</h2>
+      <h2 className="text-2xl font-semibold">{dictionary.app.training_in_progress}</h2>
       <p>
-        Training Machine State: <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{trainingState.value.toString()}</code>
+        {dictionary.app.training_machine_state} <code className="font-mono bg-gray-200 dark:bg-gray-800 p-1 rounded">{trainingState.value.toString()}</code>
       </p>
 
       <FlowLine stream={stream} cursorPosition={currentIndex} pressResult={pressResult} />

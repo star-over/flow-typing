@@ -41,6 +41,8 @@ const mockDictionary: Dictionary = {
     start_again: "Start Again",
     pause: "Pause",
     resume: "Resume",
+    training_in_progress: "Training In Progress",
+    training_machine_state: "Training Machine State:",
     welcome: "Welcome to FlowTyping. Select an option to begin."
   },
   user_preferences: {

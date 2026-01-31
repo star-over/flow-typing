@@ -249,42 +249,10 @@ export type HandStates = {
 };
 
 // --- i18n ---
-export type Locale = 'en' | 'ru';
+import en from '../../dictionaries/en.json';
 
-export type Dictionary = {
-  title: string;
-  app: {
-    title: string;
-    app_state: string;
-    loading: string;
-    start_training: string;
-    settings: string; // This refers to the app settings UI button
-    stats: string;
-    lesson_complete: string;
-    back_to_menu: string;
-    stats_screen_title: string;
-    error_title: string;
-    start_again: string;
-    pause: string;
-    resume: string;
-    welcome: string;
-  };
-  user_preferences: { // Renamed from settings
-    title: string;
-    language_label: string;
-    keyboard_layout_label: string;
-    language_placeholder: string;
-    keyboard_layout_placeholder: string;
-    back_button: string;
-  };
-  stats_card: {
-    title: string;
-    cpm: string;
-    wpm: string;
-    accuracy: string;
-    duration: string;
-  };
-};
+export type Locale = 'en' | 'ru';
+export type Dictionary = typeof en;
 
 // New interfaces for user settings metadata
 export interface SettingOption<T> {
