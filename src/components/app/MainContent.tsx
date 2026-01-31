@@ -19,7 +19,7 @@ interface MainContentProps {
 
 export const MainContent: React.FC<MainContentProps> = ({ state, send, dictionary, trainingActor }) => {
   if (state.matches('training') && trainingActor) {
-    return <TrainingScene trainingActor={trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} onPause={() => send({ type: 'PAUSE' })} />;
+    return <TrainingScene trainingActor={trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} />;
   }
   if (state.matches('trainingComplete')) {
       return <LessonStatsDisplay stream={state.context.lastTrainingStream!} dictionary={dictionary} />;

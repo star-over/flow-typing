@@ -27,8 +27,6 @@ type TrainingSceneProps = {
   fingerLayout: FingerLayout;
   /** The physical layout of the keyboard. */
   keyboardLayout: KeyboardLayout;
-  /** Callback to pause the training. */
-  onPause: () => void;
 };
 
 /**
@@ -39,7 +37,7 @@ type TrainingSceneProps = {
  * @param props.trainingActor Актор `trainingMachine`.
  * @returns Элемент JSX, представляющий тренировочную сцену.
  */
-export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout, onPause }: TrainingSceneProps) => {
+export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout }: TrainingSceneProps) => {
   const trainingState = useSelector(trainingActor, (snapshot) => snapshot);
   const { stream, currentIndex, keyboardLayout: keyboardLayoutPreference } = trainingState.context;
 
@@ -64,14 +62,6 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout, onP
       <FlowLine stream={stream} cursorPosition={currentIndex} pressResult={pressResult} />
 
       <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
-
-      {/* Кнопки для тестирования событий паузы/возобновления */}
-      <button
-        onClick={onPause}
-        className="p-2 mt-4 bg-yellow-500 text-white rounded"
-      >
-        Pause
-      </button>
 
       <div className="w-full max-w-4xl">
         <DebugState dataFlowLine={flowLineFixture} dataViewModel={viewModel} />
