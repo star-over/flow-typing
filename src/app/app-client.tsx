@@ -39,7 +39,7 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
       <Header
         title={currentDictionary.app.title}
         appStateLabel={currentDictionary.app.app_state}
-        appStateValue={state.value.toString()}
+        appStateValue={JSON.stringify(state.value)}
       />
       
       <main className="flex flex-col gap-4 items-center w-full">

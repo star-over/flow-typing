@@ -11,9 +11,17 @@ const testParentMachine = createMachine({
   id: "testParent",
   initial: "active",
   context: {
-    recognizedKeyHistory: [] as KeyCapId[][], // Change to history
+    recognizedCharacterHistory: [] as KeyCapId[][],
+    recognizedNavigationHistory: [] as KeyCapId[],
   },
-  types: {} as { events: { type: "KEY_DOWN"; keyCapId: KeyCapId } | { type: "KEY_UP"; keyCapId: KeyCapId } | { type: "RESET" } | { type: "KEYBOARD.RECOGNIZED"; keys: KeyCapId[] } },
+  types: {} as {
+    events:
+      | { type: "KEY_DOWN"; keyCapId: KeyCapId }
+      | { type: "KEY_UP"; keyCapId: KeyCapId }
+      | { type: "RESET" }
+      | { type: "KEYBOARD.CHARACTER_INPUT"; keys: KeyCapId[] }
+      | { type: "KEYBOARD.NAVIGATION_KEY"; key: KeyCapId }
+  },
   invoke: {
     id: "keyboard",
     src: keyboardMachine,
@@ -38,11 +46,19 @@ const testParentMachine = createMachine({
     RESET: {
       actions: sendTo("keyboard", { type: "RESET" }),
     },
-    "KEYBOARD.RECOGNIZED": {
+    "KEYBOARD.CHARACTER_INPUT": {
       actions: assign({
-        recognizedKeyHistory: ({ context, event }) => [
-          ...context.recognizedKeyHistory,
+        recognizedCharacterHistory: ({ context, event }) => [
+          ...context.recognizedCharacterHistory,
           event.keys,
+        ],
+      }),
+    },
+    "KEYBOARD.NAVIGATION_KEY": {
+      actions: assign({
+        recognizedNavigationHistory: ({ context, event }) => [
+          ...context.recognizedNavigationHistory,
+          event.key,
         ],
       }),
     },
@@ -70,8 +86,8 @@ describe("keyboardMachine", () => {
       const keyboardSnapshot = snapshot.children.keyboard?.getSnapshot();
       if (keyboardSnapshot?.matches('listening')) {
         expect(keyboardSnapshot.context.pressedKeys.has("ShiftLeft")).toBe(true);
-        // The parent should not have recognized anything
-        expect(snapshot.context.recognizedKeyHistory).toEqual([]);
+        expect(snapshot.context.recognizedCharacterHistory).toEqual([]);
+        expect(snapshot.context.recognizedNavigationHistory).toEqual([]);
         resolve();
       }
     });
@@ -89,14 +105,14 @@ describe("keyboardMachine", () => {
     expect(keyboardSnapshot.context.pressedKeys.size).toBe(0);
   });
 
-  it("should send RECOGNIZED event when a text key is pressed", () => new Promise<void>((resolve) => {
+  it("should send CHARACTER_INPUT event when a text key is pressed", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
      actor.subscribe((snapshot) => {
-      if (snapshot.context.recognizedKeyHistory.length > 0) {
+      if (snapshot.context.recognizedCharacterHistory.length > 0) {
         const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-        expect(keyboardSnapshot.value).toBe("listening");
-        expect(keyboardSnapshot.context.pressedKeys.has("KeyA")).toBe(true);
-        expect(snapshot.context.recognizedKeyHistory).toEqual([["KeyA"]]);
+        expect(keyboardSnapshot.value).toBe("idle"); // Now goes back to idle after sending
+        expect(keyboardSnapshot.context.pressedKeys.size).toBe(0); // Keys are cleared after sending
+        expect(snapshot.context.recognizedCharacterHistory).toEqual([["KeyA"]]);
         resolve();
       }
     });
@@ -104,16 +120,14 @@ describe("keyboardMachine", () => {
     actor.send({ type: "KEY_DOWN", keyCapId: "KeyA" });
   }));
 
-  it("should recognize a chord (modifier + key)", () => new Promise<void>((resolve) => {
+  it("should send CHARACTER_INPUT event when a chord (modifier + key) is pressed", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
     actor.subscribe((snapshot) => {
-        if (snapshot.context.recognizedKeyHistory.length > 0) {
+        if (snapshot.context.recognizedCharacterHistory.length > 0) {
             const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.value).toBe("listening");
-            expect(keyboardSnapshot.context.pressedKeys.size).toBe(2);
-            expect(keyboardSnapshot.context.pressedKeys.has("ShiftLeft")).toBe(true);
-            expect(keyboardSnapshot.context.pressedKeys.has("KeyB")).toBe(true);
-            expect(snapshot.context.recognizedKeyHistory).toEqual([expect.arrayContaining(["ShiftLeft", "KeyB"])]);
+            expect(keyboardSnapshot.value).toBe("idle"); // Now goes back to idle after sending
+            expect(keyboardSnapshot.context.pressedKeys.size).toBe(0); // Keys are cleared after sending
+            expect(snapshot.context.recognizedCharacterHistory).toEqual([expect.arrayContaining(["ShiftLeft", "KeyB"])]);
             resolve();
         }
     });
@@ -122,29 +136,6 @@ describe("keyboardMachine", () => {
     actor.send({ type: "KEY_DOWN", keyCapId: "KeyB" });
   }));
 
-  it("should clear non-modifier keys when Meta is released", () => new Promise<void>((resolve) => {
-    const actor = createActor(testParentMachine);
-    let step = 1;
-    actor.subscribe((snapshot) => {
-        if (step === 1 && snapshot.context.recognizedKeyHistory.length > 0) {
-            const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.context.pressedKeys.size).toBe(3);
-            actor.send({ type: "KEY_UP", keyCapId: "MetaLeft" });
-            step = 2;
-        } else if (step === 2 && snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size === 1) {
-            const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.context.pressedKeys.has("ShiftLeft")).toBe(true);
-            expect(keyboardSnapshot.context.pressedKeys.has("KeyC")).toBe(false);
-            expect(keyboardSnapshot.context.pressedKeys.has("MetaLeft")).toBe(false);
-            resolve();
-        }
-    });
-
-    actor.start();
-    actor.send({ type: "KEY_DOWN", keyCapId: "MetaLeft" });
-    actor.send({ type: "KEY_DOWN", keyCapId: "ShiftLeft" });
-    actor.send({ type: "KEY_DOWN", keyCapId: "KeyC" });
-  }));
 
   it("should reset to idle state on RESET event", () => {
     const actor = createActor(testParentMachine);
@@ -157,47 +148,16 @@ describe("keyboardMachine", () => {
     expect(keyboardSnapshot.context.pressedKeys.size).toBe(0);
   });
 
-  it("should handle multiple keys and release them correctly", () => new Promise<void>((resolve) => {
-    const actor = createActor(testParentMachine);
-    let step = 0;
 
-    actor.subscribe((snapshot) => {
-        if (step === 0 && snapshot.context.recognizedKeyHistory.length === 1 && snapshot.context.recognizedKeyHistory[0]?.includes("KeyA")) {
-            expect(snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size).toBe(2);
-            expect(snapshot.context.recognizedKeyHistory[0]).toEqual(expect.arrayContaining(["ShiftLeft", "KeyA"]));
-            actor.send({ type: "KEY_UP", keyCapId: "KeyA" });
-            step = 1;
-        } else if (step === 1 && snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size === 1) {
-            expect(snapshot.children.keyboard!.getSnapshot().context.pressedKeys.has("ShiftLeft")).toBe(true);
-            actor.send({ type: "KEY_DOWN", keyCapId: "KeyB" });
-            step = 2;
-        } else if (step === 2 && snapshot.context.recognizedKeyHistory.length === 2 && snapshot.context.recognizedKeyHistory[1]?.includes("KeyB")) {
-            expect(snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size).toBe(2);
-             expect(snapshot.context.recognizedKeyHistory[1]).toEqual(expect.arrayContaining(["ShiftLeft", "KeyB"]));
-            actor.send({ type: "KEY_UP", keyCapId: "ShiftLeft" });
-            step = 3;
-        } else if (step === 3 && snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size === 1) {
-            expect(snapshot.children.keyboard!.getSnapshot().context.pressedKeys.has("KeyB")).toBe(true);
-            actor.send({ type: "KEY_UP", keyCapId: "KeyB" });
-            step = 4;
-        } else if (step === 4 && snapshot.children.keyboard!.getSnapshot().matches("idle")) {
-            expect(snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size).toBe(0);
-            resolve();
-        }
-    });
-    
-    actor.start();
-    actor.send({ type: "KEY_DOWN", keyCapId: "ShiftLeft" });
-    actor.send({ type: "KEY_DOWN", keyCapId: "KeyA" });
-  }));
   
-  it("should handle Meta key press and release correctly", () => new Promise<void>((resolve) => {
+  it("should send CHARACTER_INPUT event for Meta + key chord", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
-    let step = 0;
+    let step = 0; // The step variable is still needed for this multi-step test
     actor.subscribe((snapshot) => {
-        if (step === 0 && snapshot.context.recognizedKeyHistory.length > 0) {
+        if (step === 0 && snapshot.context.recognizedCharacterHistory.length > 0) {
             const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.context.pressedKeys.size).toBe(2);
+            expect(keyboardSnapshot.context.pressedKeys.size).toBe(0); // Cleared after send
+            expect(snapshot.context.recognizedCharacterHistory[0]).toEqual(expect.arrayContaining(["MetaLeft", "KeyA"]));
             actor.send({ type: "KEY_UP", keyCapId: "MetaLeft" });
             step = 1;
         } else if (step === 1 && snapshot.children.keyboard!.getSnapshot().context.pressedKeys.size === 0) {
@@ -213,42 +173,31 @@ describe("keyboardMachine", () => {
     actor.send({ type: "KEY_DOWN", keyCapId: "KeyA" });
   }));
 
-  it("should handle functional keys correctly", () => new Promise<void>((resolve) => {
+  it("should send NAVIGATION_KEY event when functional key (Escape) is pressed", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
     actor.subscribe((snapshot) => {
-        const keyboardSnapshot = snapshot.children.keyboard?.getSnapshot();
-        if (keyboardSnapshot?.context.pressedKeys.has("Escape")) {
-            expect(keyboardSnapshot.value).toBe("listening");
-            expect(snapshot.context.recognizedKeyHistory).toEqual([]); // Functional keys don't trigger recognition
-            actor.send({ type: "KEY_UP", keyCapId: "Escape" });
-        } else if(keyboardSnapshot?.matches("idle") && snapshot.context.recognizedKeyHistory.length === 0) {
-            // Make sure we resolve only after key is up and no recognition happened
-            if(!keyboardSnapshot.context.pressedKeys.has("Escape")) {
-                resolve();
-            }
+        if (snapshot.context.recognizedNavigationHistory.length > 0) {
+            const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
+            expect(keyboardSnapshot.value).toBe("idle"); // Should go back to idle
+            expect(keyboardSnapshot.context.pressedKeys.size).toBe(0); // Keys are cleared
+            expect(snapshot.context.recognizedNavigationHistory).toEqual(["Escape"]);
+            resolve();
         }
     });
     actor.start();
     actor.send({ type: "KEY_DOWN", keyCapId: "Escape" });
   }));
 
-  it("should handle multiple modifier keys correctly", () => new Promise<void>((resolve) => {
+  it("should send CHARACTER_INPUT event for multiple modifier keys + text key chord", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
+    // eslint-disable-next-line prefer-const
     let step = 0;
     actor.subscribe((snapshot) => {
         const keyboardSnapshot = snapshot.children.keyboard?.getSnapshot();
-        if (step === 0 && keyboardSnapshot?.context.pressedKeys.size === 3) {
-            expect(keyboardSnapshot.value).toBe("listening");
-            expect(keyboardSnapshot.context.pressedKeys.has("ControlLeft")).toBe(true);
-            expect(keyboardSnapshot.context.pressedKeys.has("ShiftLeft")).toBe(true);
-            expect(keyboardSnapshot.context.pressedKeys.has("AltLeft")).toBe(true);
-            expect(snapshot.context.recognizedKeyHistory).toEqual([]); // No recognition yet
-            actor.send({ type: "KEY_DOWN", keyCapId: "KeyD" });
-            step = 1;
-        } else if (step === 1 && snapshot.context.recognizedKeyHistory.length > 0) {
-            const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.context.pressedKeys.size).toBe(4);
-            expect(snapshot.context.recognizedKeyHistory[0]).toEqual(
+        if (step === 0 && snapshot.context.recognizedCharacterHistory.length > 0) {
+            expect(keyboardSnapshot!.value).toBe("idle"); // Back to idle
+            expect(keyboardSnapshot!.context.pressedKeys.size).toBe(0); // Keys are cleared
+            expect(snapshot.context.recognizedCharacterHistory[0]).toEqual(
                 expect.arrayContaining(["ControlLeft", "ShiftLeft", "AltLeft", "KeyD"])
             );
             resolve();
@@ -259,5 +208,6 @@ describe("keyboardMachine", () => {
     actor.send({ type: "KEY_DOWN", keyCapId: "ControlLeft" });
     actor.send({ type: "KEY_DOWN", keyCapId: "ShiftLeft" });
     actor.send({ type: "KEY_DOWN", keyCapId: "AltLeft" });
+    actor.send({ type: "KEY_DOWN", keyCapId: "KeyD" });
   }));
 });

@@ -18,7 +18,7 @@ interface MainContentProps {
 }
 
 export const MainContent: React.FC<MainContentProps> = ({ state, send, dictionary, trainingActor }) => {
-  if (state.matches('training') && trainingActor) {
+  if (state.matches({ training: 'running' }) && trainingActor) {
     return <TrainingScene trainingActor={trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} />;
   }
   if (state.matches('trainingComplete')) {
@@ -30,7 +30,7 @@ export const MainContent: React.FC<MainContentProps> = ({ state, send, dictionar
   if (state.matches('allStat')) {
       return <h2>{dictionary.app.stats_screen_title}</h2>;
   }
-  if (state.matches('pause')) {
+  if (state.matches({ training: 'paused' })) {
       return <h2 className="text-2xl font-bold">{dictionary.app.pause}</h2>;
   }
   if (state.matches('error')) {
