@@ -1,8 +1,34 @@
 import { cva, VariantProps } from "class-variance-authority";
-
+import { useState, useEffect } from 'react';
 import { FlowLineCursorType } from '@/interfaces/types';
-import { useCaretBlink } from '@/hooks/use-caret-blink';
 import { cn } from '@/lib/utils';
+
+/**
+ * Custom hook to manage the blinking state of a caret.
+ * It provides an `isBlinking` state that becomes `false` when the `dependency` changes,
+ * and turns back to `true` after a specified `delay`.
+ *
+ * @param dependency - The value that triggers the blink reset (e.g., the current symbol).
+ * @param blinkDelay - The delay in milliseconds before the caret starts blinking again.
+ * @returns `isTyping` - A boolean indicating if the user is considered to be "typing" (i.e., caret should be solid).
+ */
+function useCaretBlink(dependency: unknown, blinkDelay: number): boolean {
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    setIsTyping(true); // Reset to solid caret whenever the dependency changes
+    const timer = setTimeout(() => {
+      setIsTyping(false); // Start blinking after delay
+    }, blinkDelay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [dependency, blinkDelay]);
+
+  return isTyping;
+}
+
 
 /**
  * Варианты стилей для компонента курсора.
@@ -19,9 +45,11 @@ const cursorSymbolVariants = cva(
         UNDERSCORE: "h-1 w-full",
       } satisfies Record<FlowLineCursorType, string>,
       /** Флаг, указывающий, идет ли набор текста. Влияет на анимацию мигания. */
+      // TODO: тут какой-то глюк, в принципе все работает, но не правильно
+      // Надо переосмыслить процедуру "мигания курсора", добавить свойсто isInFocus которые будет отвечать за поведение при наличии фокуса и без.
       isTyping: {
-        true: "",
-        false: "animate-caret-blink",
+        false: "",
+        true: "animate-caret-blink",
       },
     },
     defaultVariants: {

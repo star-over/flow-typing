@@ -61,6 +61,8 @@ export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
   cursorPosition: number;
   /** Тип визуализации курсора. */
   cursorType?: FlowLineCursorType;
+  /** Флаг, указывающий, идет ли набор текста. Влияет на анимацию мигания. */
+  isTyping?: boolean;
   /** Дополнительные классы CSS. */
   className?: string;
 }
@@ -71,7 +73,7 @@ export interface FlowLineProps extends VariantProps<typeof flowLineVariants> {
  * @param props Пропсы компонента.
  * @returns Элемент JSX, представляющий строку потока ввода.
  */
-export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, pressResult, className }: FlowLineProps) {
+export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size, pressResult, isTyping, className }: FlowLineProps) {
   const completedCount = 100; // Количество отображаемых пройденных символов
   const pendingCount = 100;    // Количество отображаемых ожидающих символов
 
@@ -101,6 +103,7 @@ export function FlowLine({ stream, cursorPosition, cursorType, cursorMode, size,
       <CursorSymbol
         key={cursorPosition}
         cursorType={cursorType}
+        isTyping={isTyping}
         symbol={cursorSymbol ? getSymbolChar(cursorSymbol) : ''}
       />
 

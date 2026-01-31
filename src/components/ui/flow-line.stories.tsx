@@ -38,6 +38,10 @@ const meta = {
     cursorPosition: {
       control: { type: 'number', min: 0 }
     },
+    isTyping: {
+      options: [true, false],
+      control: "inline-radio"
+    },
     cursorType: {
       options: FLOW_LINE_CURSOR_TYPES,
       control: "inline-radio",
@@ -149,6 +153,7 @@ for (let i = 0; i < streamWithMultipleErrors.length; i++) {
 export const Default: Story = {
   args: {
     cursorPosition: 0,
+    isTyping: meta.argTypes.isTyping.options[0],
     size: meta.argTypes.size.options[0],
     cursorMode: meta.argTypes.cursorMode.options[0],
     cursorType: meta.argTypes.cursorType.options[0],

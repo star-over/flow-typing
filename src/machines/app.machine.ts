@@ -26,6 +26,7 @@ export type AppEvent =
   | { type: 'TRAINING.COMPLETE', stream: TypingStream }
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
+  | { type: 'RESET_KEYBOARD' }
   | { type: 'KEYBOARD.RECOGNIZED'; keys: KeyCapId[] };
 
 export const appMachine = createMachine({
@@ -60,6 +61,9 @@ export const appMachine = createMachine({
         type: 'KEY_UP',
         keyCapId: (event as { type: 'KEY_UP'; keyCapId: KeyCapId }).keyCapId,
       })),
+    },
+    RESET_KEYBOARD: {
+      actions: sendTo('keyboardService', { type: 'RESET' } )
     },
     'KEYBOARD.RECOGNIZED': {
       actions: sendTo('trainingService', ({ event }) => ({
