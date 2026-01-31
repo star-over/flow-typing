@@ -137,6 +137,7 @@ export const appMachine = createMachine({
           },
         },
         paused: {
+          entry: sendTo('keyboardService', { type: 'RESET' }), // <-- Added this
           on: {
             RESUME: 'running',
             TO_MENU: '#app.menu',

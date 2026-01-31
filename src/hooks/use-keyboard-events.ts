@@ -33,7 +33,7 @@ export function useKeyboardEvents(
     };
 
     const handleBlur = () => {
-      send({ type: 'RESET_KEYBOARD' });
+      send({ type: 'PAUSE' });
     };
 
     window.addEventListener('keydown', handleKeyDown);
