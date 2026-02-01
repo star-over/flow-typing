@@ -1,5 +1,7 @@
+import { Dictionary } from "@/interfaces/types";
+
 // Helper component for displaying debug state
-export const DebugState = ({ dataFlowLine, dataViewModel }: { dataFlowLine: unknown; dataViewModel: unknown; }) => {
+export const DebugState = ({ dataFlowLine, dataViewModel, dictionary }: { dataFlowLine: unknown; dataViewModel: unknown; dictionary: Dictionary; }) => {
     // The 'replacer' function is used to handle special cases during JSON serialization.
     // In this case, it ensures that 'undefined' values are explicitly converted to the string "undefined"
     // instead of being omitted, which is the default behavior of JSON.stringify.
@@ -16,7 +18,7 @@ export const DebugState = ({ dataFlowLine, dataViewModel }: { dataFlowLine: unkn
   
     return (
       <div className="w-full mt-8">
-        <h3 className="text-lg font-bold">State</h3>
+        <h3 className="text-lg font-bold">{dictionary.debug.state_title}</h3>
         <textarea
           readOnly
           className="w-full h-48 p-2 font-mono text-xs bg-gray-100 dark:bg-gray-900 border rounded"

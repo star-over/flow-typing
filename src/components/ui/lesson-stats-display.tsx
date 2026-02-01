@@ -30,10 +30,10 @@ export const LessonStatsDisplay: React.FC<LessonStatsDisplayProps> = ({ stream, 
     <div className="w-full max-w-2xl mx-auto p-4 bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-200 dark:border-slate-700">
       <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{stats_card.title}</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatItem label={stats_card.cpm} value={stats.cpm} unit="CPM" />
-        <StatItem label={stats_card.wpm} value={stats.wpm} unit="WPM" />
-        <StatItem label={stats_card.accuracy} value={stats.accuracy} unit="%" />
-        <StatItem label={stats_card.duration} value={stats.durationInSeconds} unit="s" />
+        <StatItem label={stats_card.cpm} value={stats.cpm} unit={stats_card.units.cpm} />
+        <StatItem label={stats_card.wpm} value={stats.wpm} unit={stats_card.units.wpm} />
+        <StatItem label={stats_card.accuracy} value={stats.accuracy} unit={stats_card.units.accuracy} />
+        <StatItem label={stats_card.duration} value={stats.durationInSeconds} unit={stats_card.units.duration} />
       </div>
     </div>
   );

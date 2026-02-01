@@ -58,7 +58,26 @@ const mockDictionary: Dictionary = {
     cpm: "Speed",
     wpm: "WPM",
     accuracy: "Accuracy",
-    duration: "Duration"
+    duration: "Duration",
+    units: {
+      cpm: "CPM",
+      wpm: "WPM",
+      accuracy: "%",
+      duration: "s"
+    }
+  },
+  debug: {
+    state_title: "State"
+  },
+  options: {
+    languages: {
+      en: "English",
+      ru: "Русский"
+    },
+    layouts: {
+      qwerty: "QWERTY (English)",
+      йцукен: "ЙЦУКЕН (Русская)"
+    }
   }
 };
 

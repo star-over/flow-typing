@@ -25,7 +25,7 @@ export const MainContent: React.FC<MainContentProps> = ({ state, send, dictionar
       return <LessonStatsDisplay stream={state.context.lastTrainingStream!} dictionary={dictionary} />;
   }
   if (state.matches('settings')) {
-      return <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} dictionary={dictionary.user_preferences} />;
+      return <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} dictionary={dictionary} />;
   }
   if (state.matches('allStat')) {
       return <h2>{dictionary.app.stats_screen_title}</h2>;

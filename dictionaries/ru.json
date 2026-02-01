@@ -31,6 +31,25 @@
     "cpm": "Скорость",
     "wpm": "Слов в минуту",
     "accuracy": "Точность",
-    "duration": "Время"
+    "duration": "Время",
+    "units": {
+      "cpm": "зн/мин",
+      "wpm": "сл/мин",
+      "accuracy": "%",
+      "duration": "с"
+    }
+  },
+  "debug": {
+    "state_title": "Состояние"
+  },
+  "options": {
+    "languages": {
+      "en": "Английский",
+      "ru": "Русский"
+    },
+    "layouts": {
+      "qwerty": "QWERTY (Английская)",
+      "йцукен": "ЙЦУКЕН (Русская)"
+    }
   }
 }

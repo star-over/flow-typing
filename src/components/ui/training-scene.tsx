@@ -66,7 +66,7 @@ export const TrainingScene = ({ trainingActor, fingerLayout, keyboardLayout, dic
       <HandsExt viewModel={viewModel} fingerLayout={fingerLayout} keyboardLayout={keyboardLayout} symbolLayout={symbolLayout}/>
 
       <div className="w-full max-w-4xl">
-        <DebugState dataFlowLine={flowLineFixture} dataViewModel={viewModel} />
+        <DebugState dataFlowLine={flowLineFixture} dataViewModel={viewModel} dictionary={dictionary} />
       </div>
     </div>
   );
