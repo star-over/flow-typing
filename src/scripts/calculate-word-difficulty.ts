@@ -10,9 +10,9 @@
  */
 
 import { calculateCharDifficulty } from '../lib/difficulty-calculator';
-import { symbolLayoutRu } from '../data/symbol-layout-ru';
-import { fingerLayoutASDF } from '../data/finger-layout-asdf';
-import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
+import { symbolLayoutRu } from '../data/layouts/symbol-layout-ru';
+import { fingerLayoutASDF } from '../data/layouts/finger-layout-asdf';
+import { keyboardLayoutANSI } from '../data/layouts/keyboard-layout-ansi';
 
 // --- Инициализация ---
 

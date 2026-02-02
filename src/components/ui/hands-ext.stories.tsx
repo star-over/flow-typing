@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf';
-import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en';
+import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
+import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
+import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
 import { idle } from '@/fixtures/hands-ext/idle';
 import { shift_b } from '@/fixtures/hands-ext/shift_b';
 import { shift_f } from '@/fixtures/hands-ext/shift_f';

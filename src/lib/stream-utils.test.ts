@@ -1,6 +1,6 @@
 import { describe, expect,it } from "vitest";
 
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en"; // Corrected import path
+import { symbolLayoutEnQwerty } from "@/data/layouts/symbol-layout-en"; // Corrected import path
 import { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";

@@ -7,8 +7,8 @@ import { Dictionary } from '@/interfaces/types';
 import { TrainingScene } from "@/components/ui/training-scene";
 import { LessonStatsDisplay } from "@/components/ui/lesson-stats-display";
 import { UserPreferencesPage } from "@/components/ui/user-preferences-page";
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { fingerLayoutASDF } from "@/data/layouts/finger-layout-asdf";
+import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi";
 
 interface MainContentProps {
   state: StateFrom<typeof appMachine>;

@@ -13,7 +13,7 @@ import { AdjacencyList, createKeyboardGraph } from '@/lib/pathfinding';
 import { generateHandsSceneViewModel } from "@/lib/viewModel-builder";
 import { getPressResult } from "@/lib/press-result-utils";
 import { trainingMachine } from "@/machines/training.machine";
-import { getSymbolLayout } from "@/data/layouts";
+import { getSymbolLayout } from "@/data/layouts/layouts";
 
 import { FlowLine } from "./flow-line";
 import { HandsExt } from "./hands-ext";

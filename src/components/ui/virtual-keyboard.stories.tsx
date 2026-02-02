@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { fingerLayoutASDF } from "@/data/finger-layout-asdf";
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
-import { symbolLayoutEnQwerty } from "@/data/symbol-layout-en";
-import { symbolLayoutRu } from "@/data/symbol-layout-ru";
+import { fingerLayoutASDF } from "@/data/layouts/finger-layout-asdf";
+import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi";
+import { symbolLayoutEnQwerty } from "@/data/layouts/symbol-layout-en";
+import { symbolLayoutRu } from "@/data/layouts/symbol-layout-ru";
 import { createVirtualLayout } from "@/lib/virtual-layout";
 
 import { VirtualKeyboard, type VirtualKeyboardProps } from "./virtual-keyboard";

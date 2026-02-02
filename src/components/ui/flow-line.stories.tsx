@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en'; // Corrected import path
+import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en'; // Corrected import path
 import {
   FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en';
+import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
 import { generateTypingStream } from './lesson-generator'; // Renamed import
 
 describe('generateLesson', () => {

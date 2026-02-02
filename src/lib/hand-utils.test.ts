@@ -1,6 +1,6 @@
 import { describe, expect,it } from "vitest";
 
-import { fingerLayoutASDF } from "../data/finger-layout-asdf";
+import { fingerLayoutASDF } from "../data/layouts/finger-layout-asdf";
 import { FingerLayout, HandStates, KeyCapId, SymbolLayout } from "../interfaces/types";
 import { getFingerKeys, getHomeKeyForFinger, isLeftHandFinger } from "./hand-utils";
 

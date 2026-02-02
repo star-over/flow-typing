@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { symbolLayoutEnQwerty } from '@/data/symbol-layout-en'; // Corrected import path
-import { fingerLayoutASDF } from '@/data/finger-layout-asdf'; // Import fingerLayoutASDF
+import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en'; // Corrected import path
+import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf'; // Import fingerLayoutASDF
 
-import { keyboardLayoutANSI } from '../data/keyboard-layout-ansi';
+import { keyboardLayoutANSI } from '../data/layouts/keyboard-layout-ansi';
 import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
 
 describe('getKeyCapIdsForChar', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { keyboardLayoutANSI } from "@/data/keyboard-layout-ansi";
+import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi";
 
 import { createKeyboardGraph, findOptimalPath } from "./pathfinding";
 
