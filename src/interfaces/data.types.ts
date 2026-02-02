@@ -9,9 +9,9 @@
 /**
  * A self-contained, layout-agnostic block of text used to generate lessons.
  * It contains pre-calculated, layout-independent statistics.
- * This represents a single document in our 'prompts' collection/JSON file.
+ * This represents a single document in our 'verses' collection/JSON file.
  */
-export type Prompt = {
+export type Verse = {
   _id: string;
   text: string;
   languages: string[];
