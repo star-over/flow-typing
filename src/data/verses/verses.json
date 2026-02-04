@@ -1,10 +1,9 @@
 [
   {
-    "_id": "0c5f21a4f02886f4c39e70196ab93a1f49615a9e",
-    "text": "Привет, мир!",
-    "languages": ["ru"],
-    "source": "common",
-    "tags": ["greeting"],
+    "id": "0c5f21a4f02886f4c39e70196ab93a1f49615a9e",
+    "verse": "Привет, мир!",
+    "langs": ["ru"],
+
     "char_count": 12,
     "word_count": 2,
     "avg_word_length": 4.5,
@@ -21,11 +20,10 @@
     "trigrams": ["При", "рив", "иве", "вет", "ет,", "т, ", ", м", " ми", "мир", "ир!"]
   },
   {
-    "_id": "0d6e29bb318536f901135c36390a19a3b6859332",
-    "text": "The quick brown fox.",
-    "languages": ["en"],
-    "source": "pangram",
-    "tags": ["animal"],
+    "id": "0d6e29bb318536f901135c36390a19a3b6859332",
+    "verse": "The quick brown fox.",
+    "langs": ["en"],
+
     "char_count": 20,
     "word_count": 4,
     "avg_word_length": 4,
