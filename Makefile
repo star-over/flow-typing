@@ -10,8 +10,7 @@ SHELL := /bin/bash
 
 # .PHONY - объявляет цели, которые не связаны с файлами.
 # Это предотвращает конфликты с одноименными файлами и ускоряет выполнение.
-.PHONY: all help install clean dev build start test lint lint-fix type-check storybook storybook-build check-all
-
+.PHONY: all help install clean dev build start test lint lint-fix type-check storybook storybook-build check-all compile-verses generate-verses
 # Default - цель по умолчанию, которая выполняется при вызове `make` без аргументов.
 all: help
 
@@ -68,6 +67,7 @@ clean:
 	rm -rf node_modules
 	rm -rf coverage
 	rm -rf storybook-static
+	rm -rf dist
 
 
 # ==============================================================================
@@ -80,7 +80,7 @@ dev: install
 	npx next dev
 
 # build - собирает production-версию приложения.
-build: install
+build: install generate-verses
 	@echo "🏗️  Сборка проекта..."
 	npx next build
 
@@ -115,8 +115,23 @@ type-check: install
 	npx tsc --noEmit
 
 # check-all - запускает все проверки: линтер, проверку типов, тесты, сборку проекта и сборку Storybook.
-check-all: lint type-check test build
+check-all: lint type-check test generate-verses build
 	@echo "✅ Все проверки завершены!"
+
+
+# ==============================================================================
+# DATA GENERATION
+# ==============================================================================
+
+# compile-verses - компилирует TypeScript скрипт для генерации стихов.
+compile-verses: install
+	@echo "📄 Компиляция скрипта генерации стихов..."
+	npx tsc --project tsconfig.scripts.json
+
+# generate-verses - запускает скрипт для генерации и обновления данных стихов.
+generate-verses: compile-verses
+	@echo "📝 Генерация и обновление данных стихов..."
+	node dist/src/scripts/generate-verses.js
 
 
 # ==============================================================================
@@ -147,7 +162,7 @@ reinstall-gemini-cli:
 	@echo "1/3: Очистка кэша npm..."
 	npm cache clean --force
 	@echo "2/3: Удаление старой директории пакета..."
-	rm -rf $$(npm root -g)/@google/gemini-cli
+	rm -rf $(npm root -g)/@google/gemini-cli
 	@echo "3/3: Установка последней версии..."
 	npm install -g @google/gemini-cli@latest
 	@echo "✅ @google/gemini-cli успешно переустановлен."

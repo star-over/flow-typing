@@ -20,7 +20,7 @@ export const versesCollection = createCollection(
     id: 'verses',
     getKey: (verse: Verse) => verse.id,
     schema: VerseSchema,
-    initialData: validatedVerses,
+    initialData: validatedVerses, 
   })
 );
 

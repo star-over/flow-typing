@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext", // Use NodeNext for scripts that run directly on Node.js
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist", // Output scripts to a 'dist' folder in the root
+    "isolatedModules": false, // Allow non-module files for scripts if needed
+    "noEmit": false // We want to emit JS files for scripts
+  },
+  "include": [
+    "src/scripts/**/*.ts" // Only include script files
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts", // Exclude test files
+    "src/app/**/*.ts",
+    "src/components/**/*.ts",
+    "src/lib/**/*.ts",
+    "src/interfaces/**/*.ts"
+    // Add other application-specific paths to exclude if necessary
+  ]
+}
