@@ -2,7 +2,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Verse, VerseSchema } from '../interfaces/data.types';
+import { Verse, VerseSchema } from '../interfaces/verse-data.types';
 import {
   generateVerseId,
   detectLanguage,

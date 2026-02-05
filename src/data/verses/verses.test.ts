@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { VerseSchema } from '../../interfaces/data.types';
+import { VerseSchema } from '../../interfaces/verse-data.types';
 import versesData from './verses.json';
 
 describe('Verse Data Validation', () => {

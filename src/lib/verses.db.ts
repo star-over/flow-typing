@@ -8,7 +8,7 @@
  */
 import { createCollection, localOnlyCollectionOptions } from '@tanstack/react-db';
 import { z } from 'zod';
-import { VerseSchema, Verse } from '@/interfaces/data.types';
+import { VerseSchema, Verse } from '@/interfaces/verse-data.types';
 import versesData from '@/data/verses/verses.json';
 
 // Ensure the imported JSON data conforms to the VerseSchema
