@@ -9,19 +9,7 @@ export function generateVerseId(text: string): string {
   return crypto.createHash('sha1').update(text).digest('hex');
 }
 
-/**
- * Simple language detection based on character ranges.
- * Assumes Russian if Cyrillic characters are present, otherwise English.
- * @param text The verse text.
- * @returns 'ru' or 'en'.
- */
-export function detectLanguage(text: string): string {
-  // Check for common Cyrillic characters
-  if (/[а-яА-Я]/.test(text)) {
-    return 'ru';
-  }
-  return 'en';
-}
+
 
 /**
  * Extracts words from text, converting to lowercase and stripping non-alphabetic characters.

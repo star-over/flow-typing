@@ -5,7 +5,6 @@ import * as path from 'node:path';
 import { Verse, VerseSchema } from '../interfaces/verse-data.types';
 import {
   generateVerseId,
-  detectLanguage,
   getCharCount,
   getWordCount,
   getAverageWordLength,
@@ -62,11 +61,9 @@ async function generateVerses() {
       continue;
     }
 
-    const language = detectLanguage(sentence);
     const verseData: Verse = {
       id: id,
       verse: sentence,
-      langs: [language],
       char_count: getCharCount(sentence),
       word_count: getWordCount(sentence),
       avg_word_length: getAverageWordLength(sentence),

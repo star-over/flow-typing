@@ -2,9 +2,6 @@
   {
     "id": "0c5f21a4f02886f4c39e70196ab93a1f49615a9e",
     "verse": "Привет, мир!",
-    "langs": [
-      "ru"
-    ],
     "char_count": 12,
     "word_count": 2,
     "avg_word_length": 4.5,
@@ -80,9 +77,6 @@
   {
     "id": "0d6e29bb318536f901135c36390a19a3b6859332",
     "verse": "The quick brown fox.",
-    "langs": [
-      "en"
-    ],
     "char_count": 20,
     "word_count": 4,
     "avg_word_length": 4,
@@ -201,9 +195,6 @@
   {
     "id": "d3486ae9136e7856bc42212385ea797094475802",
     "verse": "Hello world!",
-    "langs": [
-      "en"
-    ],
     "char_count": 10,
     "word_count": 2,
     "avg_word_length": 5,
@@ -277,9 +268,6 @@
   {
     "id": "408d94384216f890ff7a0c3528e8bed1e0b01621",
     "verse": "The quick brown fox jumps over the lazy dog.",
-    "langs": [
-      "en"
-    ],
     "char_count": 35,
     "word_count": 9,
     "avg_word_length": 3.89,
@@ -495,9 +483,6 @@
   {
     "id": "28f86b2700e92b2c54ef77be1ca7177fec2fbf20",
     "verse": "Привет, как дела?",
-    "langs": [
-      "ru"
-    ],
     "char_count": 13,
     "word_count": 3,
     "avg_word_length": 4.33,
@@ -595,9 +580,6 @@
   {
     "id": "9e32295f8225803bb6d5fdfcc0674616a4413c1b",
     "verse": "В чащах юга жил бы цитрус? Да, но фальшивый экземпляр!",
-    "langs": [
-      "ru"
-    ],
     "char_count": 42,
     "word_count": 10,
     "avg_word_length": 4.2,
