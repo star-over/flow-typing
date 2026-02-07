@@ -17,7 +17,7 @@ import {
   getTrigrams,
 } from '../lib/verse-utils'; // Ensure this path is correct
 
-const inputSentencesPath = path.join(process.cwd(), 'src/data/verses/input-sentences.txt');
+const inputSentencesPath = path.join(process.cwd(), 'tmp/ru/input-sentences.txt');
 const outputVersesPath = path.join(process.cwd(), 'src/data/verses/verses.json');
 
 async function generateVerses() {
@@ -94,7 +94,7 @@ async function generateVerses() {
   // 4. Combine and write updated verses
   const updatedVerses = [...existingVerses, ...newVerses];
   try {
-    await fs.promises.writeFile(outputVersesPath, JSON.stringify(updatedVerses, null, 2), 'utf-8');
+    await fs.promises.writeFile(outputVersesPath, JSON.stringify(updatedVerses), 'utf-8');
     console.log(`Successfully updated ${outputVersesPath} with ${newVerses.length} new verses. Total verses: ${updatedVerses.length}`);
   } catch (error) {
     console.error(`Error writing updated verses to file: ${error}`);
