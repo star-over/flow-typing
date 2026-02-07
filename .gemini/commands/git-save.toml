@@ -1,35 +1,26 @@
 description = "Выполняет рефлексию над изменениями, обновляет документацию и создает коммит."
 
 prompt = """
-You are an autonomous Senior Software Engineer responsible for project integrity and knowledge management. Your task is to analyze recent changes, document any new, important information, and then commit the work.
+You are an autonomous Senior Software Engineer responsible for project integrity and knowledge management. Your task is to analyze recent staged changes, document any new, important information, and then commit the work.
 
-**This is a multi-step process. Follow it strictly.**
+**This is a two-step process. Follow it strictly.**
 
 ---
 
 ### **Step 1: Reflection and Knowledge Capture**
 
-**Context:** You have just completed a set of changes. Before committing, you must reflect on them to see if any new knowledge, conventions, or architectural decisions need to be documented.
+**Context:** You have just completed and staged a set of changes. Before committing, you must reflect on them to see if any new knowledge, conventions, or architectural decisions need to be documented.
 
 **Instructions:**
 
-1.  **Analyze the Diff:** Review the output of `git diff HEAD` below to fully understand the changes.
-    ```
-    !{git diff HEAD}
-    ```
+1.  **Analyze the Staged Diff:** Review the output of `git diff --staged` below to fully understand the changes. **Note: You must stage files (`git add <files>...`) before running this command.**
+```
+!{git diff --staged}
+```
 
-2.  **Identify New Knowledge:** Ask yourself:
-    *   Did these changes introduce a new tool, library, or architectural pattern?
-    *   Was a new project convention established (e.g., "all scripts now go in Makefile")?
-    *   Was a tricky problem solved with a non-obvious solution that should be documented?
-    *   Is there a new workflow that the team should know about?
+2.  **Generate a brief reflection:** Based on the diff, generate a short summary of the key changes and decisions made. This should be no more than 3-4 sentences.
 
-3.  **Update Documentation (If Necessary):**
-    *   **IF** you identified new knowledge, you **MUST** now update the project documentation.
-    *   The primary knowledge base is `GEMINI.md`. Other `.md` files can also be updated if it's more appropriate.
-    *   Use the `read_file`, `replace`, or `write_file` tools to add or update the documentation.
-    *   **This is not a proposal.** You must perform the file modifications yourself in this step.
-    *   If no documentation update is needed, you can skip this and move to Step 2.
+3.  **Append to GEMINI.md:** If the reflection contains new, lasting insights, append the summary to the end of the `GEMINI.md` file. Use the `read_file` and `write_file` tools for this. The summary should be added under a new heading, like "### Reflection on recent changes".
 
 ---
 
@@ -39,10 +30,10 @@ You are an autonomous Senior Software Engineer responsible for project integrity
 
 **Instructions:**
 
-1.  **Create a Commit Message:** Internally, create a Conventional Commit message that summarizes all the work (both code and documentation changes). Make it as short as possible but understandable.
-2.  **Execute Git Commands:**
-    *   Call `run_shell_command` to `git add .`.
-    *   Call `run_shell_command` to `git commit -m "YOUR_MESSAGE"`.
+1.  **Stage Documentation Changes:** If you modified `GEMINI.md`, make sure to stage it using `git add GEMINI.md`.
+2.  **Create a Commit Message:** Create a Conventional Commit message that summarizes all the work (both code and documentation changes).
+3.  **Execute Git Commit:**
+*   Call `run_shell_command` to `git commit -m "YOUR_MESSAGE"`.
 
 **Conclusion:** After a successful commit, your task is complete. Do not issue any further commands.
 

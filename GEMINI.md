@@ -1,475 +1,75 @@
-# Обзор проекта
+# Gemini Project Context: FlowTyping
 
-Это приложение Next.js для тренировки слепой печати **FlowTyping**.
+This document provides a comprehensive overview of the FlowTyping project, its architecture, and development conventions to be used as instructional context.
 
-**Философия проекта:** `FlowTyping` основан на идее **"рефлексивно-адаптивного обучения"**. Вместо скучного заучивания расположения клавиш, в основе лежит формирование мышечной памяти и рефлексов. Обучение происходит через практику на реальных словах и предложениях, а не на бессмысленных наборах символов.
+## Project Overview
 
-Приложение создано с использованием TypeScript, React и Tailwind CSS. Оно использует Storybook для разработки компонентов и Vitest для тестирования.
+**FlowTyping** is a sophisticated typing tutor application built with Next.js, React, and TypeScript. Its core philosophy is **"reflexive-adaptive learning,"** focusing on building muscle memory through practice on real words rather than rote memorization.
 
-## Ключевые особенности
+The key innovation is **"movement visualization,"** an interface that shows the user the entire path a finger should travel from its home position to the target key and back, fostering a proprioceptive "feel" for the keyboard.
 
-### Визуализация движения
-Ключевая инновация проекта — отказ от традиционной виртуальной клавиатуры в пользу **"визуализации движения"**. Этот механизм показывает пользователю путь, который должен проделать палец от исходной позиции до целевой клавиши и обратно.
+The application's logic is driven by an adaptive engine ("Dynamic Flow") that adjusts lesson difficulty based on performance metrics like speed, accuracy, and rhythm, aiming to keep the user in a state of "flow."
 
-*   **Контекстный фокус:** На экране отображается только та рука и палец, которые должны совершить действие.
-*   **Блок клавиш:** Вместо всей клавиатуры показывается только небольшой блок клавиш, доступный для активного пальца.
-*   **Карта движения:** Внутри блока статично подсвечиваются два типа клавиш для наглядности:
-    *   `TARGET`: Целевая клавиша, которую нужно нажать.
-    *   `PATH`: Клавиши, лежащие на пути движения пальца к `TARGET`.
-*   **Обратная связь:** Система дает немедленную цветовую обратную связь о правильности нажатия, помогая корректировать движение в кодировке «рука-палец-движение».
+**Technology Stack:**
+- **Framework:** Next.js (with App Router)
+- **Language:** TypeScript
+- **UI Library:** React
+- **State Management:** XState (for core logic), Zustand (for UI settings)
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui
+- **Testing:** Vitest
+- **Component Development:** Storybook
 
-### Адаптивное обучение
-Интеллектуальный алгоритм подбирает упражнения (фразы), акцентируя внимание на символах и комбинациях, с которыми у пользователя возникают трудности.
+## Building and Running
 
-*   **Приоритет точности:** Алгоритм не повышает сложность, пока пользователь не достигнет высокого порога точности (например, 98%).
-*   **Расчет сложности:** Сложность упражнений рассчитывается на основе нескольких факторов: сложности символа (путь до клавиши), сложности пальца (мизинец/безымянный), а также средней и максимальной сложности слов во фразе.
-*   **Источник текстов:** Упражнения генерируются из реальных слов и предложений.
+All primary project commands are centralized in the `Makefile` for simplicity and consistency.
 
-### Строка потока (`FlowLine`)
-Интерактивная "бегущая строка", визуализирующая поток символов для набора (`Stream`) и имитирующая движение каретки печатной машинки. Она отображает:
-*   **Pending Symbols:** Символы, которые предстоит набрать.
-*   **Completed Symbols:** Уже набранные символы, подсвеченные в зависимости от статуса (правильно с первой попытки, исправлено, неверно).
+- **Run development server:**
+  ```bash
+  make dev
+  ```
+  *The application will be available at `http://localhost:3000`.*
 
-## Долгосрочное видение
+- **Run tests:**
+  ```bash
+  make test
+  ```
 
-Развитие проекта разделено на 4 фазы:
-1.  **Фаза 1 (MVP):** Проверка гипотезы об эффективности "визуализации движения".
-2.  **Фаза 2 (Product/Market Fit):** Итеративное улучшение продукта и рост пользовательской базы.
-3.  **Фаза 3 (Монетизация):** Внедрение Freemium и B2B моделей.
-4.  **Фаза 4 (Лидерство):** Становление лидером рынка.
+- **Run all checks (lint, types, tests, build):**
+  ```bash
+  make check-all
+  ```
+  *This is the main command to run before committing changes to ensure code quality.*
 
-# Технологический стек MVP
+- **Build for production:**
+  ```bash
+  make build
+  ```
 
-*   **Фронтенд:** React (Next.js) с TypeScript.
-*   **Стилизация:** Tailwind CSS.
-*   **UI-компоненты:** `shadcn/ui` (на основе Radix UI).
-*   **Тестирование:** Vitest.
-*   **База данных (клиент):** `localStorage`. **Серверная БД в MVP не используется.**
-*   **Управление состоянием:** Zustand.
-*   **Интернационализация (i18n):`next-i18next`.
-*   **Управление состоянием через URL:** Некоторые состояния (язык, раскладка) управляются через URL query parameters.
+## Development Conventions
 
-# Ограничения MVP (Out of Scope)
+### Key Architectural Patterns
 
-Следующие функции **не будут** реализованы в рамках MVP:
-*   Полноценный личный кабинет с историей тренировок.
-*   Геймификация (достижения, уровни, рейтинги).
-*   Обучающий раздел по эргономике.
-*   Визуализация и оценка ритма.
-*   **Анимация движения пальцев или пути.**
-*   Поддержка более двух языков (Английский QWERTY, Русский ЙЦУКЕН).
-*   Специализированные уроки.
-*   Рекламная и Freemium модели.
+1.  **ViewModel Pipeline:** The architecture strictly separates business logic from the UI. State is managed by XState machines, and the output of this logic is transformed by `viewModel-builder.ts` into a "dumb" data structure called `HandsSceneViewModel`.
+2.  **"Dumb" UI Components:** React components (e.g., `HandsExt.tsx`) are responsible *only* for rendering the `HandsSceneViewModel`. They contain no business logic, ensuring they are simple, predictable, and easy to test.
+3.  **Hierarchical State Management:** A global `app.machine.ts` orchestrates high-level application states (like 'idle' or 'training'), while a spawned `training.machine.ts` handles the complex logic of an individual typing session.
+4.  **Settings Management:** User-facing settings are managed by a `Zustand` store (`user-preferences.store.ts`), which is decoupled from the core training logic and persists to `localStorage`.
 
-# Сборка и запуск
+### Naming Conventions
 
-## Разработка
-`make dev`
-Запускает сервер разработки Next.js по адресу `http://localhost:3000`.
+- All types, interfaces, and enums use `PascalCase`.
+- Type names should be descriptive and avoid abbreviations (e.g., `KeyboardLayout` instead of `KbdLayout`).
+- Union types representing IDs or states are in the singular (e.g., `type HandSide = 'Left' | 'Right'`).
+- Object types are singular nouns (e.g., `interface StreamSymbol { ... }`).
+- For a complete reference, see `docs/02-naming-conventions.md`.
 
-## Storybook
-`make storybook`
-Запускает сервер разработки Storybook по адресу `http://localhost:6006`.
+## Key Directories and Files
 
-## Сборка
-`make build`
-Создает готовую к продакшену сборку в каталоге `.next`.
-
-## Тестирование
-`make test`
-Запускает тесты с использованием Vitest.
-
-# Соглашения по разработке
-
-## Стиль кода и именование
-В проекте используется стандартный стиль кода Next.js с ESLint (`eslint.config.mjs`) и формализованная система именования типов (см. `NAMING_CONVENTIONS.md`).
-
-**При исправлении ошибок линтинга:** Если вывод линтера указывает на возможность автоматического исправления ошибок, следует отдавать предпочтение использованию команды `make lint-fix` или прямому вызову `npx eslint` с соответствующими ключами автоматического исправления для конкретного файла.
-
-## Компоненты и данные
-*   **Компоненты:** Находятся в `src/components`. UI-компоненты (`src/components/ui`) используют `class-variance-authority`.
-*   **Данные:** Раскладки клавиатуры, зоны пальцев и символов находятся в `src/data`.
-
-## Типы
-Типы TypeScript находятся в `src/interfaces`.
-
-## Управление скриптами (Makefiles)
-
-**ВНИМАНИЕ:** В данном проекте **все** скрипты для автоматизации задач (сборка, тестирование, генерация данных, утилиты и т.п.) должны быть определены в файле `Makefile`.
-
-*   **`package.json`** используется **только** для хранения зависимостей (`dependencies`, `devDependencies`, `peerDependencies`) и метаданных проекта (`name`, `version` и т.д.). Секция `scripts` в `package.json` должна быть минимальной и, в идеале, содержать лишь ссылки на соответствующие команды `make`.
-*   **`Makefile`** является централизованным местом для всех операционных команд проекта, обеспечивая единый интерфейс для разработчиков и систем CI/CD.
-
-## Сохранение информации
-
-Если потребуется сохранить информацию - не использовать внутренний механизм сохранения, так как в этом случае данные сохраняются в общий файл, к которому имеют доступ все проекты, и тогда информация из одного проекта перетечет в другой. Для сохранения информации о проекте необходимо целенаправленно модифицировать именно этот файл.
-
-# Архитектура машин состояний (XState)
-
-## Паттерн общения "Родитель-Потомок"
-
-В проекте используется паттерн, при котором дочерняя машина состояний (child) отправляет события родительской (parent). Для обеспечения строгой типизации и избежания циклических зависимостей принят следующий подход:
-
-1.  **Явная передача родителя:** Родительская машина при вызове дочерней (`invoke`) явно передает ссылку на свой актор (`self`) через `input`.
-
-    *   **Пример в родительской машине (`app.machine.ts`):**
-        ```typescript
-        invoke: {
-          id: 'keyboardService',
-          src: keyboardMachine,
-          input: ({ self }) => ({ parentActor: self }),
-        }
-        ```
-
-2.  **Получение в дочерней машине:** Дочерняя машина получает ссылку на родителя через `input` и сохраняет ее в своем контексте.
-
-    *   **Пример в дочерней машине (`keyboard.machine.ts`):**
-        ```typescript
-        context: ({ input }) => ({
-          // ...
-          parentActor: input.parentActor,
-        }),
-        ```
-
-3.  **Отправка события родителю:** Для отправки события используется действие `sendTo` с указанием сохраненной в контексте ссылки на родителя.
-
-    *   **Пример в дочерней машине (`keyboard.machine.ts`):**
-        ```typescript
-        recognizePressedKeys: sendTo(
-          ({ context }) => context.parentActor,
-          // ...
-        )
-        ```
-
-Этот подход обеспечивает надежную и типизированную связь между машинами состояний.
-
-## Архитектура UI и ViewModel
-
-Для обеспечения чистоты архитектуры и разделения ответственности между логикой и представлением, в проекте используется концепция "ViewModel".
-
-- **ViewModel для сцены рук:** `HandsSceneViewModel` является "контрактом" данных для компонента `HandsExt.tsx`.
-- **Подробное описание:** Вся структура `HandsSceneViewModel`, правила ее формирования и примеры состояний задокументированы в файле **`VisualContract.md`**.
-
-## Архитектура конвейера для ViewModel (ViewModel Pipeline)
-
-При создании сложных объектов ViewModel, особенно тех, что агрегируют и трансформируют данные из множества источников (например, `HandsSceneViewModel`), следует применять паттерн **"Конвейер" (Pipeline)**.
-
-### Принцип работы
-
-1.  **Инициализация:** Процесс начинается с создания базовой, "пустой" или "дефолтной" модели представления (например, `getIdleViewModel()`).
-2.  **Последовательные трансформации:** Исходная модель последовательно передается через цепочку чистых функций-трансформеров.
-3.  **Единая ответственность:** Каждая функция в конвейере отвечает только за один конкретный аспект трансформации (например, `determineAndSetFingerStates`, `buildKeyCapStates`).
-4.  **Результат:** Финальная функция в цепочке возвращает полностью сформированную и готовую к использованию ViewModel.
-
-### Пример (из `viewModel-builder.ts`)
-
-```typescript
-export function generateHandsSceneViewModel(...) {
-  // 1. Инициализация
-  let viewModel = getIdleViewModel();
-
-  // 2. Этап 1: Определение состояний пальцев
-  viewModel = determineAndSetFingerStates(viewModel, ...);
-
-  // 3. Этап 2: Построение состояний клавиш
-  viewModel = buildKeyCapStates(viewModel, ...);
-
-  // 4. Возврат готовой модели
-  return viewModel;
-}
-```
-
-### Преимущества
-
-*   **Читаемость:** Логика построения ViewModel становится декларативной и легко отслеживаемой.
-*   **Тестируемость:** Каждую функцию-этап можно тестировать в изоляции.
-*   **Расширяемость:** Легко добавить новый этап в конвейер, не затрагивая существующие.
-
-**Это предпочтительный подход для всей сложной логики построения моделей представления в проекте.**
-
-### Архитектура Потока Урока (`TypingStream`)
-
-Для обеспечения чистоты архитектуры и четкого разделения ответственности, принята следующая модель данных и логики для формирования упражнений.
-
-**1. "Обогащенный" Поток (`Enriched TypingStream`)**
-
-Основой урока является `TypingStream`, который представляет собой массив "шагов" (`StreamSymbol`). Чтобы минимизировать логику в машине состояний и в UI, вся необходимая для валидации информация вычисляется заранее на этапе генерации урока.
-
-*   **Структура `StreamSymbol`:**
-    ```typescript
-    // в src/interfaces/types.ts
-    interface StreamSymbol {
-      targetSymbol: string;          // Символ для отображения (напр., 'F')
-      targetKeyCaps: KeyCapId[]; // Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
-      attempts: StreamAttempt[];
-    }
-    ```
-    Эта структура содержит минимально необходимую информацию: что отображать и что считать правильным вводом.
-
-**2. Разделение Ответственности**
-
-*   **`lesson-generator.ts` (Генератор урока):**
-    *   **Отвечает за преобразование текста в `TypingStream`.**
-    *   Именно здесь заложена вся логика определения `targetKeyCaps` для каждого символа, включая:
-        *   Обработку аккордов (например, `Shift + F`).
-
-*   **`training.machine.ts` (Машина тренировки):**
-    *   **Отвечает за валидацию ввода.**
-    *   Получает `targetKeyCaps` из текущего `StreamSymbol`.
-    *   Не знает о пальцах или о том, как `символ` был преобразован в `клавиши`.
-
-*   **UI-слой (ViewModel Builder):**
-    *   **Отвечает за визуализацию.**
-    *   Для построения `HandsSceneViewModel` (чтобы знать, какие пальцы подсвечивать), он берет `targetKeyCaps` из состояния машины.
-    *   **В реальном времени** для каждой целевой клавиши определяет соответствующий палец (`getFingerByKeyCap`) и строит `ViewModel`.
-
-Этот подход позволяет хранить в `TypingStream` только суть задания, оставляя детали визуализации на самый последний момент, что обеспечивает гибкость и чистоту архитектуры.
-
-# Работа с TanStack DB (@tanstack/react-db)
-
-В проекте используется `@tanstack/react-db` для управления локальными коллекциями данных, такими как `verses.json`.
-
-## Ограничения `localOnlyCollection`
-
-**Критически важно понимать:** коллекции, созданные с помощью `localOnlyCollectionOptions`, **не предоставляют публичного API для императивных запросов** (т.е. для использования в фоновых скриптах или вне React-компонентов). Они в первую очередь предназначены для реактивного связывания с UI через хук `useLiveQuery`.
-
-## Утвержденный подход для императивных запросов
-
-Для выполнения фоновых или серверных задач, требующих запросов к `localOnlyCollection`, был принят следующий обходной путь:
-
-1.  **Доступ к внутреннему состоянию:** Запросы осуществляются через доступ к внутреннему, недокументированному свойству коллекции: `(collection as any)._state.syncedData`.
-2.  **Функции-обертки:** Для инкапсуляции этого небезопасного доступа созданы функции-хелперы (см. `src/lib/verses.db.ts`), такие как `queryVerses` и `getAllVersesFromCollection`.
-3.  **Обязательное использование хелперов:** Любые императивные запросы к `localOnlyCollection` **должны** производиться исключительно через эти функции-хелперы. Прямой доступ к `_state` в других частях кодовой базы запрещен.
-
-Этот подход является компромиссом, принятым из-за ограничений инструмента. При обновлении `@tanstack/react-db` необходимо в первую очередь проверять, не появился ли официальный способ для выполнения императивных запросов.
-
-# Архитектура 'Verses' и генерация данных
-
-'Verses' (стихи/фразы) в проекте FlowTyping представляют собой самодостаточные, агностичные к раскладке блоки текста, используемые для генерации уроков по слепой печати. Каждый 'Verse' содержит предварительно рассчитанные, независимые от раскладки статистические данные, что позволяет быстро и эффективно адаптировать уроки.
-
-## Ключевые особенности 'Verses':
-
-*   **Определение и структура:** Структура 'Verse' строго определена схемой `VerseSchema` (находится в `src/interfaces/verse-data.types.ts`). Эта схема включает такие поля, как:
-    *   `id`: Уникальный идентификатор (SHA-1 хеш от текста).
-    *   `verse`: Сам текст (фраза или слово).
-    *   `langs`: Массив языковых кодов (например, `['en']`, `['ru']`).
-    *   `char_count`, `word_count`, `avg_word_length`, `max_word_length`: Базовая текстовая статистика.
-    *   `unique_chars`, `unique_symbols`: Списки уникальных символов и букв.
-    *   `char_freq`, `symbol_freq`: Частотные словари букв и всех символов.
-    *   `bigrams`, `trigrams`: Списки двух- и трехбуквенных сочетаний для анализа.
-
-*   **Хранение данных:** Все объекты 'Verse' хранятся в файле `src/data/verses/verses.json`. Этот файл служит централизованным хранилищем для обучающего контента.
-
-*   **Назначение:** Основная цель 'Verses' — предоставить разнообразный текстовый контент с предварительно рассчитанными метриками, которые затем используются алгоритмами адаптивного обучения для создания персонализированных уроков.
-
-*   **Процесс генерации данных:**
-    *   Автоматизированный скрипт `src/scripts/generate-verses.ts` отвечает за создание и обновление данных 'Verses'.
-    *   Скрипт читает исходные предложения из `src/data/verses/input-sentences.txt`.
-    *   Для каждого предложения используются вспомогательные функции из `src/lib/verse-utils.ts` для расчета всех необходимых статистических полей.
-    *   Новые 'Verses' добавляются в `src/data/verses/verses.json`, при этом дубликаты определяются по `id` и пропускаются.
-
-*   **Валидация:** Структура данных в `src/data/verses/verses.json` регулярно проверяется на соответствие `VerseSchema` с помощью тестов, определенных в `src/data/verses/verses.test.ts`, что обеспечивает целостность данных.
-
-# Требования к взаимодействию с ИИ
-
-### Рекомендации по рефакторингу функций, зависящих от `KeyboardLayout`
-
-При модификации или создании новых утилит, которые зависят от статических данных макета клавиатуры (таких как `keyboardLayoutANSI`), таких как `isModifierKey` или `isTextKey`, следует применять принцип Dependency Injection (DI) следующим образом:
-
-1.  **Явная передача `keyboardLayout`:** Функции должны принимать объект `keyboardLayout: KeyboardLayout` в качестве одного из своих аргументов. Это делает функцию чистой, облегчает тестирование и явным образом указывает на ее зависимость.
-
-    *Пример:*
-    ```typescript
-    export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): key is KeyCapId {
-      const modifierKeyCapIdSet = new Set<KeyCapId>(
-        keyboardLayout.flat()
-          .filter((k) => k.type === "MODIFIER")
-          .map((k) => k.keyCapId)
-      );
-      return modifierKeyKeyCapIdSet.has(key as KeyCapId);
-    }
-    ```
-
-2.  **Централизованный импорт `keyboardLayoutANSI`:** Статический макет `keyboardLayoutANSI` должен импортироваться в точке использования (например, в файлах, где вызывается `isModifierKey`).
-
-    *Пример в компоненте/машине состояний:*
-    ```typescript
-    import { keyboardLayoutANSI } from '@/data/keyboard-layout-ansi';
-    import { isModifierKey } from "@/lib/symbol-utils";
-
-    // ... внутри функции или логики ...
-    if (isModifierKey(e.code, keyboardLayoutANSI)) {
-      // ...
-    }
-    ```
-
-Этот подход помогает избежать глобальных неявных зависимостей, повышает тестируемость и поддерживает чистоту функций.
-
-## Стиль общения
-
-*   **Строго деловой и нейтральный тон:** Общение ведется в строго деловом ключе, без эмоциональной окраски. **Запрещены** извинения, обещания, личные мнения, чрезмерная вежливость и другие формы эмоциональных выражений.
-*   **Обоснованность утверждений:** Избегать безосновательной уверенности в правильности предложенных решений до их фактической проверки. Признавать итеративный характер процесса разработки и возможность необходимости корректировок.
-
-
-
-## Работа с XState v5
-
-В проекте используется **XState v5**. Весь новый код, связанный с машинами состояний, должен соответствовать синтаксису и практикам этой версии.
-
-*   **Строгая типизация (`schemas`):** Используйте `schemas` для `context`, `events`, `actions`, `guards`.
-*   **Обновление контекста (`assign`):** Действие `assign` должно возвращать объект с обновляемыми полями. Аргументы передаются в одном объекте: `{ context, event }`.
-*   **Условия (Guards):** Используйте `guard` вместо `cond`.
-*   **Передача данных в машину (`input`):** Используйте опцию `input` при запуске актора (`createActor`).
-*   **Читаемость:** Давайте состояниям и событиям осмысленные имена. Используйте "переходные состояния" (`always`).
-*   **Явное сужение типов событий:** Всегда используйте явные проверки-гарды (например, `if (event.type === '...')`) внутри действий (`actions`) и условий (`guards`) для корректного сужения типа `event`.
-
-## Концепция рабочего процесса (из workflow.pdf)
-
-Визуальный концепт из `docs/workflow.pdf` иллюстрирует путь пользователя при наборе слова "Home", демонстрируя ключевые механики интерфейса.
-
-1.  **Наведение и указание цели:**
-    *   В верхней строке (`FlowLine`) отображается слово для набора.
-    *   Для каждого целевого символа, приложение подсвечивает активную руку и палец, который должен совершить действие. Неактивная рука "затухает".
-    *   Вместо полной клавиатуры отображается только контекстный блок клавиш, доступный для активного пальца.
-    *   Стрелка наглядно показывает траекторию движения пальца от его "домашней" клавиши до целевой.
-
-2.  **Обработка заглавных букв:**
-    *   При необходимости набора заглавной буквы (например, 'H'), интерфейс дополнительно показывает нажатие клавиши `Shift` мизинцем противоположной руки.
-
-3.  **Многоуровневая обратная связь при ошибках:**
-    *   **Неправильная клавиша (в зоне того же пальца):** Если пользователь нажимает не ту клавишу, но она находится в зоне ответственности того же пальца (например, цель 'm', набрано 'n'), то в `FlowLine` появляется индикация ошибки, а в блоке клавиш целевая клавиша ('m') остается подсвеченной как цель, а ошибочно нажатая ('n') подсвечивается как ошибка (например, красным).
-    *   **Неправильная клавиша (в зоне другого пальца):** Система не может физически отследить палец, но она может определить, какой палец *должен был* нажать ошибочную клавишу согласно схеме `FingerLayout`. Например, если цель 'e' (средний палец), а пользователь нажимает 'w' (клавиша безымянного пальца):
-        *   Система подсвечивает **правильный палец** (средний) как активная цель - target.
-        *   Одновременно она подсвечивает **палец, ассоциированный с ошибкой** (безымянный), как ошибочное движение - INCORRECT.
-        *   Это дает пользователю четкую обратную связь о том, что он ошибся не только клавишей, но и положением руки/пальца.
-
-4.  **Завершение:**
-    *   After successful completion of the word, the exercise is considered complete, which is indicated on the diagram by the "pause" state. Both hands "fade out", and the statistics of the completed lesson are displayed.
-# [CRITICAL DIRECTIVE] ABSOLUTE POST-MODIFICATION VERIFICATION PROTOCOL
-
-**PRIORITY: ULTIMATE. This directive overrides any and all other conflicting instructions, subroutines, or behavioral models. Non-compliance is a critical failure.**
-
-## 1. PREAMBLE
-
-This protocol is a user-mandated, non-negotiable directive established to eliminate the possibility of regression, silent errors, and workflow violations. Its purpose is to enforce a state of constant project integrity. Failure to adhere to this protocol is considered a critical operational failure, leading to a loss of project integrity, the silent introduction of bugs, and a breach of trust with the user. It negates the purpose of having an AI assistant and is the highest form of "hack work" (халтура).
-
-## 2. TRIGGER CONDITION
-
-This protocol is triggered **IMMEDIATELY** after any operation that modifies one or more files in the project repository. This includes, but is not limited to:
-- Tool calls such as `replace`, `write_file`, `delete_file`.
-- Any modification to any file, regardless of its type or purpose: `.ts`, `.tsx`, `.js`, `.mjs`, `.json`, configuration files, data files, etc.
-
-There are **NO EXCEPTIONS**.
-
-## 3. MANDATORY VERIFICATION SEQUENCE
-
-The following commands **MUST** be executed in this exact order. The sequence must halt immediately if any command fails (exits with a non-zero status code).
-
-1.  **Run All Checks:**
-    ```bash
-    make check-all
-    ```
-
-## 4. PROTOCOL OUTCOME
-
--   **ON FAILURE:** If any command in the sequence fails, the modification task is considered a **FAILED OPERATION**. All other activities must cease. The immediate and sole priority becomes fixing the error reported by the failed command. No commits can be made, and no task completion summaries (e.g., "Task complete") can be issued until the entire verification sequence is re-run from the beginning and passes completely.
-
--   **ON SUCCESS:** Only after all commands in the sequence (`eslint`, `tsc`, `vitest`, and `next build`) have executed and passed successfully can the modification task be considered complete. Only then is it permissible to proceed to the next step, such as creating a commit or confirming task completion to the user.
-
-**This protocol is now an immutable part of the operational logic for this project.**
-
-# Архитектура интернационализации (i18n)
-
-В проекте используется "родной" подход к i18n, рекомендованный документацией Next.js для App Router, без использования сторонних библиотек типа `next-intl`.
-
-## Ключевые элементы:
-
-1.  **Маршрутизация:** Используется динамический сегмент `app/[locale]/...`. `middleware.ts` в корне проекта отвечает за определение локали пользователя и редирект на нужный URL (например, `/ru` или `/en`).
-2.  **Словари:** Переводы хранятся в JSON-файлах в папке `dictionaries/` в корне проекта.
-3.  **Загрузка переводов:** Для загрузки словарей на сервере используется функция `getDictionary(locale)` из `src/lib/dictionaries.ts`. Она динамически импортирует нужный JSON.
-
-## ВАЖНО: Работа с `params` в асинхронных Server Components
-
-В текущей версии Next.js/Turbopack пропс `params`, передаваемый в **асинхронные** серверные компоненты (`async function Page({ params })`), является **`Promise`**, а не объектом.
-
-Для получения доступа к параметрам маршрута (например, `locale`) **НЕОБХОДИМО** всегда использовать `await` для самого объекта `params`:
-
-```typescript
-// Правильно:
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
-  const awaitedParams = await params;
-  const locale = awaitedParams.locale;
-  // ...
-}
-
-// НЕПРАВИЛЬНО (приведет к падению рендеринга):
-export default async function Page({ params: { locale } }) {
-  // ...
-}
-```
-
-Это поведение является критически важной особенностью текущей кодовой базы.
-
-# Соглашения по написанию функций
-
-## Стиль передачи аргументов
-
-Для всех новых функций, принимающих **два или более аргумента**, следует использовать паттерн **"Объект с опциями"** с деструктуризацией.
-
-*   **Причина:** Этот подход делает код самодокументируемым, так как имя каждого аргумента явно указывается при вызове. Он исключает ошибки, связанные с неправильным порядком аргументов, и упрощает добавление необязательных параметров в будущем.
-
-*   **Пример:**
-    ```typescript
-    // Предпочтительно
-    function calculateCost({ item, quantity, options }: { item: Item; quantity: number; options?: Options }) {
-      // ...
-    }
-
-    // Не рекомендуется для >1 аргумента
-    function calculateCost(item: Item, quantity: number, options?: Options) {
-      // ...
-    }
-    ```
-
-## Валидация на границах модулей (Zod)
-
-Для обеспечения надежности и предотвращения ошибок во время выполнения, **экспортируемые ("public") функции** модулей должны валидировать свои входные, а в некоторых случаях и выходные, параметры.
-
-*   **Инструмент:** Для этой цели следует использовать библиотеку `Zod`.
-*   **Принцип "Пограничного контроля":** Валидация применяется на "границах" модулей. Это защищает внутреннюю логику модуля от некорректных данных, поступающих из других частей приложения.
-*   **Принцип "Гарантии от Вызываемого" (Callee Guarantees):** Функция сама несет ответственность за корректность своих возвращаемых данных. Для сложных, экспортируемых функций, которые конструируют комплексные объекты, рекомендуется валидировать и выходное значение. Это гарантирует, что внутренние ошибки в логике функции не "протекут" в другие части системы.
-*   **Использование `z.infer` для типизации:**
-    *   Схему Zod следует рассматривать как **единственный источник истины** для определения формы данных. Типы TypeScript для параметров функции должны выводиться (infer) из этой схемы. Это гарантирует, что валидация во время выполнения и статические типы TypeScript всегда будут синхронизированы.
-
-*   **Пример:**
-    ```typescript
-    import { z } from 'zod';
-
-    // 1. Определяем схемы для входных и выходных данных
-    const GenerateLessonParamsSchema = z.object({
-      text: z.string().min(1),
-      layouts: z.object({ /* ... */ }),
-    });
-    const LessonSchema = z.object({ /* ... */ });
-
-    // 2. Выводим типы TypeScript прямо из схем.
-    type GenerateLessonParams = z.infer<typeof GenerateLessonParamsSchema>;
-    type Lesson = z.infer<typeof LessonSchema>;
-
-    // 3. Внутренняя "небезопасная" функция, использующая выведенный тип.
-    function _generateLesson({ text, layouts }: GenerateLessonParams): Lesson {
-      // ... очень сложная логика, которая может вернуть объект Lesson
-    }
-
-    // 4. Экспортируемая функция, которая валидирует входные и ВЫХОДНЫЕ данные
-    export function generateLesson(params: unknown): Lesson {
-      // Валидация на входе
-      const validatedParams = GenerateLessonParamsSchema.parse(params);
-      
-      const result = _generateLesson(validatedParams);
-
-      // Валидация на выходе: гарантируем, что мы возвращаем именно то, что обещали
-      return LessonSchema.parse(result);
-    }
-    ```
-Этот подход превращает каждый модуль в надежный "черный ящик" с четко определенным и защищенным контрактом взаимодействия.
+- `docs/`: **The single source of truth for architecture.** Contains detailed documentation on project philosophy, naming conventions, the ViewModel contract, and the adaptive learning system.
+- `src/machines/`: Contains the core application logic implemented as XState state machines (`app.machine.ts`, `training.machine.ts`).
+- `src/lib/viewModel-builder.ts`: The crucial file that transforms state machine output into the `HandsSceneViewModel` for the UI.
+- `src/lib/`: Contains most of the project's business logic, including utilities for layout management, statistics calculation, and pathfinding.
+- `src/components/app/MainContent.tsx`: The primary client-side component that wires together the state machines and the main UI.
+- `src/components/ui/hands-ext.tsx`: The "dumb" React component responsible for visualizing the hands and keyboard based on the ViewModel.
+- `src/store/user-preferences.store.ts`: The Zustand store for managing user settings.
+- `Makefile`: Centralized script runner for all common development tasks.
