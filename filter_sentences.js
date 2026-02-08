@@ -7,7 +7,7 @@ const sentencesFilePath = path.join(process.cwd(), 'all_extracted_sentences.txt'
 
 // 1. Extract Allowed Symbols
 const allowedSymbols = new Set();
-symbolLayoutRu.forEach(item => {
+symbolLayoutRu.forEach((item) => {
     allowedSymbols.add(item.symbol);
 });
 
@@ -33,7 +33,7 @@ try {
     process.exit(1);
 }
 
-const filteredLines = lines.filter(line => {
+const filteredLines = lines.filter((line) => {
     // Remove '\r' if present from Windows line endings before checking characters
     const charsToCheck = line.endsWith('\r') ? line.slice(0, -1) : line;
     

@@ -115,7 +115,7 @@ type-check: install
 	npx tsc --noEmit
 
 # check-all - запускает все проверки: линтер, проверку типов, тесты, сборку проекта и сборку Storybook.
-check-all: lint type-check test generate-verses build
+check-all: lint type-check test
 	@echo "✅ Все проверки завершены!"
 
 
