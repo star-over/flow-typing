@@ -133,6 +133,13 @@ generate-verses: compile-verses
 	@echo "📝 Генерация и обновление данных стихов..."
 	node dist/src/scripts/generate-verses.js
 
+# normalize-rus-corp - компилирует и запускает скрипт для нормализации русского корпуса текстов.
+.PHONY: normalize-rus-corp
+normalize-rus-corp:
+	@echo "⚙️ Компиляция и запуск скрипта нормализации..."
+	npx tsc --project tsconfig.scripts.json
+	node dist/src/scripts/normalize-file.js
+
 
 # ==============================================================================
 # STORYBOOK
@@ -160,7 +167,7 @@ storybook-build: install
 reinstall-gemini-cli:
 	@echo "🔥 Принудительная переустановка @google/gemini-cli..."
 	@echo "1/3: Очистка кэша npm..."
-	npm cache clean --force
+	rm -rf "$(shell npm config get cache)/_cacache"
 	@echo "2/3: Определение пути к глобальным модулям и принудительное удаление пакета..."
 	$(eval NPM_GLOBAL_ROOT := $(shell npm root -g))
 	rm -rf "$(NPM_GLOBAL_ROOT)/@google/gemini-cli"

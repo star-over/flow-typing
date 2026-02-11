@@ -8,15 +8,16 @@
     "noEmit": false // We want to emit JS files for scripts
   },
   "include": [
-    "src/scripts/**/*.ts" // Only include script files
+    "src/scripts/**/*.ts", // Only include script files
+    "src/lib/**/*.ts" // Also include lib files
   ],
   "exclude": [
     "node_modules",
     "**/*.test.ts", // Exclude test files
     "src/app/**/*.ts",
     "src/components/**/*.ts",
-    "src/lib/**/*.ts",
-    "src/interfaces/**/*.ts"
+    "src/interfaces/**/*.ts",
+    "src/lib/verses.db.ts"
     // Add other application-specific paths to exclude if necessary
   ]
 }
