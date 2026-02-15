@@ -1,5 +1,6 @@
 "use client";
 
+import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { useMachine } from "@xstate/react";
 import { type Actor } from 'xstate';
 import { useUserPreferencesStore } from "@/store/user-preferences.store";
@@ -18,6 +19,8 @@ import { Header } from "@/components/app/Header";
 import { MainContent } from "@/components/app/MainContent";
 import { FooterActions } from "@/components/app/FooterActions";
 
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionary, initialLocale: Locale }) {
   // === HOOKS ===
   const [state, send] = useMachine(appMachine);
@@ -32,31 +35,33 @@ export function AppClient({ dictionary, initialLocale }: { dictionary: Dictionar
   const trainingActor = state.children.trainingService as Actor<typeof trainingMachine> | undefined;
 
   return (
-    <div className="font-sans grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-4 gap-8">
-      {/* This component is outside the main flow and manages its own state */}
-      <LanguageSetter />
+    <ConvexProvider client={convex}>
+      <div className="font-sans grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-4 gap-8">
+        {/* This component is outside the main flow and manages its own state */}
+        <LanguageSetter />
 
-      <Header
-        title={currentDictionary.app.title}
-        appStateLabel={currentDictionary.app.app_state}
-        appStateValue={JSON.stringify(state.value)}
-      />
-      
-      <main className="flex flex-col gap-4 items-center w-full">
-        <MainContent
+        <Header
+          title={currentDictionary.app.title}
+          appStateLabel={currentDictionary.app.app_state}
+          appStateValue={JSON.stringify(state.value)}
+        />
+        
+        <main className="flex flex-col gap-4 items-center w-full">
+          <MainContent
+            state={state}
+            send={send}
+            dictionary={currentDictionary}
+            trainingActor={trainingActor}
+          />
+        </main>
+
+        <FooterActions
           state={state}
           send={send}
           dictionary={currentDictionary}
-          trainingActor={trainingActor}
+          keyboardLayout={zustandKeyboardLayout}
         />
-      </main>
-
-      <FooterActions
-        state={state}
-        send={send}
-        dictionary={currentDictionary}
-        keyboardLayout={zustandKeyboardLayout}
-      />
-    </div>
+      </div>
+    </ConvexProvider>
   );
 }
