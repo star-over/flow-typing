@@ -25,7 +25,7 @@ async function processFile(inputFile: string, outputFile: string): Promise<void>
 const inputFile = 'tmp/ru/ru_corp.txt';
 const outputFile = 'tmp/ru/ru_corp_2.txt';
 
-processFile(inputFile, outputFile).catch(err => {
+processFile(inputFile, outputFile).catch((err) => {
   console.error('Error during file processing:', err);
   process.exit(1);
 });

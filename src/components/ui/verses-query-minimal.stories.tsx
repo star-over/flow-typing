@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { useLiveQuery, eq, gt, and } from '@tanstack/react-db';
+import { useLiveQuery, gt } from '@tanstack/react-db';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { versesCollection } from '@/lib/verses.db';
 import { InitialQueryBuilder } from '@tanstack/db';
@@ -89,8 +89,8 @@ const VersesQueryDemo: React.FC<{ limit?: number; initialSorts?: SortArgs; defau
   // This is done client-side because tanstack/db's query API does not
   // directly support checking if an array field contains multiple specific elements.
   if (initialFilters.has_all_chars && initialFilters.has_all_chars.length > 0) {
-    processedVerses = processedVerses.filter(verse =>
-      initialFilters.has_all_chars!.every(char =>
+    processedVerses = processedVerses.filter((verse) =>
+      initialFilters.has_all_chars!.every((char) =>
         (verse.unique_chars && (verse.unique_chars as string[]).includes(char))
       )
     );
@@ -99,8 +99,8 @@ const VersesQueryDemo: React.FC<{ limit?: number; initialSorts?: SortArgs; defau
   // Apply client-side filtering for has_none_chars
   // This filter ensures that the verse.unique_chars array does NOT contain ANY of the characters specified.
   if (initialFilters.has_none_chars && initialFilters.has_none_chars.length > 0) {
-    processedVerses = processedVerses.filter(verse =>
-      initialFilters.has_none_chars!.every(char =>
+    processedVerses = processedVerses.filter((verse) =>
+      initialFilters.has_none_chars!.every((char) =>
         (verse.unique_chars && !(verse.unique_chars as string[]).includes(char))
       )
     );

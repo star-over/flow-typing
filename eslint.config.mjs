@@ -27,7 +27,7 @@ const commonGlobals = {
 export default defineConfig([
   // Игнорируемые файлы и директории
   {
-    ignores: [".next/**", "next-env.d.ts", "storybook-static/**", "dist/**"],
+    ignores: [".next/**", "next-env.d.ts", "storybook-static/**", "dist/**", "tmp/**"],
   },
 
   // Базовые конфигурации (идут первыми)
