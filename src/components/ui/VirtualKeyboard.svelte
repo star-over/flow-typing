@@ -1,29 +1,27 @@
 <script lang="ts">
+  import type { KeyboardLayout, SymbolLayout, VirtualLayout } from '$interfaces/types';
+  import { getLabel } from '$lib/symbol-utils';
   import KeyCap from './KeyCap.svelte';
 
-  interface KeyVM {
-    symbol: string;
-    pressResult?: 'NONE' | 'CORRECT' | 'ERROR';
-    isActive?: boolean;
-    fingerId?: string;
-  }
-
   interface Props {
-    keys: KeyVM[][];
+    virtualLayout: VirtualLayout;
+    keyboardLayout: KeyboardLayout;
+    symbolLayout: SymbolLayout;
   }
 
-  let { keys }: Props = $props();
+  let { virtualLayout, keyboardLayout, symbolLayout }: Props = $props();
 </script>
 
 <div class="keyboard">
-  {#each keys as row}
+  {#each virtualLayout as row}
     <div class="row">
-      {#each row as key}
+      {#each row as virtualKey}
         <KeyCap
-          symbol={key.symbol}
-          pressResult={key.pressResult}
-          isActive={key.isActive}
-          fingerId={key.fingerId}
+          keyCapId={virtualKey.keyCapId}
+          symbol={getLabel(virtualKey.keyCapId, symbolLayout, keyboardLayout)}
+          pressResult={virtualKey.pressResult ?? 'NONE'}
+          visibility={virtualKey.visibility ?? 'VISIBLE'}
+          fingerId={virtualKey.fingerId}
         />
       {/each}
     </div>

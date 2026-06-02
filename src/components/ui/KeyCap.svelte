@@ -1,6 +1,7 @@
 <script lang="ts">
   interface Props {
     symbol: string;
+    keyCapId?: string;
     pressResult?: 'NONE' | 'CORRECT' | 'ERROR';
     visibility?: 'VISIBLE' | 'INVISIBLE';
     isActive?: boolean;
@@ -9,6 +10,7 @@
 
   let {
     symbol,
+    keyCapId,
     pressResult = 'NONE',
     visibility = 'VISIBLE',
     isActive = false,
@@ -23,8 +25,11 @@
   class:active={isActive}
   class:INVISIBLE={visibility === 'INVISIBLE'}
   data-finger-id={fingerId}
+  data-keycap-id={keyCapId}
 >
   <span class="symbol">{symbol}</span>
+  <!-- Center point anchor used by HandsExt positioning logic -->
+  <div class="keycap-center-point"></div>
 </div>
 
 <style>
@@ -66,5 +71,15 @@
   .keycap.active,
   .keycap:active {
     transform: translateY(1px);
+  }
+
+  .keycap-center-point {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 2px;
+    pointer-events: none;
   }
 </style>
