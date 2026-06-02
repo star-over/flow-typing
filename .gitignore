@@ -47,3 +47,6 @@ storybook-static
 
 .gemini/
 gha-creds-*.json
+
+# git worktrees
+.worktrees/
