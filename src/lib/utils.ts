@@ -1,11 +1,4 @@
-import { type ClassValue,clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
 import type { KeyCapId } from "../interfaces/key-cap-id";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
 
 /**
  * Compares two arrays of KeyCapId, treating them as unordered sets.
