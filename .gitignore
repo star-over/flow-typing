@@ -19,6 +19,10 @@
 /.next/
 /out/
 
+# sveltekit
+/.svelte-kit/
+/build/
+
 # production
 /build
 
