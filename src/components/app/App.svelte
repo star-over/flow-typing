@@ -11,6 +11,9 @@
   import FooterActions from './FooterActions.svelte';
 
   import { onDestroy } from 'svelte';
+  import type { KeyCapId } from '$interfaces/key-cap-id';
+  import type { StateFrom } from 'xstate';
+  import type { appMachine } from '$machines/app.machine';
 
   let state = $state(appActor.getSnapshot());
   const actorSub = appActor.subscribe((snapshot) => {
@@ -24,7 +27,29 @@
   const trainingActor = $derived(
     state.children.trainingService as Actor<typeof trainingMachine> | undefined
   );
+
+  function handleKeyDown(event: KeyboardEvent) {
+    const currentState = state as StateFrom<typeof appMachine>;
+    if (currentState.matches('training') && event.code === 'Space') {
+      event.preventDefault();
+    }
+    appActor.send({ type: 'KEY_DOWN', keyCapId: event.code as KeyCapId });
+  }
+
+  function handleKeyUp(event: KeyboardEvent) {
+    appActor.send({ type: 'KEY_UP', keyCapId: event.code as KeyCapId });
+  }
+
+  function handleBlur() {
+    appActor.send({ type: 'PAUSE' });
+  }
 </script>
+
+<svelte:window
+  onkeydown={handleKeyDown}
+  onkeyup={handleKeyUp}
+  onblur={handleBlur}
+/>
 
 <div class="app-container">
   <Header
