@@ -14,6 +14,8 @@
   import type { KeyCapId } from '$interfaces/key-cap-id';
   import type { StateFrom } from 'xstate';
   import type { appMachine } from '$machines/app.machine';
+  import { page } from '$app/state';
+  import { goto } from '$app/navigation';
 
   let state = $state(appActor.getSnapshot());
   const actorSub = appActor.subscribe((snapshot) => {
@@ -43,6 +45,39 @@
   function handleBlur() {
     appActor.send({ type: 'PAUSE' });
   }
+
+  // Single effect: bidirectional URL ↔ Store sync with one-shot URL→Store guard
+  let hasSyncedFromUrl = false;
+  $effect(() => {
+    const urlId = page.url.searchParams.get('exerciseId');
+    const storeId = $preferences.shared.exerciseId ?? null;
+
+    if (urlId !== storeId) {
+      // URL wins exactly once on initial load / external navigation
+      if (!hasSyncedFromUrl) {
+        hasSyncedFromUrl = true;
+        preferences.update((p) => ({
+          ...p,
+          shared: { ...p.shared, exerciseId: urlId ?? undefined },
+        }));
+        return;
+      }
+
+      // Store wins after initial sync: update URL
+      const newParams = new URLSearchParams(page.url.search);
+      if (storeId) {
+        newParams.set('exerciseId', storeId);
+      } else {
+        newParams.delete('exerciseId');
+      }
+      const newQuery = newParams.toString();
+      const currentQuery = page.url.search.replace(/^\?/, '');
+
+      if (newQuery !== currentQuery) {
+        goto(`?${newQuery}`, { replaceState: true, noScroll: true });
+      }
+    }
+  });
 </script>
 
 <svelte:window
