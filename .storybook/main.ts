@@ -1,23 +1,18 @@
-import type { StorybookConfig } from "@storybook/nextjs-vite";
+import type { StorybookConfig } from '@storybook/sveltekit';
 
 const config: StorybookConfig = {
-  stories: [
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
-  ],
+  stories: ['../src/**/*.stories.@(svelte|ts)'],
   addons: [
-    "@storybook/addon-docs",
-    "@storybook/addon-onboarding",
-    "@storybook/addon-a11y",
-    "@storybook/addon-vitest",
-    "@storybook/addon-themes"
+    '@storybook/addon-a11y',
+    '@storybook/addon-docs',
+    '@storybook/addon-themes',
+    '@storybook/addon-vitest',
+    '@storybook/addon-svelte-csf',
   ],
   framework: {
-    name: "@storybook/nextjs-vite",
-    options: {}
+    name: '@storybook/sveltekit',
+    options: {},
   },
-  staticDirs: [
-    "../public"
-  ]
 };
+
 export default config;
