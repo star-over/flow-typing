@@ -9,6 +9,12 @@
       fingerId: 'L1',
       isActive: false,
     },
+    argTypes: {
+      fingerId: {
+        control: 'select',
+        options: ['L1', 'L2', 'L3', 'L4', 'L5', 'LB', 'R1', 'R2', 'R3', 'R4', 'R5', 'RB'],
+      },
+    },
   });
 </script>
 
@@ -16,15 +22,7 @@
 
 <Story name="Active" args={{ isActive: true }} />
 
-<Story name="L2Index">
-  {#snippet template(args)}
-    <svg viewBox="0 0 100 100" width="100" height="100">
-      <Finger {...args} fingerId="L2">
-        <path d="M10 10 L90 90" fill="currentColor" />
-      </Finger>
-    </svg>
-  {/snippet}
-</Story>
+<Story name="L2Index" args={{ fingerId: 'L2' }} />
 
 <Story name="R1Thumb" args={{ fingerId: 'R1' }} />
 
