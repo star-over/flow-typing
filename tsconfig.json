@@ -13,7 +13,13 @@
     "checkJs": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "vite/client"]
   },
-  "include": ["src/**/*", "tests/**/*", "dictionaries/**/*"]
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "dictionaries/**/*",
+    ".svelte-kit/ambient.d.ts",
+    ".svelte-kit/non-ambient.d.ts"
+  ]
 }

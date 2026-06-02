@@ -11,5 +11,6 @@ actor.start();
 export const appActor = actor;
 
 if (import.meta.hot) {
+  // @ts-expect-error - decline() is a valid Vite HMR method not yet in type definitions
   import.meta.hot.decline();
 }
