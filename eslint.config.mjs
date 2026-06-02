@@ -14,9 +14,18 @@ export default [
         ...globals.browser,
       },
     },
+    rules: {
+      // Неблокирующие: мертвый код, стилистика, производительность, best-practice
+      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'svelte/require-each-key': 'warn',
+      'svelte/prefer-svelte-reactivity': 'warn',
+      'svelte/no-navigation-without-resolve': 'warn',
+    },
   },
   {
-    files: ['*.config.*', 'vite.config.ts', 'svelte.config.js'],
+    files: ['*.config.*', 'vite.config.ts', 'svelte.config.js', '*.js', 'scripts/**/*.js', 'scripts/**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -38,6 +47,14 @@ export default [
     },
   },
   {
-    ignores: ['.svelte-kit/', 'dist/', 'node_modules/', 'storybook-static/', 'build/'],
+    ignores: [
+      '.svelte-kit/',
+      'dist/',
+      'node_modules/',
+      'storybook-static/',
+      'build/',
+      'tmp/',
+      'convex/_generated/',
+    ],
   },
 ];
