@@ -9,7 +9,7 @@ import {
   calculateWpm,
   calculateLessonStats,
 } from './stats-calculator';
-import { TypingStream, KeyCapId } from '@/interfaces/types';
+import type { TypingStream, KeyCapId } from '@/interfaces/types';
 
 describe('stats-calculator', () => {
   // Helper to create a simple stream for testing

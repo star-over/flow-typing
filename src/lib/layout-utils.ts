@@ -1,7 +1,7 @@
 /**
  * @file Utilities for working with keyboard layouts and key coordinates.
  */
-import { KeyboardLayout,KeyCapId } from "@/interfaces/types";
+import type { KeyboardLayout,KeyCapId } from "@/interfaces/types";
 
 
 export type KeyCoordinateMap = Map<KeyCapId, { r: number; c: number }>;

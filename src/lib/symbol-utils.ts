@@ -1,5 +1,5 @@
-import { KeyCapId } from "@/interfaces/key-cap-id";
-import {
+import type { KeyCapId } from "@/interfaces/key-cap-id";
+import type {
   FingerId,
   FingerLayout,
   KeyboardLayout,

@@ -1,12 +1,12 @@
 import { assign, createMachine, sendTo } from "xstate";
 
-import { KeyCapId } from "@/interfaces/key-cap-id";
+import type { KeyCapId } from "@/interfaces/key-cap-id";
 import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi'; // Import keyboardLayoutANSI
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
-import { UserPreferences } from "@/interfaces/user-preferences";
-import { TypingStream } from "@/interfaces/types";
+import type { UserPreferences } from "@/interfaces/user-preferences";
+import type { TypingStream } from "@/interfaces/types";
 import { generateTypingStream, lessons } from "@/lib/lesson-generator";
 import { getSymbolLayout } from "@/data/layouts/layouts";
 

@@ -1,4 +1,4 @@
-import { StreamSymbol, KeyCapPressResult } from "@/interfaces/types";
+import type { StreamSymbol, KeyCapPressResult } from "@/interfaces/types";
 import { areKeyCapIdArraysEqual } from "./symbol-utils";
 
 /**

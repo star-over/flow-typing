@@ -3,7 +3,7 @@
  * @description Содержит функции для создания, обновления и анализа потока,
  * который представляет собой упражнение для пользователя.
  */
-import { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, SymbolLayout, TypingStream } from '@/interfaces/types';
+import type { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, SymbolLayout, TypingStream } from '@/interfaces/types';
 
 import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, nbsp, sp } from "./symbol-utils";
 

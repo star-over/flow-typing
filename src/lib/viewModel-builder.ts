@@ -45,23 +45,23 @@
  */
 
 import {
-  FingerId,
-  FingerLayout,
-  FingerState,
+  type FingerId,
+  type FingerLayout,
+  type FingerState,
   HAND_SIDES,
-  HandSide,
-  HandsSceneViewModel,
-  KeyCapId,
-  KeySceneState,
-  KeyboardLayout,
+  type HandSide,
+  type HandsSceneViewModel,
+  type KeyCapId,
+  type KeySceneState,
+  type KeyboardLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
-  StreamSymbol,
-  VirtualLayout,
-  VirtualKey,
-  Visibility,
+  type StreamSymbol,
+  type VirtualLayout,
+  type VirtualKey,
+  type Visibility,
 } from "@/interfaces/types";
 
 import {
@@ -69,8 +69,8 @@ import {
   getHomeKeyForFinger,
   isLeftHandFinger,
 } from "./hand-utils";
-import { KeyCoordinateMap } from "./layout-utils";
-import { AdjacencyList, findOptimalPath } from "./pathfinding";
+import type { KeyCoordinateMap } from "./layout-utils";
+import { type AdjacencyList, findOptimalPath } from "./pathfinding";
 import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
 
 /**

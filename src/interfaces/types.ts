@@ -5,7 +5,7 @@
  * При рефакторинге или добавлении новых типов, пожалуйста, сохраняйте
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
-import { UserPreferences } from '@/interfaces/user-preferences';
+import type { UserPreferences } from '@/interfaces/user-preferences';
 import { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId

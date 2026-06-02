@@ -3,7 +3,7 @@
  * @description Содержит функции для построения `VirtualLayout`, которая является
  * финальной, обогащенной моделью клавиатуры для отображения в UI.
  */
-import { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
+import type { FingerLayout, KeyboardLayout, PhysicalKey, SymbolLayout, VirtualKey,VirtualLayout,  } from "@/interfaces/types";
 import { getLabel } from "@/lib/symbol-utils";
 
 interface CreateVirtualLayoutOptions {

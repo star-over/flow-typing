@@ -1,5 +1,5 @@
 
-import { HandsExtFixture } from './types';
+import type { HandsExtFixture } from './types';
 export const shift_t_error_shift_n: HandsExtFixture = {
   input: {
     targetSymbol: "T",

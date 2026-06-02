@@ -6,8 +6,8 @@
  */
 import { assign, createMachine, sendTo } from 'xstate';
 
-import { KeyCapId, TypingStream, ParentActor } from '@/interfaces/types';
-import { UserPreferences } from '@/interfaces/user-preferences';
+import type { KeyCapId, TypingStream, ParentActor } from '@/interfaces/types';
+import type { UserPreferences } from '@/interfaces/user-preferences';
 import { areKeyCapIdArraysEqual } from '@/lib/symbol-utils';
 
 

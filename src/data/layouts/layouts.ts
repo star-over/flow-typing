@@ -1,5 +1,5 @@
-import { UserPreferences } from '@/interfaces/user-preferences';
-import { SymbolLayout } from '@/interfaces/types';
+import type { UserPreferences } from '@/interfaces/user-preferences';
+import type { SymbolLayout } from '@/interfaces/types';
 import { symbolLayoutEnQwerty } from './symbol-layout-en';
 import { symbolLayoutRu } from './symbol-layout-ru';
 

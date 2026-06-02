@@ -3,10 +3,10 @@
  * @description Содержит функции для определения состояний рук и пальцев,
  * их принадлежности, и для получения связанных с ними данных.
  */
-import { KeyCapId } from "@/interfaces/key-cap-id";
+import type { KeyCapId } from "@/interfaces/key-cap-id";
 import {
-  FingerId,
-  FingerLayout,
+  type FingerId,
+  type FingerLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
 } from "@/interfaces/types";

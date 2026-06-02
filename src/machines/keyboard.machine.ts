@@ -1,6 +1,6 @@
 import { assign, sendTo, setup } from "xstate";
 
-import { KeyCapId, ParentActor, KeyboardLayout } from "@/interfaces/types";
+import type { KeyCapId, ParentActor, KeyboardLayout } from "@/interfaces/types";
 import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
 /**
  * @description Контекст машины `keyboardMachine`.

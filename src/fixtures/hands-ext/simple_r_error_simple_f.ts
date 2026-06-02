@@ -1,5 +1,5 @@
 
-import { HandsExtFixture } from './types';
+import type { HandsExtFixture } from './types';
 export const simple_r_error_simple_f: HandsExtFixture = {
   input: {
     targetSymbol: "r",

@@ -13,7 +13,7 @@
  * @see{@link /DOMAIN.md}
  * @see{@link /src/interfaces/types.ts}
  */
-import { SymbolLayout } from "@/interfaces/types";
+import type { SymbolLayout } from "@/interfaces/types";
 
 export const symbolLayoutEnQwerty: SymbolLayout = [
   { symbol: " ", keyCaps: ["Space"] },

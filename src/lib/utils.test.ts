@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { KeyCapId } from '../interfaces/key-cap-id';
+import type { KeyCapId } from '../interfaces/key-cap-id';
 import { areKeyCapIdArraysEqual } from './utils';
 
 describe('areKeyCapIdArraysEqual', () => {

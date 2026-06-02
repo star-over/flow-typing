@@ -1,5 +1,5 @@
-import { UserPreferences } from '@/interfaces/user-preferences';
-import { SettingMetadata, SettingOption } from '@/interfaces/types';
+import type { UserPreferences } from '@/interfaces/user-preferences';
+import type { SettingMetadata, SettingOption } from '@/interfaces/types';
 
 // Options for language setting
 const LANGUAGE_OPTIONS: SettingOption<UserPreferences['language']>[] = [

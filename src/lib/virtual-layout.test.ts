@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { FingerLayout, KeyboardLayout, ModifierKey,SymbolLayout } from '@/interfaces/types';
+import type { FingerLayout, KeyboardLayout, ModifierKey,SymbolLayout } from '@/interfaces/types';
 
 import * as SymbolUtils from './symbol-utils'; // Import the module to mock getSymbol
 import { createVirtualLayout } from './virtual-layout';

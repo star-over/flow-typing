@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getPressResult } from './press-result-utils';
-import { KeyCapPressResult, StreamSymbol } from '@/interfaces/types';
+import type { KeyCapPressResult, StreamSymbol } from '@/interfaces/types';
 
 describe('getPressResult', () => {
   it("should return 'NONE' if the stream symbol is undefined", () => {

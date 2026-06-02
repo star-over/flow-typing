@@ -1,4 +1,4 @@
-import { HandsSceneViewModel, StreamSymbol } from '@/interfaces/types';
+import type { HandsSceneViewModel, StreamSymbol } from '@/interfaces/types';
 
 export interface HandsExtFixture {
   input: StreamSymbol | undefined;

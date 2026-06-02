@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { assign, createActor, createMachine, sendTo } from "xstate";
 
-import { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
+import type { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
 import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi"; // Add this
 
-import { keyboardMachine,KeyboardMachineEvent } from "./keyboard.machine";
+import { keyboardMachine, type KeyboardMachineEvent } from "./keyboard.machine";
 
 // Test parent machine to receive events from the keyboard machine
 const testParentMachine = createMachine({

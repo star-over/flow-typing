@@ -5,8 +5,8 @@
  */
 
 import { getKeyCapIdsForChar } from './symbol-utils';
-import { FingerLayout, KeyCapId, SymbolLayout, KeyboardLayout } from '@/interfaces/types';
-import { KeyCoordinateMap, createKeyCoordinateMap } from './layout-utils';
+import type { FingerLayout, KeyCapId, SymbolLayout, KeyboardLayout } from '@/interfaces/types';
+import { type KeyCoordinateMap, createKeyCoordinateMap } from './layout-utils';
 
 
 // =================================================================================

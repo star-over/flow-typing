@@ -12,7 +12,7 @@
  * @see{@link /DOMAIN.md}
  * @see{@link /src/interfaces/types.ts}
  */
-import { FingerLayout } from "@/interfaces/types";
+import type { FingerLayout } from "@/interfaces/types";
 
 export const fingerLayoutASDF: FingerLayout = [
   // Left Hand

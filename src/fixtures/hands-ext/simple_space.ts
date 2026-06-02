@@ -1,4 +1,4 @@
-import { HandsExtFixture } from './types';
+import type { HandsExtFixture } from './types';
 export const simple_space: HandsExtFixture = {
   input: {
     targetSymbol: " ",

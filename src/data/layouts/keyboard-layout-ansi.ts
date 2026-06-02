@@ -11,7 +11,7 @@
  * @see{@link /DOMAIN.md}
  * @see{@link /src/interfaces/types.ts}
  */
-import { KeyboardLayout } from "@/interfaces/types";
+import type { KeyboardLayout } from "@/interfaces/types";
 
 export const keyboardLayoutANSI: KeyboardLayout = [
   // ROW 1

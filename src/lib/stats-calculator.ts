@@ -1,6 +1,6 @@
 // src/lib/stats-calculator.ts
 
-import { TypingStream } from '@/interfaces/types';
+import type { TypingStream } from '@/interfaces/types';
 
 // Define the interface for the returned statistics
 export interface LessonStats {

@@ -3,7 +3,7 @@
  * @description Contains functions to represent the keyboard as a graph and find paths between keys.
  */
 
-import { KeyboardLayout,KeyCapId } from "@/interfaces/types";
+import type { KeyboardLayout,KeyCapId } from "@/interfaces/types";
 
 export type AdjacencyList = Map<KeyCapId, KeyCapId[]>;
 
