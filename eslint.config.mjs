@@ -1,108 +1,43 @@
-import pluginNext from '@next/eslint-plugin-next';
-import { defineConfig } from "eslint/config";
-// --- НОВЫЕ ИМПОРТЫ ---
-import jsxA11y from "eslint-plugin-jsx-a11y";
-import pluginReact from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
-import vitestPlugin from "eslint-plugin-vitest";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import js from '@eslint/js';
+import ts from 'typescript-eslint';
+import svelte from 'eslint-plugin-svelte';
+import globals from 'globals';
 
-
-// Создаем общие настройки для парсера, которые можно переиспользовать
-const commonParserOptions = {
-  ecmaFeatures: {
-    jsx: true,
-  },
-  ecmaVersion: "latest",
-  sourceType: "module",
-};
-
-// Создаем общие настройки для глобальных переменных
-const commonGlobals = {
-  ...globals.serviceworker,
-  ...globals.browser,
-};
-
-export default defineConfig([
-  // Игнорируемые файлы и директории
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  js.configs.recommended,
+  ...ts.configs.recommended,
+  ...svelte.configs.recommended,
   {
-    ignores: [".next/**", "next-env.d.ts", "storybook-static/**", "dist/**", "tmp/**"],
-  },
-
-  // Базовые конфигурации (идут первыми)
-  tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  pluginReact.configs.flat['jsx-runtime'],
-  jsxA11y.flatConfigs.recommended, // <-- Добавляем плагин A11y
-
-  // Кастомная конфигурация для Next.js, React Hooks и сортировки в JS/TS файлах
-  {
-    name: 'Next.js, Hooks, and Sorting',
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-    plugins: {
-      react: pluginReact,
-      '@next/next': pluginNext,
-      'react-hooks': reactHooks, // <-- Добавляем плагин Hooks
-    },
     languageOptions: {
-      parserOptions: commonParserOptions,
-      globals: commonGlobals,
-    },
-    rules: {
-      // Правила Next.js
-      ...pluginNext.configs.recommended.rules,
-      ...pluginNext.configs['core-web-vitals'].rules,
-
-
-      // Настраиваем TypeScript правило для неиспользуемых переменных
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          varsIgnorePattern: "^_",
-          argsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_"
-        }
-      ],
-
-      // Дополнительные рекомендуемые правила
-       "react/react-in-jsx-scope": "off", // Не требуется в новых версиях React
-      "react/prop-types": "off", // TypeScript предоставляет проверку типов
-
-      // Arrow function parentheses
-      'arrow-parens': ['warn', 'always'],
-
-      // Object keys quotes
-      "quote-props": ["warn", "as-needed"],
-
-      // --- НОВЫЕ ПРАВИЛА ---
-      // Правила для React Hooks
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-
-    },
-    settings: {
-      react: {
-        version: "detect"
-      },
-      // Добавляем настройки для резольвера, если нужно
-      "import/resolver": {
-        typescript: {
-          alwaysTryTypes: true,
-        },
+      globals: {
+        ...globals.browser,
       },
     },
   },
-
-  // Дополнительная конфигурация для тестовых файлов
   {
-    files: ["**/*.test.{js,jsx,ts,tsx}", "**/__tests__/**/*.{js,jsx,ts,tsx}"],
-    plugins: {
-      vitest: vitestPlugin, // <-- Добавляем плагин Vitest
-    },
-    rules: {
-      "@typescript-eslint/no-unused-vars": "off", // Отключаем для тестов
-      ...vitestPlugin.configs.recommended.rules, // <-- Добавляем рекомендованные правила Vitest
+    files: ['*.config.*', 'vite.config.ts', 'svelte.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
-]);
+  {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parserOptions: {
+        parser: ts.parser,
+      },
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    ignores: ['.svelte-kit/', 'dist/', 'node_modules/', 'storybook-static/', 'build/'],
+  },
+];
