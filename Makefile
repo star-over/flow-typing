@@ -1,17 +1,16 @@
 # ==============================================================================
-# Makefile for FlowTyping
+# Makefile for FlowTyping (SvelteKit)
 #
-# Этот файл централизует и упрощает запуск скриптов проекта.
+# Единая точка входа для всех команд проекта.
+# npm-скрипты намеренно вычищены — все таски только здесь.
 # ==============================================================================
 
-# SHELL - определяет оболочку для выполнения команд.
-# Используем bash для лучшей совместимости и функциональности.
 SHELL := /bin/bash
 
-# .PHONY - объявляет цели, которые не связаны с файлами.
-# Это предотвращает конфликты с одноименными файлами и ускоряет выполнение.
-.PHONY: all help install clean dev build start test lint lint-fix type-check storybook storybook-build check-all compile-verses generate-verses
-# Default - цель по умолчанию, которая выполняется при вызове `make` без аргументов.
+.PHONY: all help install sync clean dev build preview check test lint lint-fix \
+        storybook storybook-build check-all compile-verses generate-verses \
+        normalize-rus-corp reinstall-gemini-cli
+
 all: help
 
 
@@ -19,29 +18,31 @@ all: help
 # HELP
 # ==============================================================================
 
-# help - отображает справку по доступным командам.
-# Символ @ в начале строки подавляет вывод самой команды.
 help:
 	@echo "------------------------------------------------------------------"
-	@echo " ✨ FlowTyping Makefile ✨"
+	@echo " ✨ FlowTyping Makefile (SvelteKit) ✨"
 	@echo "------------------------------------------------------------------"
 	@echo "Доступные команды:"
 	@echo ""
-	@echo "  make install           - Установить все зависимости проекта (npm install)"
-	@echo "  make clean             - Удалить сгенерированные артефакты и зависимости"
+	@echo "  make install          - Установить зависимости + svelte-kit sync"
+	@echo "  make sync             - Только svelte-kit sync (regenerate .svelte-kit/)"
+	@echo "  make clean            - Удалить артефакты и зависимости"
 	@echo ""
-	@echo "  make dev              - Запустить сервер для разработки (Next.js)"
-	@echo "  make build            - Собрать проект для продакшена"
-	@echo "  make start            - Запустить продакшен-сборку"
+	@echo "  make dev              - vite dev (http://localhost:5173)"
+	@echo "  make build            - Сборка статического SPA в build/"
+	@echo "  make preview          - Preview production-сборки"
 	@echo ""
-	@echo "  make test             - Запустить тесты (Vitest)"
-	@echo "  make lint             - Проверить код c помощью линтера (ESLint)"
-	@echo "  make lint-fix         - Автоматически исправить ошибки линтера"
-	@echo "  make type-check       - Проверить типы TypeScript (tsc)"
-	@echo "  make check-all        - Выполнить все проверки (lint, type-check, test, build)"
+	@echo "  make check            - svelte-check (типы Svelte+TS)"
+	@echo "  make test             - vitest run"
+	@echo "  make lint             - eslint ."
+	@echo "  make lint-fix         - eslint . --fix"
+	@echo "  make check-all        - lint + check + test + build"
 	@echo ""
-	@echo "  make storybook        - Запустить Storybook для разработки компонентов"
-	@echo "  make storybook-build  - Собрать Storybook для публикации"
+	@echo "  make storybook        - storybook dev (http://localhost:6006)"
+	@echo "  make storybook-build  - storybook static build"
+	@echo ""
+	@echo "  make generate-verses  - Сгенерировать данные стихов"
+	@echo "  make normalize-rus-corp - Нормализовать русский корпус"
 	@echo "------------------------------------------------------------------"
 
 
@@ -49,73 +50,65 @@ help:
 # PROJECT SETUP
 # ==============================================================================
 
-# install - устанавливает зависимости через npm.
-# node_modules является "файлом-маркером". Команда выполнится, только если
-# эта директория отсутствует, что предотвращает лишние установки.
+# node_modules - файл-маркер. Пересоздаётся только при изменении package*.json.
+# После npm install обязательно дёргаем svelte-kit sync, т.к. lifecycle-hook
+# `prepare` в package.json удалён.
 node_modules: package.json package-lock.json
-	@echo "📦 Установка зависимостей..."
+	@echo "📦 npm install..."
 	npm install
-	@touch node_modules # Создаем файл-маркер
+	@echo "🔄 svelte-kit sync..."
+	npx svelte-kit sync
+	@touch node_modules
 
 install: node_modules
 
+sync: install
+	@echo "🔄 svelte-kit sync..."
+	npx svelte-kit sync
 
-# clean - удаляет временные файлы, директории сборки и зависимости.
 clean:
 	@echo "🧹 Очистка проекта..."
-	rm -rf .next
-	rm -rf node_modules
-	rm -rf coverage
-	rm -rf storybook-static
-	rm -rf dist
+	rm -rf node_modules .svelte-kit build dist coverage storybook-static tmp
 
 
 # ==============================================================================
 # DEVELOPMENT & PRODUCTION
 # ==============================================================================
 
-# dev - запускает сервер разработки Next.js.
 dev: install
-	@echo "🚀 Запуск сервера для разработки..."
-	npx next dev
+	@echo "🚀 vite dev..."
+	npx vite dev
 
-# build - собирает production-версию приложения.
-build: install generate-verses
-	@echo "🏗️  Сборка проекта..."
-	npx next build
+build: install
+	@echo "🏗️  vite build..."
+	npx vite build
 
-# start - запускает собранное production-приложение.
-start: build
-	@echo "▶️  Запуск продакшен-сборки..."
-	npx next start
+preview: build
+	@echo "▶️  vite preview..."
+	npx vite preview
 
 
 # ==============================================================================
 # TESTING & QUALITY
 # ==============================================================================
 
-# test - запускает тесты.
 test: install
-	@echo "🧪 Запуск тестов..."
+	@echo "🧪 vitest run..."
 	npx vitest run
 
-# lint - проверяет стиль кода.
+check: install
+	@echo "🧐 svelte-check..."
+	npx svelte-kit sync && npx svelte-check --tsconfig ./tsconfig.json
+
 lint: install
-	@echo "🎨 Проверка стиля кода..."
+	@echo "🎨 eslint..."
 	npx eslint .
 
-# lint-fix - автоматически исправляет ошибки стиля.
 lint-fix: install
-	@echo "🔧 Исправление ошибок стиля..."
+	@echo "🔧 eslint --fix..."
 	npx eslint . --fix
 
-# type-check - запускает проверку типов TypeScript.
-type-check: install
-	@echo "🧐 Проверка типов TypeScript..."
-	npx tsc --noEmit
-
-# check-all - запускает все проверки: линтер, проверку типов, тесты, сборку проекта и сборку Storybook.
-check-all: lint type-check test
+check-all: lint check test build
 	@echo "✅ Все проверки завершены!"
 
 
@@ -123,20 +116,16 @@ check-all: lint type-check test
 # DATA GENERATION
 # ==============================================================================
 
-# compile-verses - компилирует TypeScript скрипт для генерации стихов.
 compile-verses: install
 	@echo "📄 Компиляция скрипта генерации стихов..."
 	npx tsc --project tsconfig.scripts.json
 
-# generate-verses - запускает скрипт для генерации и обновления данных стихов.
 generate-verses: compile-verses
-	@echo "📝 Генерация и обновление данных стихов..."
+	@echo "📝 Генерация данных стихов..."
 	node dist/src/scripts/generate-verses.js
 
-# normalize-rus-corp - компилирует и запускает скрипт для нормализации русского корпуса текстов.
-.PHONY: normalize-rus-corp
 normalize-rus-corp:
-	@echo "⚙️ Компиляция и запуск скрипта нормализации..."
+	@echo "⚙️  Компиляция и запуск скрипта нормализации..."
 	npx tsc --project tsconfig.scripts.json
 	node dist/src/scripts/normalize-file.js
 
@@ -145,14 +134,12 @@ normalize-rus-corp:
 # STORYBOOK
 # ==============================================================================
 
-# storybook - запускает Storybook.
 storybook: install
-	@echo "🎨 Запуск Storybook..."
+	@echo "🎨 storybook dev..."
 	npx storybook dev -p 6006
 
-# storybook-build - собирает статическую версию Storybook.
 storybook-build: install
-	@echo "📚 Сборка Storybook..."
+	@echo "📚 storybook build..."
 	npx storybook build
 
 
@@ -160,17 +147,10 @@ storybook-build: install
 # EXTERNAL TOOLS
 # ==============================================================================
 
-# reinstall-gemini-cli - выполняет принудительную переустановку @google/gemini-cli.
-# Эта команда решает проблему с ошибкой ENOTEMPTY, которая возникает из-за
-# поврежденного состояния пакета, принудительно удаляя его директорию.
-.PHONY: reinstall-gemini-cli
 reinstall-gemini-cli:
 	@echo "🔥 Принудительная переустановка @google/gemini-cli..."
-	@echo "1/3: Очистка кэша npm..."
 	rm -rf "$(shell npm config get cache)/_cacache"
-	@echo "2/3: Определение пути к глобальным модулям и принудительное удаление пакета..."
 	$(eval NPM_GLOBAL_ROOT := $(shell npm root -g))
 	rm -rf "$(NPM_GLOBAL_ROOT)/@google/gemini-cli"
-	@echo "3/3: Установка последней версии..."
 	npm install -g @google/gemini-cli@latest
-	@echo "✅ @google/gemini-cli успешно переустановлен."
+	@echo "✅ Готово."

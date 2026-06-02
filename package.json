@@ -2,16 +2,6 @@
   "name": "flow-typing",
   "private": true,
   "type": "module",
-  "scripts": {
-    "prepare": "svelte-kit sync",
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest run",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
   "dependencies": {
     "convex": "^1.31.7",
     "xstate": "^5.26.0",
