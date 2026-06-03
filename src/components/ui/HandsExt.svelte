@@ -210,13 +210,14 @@
     position: relative;
     width: 100%;
     height: 100%;
+    padding-top: 6rem;
+    box-sizing: border-box;
   }
 
   .hands-layer {
     display: flex;
     width: 100vw;
     justify-content: center;
-    margin-top: 2.5rem;
   }
 
   .hand-svg {
