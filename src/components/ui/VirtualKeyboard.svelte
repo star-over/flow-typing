@@ -35,9 +35,7 @@
     flex-direction: column;
     gap: var(--spacing-1);
     padding: var(--spacing-2);
-    background-color: var(--color-surface);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
+    background-color: transparent;
   }
 
   .row {
