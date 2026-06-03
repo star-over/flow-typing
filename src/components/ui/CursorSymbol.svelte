@@ -25,46 +25,49 @@
   });
 </script>
 
-<span class="cursor {cursorType}" class:visible>
+<span class="cursor">
   {symbol}
+  <span class="bar {cursorType}" class:visible aria-hidden="true">
+    {#if cursorType === 'RECTANGLE'}{symbol}{/if}
+  </span>
 </span>
 
 <style>
   .cursor {
+    position: relative;
     display: inline-block;
     color: var(--color-text-primary);
+  }
+
+  .bar {
+    position: absolute;
     opacity: 0;
     transition: opacity 0.1s;
   }
 
-  .cursor.visible {
+  .bar.visible {
     opacity: 1;
   }
 
-  .RECTANGLE {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 100%;
-    width: 100%;
+  .bar.RECTANGLE {
+    inset: 0;
     background-color: var(--color-text-primary);
+    color: var(--color-bg);
   }
 
-  .VERTICAL {
-    position: absolute;
+  .bar.VERTICAL {
     left: 0;
     bottom: 0;
-    height: 100%;
     width: 2px;
+    height: 100%;
     background-color: var(--color-text-primary);
   }
 
-  .UNDERSCORE {
-    position: absolute;
+  .bar.UNDERSCORE {
     left: 0;
     bottom: 0;
-    height: 2px;
     width: 100%;
+    height: 2px;
     background-color: var(--color-text-primary);
   }
 </style>
