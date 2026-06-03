@@ -22,6 +22,7 @@
           pressResult={virtualKey.pressResult ?? 'NONE'}
           visibility={virtualKey.visibility ?? 'VISIBLE'}
           fingerId={virtualKey.fingerId}
+          unitWidth={virtualKey.unitWidth}
         />
       {/each}
     </div>

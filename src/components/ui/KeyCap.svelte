@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { KeyCapUnitWidth } from '$interfaces/types';
+
   interface Props {
     symbol: string;
     keyCapId?: string;
@@ -6,6 +8,7 @@
     visibility?: 'VISIBLE' | 'INVISIBLE';
     isActive?: boolean;
     fingerId?: string;
+    unitWidth?: KeyCapUnitWidth;
   }
 
   let {
@@ -15,7 +18,10 @@
     visibility = 'VISIBLE',
     isActive = false,
     fingerId,
+    unitWidth = '1U',
   }: Props = $props();
+
+  let unitMultiplier = $derived(parseFloat(unitWidth));
 </script>
 
 <div
@@ -26,6 +32,7 @@
   class:INVISIBLE={visibility === 'INVISIBLE'}
   data-finger-id={fingerId}
   data-keycap-id={keyCapId}
+  style:--unit-multiplier={unitMultiplier}
 >
   <span class="symbol">{symbol}</span>
   <!-- Center point anchor used by HandsExt positioning logic -->
@@ -34,13 +41,16 @@
 
 <style>
   .keycap {
+    --keycap-unit: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
     border-radius: var(--radius-sm);
     height: 32px;
-    min-width: 32px;
+    width: calc(var(--keycap-unit) * var(--unit-multiplier, 1));
     padding: 0 var(--spacing-2);
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
