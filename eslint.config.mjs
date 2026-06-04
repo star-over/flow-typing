@@ -2,16 +2,30 @@ import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
+import svelteConfig from './svelte.config.js';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   js.configs.recommended,
-  ...ts.configs.recommended,
+  ...ts.configs.strict,
+  ...ts.configs.stylistic,
   ...svelte.configs.recommended,
   {
     languageOptions: {
       globals: {
         ...globals.browser,
+      },
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: [
+            '*.config.ts',
+            '*.config.mjs',
+            '*.config.js',
+            'vitest.shims.d.ts',
+            '.storybook/*.ts',
+          ],
+        },
+        extraFileExtensions: ['.svelte'],
       },
     },
     rules: {
@@ -19,9 +33,40 @@ export default [
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-empty-function': 'warn',
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-import-type-side-effects': 'warn',
+
+      // Стилистика (из stylistic-пресета) — даунгрейд до warn по соглашению проекта
+      '@typescript-eslint/array-type': 'warn',
+      '@typescript-eslint/consistent-type-definitions': 'warn',
+      '@typescript-eslint/consistent-indexed-object-style': 'warn',
+
+      // Typed-linting (точечно — без полного recommendedTypeChecked)
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+      '@typescript-eslint/no-redundant-type-constituents': 'warn',
+
+      'prefer-const': 'warn',
+
       'svelte/require-each-key': 'warn',
       'svelte/prefer-svelte-reactivity': 'warn',
       'svelte/no-navigation-without-resolve': 'warn',
+      'svelte/no-at-html-tags': 'warn',
+      'svelte/no-immutable-reactive-statements': 'warn',
+      'svelte/no-add-event-listener': 'warn',
+      'svelte/no-unused-svelte-ignore': 'warn',
+      'svelte/button-has-type': 'warn',
+      'svelte/no-useless-mustaches': 'warn',
+      'svelte/valid-compile': 'warn',
+      'svelte/prefer-const': [
+        'warn',
+        { excludedRunes: ['$props', '$derived', '$state'] },
+      ],
     },
   },
   {
@@ -33,10 +78,21 @@ export default [
     },
   },
   {
-    files: ['**/*.svelte'],
+    files: ['**/*.svelte', '**/*.svelte.js', '**/*.svelte.ts'],
     languageOptions: {
       parserOptions: {
         parser: ts.parser,
+        svelteConfig,
+        projectService: {
+          allowDefaultProject: [
+            '*.config.ts',
+            '*.config.mjs',
+            '*.config.js',
+            'vitest.shims.d.ts',
+            '.storybook/*.ts',
+          ],
+        },
+        extraFileExtensions: ['.svelte'],
       },
     },
   },
@@ -45,6 +101,20 @@ export default [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },
+  },
+  {
+    // XState v5 идиомы: `types: {} as { events: ... }` и `(event as { type, payload }).payload`
+    // — это способ нарouwing'а event-типа в action'ах. ESLint считает их избыточными и при
+    // --fix снимает, ломая типизацию. Отключаем оба правила для machine-файлов и их тестов.
+    files: ['**/*.machine.ts', '**/*.machine.test.ts'],
+    rules: {
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+  },
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    ...ts.configs.disableTypeChecked,
   },
   {
     ignores: [
