@@ -28,8 +28,8 @@ describe('generateLesson', () => {
     const stream = generateTypingStream(lessonText, symbolLayoutEnQwerty);
 
     expect(stream).toHaveLength(2);
-    expect(stream[0].targetSymbol).toBe('a');
-    expect(stream[1].targetSymbol).toBe('b');
+    expect(stream[0]!.targetSymbol).toBe('a');
+    expect(stream[1]!.targetSymbol).toBe('b');
 
     // Ensure the console.warn was called as expected, then restore it
     expect(consoleWarnSpy).toHaveBeenCalledWith(

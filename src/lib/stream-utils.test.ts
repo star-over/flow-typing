@@ -13,8 +13,8 @@ describe("createTypingStream", () => {
     const stream = createTypingStream(text, symbolLayoutEnQwerty);
 
     expect(stream).toHaveLength(5);
-    expect(stream[0].targetSymbol).toBe("h");
-    expect(stream[4].targetSymbol).toBe("o");
+    expect(stream[0]!.targetSymbol).toBe("h");
+    expect(stream[4]!.targetSymbol).toBe("o");
   });
 
   it("should handle an empty string", () => {
@@ -27,15 +27,15 @@ describe("createTypingStream", () => {
     const text = "a b";
     const stream = createTypingStream(text, symbolLayoutEnQwerty);
     expect(stream).toHaveLength(3);
-    expect(stream[1].targetSymbol).toBe(" ");
+    expect(stream[1]!.targetSymbol).toBe(" ");
   });
 
   it("should skip characters not in the layout", () => {
     const text = "a你好b"; // Assuming '你好' are not in the layout
     const stream = createTypingStream(text, symbolLayoutEnQwerty);
     expect(stream).toHaveLength(2);
-    expect(stream[0].targetSymbol).toBe("a");
-    expect(stream[1].targetSymbol).toBe("b");
+    expect(stream[0]!.targetSymbol).toBe("a");
+    expect(stream[1]!.targetSymbol).toBe("b");
   });
 });
 
@@ -47,8 +47,8 @@ describe("addAttempt", () => {
     const stream = createTypingStream("a", symbolLayoutEnQwerty);
     const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 0, endAt: 100 });
 
-    expect(newStream[0].attempts).toHaveLength(1);
-    expect(newStream[0].attempts[0].pressedKeyCups).toEqual(pressedKeyCupsA);
+    expect(newStream[0]!.attempts).toHaveLength(1);
+    expect(newStream[0]!.attempts[0]!.pressedKeyCups).toEqual(pressedKeyCupsA);
   });
 
   it("should add multiple attempts", () => {
@@ -56,8 +56,8 @@ describe("addAttempt", () => {
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsB, startAt: 0, endAt: 100 });
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 100, endAt: 200 });
 
-    expect(stream[0].attempts).toHaveLength(2);
-    expect(stream[0].attempts[1].pressedKeyCups).toEqual(pressedKeyCupsA);
+    expect(stream[0]!.attempts).toHaveLength(2);
+    expect(stream[0]!.attempts[1]!.pressedKeyCups).toEqual(pressedKeyCupsA);
   });
 
   it("should be immutable", () => {

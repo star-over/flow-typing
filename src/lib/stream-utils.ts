@@ -57,7 +57,7 @@ export function addAttempt({
   }
 
   const newStream = [...stream];
-  const targetSymbol = newStream[cursorPosition];
+  const targetSymbol = newStream[cursorPosition]!;
 
   const newAttempt: StreamAttempt = {
     pressedKeyCups: pressedKeyCups,

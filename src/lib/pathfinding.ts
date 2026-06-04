@@ -18,8 +18,10 @@ export function createKeyboardGraph(keyboardLayout: KeyboardLayout): AdjacencyLi
   const rows = keyboardLayout.length;
 
   for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < keyboardLayout[r].length; c++) {
-      const key = keyboardLayout[r][c];
+    const row = keyboardLayout[r];
+    if (!row) continue;
+    for (let c = 0; c < row.length; c++) {
+      const key = row[c];
       if (!key) continue;
 
       const neighbors: KeyCapId[] = [];
@@ -37,8 +39,9 @@ export function createKeyboardGraph(keyboardLayout: KeyboardLayout): AdjacencyLi
         const nr = r + dir.dr;
         const nc = c + dir.dc;
 
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < keyboardLayout[nr]?.length) {
-          const neighborKey = keyboardLayout[nr][nc];
+        const neighborRow = keyboardLayout[nr];
+        if (nr >= 0 && nr < rows && nc >= 0 && neighborRow && nc < neighborRow.length) {
+          const neighborKey = neighborRow[nc];
           if (neighborKey) {
             neighbors.push(neighborKey.keyCapId);
           }
@@ -72,6 +75,7 @@ export function findOptimalPath(startKey: KeyCapId, endKey: KeyCapId, graph: Adj
   while (queue.length > 0) {
     const path = queue.shift()!;
     const node = path[path.length - 1];
+    if (!node) continue;
 
     if (node === endKey) {
       return path;

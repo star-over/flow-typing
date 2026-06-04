@@ -118,8 +118,8 @@ function determineTypingContext(
 
     const errorFingers = new Set<FingerId>();
     const lastAttempt =
-        currentStreamSymbol?.attempts[currentStreamSymbol.attempts.length - 1];
-    const wasAttemptIncorrect = lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
+        currentStreamSymbol.attempts[currentStreamSymbol.attempts.length - 1];
+    const wasAttemptIncorrect = !!lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
 
     if (wasAttemptIncorrect) {
         const incorrectPressFingers = new Set<FingerId>();
@@ -127,7 +127,7 @@ function determineTypingContext(
             // Special Space logic first
             if (keyId === 'Space') {
                 const targetFingers = Array.from(activeFingers);
-                const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]) : false;
+                const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]!) : false;
                 if (isTargetLeftHand) {
                     incorrectPressFingers.add("R1");
                 } else {

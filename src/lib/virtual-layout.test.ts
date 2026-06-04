@@ -46,7 +46,7 @@ describe('createVirtualLayout', () => {
     });
 
     expect(virtualLayout).toHaveLength(mockKeyboardLayout.length);
-    expect(virtualLayout[0]).toHaveLength(mockKeyboardLayout[0].length);
+    expect(virtualLayout[0]).toHaveLength(mockKeyboardLayout[0]!.length);
   });
 
   it('should correctly transfer physical key properties and set rowIndex/colIndex', () => {
@@ -56,7 +56,7 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0][0];
+    const keyA = virtualLayout[0]![0]!;
     expect(keyA.keyCapId).toBe('KeyA');
     expect(keyA.type).toBe('SYMBOL');
     expect(keyA.unitWidth).toBe('1U');
@@ -71,8 +71,8 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0][0];
-    const keyB = virtualLayout[0][1];
+    const keyA = virtualLayout[0]![0]!;
+    const keyB = virtualLayout[0]![1]!;
     expect(keyA.symbol).toBe('A'); // The new getSymbol logic returns the uppercase variant
     expect(keyB.symbol).toBe('b'); // Only 'b' is defined, so it returns 'b'
     // Also check if getLabel was called correctly
@@ -92,7 +92,7 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout[0][0].symbol).toBe('c');
+    expect(virtualLayout[0]![0]!.symbol).toBe('c');
   });
 
   it('should correctly derive fingerId and isHomeKey from fingerLayout', () => {
@@ -102,9 +102,9 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0][0];
-    const keyB = virtualLayout[0][1];
-    const shiftLeft = virtualLayout[1][0];
+    const keyA = virtualLayout[0]![0]!;
+    const keyB = virtualLayout[0]![1]!;
+    const shiftLeft = virtualLayout[1]![0]!;
 
     expect(keyA.fingerId).toBe('L1');
     expect(keyA.isHomeKey).toBe(true);
@@ -126,6 +126,6 @@ describe('createVirtualLayout', () => {
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout[0][0].fingerId).toBe('L1');
+    expect(virtualLayout[0]![0]!.fingerId).toBe('L1');
   });
 });

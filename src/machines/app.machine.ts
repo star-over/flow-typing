@@ -94,7 +94,7 @@ export const appMachine = createMachine({
             lastTrainingStream: ({ event }) => {
               const symbolLayout = getSymbolLayout(event.keyboardLayout);
               const randomIndex = Math.floor(Math.random() * lessons.length);
-              const lessonText = lessons[randomIndex];
+              const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
             currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
@@ -175,7 +175,7 @@ export const appMachine = createMachine({
             lastTrainingStream: ({ event }) => {
               const symbolLayout = getSymbolLayout(event.keyboardLayout);
               const randomIndex = Math.floor(Math.random() * lessons.length);
-              const lessonText = lessons[randomIndex];
+              const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
             currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
@@ -189,7 +189,7 @@ export const appMachine = createMachine({
             lastTrainingStream: ({ context }) => {
               const symbolLayout = getSymbolLayout(context.currentKeyboardLayout);
               const randomIndex = Math.floor(Math.random() * lessons.length);
-              const lessonText = lessons[randomIndex];
+              const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
             currentKeyboardLayout: ({ context }) => context.currentKeyboardLayout

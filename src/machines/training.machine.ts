@@ -6,7 +6,7 @@
  */
 import { assign, createMachine, sendTo } from 'xstate';
 
-import type { KeyCapId, TypingStream, ParentActor } from '@/interfaces/types';
+import type { KeyCapId, TypingStream, StreamSymbol, ParentActor } from '@/interfaces/types';
 import type { UserPreferences } from '@/interfaces/user-preferences';
 import { areKeyCapIdArraysEqual } from '@/lib/symbol-utils';
 
@@ -90,12 +90,13 @@ export const trainingMachine = createMachine({
         }) => { // Prefix event with _
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
+          if (!currentSymbol) return context.stream;
           const newAttempt = {
             pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };
-          const updatedSymbol = {
+          const updatedSymbol: StreamSymbol = {
             ...currentSymbol,
             attempts: [...currentSymbol.attempts, newAttempt],
           };
@@ -130,12 +131,13 @@ export const trainingMachine = createMachine({
         }) => { // Prefix event with _
           const newStream = [...context.stream];
           const currentSymbol = newStream[context.currentIndex];
+          if (!currentSymbol) return context.stream;
           const newAttempt = {
             pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };
-          const updatedSymbol = {
+          const updatedSymbol: StreamSymbol = {
             ...currentSymbol,
             attempts: [...currentSymbol.attempts, newAttempt],
           };

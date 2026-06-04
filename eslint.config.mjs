@@ -110,9 +110,12 @@ export default [
     },
   },
   {
-    files: ['**/*.test.ts'],
+    files: ['**/*.test.ts', '**/*.stories.svelte'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      // В тестах и storybook-фикстурах indexed access с `!` — контролируемая среда,
+      // фикстуры детерминированы. Подавляем шум после noUncheckedIndexedAccess.
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

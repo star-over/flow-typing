@@ -131,7 +131,7 @@ export function calculateCharDifficulty(
 
   keyCapIds.forEach((keyId) => {
     if (keyId in MODIFIER_COSTS) {
-      totalDifficulty += MODIFIER_COSTS[keyId];
+      totalDifficulty += MODIFIER_COSTS[keyId]!;
     } else {
       totalDifficulty += calculateKeyCost(keyId, fingerLayout, keyCoordinateMap);
     }

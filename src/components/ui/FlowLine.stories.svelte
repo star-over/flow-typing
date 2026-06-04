@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import FlowLine from './FlowLine.svelte';
   import { createTypingStream, addAttempt } from '$lib/stream-utils';
@@ -12,7 +12,7 @@
   // Stream with one error on position 4
   let streamWithOneError = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
   for (let i = 0; i < streamWithOneError.length; i++) {
-    const targetChar = streamWithOneError[i].targetSymbol;
+    const targetChar = streamWithOneError[i]!.targetSymbol;
     const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutEnQwerty);
     if (i === 4) {
       const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutEnQwerty);
@@ -28,7 +28,7 @@
   // Stream with multiple errors
   let streamWithMultipleErrors = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
   for (let i = 0; i < streamWithMultipleErrors.length; i++) {
-    const targetChar = streamWithMultipleErrors[i].targetSymbol;
+    const targetChar = streamWithMultipleErrors[i]!.targetSymbol;
     const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutEnQwerty);
     if (i === 0) {
       const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutEnQwerty);
