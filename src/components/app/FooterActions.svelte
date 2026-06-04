@@ -16,32 +16,32 @@
 <footer class="footer">
   <div class="actions">
     {#if state.can({ type: 'START_TRAINING', keyboardLayout: $keyboardLayout })}
-      <button class="btn primary" onclick={() => send({ type: 'START_TRAINING', keyboardLayout: $keyboardLayout })}>
+      <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', keyboardLayout: $keyboardLayout })}>
         {dictionary.app.start_training}
       </button>
     {/if}
     {#if state.can({ type: 'TO_SETTINGS' })}
-      <button class="btn secondary" onclick={() => send({ type: 'TO_SETTINGS' })}>
+      <button type="button" class="btn secondary" onclick={() => send({ type: 'TO_SETTINGS' })}>
         {dictionary.app.settings}
       </button>
     {/if}
     {#if state.can({ type: 'TO_ALL_STAT' })}
-      <button class="btn secondary" onclick={() => send({ type: 'TO_ALL_STAT' })}>
+      <button type="button" class="btn secondary" onclick={() => send({ type: 'TO_ALL_STAT' })}>
         {dictionary.app.stats}
       </button>
     {/if}
     {#if state.can({ type: 'PAUSE' })}
-      <button class="btn warning" onclick={() => send({ type: 'PAUSE' })}>
+      <button type="button" class="btn warning" onclick={() => send({ type: 'PAUSE' })}>
         {dictionary.app.pause}
       </button>
     {/if}
     {#if state.can({ type: 'RESUME' })}
-      <button class="btn success" onclick={() => send({ type: 'RESUME' })}>
+      <button type="button" class="btn success" onclick={() => send({ type: 'RESUME' })}>
         {dictionary.app.resume}
       </button>
     {/if}
     {#if state.can({ type: 'TO_MENU' })}
-      <button class="btn danger" onclick={() => send({ type: 'TO_MENU' })}>
+      <button type="button" class="btn danger" onclick={() => send({ type: 'TO_MENU' })}>
         {dictionary.app.back_to_menu}
       </button>
     {/if}

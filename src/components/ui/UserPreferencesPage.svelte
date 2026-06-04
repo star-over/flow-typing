@@ -49,7 +49,7 @@
     />
   </label>
 
-  <button class="btn" onclick={onBack}>
+  <button type="button" class="btn" onclick={onBack}>
     {dictionary.user_preferences.back_button}
   </button>
 </div>
