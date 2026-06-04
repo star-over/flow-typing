@@ -4,7 +4,7 @@ export const shift_o_error_simple_o: HandsExtFixture = {
   input: {
     targetSymbol: "O",
     targetKeyCaps: ["KeyO", "ShiftLeft"],
-    attempts: [{ pressedKeyCups: ["KeyO"], startAt: 1768029529467, endAt: 1768029529467 }]
+    attempts: [{ pressedKeyCaps: ["KeyO"], startAt: 1768029529467, endAt: 1768029529467 }]
   },
   expectedOutput: {
     L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" }, L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" },

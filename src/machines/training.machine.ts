@@ -91,7 +91,7 @@ export const trainingMachine = createMachine({
           const currentSymbol = newStream[context.currentIndex];
           if (!currentSymbol) return context.stream;
           const newAttempt = {
-            pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
+            pressedKeyCaps: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };
@@ -132,7 +132,7 @@ export const trainingMachine = createMachine({
           const currentSymbol = newStream[context.currentIndex];
           if (!currentSymbol) return context.stream;
           const newAttempt = {
-            pressedKeyCups: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
+            pressedKeyCaps: (_event as { type: 'KEY_PRESS'; keys: KeyCapId[] }).keys,
             startAt: context.symbolAppearanceTime,
             endAt: Date.now(),
           };

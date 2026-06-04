@@ -21,8 +21,8 @@ describe('getPressResult', () => {
       targetSymbol: 'a',
       targetKeyCaps: ['KeyA'],
       attempts: [
-        { pressedKeyCups: ['KeyB'] }, // incorrect
-        { pressedKeyCups: ['KeyA'] }, // correct
+        { pressedKeyCaps: ['KeyB'] }, // incorrect
+        { pressedKeyCaps: ['KeyA'] }, // correct
       ],
     };
     expect(getPressResult(symbol)).toBe<KeyCapPressResult>('CORRECT');
@@ -33,8 +33,8 @@ describe('getPressResult', () => {
       targetSymbol: 'a',
       targetKeyCaps: ['KeyA'],
       attempts: [
-        { pressedKeyCups: ['KeyA'] }, // correct
-        { pressedKeyCups: ['KeyB'] }, // incorrect
+        { pressedKeyCaps: ['KeyA'] }, // correct
+        { pressedKeyCaps: ['KeyB'] }, // incorrect
       ],
     };
     expect(getPressResult(symbol)).toBe<KeyCapPressResult>('ERROR');
@@ -45,7 +45,7 @@ describe('getPressResult', () => {
       targetSymbol: 'A',
       targetKeyCaps: ['KeyA', 'ShiftLeft'],
       attempts: [
-        { pressedKeyCups: ['KeyA', 'ShiftLeft'] },
+        { pressedKeyCaps: ['KeyA', 'ShiftLeft'] },
       ],
     };
     expect(getPressResult(symbol)).toBe<KeyCapPressResult>('CORRECT');
@@ -56,7 +56,7 @@ describe('getPressResult', () => {
       targetSymbol: 'A',
       targetKeyCaps: ['KeyA', 'ShiftLeft'],
       attempts: [
-        { pressedKeyCups: ['KeyA'] }, // Missing shift
+        { pressedKeyCaps: ['KeyA'] }, // Missing shift
       ],
     };
     expect(getPressResult(symbol)).toBe<KeyCapPressResult>('ERROR');

@@ -19,7 +19,7 @@ export function getPressResult(currentStreamSymbol: StreamSymbol | undefined): K
         return "NONE";
     }
 
-    const wasCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, currentStreamSymbol.targetKeyCaps);
+    const wasCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCaps, currentStreamSymbol.targetKeyCaps);
 
     return wasCorrect ? "CORRECT" : "ERROR";
 }

@@ -6,7 +6,7 @@ export const simple_k_error_simple_j: HandsExtFixture = {
     targetKeyCaps: ['KeyK'],
     attempts: [
       {
-        pressedKeyCups: ['KeyJ'],
+        pressedKeyCaps: ['KeyJ'],
         startAt: 0,
         endAt: 0,
       }

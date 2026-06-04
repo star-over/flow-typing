@@ -42,13 +42,13 @@ export function createTypingStream(text: string, symbolLayout: SymbolLayout): Ty
 export function addAttempt({
   stream,
   cursorPosition,
-  pressedKeyCups,
+  pressedKeyCaps,
   startAt,
   endAt,
 }: {
   stream: TypingStream;
   cursorPosition: number;
-  pressedKeyCups: KeyCapId[];
+  pressedKeyCaps: KeyCapId[];
   startAt: number;
   endAt: number;
 }): TypingStream {
@@ -61,7 +61,7 @@ export function addAttempt({
   if (!targetSymbol) return stream;
 
   const newAttempt: StreamAttempt = {
-    pressedKeyCups: pressedKeyCups,
+    pressedKeyCaps: pressedKeyCaps,
     startAt,
     endAt,
   };
@@ -90,7 +90,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
 
   const lastAttempt = attempts[attempts.length - 1];
   if (!lastAttempt) return "PENDING";
-  const isCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, (symbol as StreamSymbol).targetKeyCaps);
+  const isCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCaps, (symbol as StreamSymbol).targetKeyCaps);
 
   if (isCorrect) {
     return attempts.length > 1 ? "CORRECTED" : "CORRECT";

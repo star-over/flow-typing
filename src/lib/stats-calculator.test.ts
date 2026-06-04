@@ -17,13 +17,13 @@ describe('stats-calculator', () => {
     symbols: {
       targetSymbol: string;
       targetKeyCaps: KeyCapId[];
-      attempts: { startAt?: number; endAt?: number; pressedKeyCups: KeyCapId[] }[];
+      attempts: { startAt?: number; endAt?: number; pressedKeyCaps: KeyCapId[] }[];
     }[],
   ): TypingStream => {
     return symbols.map((s) => ({
       ...s,
       attempts: s.attempts.map((a) => ({
-        pressedKeyCups: a.pressedKeyCups,
+        pressedKeyCaps: a.pressedKeyCaps,
         startAt: a.startAt,
         endAt: a.endAt,
       })),
@@ -41,7 +41,7 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: 2000, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: 1000, endAt: 2000, pressedKeyCaps: ['KeyA'] }],
         },
       ]);
       expect(getLessonDuration(stream)).toBe(1); // 1 second
@@ -52,20 +52,20 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCaps: ['KeyA'] }],
         },
         {
           targetSymbol: 's',
           targetKeyCaps: ['KeyS'],
           attempts: [
-            { startAt: 1600, endAt: 1700, pressedKeyCups: ['KeyD'] }, // Error
-            { startAt: 1750, endAt: 2500, pressedKeyCups: ['KeyS'] }, // Correct
+            { startAt: 1600, endAt: 1700, pressedKeyCaps: ['KeyD'] }, // Error
+            { startAt: 1750, endAt: 2500, pressedKeyCaps: ['KeyS'] }, // Correct
           ],
         },
         {
           targetSymbol: 'd',
           targetKeyCaps: ['KeyD'],
-          attempts: [{ startAt: 2600, endAt: 3000, pressedKeyCups: ['KeyD'] }],
+          attempts: [{ startAt: 2600, endAt: 3000, pressedKeyCaps: ['KeyD'] }],
         },
       ]);
       expect(getLessonDuration(stream)).toBe(2); // (3000 - 1000) / 1000 = 2 seconds
@@ -76,7 +76,7 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: undefined, endAt: 2000, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: undefined, endAt: 2000, pressedKeyCaps: ['KeyA'] }],
         },
       ]);
       expect(getLessonDuration(stream)).toBe(0);
@@ -85,7 +85,7 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: undefined, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: 1000, endAt: undefined, pressedKeyCaps: ['KeyA'] }],
         },
       ]);
       expect(getLessonDuration(stream2)).toBe(0);
@@ -103,7 +103,7 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCaps: ['KeyA'] }],
         },
       ]);
       expect(getTotalAttempts(stream)).toBe(1);
@@ -114,23 +114,23 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: 1100, pressedKeyCups: ['KeyA'] }],
+          attempts: [{ startAt: 1000, endAt: 1100, pressedKeyCaps: ['KeyA'] }],
         },
         {
           targetSymbol: 's',
           targetKeyCaps: ['KeyS'],
           attempts: [
-            { startAt: 1200, endAt: 1300, pressedKeyCups: ['KeyD'] },
-            { startAt: 1400, endAt: 1500, pressedKeyCups: ['KeyS'] },
+            { startAt: 1200, endAt: 1300, pressedKeyCaps: ['KeyD'] },
+            { startAt: 1400, endAt: 1500, pressedKeyCaps: ['KeyS'] },
           ],
         },
         {
           targetSymbol: 'd',
           targetKeyCaps: ['KeyD'],
           attempts: [
-            { startAt: 1600, endAt: 1700, pressedKeyCups: ['KeyF'] },
-            { startAt: 1800, endAt: 1900, pressedKeyCups: ['KeyG'] },
-            { startAt: 2000, endAt: 2100, pressedKeyCups: ['KeyD'] },
+            { startAt: 1600, endAt: 1700, pressedKeyCaps: ['KeyF'] },
+            { startAt: 1800, endAt: 1900, pressedKeyCaps: ['KeyG'] },
+            { startAt: 2000, endAt: 2100, pressedKeyCaps: ['KeyD'] },
           ],
         },
       ]);
@@ -212,27 +212,27 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'h',
           targetKeyCaps: ['KeyH'],
-          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCups: ['KeyH'] }],
+          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCaps: ['KeyH'] }],
         },
         {
           targetSymbol: 'e',
           targetKeyCaps: ['KeyE'],
-          attempts: [{ startAt: 1500, endAt: 2000, pressedKeyCups: ['KeyE'] }],
+          attempts: [{ startAt: 1500, endAt: 2000, pressedKeyCaps: ['KeyE'] }],
         },
         {
           targetSymbol: 'l',
           targetKeyCaps: ['KeyL'],
-          attempts: [{ startAt: 2000, endAt: 2500, pressedKeyCups: ['KeyL'] }],
+          attempts: [{ startAt: 2000, endAt: 2500, pressedKeyCaps: ['KeyL'] }],
         },
         {
           targetSymbol: 'l',
           targetKeyCaps: ['KeyL'],
-          attempts: [{ startAt: 2500, endAt: 3000, pressedKeyCups: ['KeyL'] }],
+          attempts: [{ startAt: 2500, endAt: 3000, pressedKeyCaps: ['KeyL'] }],
         },
         {
           targetSymbol: 'o',
           targetKeyCaps: ['KeyO'],
-          attempts: [{ startAt: 3000, endAt: 3500, pressedKeyCups: ['KeyO'] }],
+          attempts: [{ startAt: 3000, endAt: 3500, pressedKeyCaps: ['KeyO'] }],
         },
       ]);
       const stats = calculateLessonStats(stream);
@@ -249,23 +249,23 @@ describe('stats-calculator', () => {
         {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
-          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCups: ['KeyA'] }], // 1st try
+          attempts: [{ startAt: 1000, endAt: 1500, pressedKeyCaps: ['KeyA'] }], // 1st try
         },
         {
           targetSymbol: 's',
           targetKeyCaps: ['KeyS'],
           attempts: [
-            { startAt: 1600, endAt: 1700, pressedKeyCups: ['KeyD'] }, // Error
-            { startAt: 1750, endAt: 2500, pressedKeyCups: ['KeyS'] }, // Correct (2nd try)
+            { startAt: 1600, endAt: 1700, pressedKeyCaps: ['KeyD'] }, // Error
+            { startAt: 1750, endAt: 2500, pressedKeyCaps: ['KeyS'] }, // Correct (2nd try)
           ],
         },
         {
           targetSymbol: 'd',
           targetKeyCaps: ['KeyD'],
           attempts: [
-            { startAt: 2600, endAt: 2700, pressedKeyCups: ['KeyF'] }, // Error
-            { startAt: 2800, endAt: 2900, pressedKeyCups: ['KeyG'] }, // Error
-            { startAt: 3000, endAt: 3500, pressedKeyCups: ['KeyD'] }, // Correct (3rd try)
+            { startAt: 2600, endAt: 2700, pressedKeyCaps: ['KeyF'] }, // Error
+            { startAt: 2800, endAt: 2900, pressedKeyCaps: ['KeyG'] }, // Error
+            { startAt: 3000, endAt: 3500, pressedKeyCaps: ['KeyD'] }, // Correct (3rd try)
           ],
         },
       ]);
@@ -284,8 +284,8 @@ describe('stats-calculator', () => {
           targetSymbol: 'a',
           targetKeyCaps: ['KeyA'],
           attempts: [
-            { startAt: 1000, endAt: 1100, pressedKeyCups: ['KeyS'] },
-            { startAt: 1200, endAt: 1300, pressedKeyCups: ['KeyA'] },
+            { startAt: 1000, endAt: 1100, pressedKeyCaps: ['KeyS'] },
+            { startAt: 1200, endAt: 1300, pressedKeyCaps: ['KeyA'] },
           ],
         },
       ]);

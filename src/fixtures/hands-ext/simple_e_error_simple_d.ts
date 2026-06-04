@@ -4,7 +4,7 @@ export const simple_e_error_simple_d: HandsExtFixture = {
   input: {
     targetSymbol: "e",
     targetKeyCaps: ["KeyE"],
-    attempts: [{ pressedKeyCups: ["KeyD"], startAt: 1768037382256, endAt: 1768037382256 }]
+    attempts: [{ pressedKeyCaps: ["KeyD"], startAt: 1768037382256, endAt: 1768037382256 }]
   },
   expectedOutput: {
     L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" },

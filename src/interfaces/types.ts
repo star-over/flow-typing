@@ -135,7 +135,7 @@ export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
  * Включает в себя информацию о нажатой клавише и времени.
  */
 export interface StreamAttempt {
-  pressedKeyCups: KeyCapId[];   // Данные о нажатом сочетании клавише. Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
+  pressedKeyCaps: KeyCapId[];   // Данные о нажатом сочетании клавише. Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
   startAt?: number;              //Время начала нажатия (timestamp).
   endAt?: number;                //Время окончания нажатия (timestamp).
 }

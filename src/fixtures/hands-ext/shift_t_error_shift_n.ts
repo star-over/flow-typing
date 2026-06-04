@@ -5,7 +5,7 @@ export const shift_t_error_shift_n: HandsExtFixture = {
     targetSymbol: "T",
     targetKeyCaps: ["KeyT", "ShiftRight"],
     attempts: [
-      { pressedKeyCups: ["ShiftLeft", "KeyN"], startAt: 1768032142916, endAt: 1768032142916 }
+      { pressedKeyCaps: ["ShiftLeft", "KeyN"], startAt: 1768032142916, endAt: 1768032142916 }
     ]
   },
   expectedOutput: {

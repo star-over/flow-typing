@@ -5,7 +5,7 @@ export const simple_e_error_space: HandsExtFixture = {
     targetSymbol: "e",
     targetKeyCaps: ["KeyE"],
     attempts: [
-      { pressedKeyCups: ["Space"], startAt: 1767985607067, endAt: 1767985607067 }
+      { pressedKeyCaps: ["Space"], startAt: 1767985607067, endAt: 1767985607067 }
     ]
   },
   expectedOutput: {

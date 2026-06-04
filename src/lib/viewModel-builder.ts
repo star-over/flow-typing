@@ -119,11 +119,11 @@ function determineTypingContext(
     const errorFingers = new Set<FingerId>();
     const lastAttempt =
         currentStreamSymbol.attempts[currentStreamSymbol.attempts.length - 1];
-    const wasAttemptIncorrect = !!lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, targetKeyCaps);
+    const wasAttemptIncorrect = !!lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCaps, targetKeyCaps);
 
     if (wasAttemptIncorrect) {
         const incorrectPressFingers = new Set<FingerId>();
-        lastAttempt.pressedKeyCups.forEach((keyId) => {
+        lastAttempt.pressedKeyCaps.forEach((keyId) => {
             // Special Space logic first
             if (keyId === 'Space') {
                 const [firstTargetFinger] = Array.from(activeFingers);
@@ -329,9 +329,9 @@ function applyKeyPressResults(
   if (!wasAttemptIncorrect || !lastAttempt) return newViewModel;
 
   // Apply press results to keys
-  const pressedSet = new Set(lastAttempt.pressedKeyCups);
+  const pressedSet = new Set(lastAttempt.pressedKeyCaps);
   const targetSet = new Set(targetKeyCaps);
-  const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
+  const extraKeysPressed = lastAttempt.pressedKeyCaps.filter((k) => !targetSet.has(k));
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];

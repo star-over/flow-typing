@@ -5,7 +5,7 @@ export const simple_e_error_shift_F: HandsExtFixture = {
     targetSymbol: "e",
     targetKeyCaps: ["KeyE"],
     attempts: [
-      { pressedKeyCups: ["ShiftRight", "KeyF"], startAt: 1767985607067, endAt: 1767985607067 }
+      { pressedKeyCaps: ["ShiftRight", "KeyF"], startAt: 1767985607067, endAt: 1767985607067 }
     ]
   },
   expectedOutput: {

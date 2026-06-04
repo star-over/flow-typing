@@ -40,29 +40,29 @@ describe("createTypingStream", () => {
 });
 
 describe("addAttempt", () => {
-  const pressedKeyCupsA: KeyCapId[] = ["KeyA"];
-  const pressedKeyCupsB: KeyCapId[] = ["KeyB"];
+  const pressedKeyCapsA: KeyCapId[] = ["KeyA"];
+  const pressedKeyCapsB: KeyCapId[] = ["KeyB"];
 
   it("should add an attempt to a symbol", () => {
     const stream = createTypingStream("a", symbolLayoutEnQwerty);
-    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
 
     expect(newStream[0]!.attempts).toHaveLength(1);
-    expect(newStream[0]!.attempts[0]!.pressedKeyCups).toEqual(pressedKeyCupsA);
+    expect(newStream[0]!.attempts[0]!.pressedKeyCaps).toEqual(pressedKeyCapsA);
   });
 
   it("should add multiple attempts", () => {
     let stream = createTypingStream("a", symbolLayoutEnQwerty);
-    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsB, startAt: 0, endAt: 100 });
-    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 100, endAt: 200 });
+    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsB, startAt: 0, endAt: 100 });
+    stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 100, endAt: 200 });
 
     expect(stream[0]!.attempts).toHaveLength(2);
-    expect(stream[0]!.attempts[1]!.pressedKeyCups).toEqual(pressedKeyCupsA);
+    expect(stream[0]!.attempts[1]!.pressedKeyCaps).toEqual(pressedKeyCapsA);
   });
 
   it("should be immutable", () => {
     const stream = createTypingStream("a", symbolLayoutEnQwerty);
-    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCups: pressedKeyCupsA, startAt: 0, endAt: 100 });
+    const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
     expect(newStream).not.toBe(stream);
     expect(newStream[0]).not.toBe(stream[0]);
   });
@@ -82,7 +82,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
-      attempts: [{ pressedKeyCups: ["KeyA"] }],
+      attempts: [{ pressedKeyCaps: ["KeyA"] }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
@@ -91,7 +91,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
-      attempts: [{ pressedKeyCups: ["KeyB"] }],
+      attempts: [{ pressedKeyCaps: ["KeyB"] }],
     };
     expect(getSymbolType(symbol)).toBe("ERROR");
   });
@@ -101,8 +101,8 @@ describe("getSymbolType", () => {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
       attempts: [
-        { pressedKeyCups: ["KeyB"] },
-        { pressedKeyCups: ["KeyA"] },
+        { pressedKeyCaps: ["KeyB"] },
+        { pressedKeyCaps: ["KeyA"] },
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
@@ -113,8 +113,8 @@ describe("getSymbolType", () => {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
       attempts: [
-        { pressedKeyCups: ["KeyB"] },
-        { pressedKeyCups: ["KeyC"]},
+        { pressedKeyCaps: ["KeyB"] },
+        { pressedKeyCaps: ["KeyC"]},
       ],
     };
     expect(getSymbolType(symbol)).toBe("ERRORS");
@@ -126,7 +126,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
-      attempts: [{ pressedKeyCups: ["ShiftLeft", "KeyA"] }],
+      attempts: [{ pressedKeyCaps: ["ShiftLeft", "KeyA"] }],
     };
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
@@ -135,7 +135,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
-      attempts: [{ pressedKeyCups: ["KeyA"] }],
+      attempts: [{ pressedKeyCaps: ["KeyA"] }],
     };
     expect(getSymbolType(symbol)).toBe("ERROR");
   });
@@ -144,7 +144,7 @@ describe("getSymbolType", () => {
     const symbol: StreamSymbol = {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
-      attempts: [{ pressedKeyCups: ["ShiftLeft", "KeyB"] }],
+      attempts: [{ pressedKeyCaps: ["ShiftLeft", "KeyB"] }],
     };
     expect(getSymbolType(symbol)).toBe("ERROR");
   });
@@ -154,8 +154,8 @@ describe("getSymbolType", () => {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
       attempts: [
-        { pressedKeyCups: ["KeyA"] }, // Incorrect attempt
-        { pressedKeyCups: ["ShiftLeft", "KeyA"] }, // Correct attempt
+        { pressedKeyCaps: ["KeyA"] }, // Incorrect attempt
+        { pressedKeyCaps: ["ShiftLeft", "KeyA"] }, // Correct attempt
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
@@ -166,8 +166,8 @@ describe("getSymbolType", () => {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
       attempts: [
-        { pressedKeyCups: ["KeyA"] }, // Incorrect attempt
-        { pressedKeyCups: ["KeyA", "ShiftLeft"] }, // Correct attempt with different KeyCaps order
+        { pressedKeyCaps: ["KeyA"] }, // Incorrect attempt
+        { pressedKeyCaps: ["KeyA", "ShiftLeft"] }, // Correct attempt with different KeyCaps order
       ],
     };
     expect(getSymbolType(symbol)).toBe("CORRECTED");
