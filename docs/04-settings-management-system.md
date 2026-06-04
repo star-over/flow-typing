@@ -7,21 +7,21 @@
 Система настроек для MVP спроектирована с упором на следующие принципы:
 
 1.  **Простота и идиоматичность:** Вместо внедрения сложных кастомных решений (`SettingsManager`, `SettingsStorage`), архитектура полностью полагается на существующий и хорошо знакомый стек технологий проекта:
-    *   **Zustand** для управления состоянием.
+    *   **Svelte writable store** для управления состоянием.
     *   **`localStorage`** для персистентности (хранения) на клиенте.
-    *   **Next.js Router** для синхронизации части настроек с URL.
+    *   **SvelteKit navigation (`$app/navigation`)** для синхронизации части настроек с URL.
 2.  **Минимализм:** В MVP реализованы только критически важные настройки (язык, раскладка) и механизм для обмена упражнениями через URL.
 
-## 4.2. Реализация на базе Zustand
+## 4.2. Реализация на базе Svelte Store
 
-Центральным элементом архитектуры является единый **Zustand Store**, который служит единственным источником истины для всех настроек приложения.
+Центральным элементом архитектуры является единый **Svelte Writable Store**, который служит единственным источником истины для всех настроек приложения.
 
-### Структура `SettingsState`
-Состояние стора включает в себя сами настройки, флаг инициализации и `action` для обновления.
+### Структура `UserPreferences`
+Состояние стора включает в себя сами настройки и метаданные для их отображения.
 
 ```typescript
 // Определено в src/interfaces/user-preferences.ts
-export interface Settings {
+export interface UserPreferences {
   language: 'en' | 'ru';
   keyboardLayout: 'qwerty' | 'йцукен';
   // Настройки, предназначенные для обмена через URL
@@ -29,90 +29,150 @@ export interface Settings {
     exerciseId?: string;
   };
 }
-
-// Определено в src/store/user-preferences.store.ts
-interface SettingsState extends Settings {
-  updateSettings: (newSettings: Partial<Settings>) => void;
-  isInitialized: boolean; // Флаг, показывающий, что состояние было загружено из localStorage
-}
 ```
 
-### Zustand Store (`user-preferences.store.ts`)
+### Svelte Store (`preferences.ts`)
 
-Стор `useSettingsStore` использует `persist` middleware от Zustand для автоматизации сохранения и загрузки данных.
+Стор `preferences` использует стандартный `writable` из `svelte/store` с кастомной обёрткой для автоматизации сохранения и загрузки данных.
 
 **Ключевые особенности реализации:**
 
-1.  **Инициализация из `localStorage`:** `persist` автоматически загружает сохраненное состояние из `localStorage` при первом рендере приложения.
-2.  **Слияние с дефолтами:** При загрузке используется кастомная функция `merge`, которая глубоко объединяет сохраненное состояние с состоянием по умолчанию (`DEFAULT_SETTINGS`). Это гарантирует, что новые поля настроек, добавленные в свежих версиях приложения, будут корректно инициализированы у пользователей со старой версией сохраненных данных.
-3.  **Атомарные обновления:** Метод `updateSettings` позволяет безопасно и атомарно обновлять любую часть дерева настроек.
-4.  **Автоматическое сохранение:** Любое изменение состояния, вызванное через `updateSettings`, автоматически сохраняется обратно в `localStorage`.
+1.  **Инициализация из `localStorage`:** При создании стора кастомная функция `load()` автоматически загружает сохраненное состояние из `localStorage` (ключ `flow-typing-user-preferences`) с глубоким слиянием поверх `DEFAULT_USER_PREFERENCES`.
+2.  **Слияние с дефолтами:** Функция `deepMerge` гарантирует, что новые поля настроек, добавленные в свежих версиях приложения, будут корректно инициализированы у пользователей со старой версией сохраненных данных.
+3.  **Атомарные обновления:** Функция `updatePreferences` позволяет безопасно и атомарно обновлять любую часть дерева настроек через `deepMerge`.
+4.  **Автоматическое сохранение:** `store.subscribe` автоматически сохраняет любое изменение состояния обратно в `localStorage`.
 
 ```typescript
-// src/store/user-preferences.store.ts
+// src/lib/preferences.ts
 
-export const useSettingsStore = create<SettingsState>()(
-  persist(
-    (set) => ({
-      ...DEFAULT_SETTINGS, // Начальное состояние по умолчанию
-      isInitialized: false,
-      updateSettings: (newSettings) => {
-        set((state) => deepMerge(state, newSettings)); // Глубокое слияние для обновления
-      },
-    }),
-    {
-      name: 'flow-typing-settings', // Ключ в localStorage
-      storage: createJSONStorage(() => localStorage),
-      // Кастомная логика слияния при гидратации
-      merge: (persistedState, currentState) => {
-        const merged = deepMerge(currentState, persistedState as Partial<Settings>);
-        return { ...merged, isInitialized: true };
-      },
+import { writable, derived } from 'svelte/store';
+import { browser } from '$app/environment';
+import type { UserPreferences } from '$interfaces/user-preferences';
+import { DEFAULT_USER_PREFERENCES } from '$user-preferences/user-preferences';
+import { deepMerge } from '$lib/utils';
+
+function createPreferencesStore() {
+  const load = (): UserPreferences => {
+    if (!browser) return DEFAULT_USER_PREFERENCES;
+    try {
+      const stored = localStorage.getItem('flow-typing-user-preferences');
+      if (stored) return deepMerge(DEFAULT_USER_PREFERENCES, JSON.parse(stored)) as UserPreferences;
+    } catch { /* ignore parse errors */ }
+    return DEFAULT_USER_PREFERENCES;
+  };
+
+  const store = writable<UserPreferences>(load());
+
+  store.subscribe((value) => {
+    if (browser) {
+      localStorage.setItem('flow-typing-user-preferences', JSON.stringify(value));
     }
-  )
-);
+  });
+
+  return { subscribe: store.subscribe, update: store.update, set: store.set };
+}
+
+export const preferences = createPreferencesStore();
+export const keyboardLayout = derived(preferences, ($p) => $p.keyboardLayout);
+
+export function updatePreferences(partial: Partial<UserPreferences>) {
+  preferences.update((current) => deepMerge(current, partial));
+}
+```
+
+### Метаданные настроек
+
+Тип, дефолты и опции для UI-отображения настроек вынесены в `src/user-preferences/user-preferences.ts`:
+
+```typescript
+// src/user-preferences/user-preferences.ts
+
+export const DEFAULT_USER_PREFERENCES: UserPreferences = {
+  language: 'en',
+  keyboardLayout: 'qwerty',
+  shared: {},
+};
 ```
 
 ## 4.3. Синхронизация с URL
 
-Часть настроек (поле `shared`) может быть синхронизирована с URL для обмена упражнениями. Этот процесс состоит из двух частей, реализованных в `src/app/app-client.tsx` с использованием хуков React и Next.js.
+Часть настроек (поле `shared.exerciseId`) синхронизируется с URL для обмена упражнениями. Этот процесс состоит из двух частей, реализованных в `src/components/app/App.svelte` с использованием Svelte runes (`$effect`) и SvelteKit navigation.
 
-### Чтение из URL при загрузке
-При первой загрузке приложения `useEffect` проверяет наличие `exerciseId` в URL. Если параметр найден и стор уже инициализирован из `localStorage`, он обновляет состояние.
+### Планировщик синхронизации
+
+Чистая функция `planExerciseIdSync` (в `src/lib/exercise-id-sync.ts`) определяет направление синхронизации без побочных эффектов:
 
 ```typescript
-// в app-client.tsx
-const isInitialized = useSettingsStore((state) => state.isInitialized);
-const searchParams = useSearchParams();
+// src/lib/exercise-id-sync.ts
 
-useEffect(() => {
-  if (isInitialized) {
-    const exerciseId = searchParams.get('exerciseId');
-    if (exerciseId) {
-      useSettingsStore.getState().updateSettings({ shared: { exerciseId } });
-    }
+export function planExerciseIdSync(params: {
+  urlId: string | null;
+  storeId: string | null;
+  currentSearch: string;
+  hasSyncedFromUrl: boolean;
+}): ExerciseIdSyncAction {
+  const { urlId, storeId, currentSearch, hasSyncedFromUrl } = params;
+
+  if (urlId === storeId) return { type: 'NOOP' };
+
+  if (!hasSyncedFromUrl) {
+    return { type: 'URL_TO_STORE', exerciseId: urlId ?? undefined };
   }
-}, [isInitialized, searchParams]);
+
+  const newParams = new URLSearchParams(currentSearch);
+  if (storeId) {
+    newParams.set('exerciseId', storeId);
+  } else {
+    newParams.delete('exerciseId');
+  }
+
+  const newQuery = newParams.toString();
+  const currentQuery = currentSearch.replace(/^\?/, '');
+
+  if (newQuery === currentQuery) return { type: 'NOOP' };
+  return { type: 'STORE_TO_URL', newSearch: newQuery };
+}
+```
+
+### Чтение из URL при загрузке
+
+При первой загрузке приложения `$effect` в `App.svelte` проверяет наличие `exerciseId` в URL. Если параметр найден и ещё не было начальной синхронизации, URL побеждает — значение записывается в стор.
+
+```typescript
+// в App.svelte
+
+let hasSyncedFromUrl = false;
+$effect(() => {
+  const action = planExerciseIdSync({
+    urlId: page.url.searchParams.get('exerciseId'),
+    storeId: $preferences.shared.exerciseId ?? null,
+    currentSearch: page.url.search,
+    hasSyncedFromUrl,
+  });
+
+  switch (action.type) {
+    case 'URL_TO_STORE':
+      hasSyncedFromUrl = true;
+      preferences.update((p) => ({
+        ...p,
+        shared: { ...p.shared, exerciseId: action.exerciseId },
+      }));
+      break;
+    // ...
+  }
+});
 ```
 
 ### Запись в URL при изменении
-Другой `useEffect` отслеживает изменения поля `exerciseId` в сторе Zustand. При его изменении он обновляет URL страницы без перезагрузки, используя `router.replace`.
+
+Тот же `$effect` отслеживает изменения поля `exerciseId` в сторе. После начальной синхронизации стор побеждает — при его изменении URL обновляется через `goto(..., { replaceState: true })` без перезагрузки страницы.
 
 ```typescript
-// в app-client.tsx
-const exerciseId = useSettingsStore((state) => state.shared.exerciseId);
-const router = useRouter();
-const pathname = usePathname();
+// в App.svelte (внутри того же $effect)
 
-useEffect(() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (exerciseId) {
-    urlParams.set('exerciseId', exerciseId);
-  } else {
-    urlParams.delete('exerciseId');
-  }
-  router.replace(`${pathname}?${urlParams.toString()}`, { scroll: false });
-}, [exerciseId, pathname, router]);
+case 'STORE_TO_URL':
+  goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
+  break;
 ```
 
 Этот подход обеспечивает простую, но надежную систему управления настройками, которая идеально вписывается в существующую архитектуру проекта.

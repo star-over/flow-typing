@@ -1,6 +1,6 @@
 # FlowTyping: Приложение для тренировки слепой печати
 
-Это приложение на **Next.js** для тренировки слепой печати, разработанное с использованием **TypeScript, React** и **Tailwind CSS**.
+Это клиентский SPA-тренажёр слепой печати, разработанный с использованием **SvelteKit 5 + Svelte 5 (runes)** и **TypeScript**.
 
 ## 1. Философия проекта
 
@@ -12,40 +12,39 @@
 
 ## 2. Технологический стек
 
-*   **Фреймворк:** [Next.js](https://nextjs.org/) (с App Router)
-*   **Язык:** [TypeScript](https://www.typescriptlang.org/)
-*   **Библиотека UI:** [React](https://react.dev/)
-*   **Управление состоянием:** [XState](https://xstate.js.org/) (для основной логики), [Zustand](https://zustand-demo.pmnd.rs/) (для настроек UI)
-*   **Стилизация:** [Tailwind CSS](https://tailwindcss.com/)
-*   **UI Компоненты:** [shadcn/ui](https://ui.shadcn.com/)
+*   **Фреймворк:** [SvelteKit 2](https://svelte.dev/docs/kit) (SPA-режим, статический билд через `@sveltejs/adapter-static`)
+*   **Язык:** [TypeScript](https://www.typescriptlang.org/) (strict), `svelte-check` для типов
+*   **Библиотека UI:** [Svelte 5 (runes)](https://svelte.dev/)
+*   **Управление состоянием:** [XState v5](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
+*   **Стилизация:** CSS без фреймворков — глобальные CSS custom properties (`src/app.css`) + scoped `<style>` блоки в каждом `.svelte`-компоненте
 *   **Тестирование:** [Vitest](https://vitest.dev/)
-*   **Разработка компонентов:** [Storybook](https://storybook.js.org/)
+*   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)
 *   **Линтинг:** [ESLint](https://eslint.org/)
-*   **База данных (клиент):** `localStorage` и `@tanstack/react-db` для MVP.
+*   **Персистентность настроек:** `localStorage` через кастомный Svelte writable store (`src/lib/preferences.ts`)
 
 ## 3. Начало работы
 
 ### 3.1. Предварительные требования
 
-Убедитесь, что у вас установлен [Node.js](https://nodejs.org/) (рекомендуется версия 20.x или выше) и [Make](https://www.gnu.org/software/make/).
+Убедитесь, что у вас установлены [Node.js](https://nodejs.org/) (рекомендуется версия 20.x или выше) и [Make](https://www.gnu.org/software/make/).
 
 ### 3.2. Установка
 
 1.  Клонируйте репозиторий.
 2.  Установите зависимости:
     ```bash
-    npm install
+    make install
     ```
 
 ### 3.3. Основные команды (`Makefile`)
 
-Все команды для разработки, сборки и тестирования централизованы в `Makefile`.
+Все команды для разработки, сборки и тестирования централизованы в `Makefile`. `package.json` намеренно без npm-скриптов.
 
 *   **Запустить сервер для разработки:**
     ```bash
     make dev
     ```
-    Приложение будет доступно по адресу `http://localhost:3000`.
+    Приложение будет доступно по адресу `http://localhost:5173`.
 
 *   **Запустить Storybook для разработки компонентов:**
     ```bash

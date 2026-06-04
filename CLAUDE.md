@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **CSS без фреймворков**: глобальные CSS custom properties в `src/app.css` (`--color-*`, `--spacing-*`, `--radius-*`, `--font-sans`) + scoped `<style>` блоки в каждом `.svelte`-компоненте. Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.
 - Персистентность настроек — `localStorage` через кастомный Svelte writable store. `convex/` присутствует в зависимостях, но в рантайме не используется (legacy от прошлого стека).
 
-> **Важно: `README.md` и `GEMINI.md` устарели.** Они описывают прежний стек (Next.js + React + Tailwind + Zustand + shadcn). Реальный код — SvelteKit/Svelte 5. При расхождении доверять исходникам и `AUDIT.md` (от 2026-06-01), а не README/GEMINI. Docs в `docs/` концептуально верны (philosophy, ViewModel-контракт, naming, settings), но конкретные имена файлов вида `*.tsx` / упоминания `Zustand`, `Next.js`, `useEffect` уже не соответствуют коду.
+> **Важно:** Проект мигрирован на SvelteKit/Svelte 5. `README.md`, `GEMINI.md` и `docs/` синхронизированы с кодом. При расхождении доверять исходникам и этому файлу. `AUDIT.md` (от 2026-06-01) — исторический документ, описывающий архитектуру до миграции.
 
 ## Commands
 

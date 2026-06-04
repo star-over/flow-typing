@@ -117,7 +117,7 @@ check-dev: install
 	@echo "✅ DEVELOPMENT проверки завершены!"
 
 check-all: install
-	lint check test build
+	$(MAKE) lint check test build
 	@echo "✅ Все проверки завершены!"
 
 
