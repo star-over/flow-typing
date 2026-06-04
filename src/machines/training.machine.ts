@@ -69,7 +69,6 @@ export const trainingMachine = createMachine({
             context,
             event
           }) => {
-            if (event.type !== 'KEY_PRESS') return false;
             const currentSymbol = context.stream[context.currentIndex];
             if (!currentSymbol) return false;
 

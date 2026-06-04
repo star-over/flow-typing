@@ -107,7 +107,7 @@ function determineTypingContext(
     currentStreamSymbol: StreamSymbol,
     fingerLayout: FingerLayout
 ): TypingContext {
-    const targetKeyCaps = currentStreamSymbol.targetKeyCaps || [];
+    const targetKeyCaps = currentStreamSymbol.targetKeyCaps;
     const activeFingers = new Set<FingerId>();
     targetKeyCaps.forEach((keyId: KeyCapId) => {
         const finger = getFingerByKeyCap(keyId, fingerLayout);
@@ -445,7 +445,7 @@ export const generateVirtualLayoutForFinger = (
   const fingerSceneState = viewModel[fingerId];
   // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
-    fingerSceneState?.keyCapStates || {};
+    fingerSceneState.keyCapStates || {};
 
   const homeKeyForFinger = getHomeKeyForFinger(fingerId, fingerLayout);
 

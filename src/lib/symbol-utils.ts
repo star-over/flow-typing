@@ -89,7 +89,7 @@ export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, keyboar
 
   // 3. Determine the final label based on the found symbols
   if (!baseSymbol) {
-    return physicalKey?.label || '...'; // Fallback to physical key label
+    return physicalKey.label || '...'; // Fallback to physical key label
   }
   if (!shiftedSymbol || baseSymbol === shiftedSymbol) {
     return baseSymbol; // No shifted symbol or it's the same (e.g., Space)

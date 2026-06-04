@@ -13,17 +13,14 @@
 export function calculateClusterTranslation(
   fingerElement: Element,
   keyElement: Element,
-  containerElement: Element
+  containerElement: Element | null
 ): { deltaX: number, deltaY: number } | null {
+  if (!containerElement) return null;
   const fingerRect = fingerElement.getBoundingClientRect();
   const keyRect = keyElement.getBoundingClientRect();
   const containerRect = containerElement.getBoundingClientRect();
 
-  if (containerRect) {
-    const deltaX = (fingerRect.left - containerRect.left) - (keyRect.left - containerRect.left);
-    const deltaY = (fingerRect.top - containerRect.top) - (keyRect.top - containerRect.top);
-    return { deltaX, deltaY };
-  }
-
-  return null;
+  const deltaX = (fingerRect.left - containerRect.left) - (keyRect.left - containerRect.left);
+  const deltaY = (fingerRect.top - containerRect.top) - (keyRect.top - containerRect.top);
+  return { deltaX, deltaY };
 }

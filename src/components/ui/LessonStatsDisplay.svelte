@@ -28,7 +28,7 @@
   const stats_card = $derived(dictionary.stats_card);
 </script>
 
-{#if stream && stream.length > 0 && stream.some((s) => s.attempts.length > 0)}
+{#if stream.length > 0 && stream.some((s) => s.attempts.length > 0)}
   <div class="stats-display">
     <h2 class="title">{stats_card.title}</h2>
     <div class="grid">

@@ -42,13 +42,13 @@
 
   const viewModel = $derived(
     generateHandsSceneViewModel(
-      stream?.[currentIndex],
+      stream[currentIndex],
       fingerLayout,
       keyboardGraph,
       keyCoordinateMap
     )
   );
-  const pressResult = $derived(getPressResult(stream?.[currentIndex]));
+  const pressResult = $derived(getPressResult(stream[currentIndex]));
 </script>
 
 <div class="training-scene">

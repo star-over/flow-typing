@@ -15,9 +15,7 @@ export function createKeyCoordinateMap(keyboardLayout: KeyboardLayout): KeyCoord
   const map: KeyCoordinateMap = new Map();
   keyboardLayout.forEach((row, r) => {
     row.forEach((key, c) => {
-      if (key) {
-        map.set(key.keyCapId, { r, c });
-      }
+      map.set(key.keyCapId, { r, c });
     });
   });
   return map;
