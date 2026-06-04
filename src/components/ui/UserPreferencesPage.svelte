@@ -31,23 +31,23 @@
 <div class="preferences-page">
   <h2>{dictionary.user_preferences.title}</h2>
 
-  <div class="field">
-    <label>{dictionary.user_preferences.language_label}</label>
+  <label class="field">
+    <span class="label-text">{dictionary.user_preferences.language_label}</span>
     <Select
       value={$preferences.language}
       options={languages}
       onChange={(v) => updatePreferences({ language: v as UserPreferences['language'] })}
     />
-  </div>
+  </label>
 
-  <div class="field">
-    <label>{dictionary.user_preferences.keyboard_layout_label}</label>
+  <label class="field">
+    <span class="label-text">{dictionary.user_preferences.keyboard_layout_label}</span>
     <Select
       value={$preferences.keyboardLayout}
       options={layouts}
       onChange={(v) => updatePreferences({ keyboardLayout: v as UserPreferences['keyboardLayout'] })}
     />
-  </div>
+  </label>
 
   <button class="btn" onclick={onBack}>
     {dictionary.user_preferences.back_button}
@@ -69,7 +69,7 @@
     gap: var(--spacing-2);
   }
 
-  label {
+  .label-text {
     font-size: 0.875rem;
     color: var(--color-text-secondary);
   }
