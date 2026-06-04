@@ -13,8 +13,6 @@
 
   import { onDestroy } from 'svelte';
   import type { KeyCapId } from '$interfaces/key-cap-id';
-  import type { StateFrom } from 'xstate';
-  import type { appMachine } from '$machines/app.machine';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
 
@@ -23,9 +21,6 @@
     state = snapshot;
   });
   onDestroy(() => actorSub.unsubscribe());
-
-  // Reactive keyboard layout from store for FooterActions
-  const keyboardLayout = $derived($preferences.keyboardLayout);
 
   const trainingActor = $derived(
     state.children.trainingService as Actor<typeof trainingMachine> | undefined

@@ -2,7 +2,7 @@
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '$machines/app.machine';
   import type { Dictionary } from '$interfaces/types';
-  import { preferences, keyboardLayout } from '$lib/preferences';
+  import { keyboardLayout } from '$lib/preferences';
 
   interface Props {
     state: StateFrom<typeof appMachine>;

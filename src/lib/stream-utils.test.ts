@@ -4,7 +4,7 @@ import { symbolLayoutEnQwerty } from "@/data/layouts/symbol-layout-en"; // Corre
 import type { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
-import { getKeyCapIdsForChar, nbsp } from "./symbol-utils";
+import { nbsp } from "./symbol-utils";
 
 
 describe("createTypingStream", () => {

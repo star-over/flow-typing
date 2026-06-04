@@ -4,7 +4,7 @@ import { assign, createActor, createMachine, sendTo } from "xstate";
 import type { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
 import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi"; // Add this
 
-import { keyboardMachine, type KeyboardMachineEvent } from "./keyboard.machine";
+import { keyboardMachine } from "./keyboard.machine";
 
 // Test parent machine to receive events from the keyboard machine
 const testParentMachine = createMachine({
