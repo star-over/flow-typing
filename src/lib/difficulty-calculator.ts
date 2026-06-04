@@ -86,11 +86,13 @@ function calculateKeyCost(
 
     if (deltaRow > 0) {
       const direction = (endCoords.r > startCoords.r) ? 'DOWN' : 'UP';
-      verticalCost = MOVEMENT_COSTS[direction][deltaRow - 1] ?? MOVEMENT_COSTS[direction].at(-1)!;
+      const costs = MOVEMENT_COSTS[direction];
+      verticalCost = costs[deltaRow - 1] ?? costs[costs.length - 1] ?? 0;
     }
 
     if (deltaCol > 0) {
-      horizontalCost = MOVEMENT_COSTS.HORIZONTAL[deltaCol - 1] ?? MOVEMENT_COSTS.HORIZONTAL.at(-1)!;
+      const costs = MOVEMENT_COSTS.HORIZONTAL;
+      horizontalCost = costs[deltaCol - 1] ?? costs[costs.length - 1] ?? 0;
     }
 
     // Если есть и вертикальное и горизонтальное движение, складываем их стоимости,
@@ -130,8 +132,9 @@ export function calculateCharDifficulty(
   let totalDifficulty = 0;
 
   keyCapIds.forEach((keyId) => {
-    if (keyId in MODIFIER_COSTS) {
-      totalDifficulty += MODIFIER_COSTS[keyId]!;
+    const modifierCost = MODIFIER_COSTS[keyId];
+    if (modifierCost !== undefined) {
+      totalDifficulty += modifierCost;
     } else {
       totalDifficulty += calculateKeyCost(keyId, fingerLayout, keyCoordinateMap);
     }

@@ -57,7 +57,8 @@ export function addAttempt({
   }
 
   const newStream = [...stream];
-  const targetSymbol = newStream[cursorPosition]!;
+  const targetSymbol = newStream[cursorPosition];
+  if (!targetSymbol) return stream;
 
   const newAttempt: StreamAttempt = {
     pressedKeyCups: pressedKeyCups,
@@ -87,7 +88,8 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
     return "PENDING";
   }
 
-  const lastAttempt = attempts.at(-1)!;
+  const lastAttempt = attempts[attempts.length - 1];
+  if (!lastAttempt) return "PENDING";
   const isCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCups, (symbol as StreamSymbol).targetKeyCaps);
 
   if (isCorrect) {

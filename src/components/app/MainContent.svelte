@@ -22,8 +22,8 @@
 
 {#if state.matches({ training: 'running' }) && trainingActor}
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} {dictionary} />
-{:else if state.matches('trainingComplete')}
-  <LessonStatsDisplay stream={state.context.lastTrainingStream!} {dictionary} />
+{:else if state.matches('trainingComplete') && state.context.lastTrainingStream}
+  <LessonStatsDisplay stream={state.context.lastTrainingStream} {dictionary} />
 {:else if state.matches('settings')}
   <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} {dictionary} />
 {:else if state.matches('allStat')}

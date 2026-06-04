@@ -126,8 +126,8 @@ function determineTypingContext(
         lastAttempt.pressedKeyCups.forEach((keyId) => {
             // Special Space logic first
             if (keyId === 'Space') {
-                const targetFingers = Array.from(activeFingers);
-                const isTargetLeftHand = targetFingers.length > 0 ? isLeftHandFinger(targetFingers[0]!) : false;
+                const [firstTargetFinger] = Array.from(activeFingers);
+                const isTargetLeftHand = firstTargetFinger ? isLeftHandFinger(firstTargetFinger) : false;
                 if (isTargetLeftHand) {
                     incorrectPressFingers.add("R1");
                 } else {
@@ -230,9 +230,13 @@ function _applyNavigationRoles(
   targetKey: KeyCapId
 ) {
   // TODO: Add settings check here in the future to enable/disable roles
-  fingerData.keyCapStates![targetKey]!.navigationRole = "TARGET";
+  const { keyCapStates } = fingerData;
+  if (!keyCapStates) return;
+  const targetState = keyCapStates[targetKey];
+  if (!targetState) return;
+  targetState.navigationRole = "TARGET";
   path.forEach((keyId) => {
-    const keyState = fingerData.keyCapStates![keyId];
+    const keyState = keyCapStates[keyId];
     if (keyState && keyId !== targetKey) {
       keyState.navigationRole = "PATH";
     }
@@ -245,10 +249,12 @@ function _applyNavigationArrows(
   keyCoordinateMap: KeyCoordinateMap
 ) {
   // TODO: Add settings check here in the future to enable/disable arrows
+  const { keyCapStates } = fingerData;
+  if (!keyCapStates) return;
   path.forEach((keyId, index) => {
     const nextKeyInPath = path[index + 1];
     if (nextKeyInPath) {
-      const keyState = fingerData.keyCapStates![keyId];
+      const keyState = keyCapStates[keyId];
       const currentCoords = keyCoordinateMap.get(keyId);
       const nextCoords = keyCoordinateMap.get(nextKeyInPath);
       if (keyState && currentCoords && nextCoords) {
@@ -320,19 +326,21 @@ function applyKeyPressResults(
   const newViewModel = { ...viewModel };
   const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
 
-  if (!wasAttemptIncorrect) return newViewModel;
+  if (!wasAttemptIncorrect || !lastAttempt) return newViewModel;
 
   // Apply press results to keys
-  const pressedSet = new Set(lastAttempt!.pressedKeyCups);
+  const pressedSet = new Set(lastAttempt.pressedKeyCups);
   const targetSet = new Set(targetKeyCaps);
-  const extraKeysPressed = lastAttempt!.pressedKeyCups.filter((k) => !targetSet.has(k));
+  const extraKeysPressed = lastAttempt.pressedKeyCups.filter((k) => !targetSet.has(k));
 
   for (const fingerId in newViewModel) {
     const fingerData = newViewModel[fingerId as FingerId];
-    if (!fingerData.keyCapStates) continue;
+    const { keyCapStates } = fingerData;
+    if (!keyCapStates) continue;
 
-    for (const keyId in fingerData.keyCapStates) {
-      const keyState = fingerData.keyCapStates[keyId as KeyCapId]!;
+    for (const keyId in keyCapStates) {
+      const keyState = keyCapStates[keyId as KeyCapId];
+      if (!keyState) continue;
       const wasKeyPressed = pressedSet.has(keyId as KeyCapId);
       const wasKeyRequired = targetSet.has(keyId as KeyCapId);
 

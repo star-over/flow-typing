@@ -73,7 +73,8 @@ export function findOptimalPath(startKey: KeyCapId, endKey: KeyCapId, graph: Adj
   const visited = new Set<KeyCapId>([startKey]);
 
   while (queue.length > 0) {
-    const path = queue.shift()!;
+    const path = queue.shift();
+    if (!path) continue;
     const node = path[path.length - 1];
     if (!node) continue;
 
