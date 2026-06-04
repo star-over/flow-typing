@@ -17,26 +17,25 @@
 <style>
   .symbol {
     display: inline-block;
-    font-variant-numeric: tabular-nums;
   }
 
   .PENDING {
-    color: var(--color-text-muted);
+    color: #4b5563;
   }
 
   .CORRECT {
-    color: var(--color-success);
+    color: #166534;
   }
 
   .CORRECTED {
-    color: var(--color-success-dark);
+    color: #881337;
   }
 
   .ERROR {
-    color: var(--color-warning);
+    color: #ca8a04;
   }
 
   .ERRORS {
-    color: var(--color-error);
+    color: #be123c;
   }
 </style>

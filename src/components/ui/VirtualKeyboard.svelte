@@ -23,6 +23,12 @@
           visibility={virtualKey.visibility ?? 'VISIBLE'}
           fingerId={virtualKey.fingerId}
           unitWidth={virtualKey.unitWidth}
+          symbolSize={virtualKey.symbolSize}
+          homeKeyMarker={virtualKey.homeKeyMarker}
+          isHomeKey={virtualKey.isHomeKey}
+          colorGroup={virtualKey.colorGroup}
+          navigationRole={virtualKey.navigationRole}
+          navigationArrow={virtualKey.navigationArrow}
         />
       {/each}
     </div>
@@ -33,14 +39,14 @@
   .keyboard {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
-    padding: var(--spacing-2);
+    width: fit-content;
+    gap: var(--spacing-2);
     background-color: transparent;
   }
 
   .row {
     display: flex;
-    gap: var(--spacing-1);
-    justify-content: center;
+    flex-wrap: nowrap;
+    gap: var(--spacing-3);
   }
 </style>

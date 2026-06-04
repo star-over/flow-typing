@@ -221,7 +221,7 @@
   }
 
   .hand-svg {
-    width: 128px; /* equivalent to w-3xs */
+    width: 16rem; /* equivalent to w-3xs (256px) */
   }
 
   .hand-svg--mirrored {
