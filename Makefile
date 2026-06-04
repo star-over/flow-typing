@@ -98,7 +98,8 @@ test: install
 
 check: install
 	@echo "🧐 svelte-check..."
-	npx svelte-kit sync && npx svelte-check --tsconfig ./tsconfig.json
+	npx svelte-kit sync
+	npx svelte-check --tsconfig ./tsconfig.json
 
 lint: install
 	@echo "🎨 eslint..."
@@ -108,7 +109,15 @@ lint-fix: install
 	@echo "🔧 eslint --fix..."
 	npx eslint . --fix
 
-check-all: lint check test build
+check-dev: install
+	npx eslint . --quiet
+	npx svelte-kit sync
+	npx svelte-check --tsconfig ./tsconfig.json
+	npx vitest run --reporter=dot --passWithNoTests
+	@echo "✅ DEVELOPMENT проверки завершены!"
+
+check-all: install
+	lint check test build
 	@echo "✅ Все проверки завершены!"
 
 
@@ -141,16 +150,3 @@ storybook: install
 storybook-build: install
 	@echo "📚 storybook build..."
 	npx storybook build
-
-
-# ==============================================================================
-# EXTERNAL TOOLS
-# ==============================================================================
-
-reinstall-gemini-cli:
-	@echo "🔥 Принудительная переустановка @google/gemini-cli..."
-	rm -rf "$(shell npm config get cache)/_cacache"
-	$(eval NPM_GLOBAL_ROOT := $(shell npm root -g))
-	rm -rf "$(NPM_GLOBAL_ROOT)/@google/gemini-cli"
-	npm install -g @google/gemini-cli@latest
-	@echo "✅ Готово."
