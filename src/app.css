@@ -4,21 +4,99 @@
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
 
+  /* --- Surfaces --- */
   --color-bg: #ffffff;
   --color-surface: #f5f5f5;
   --color-surface-hover: #e5e5e5;
   --color-border: #d4d4d4;
 
+  /* --- Text --- */
   --color-text-primary: #0a0a0a;
   --color-text-secondary: #525252;
   --color-text-muted: #737373;
 
+  /* --- Semantic outcomes --- */
   --color-success: #22c55e;
   --color-success-dim: rgba(34, 197, 94, 0.2);
   --color-error: #ef4444;
   --color-error-dim: rgba(239, 68, 68, 0.2);
   --color-warning: #f59e0b;
 
+  /* --- Finger palette (per FingerId numeric index, used for TARGET state) --- */
+  --color-finger-1: #facc15;    /* yellow-400  */
+  --color-finger-2: #fb923c;    /* orange-400  */
+  --color-finger-3: #4ade80;    /* green-400   */
+  --color-finger-4: #60a5fa;    /* blue-400    */
+  --color-finger-5: #c084fc;    /* purple-400  */
+  --color-finger-base: #fff7ed; /* orange-50   */
+
+  /* --- Finger state colors (non-TARGET) --- */
+  --color-finger-inactive: #fff7ed; /* orange-50 */
+  --color-finger-idle: #e5e7eb;     /* gray-200  */
+  --color-finger-error: #e11d48;    /* rose-600  */
+
+  /* --- Navigation visualization --- */
+  --color-path-highlight: #3b82f6;  /* blue-500 — finger-center-point fill */
+  --color-target-marker: #f59e0b;   /* amber-500 — Finger.active overlay   */
+  --color-cursor-border: #fbbf24;   /* amber-400 — FlowLine outer border    */
+
+  /* --- Typing-stream symbol statuses (RegularSymbol + FlowLine row bg) --- */
+  --color-symbol-pending: #4b5563;     /* gray-600  */
+  --color-symbol-correct: #166534;     /* green-800 */
+  --color-symbol-corrected: #881337;   /* rose-900  */
+  --color-symbol-error: #ca8a04;       /* yellow-600 */
+  --color-symbol-errors: #be123c;      /* rose-700  */
+  --color-symbol-correct-bg: #dcfce7;  /* green-100 */
+  --color-symbol-error-bg: #fee2e2;    /* red-100   */
+
+  /* --- Caret / cursor block (CursorSymbol) --- */
+  --color-cursor-bg: #1f2937;          /* gray-800 */
+  --color-cursor-fg: #f9fafb;          /* gray-50  */
+
+  /* --- KeyCap base typography + home-key marker dot --- */
+  --color-keycap-label: #0c4a6e;       /* sky-900   */
+  --color-keycap-marker: #0f172a;      /* slate-900 */
+
+  /* --- KeyCap color groups (per finger column, translucent fill + border) --- */
+  --color-keycap-group-neutral-bg: rgba(245, 245, 244, 0.7); /* stone-100/70 */
+  --color-keycap-group-neutral-border: #d6d3d1;              /* stone-300    */
+  --color-keycap-group-yellow-bg: rgba(254, 243, 199, 0.7);  /* amber-100/70 */
+  --color-keycap-group-yellow-border: #fcd34d;               /* amber-300    */
+  --color-keycap-group-sky-bg: rgba(224, 242, 254, 0.7);     /* sky-100/70   */
+  --color-keycap-group-sky-border: #7dd3fc;                  /* sky-300      */
+  --color-keycap-group-indigo-bg: rgba(224, 231, 255, 0.7);  /* indigo-100/70 */
+  --color-keycap-group-indigo-border: #a5b4fc;               /* indigo-300   */
+  --color-keycap-group-purple-bg: rgba(243, 232, 255, 0.7);  /* purple-100/70 */
+  --color-keycap-group-purple-border: #d8b4fe;               /* purple-300   */
+
+  /* --- KeyCap SECONDARY (neutral system keys: Tab, Shift, etc.) --- */
+  --color-keycap-secondary-bg: #f5f5f4;     /* stone-100 */
+  --color-keycap-secondary-fg: #a8a29c;     /* stone-400 */
+  --color-keycap-secondary-border: #d6d3d1; /* stone-300 */
+
+  /* --- KeyCap ACCENT (colored target key) --- */
+  --color-keycap-accent-bg: #fff7ed;        /* orange-50  */
+  --color-keycap-accent-fg: #fb923c;        /* orange-400 */
+  --color-keycap-accent-border: #fed7aa;    /* orange-200 */
+
+  /* --- KeyCap navigation role TARGET --- */
+  --color-keycap-role-target-bg: rgba(8, 47, 73, 0.7);  /* sky-900/70 */
+  --color-keycap-role-target-fg: #f0f9ff;                /* sky-50     */
+
+  /* --- KeyCap press result --- */
+  --color-keycap-correct-bg: rgba(22, 101, 52, 0.8);    /* green-800/80 */
+  --color-keycap-correct-fg: #f0fdfa;                    /* teal-50      */
+  --color-keycap-correct-border: #22c55e;                /* green-500    */
+  --color-keycap-error-bg: rgba(239, 68, 68, 0.8);      /* red-500/80   */
+  --color-keycap-error-fg: #fef2f2;                      /* red-50       */
+  --color-keycap-error-border: #f87171;                  /* red-400      */
+
+  /* --- Navigation arrow marker (KeyCap SVG glyph) --- */
+  --color-arrow-fill: #27ae60;
+  --color-arrow-stroke: #2a9852;
+  --color-arrow-gradient: #24ff00;
+
+  /* --- Radius / spacing --- */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;

@@ -5,6 +5,7 @@
 
   import { dictionary } from '$lib/i18n';
   import { preferences } from '$lib/preferences';
+  import { planExerciseIdSync } from '$lib/exercise-id-sync';
 
   import Header from './Header.svelte';
   import MainContent from './MainContent.svelte';
@@ -46,36 +47,26 @@
     appActor.send({ type: 'PAUSE' });
   }
 
-  // Single effect: bidirectional URL ↔ Store sync with one-shot URL→Store guard
   let hasSyncedFromUrl = false;
   $effect(() => {
-    const urlId = page.url.searchParams.get('exerciseId');
-    const storeId = $preferences.shared.exerciseId ?? null;
+    const action = planExerciseIdSync({
+      urlId: page.url.searchParams.get('exerciseId'),
+      storeId: $preferences.shared.exerciseId ?? null,
+      currentSearch: page.url.search,
+      hasSyncedFromUrl,
+    });
 
-    if (urlId !== storeId) {
-      // URL wins exactly once on initial load / external navigation
-      if (!hasSyncedFromUrl) {
+    switch (action.type) {
+      case 'URL_TO_STORE':
         hasSyncedFromUrl = true;
         preferences.update((p) => ({
           ...p,
-          shared: { ...p.shared, exerciseId: urlId ?? undefined },
+          shared: { ...p.shared, exerciseId: action.exerciseId },
         }));
-        return;
-      }
-
-      // Store wins after initial sync: update URL
-      const newParams = new URLSearchParams(page.url.search);
-      if (storeId) {
-        newParams.set('exerciseId', storeId);
-      } else {
-        newParams.delete('exerciseId');
-      }
-      const newQuery = newParams.toString();
-      const currentQuery = page.url.search.replace(/^\?/, '');
-
-      if (newQuery !== currentQuery) {
-        goto(`?${newQuery}`, { replaceState: true, noScroll: true });
-      }
+        break;
+      case 'STORE_TO_URL':
+        goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
+        break;
     }
   });
 </script>

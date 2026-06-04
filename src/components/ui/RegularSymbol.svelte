@@ -20,22 +20,22 @@
   }
 
   .PENDING {
-    color: #4b5563;
+    color: var(--color-symbol-pending);
   }
 
   .CORRECT {
-    color: #166534;
+    color: var(--color-symbol-correct);
   }
 
   .CORRECTED {
-    color: #881337;
+    color: var(--color-symbol-corrected);
   }
 
   .ERROR {
-    color: #ca8a04;
+    color: var(--color-symbol-error);
   }
 
   .ERRORS {
-    color: #be123c;
+    color: var(--color-symbol-errors);
   }
 </style>

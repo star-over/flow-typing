@@ -65,7 +65,7 @@
     align-items: center;
     width: 100vw;
     font-family: var(--font-mono);
-    border: 2px solid #fbbf24;
+    border: 2px solid var(--color-cursor-border);
   }
 
   .completed-symbols {
@@ -103,6 +103,6 @@
 
   /* Press result variants */
   .NONE { background-color: transparent; }
-  .CORRECT { background-color: #dcfce7; }
-  .ERROR { background-color: #fee2e2; }
+  .CORRECT { background-color: var(--color-symbol-correct-bg); }
+  .ERROR { background-color: var(--color-symbol-error-bg); }
 </style>
