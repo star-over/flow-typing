@@ -13,9 +13,9 @@
 </script>
 
 <div class="keyboard">
-  {#each virtualLayout as row}
+  {#each virtualLayout as row, rowIndex (rowIndex)}
     <div class="row">
-      {#each row as virtualKey}
+      {#each row as virtualKey (virtualKey.keyCapId)}
         <KeyCap
           keyCapId={virtualKey.keyCapId}
           symbol={getLabel(virtualKey.keyCapId, symbolLayout, keyboardLayout)}

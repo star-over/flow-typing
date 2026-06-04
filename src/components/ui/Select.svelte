@@ -15,7 +15,7 @@
 
 <div class="select-wrapper">
   <select class="select" {value} onchange={(e) => onChange(e.currentTarget.value)}>
-    {#each options as option}
+    {#each options as option (option.value)}
       <option value={option.value}>{option.label}</option>
     {/each}
   </select>
