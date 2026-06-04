@@ -1,8 +1,8 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { UserPreferences } from '$interfaces/user-preferences';
-import { DEFAULT_USER_PREFERENCES } from '$user-preferences/user-preferences';
-import { deepMerge } from '$lib/utils';
+import type { UserPreferences } from '@/interfaces/user-preferences';
+import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
+import { deepMerge } from '@/lib/utils';
 
 function createPreferencesStore() {
   const load = (): UserPreferences => {

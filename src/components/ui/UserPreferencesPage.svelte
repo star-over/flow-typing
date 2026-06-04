@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { preferences, updatePreferences } from '$lib/preferences';
+  import { preferences, updatePreferences } from '@/lib/preferences';
   import Select from './Select.svelte';
-  import type { UserPreferences } from '$interfaces/user-preferences';
+  import type { UserPreferences } from '@/interfaces/user-preferences';
 
   interface Props {
     onBack: () => void;

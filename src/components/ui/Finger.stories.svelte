@@ -2,7 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import type { ComponentProps } from 'svelte';
   import Finger from './Finger.svelte';
-  import { HAND_VIEW_BOX } from '$data/finger-paths';
+  import { HAND_VIEW_BOX } from '@/data/finger-paths';
 
   const { Story } = defineMeta({
     title: 'UI/Finger',

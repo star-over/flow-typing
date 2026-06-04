@@ -7,16 +7,16 @@
     KeyboardLayout,
     SymbolLayout,
     Visibility,
-  } from '$interfaces/types';
+  } from '@/interfaces/types';
   import {
     LEFT_HAND_BASE,
     LEFT_HAND_FINGERS,
     RIGHT_HAND_BASE,
     RIGHT_HAND_FINGERS,
-  } from '$interfaces/types';
-  import { calculateClusterTranslation } from '$lib/positioning-utils';
-  import { generateVirtualLayoutForFinger } from '$lib/viewModel-builder';
-  import { HAND_VIEW_BOX } from '$data/finger-paths';
+  } from '@/interfaces/types';
+  import { calculateClusterTranslation } from '@/lib/positioning-utils';
+  import { generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
+  import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import Finger from './Finger.svelte';
   import VirtualKeyboard from './VirtualKeyboard.svelte';
 

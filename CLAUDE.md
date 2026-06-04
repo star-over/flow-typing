@@ -71,7 +71,7 @@
 ## Conventions
 
 - **Naming** (`docs/02-naming-conventions.md`): `PascalCase` для типов; union- и object-типы — в единственном числе (`KeyCapPressResult`, `StreamSymbol`, не `...Results`). Никаких аббревиатур (`KbdLayout`, `StrSym`) — только полные имена.
-- **Импорты**: используется алиас `@/...` (= `src/`). `$lib`/`$machines`/... в `svelte.config.js` объявлены, но **в коде не используются** — для новых файлов следовать `@/`.
+- **Импорты**: единственный алиас — `@/...` (= `src/`), объявлен в `svelte.config.js`. SvelteKit добавляет ещё `$lib` (built-in) автоматически, но проект его не использует.
 - **Branch / commit**: ветки `feat/...`, `fix/...`; Conventional Commits.
 - Перед коммитом — `make check-all`.
 

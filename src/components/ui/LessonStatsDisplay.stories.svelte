@@ -1,7 +1,7 @@
 <script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import LessonStatsDisplay from './LessonStatsDisplay.svelte';
-  import type { TypingStream } from '$interfaces/types';
+  import type { TypingStream } from '@/interfaces/types';
 
   const mockDictionary = {
     stats_card: {

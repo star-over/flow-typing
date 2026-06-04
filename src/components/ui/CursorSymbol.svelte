@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FlowLineCursorType } from '$interfaces/types';
+  import type { FlowLineCursorType } from '@/interfaces/types';
 
   interface Props {
     symbol: string;

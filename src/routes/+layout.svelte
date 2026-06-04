@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../app.css';
-  import { preferences } from '$lib/preferences';
+  import { preferences } from '@/lib/preferences';
 
   const { children } = $props();
 

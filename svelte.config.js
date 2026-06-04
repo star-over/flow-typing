@@ -10,12 +10,6 @@ const config = {
       precompress: false,
     }),
     alias: {
-      '$lib': './src/lib',
-      '$machines': './src/machines',
-      '$components': './src/components',
-      '$data': './src/data',
-      '$interfaces': './src/interfaces',
-      '$user-preferences': './src/user-preferences',
       '@': './src',
     },
   },

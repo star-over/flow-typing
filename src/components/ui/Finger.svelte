@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { FingerId, FingerState } from '$interfaces/types';
-  import { FINGER_CENTER_POINTS, FINGER_PATHS } from '$data/finger-paths';
+  import type { FingerId, FingerState } from '@/interfaces/types';
+  import { FINGER_CENTER_POINTS, FINGER_PATHS } from '@/data/finger-paths';
 
   interface Props {
     fingerId: FingerId;

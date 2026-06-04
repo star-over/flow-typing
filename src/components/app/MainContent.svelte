@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { Actor, StateFrom } from 'xstate';
-  import type { appMachine, AppEvent } from '$machines/app.machine';
-  import type { trainingMachine } from '$machines/training.machine';
-  import type { Dictionary } from '$interfaces/types';
-  import { fingerLayoutASDF } from '$data/layouts/finger-layout-asdf';
-  import { keyboardLayoutANSI } from '$data/layouts/keyboard-layout-ansi';
+  import type { appMachine, AppEvent } from '@/machines/app.machine';
+  import type { trainingMachine } from '@/machines/training.machine';
+  import type { Dictionary } from '@/interfaces/types';
+  import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
+  import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
 
-  import TrainingScene from '$components/ui/TrainingScene.svelte';
-  import LessonStatsDisplay from '$components/ui/LessonStatsDisplay.svelte';
-  import UserPreferencesPage from '$components/ui/UserPreferencesPage.svelte';
+  import TrainingScene from '@/components/ui/TrainingScene.svelte';
+  import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
+  import UserPreferencesPage from '@/components/ui/UserPreferencesPage.svelte';
 
   interface Props {
     state: StateFrom<typeof appMachine>;

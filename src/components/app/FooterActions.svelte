@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { StateFrom } from 'xstate';
-  import type { appMachine, AppEvent } from '$machines/app.machine';
-  import type { Dictionary } from '$interfaces/types';
-  import { keyboardLayout } from '$lib/preferences';
+  import type { appMachine, AppEvent } from '@/machines/app.machine';
+  import type { Dictionary } from '@/interfaces/types';
+  import { keyboardLayout } from '@/lib/preferences';
 
   interface Props {
     state: StateFrom<typeof appMachine>;

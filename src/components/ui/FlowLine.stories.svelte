@@ -1,9 +1,9 @@
 <script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import FlowLine from './FlowLine.svelte';
-  import { createTypingStream, addAttempt } from '$lib/stream-utils';
-  import { symbolLayoutEnQwerty } from '$data/layouts/symbol-layout-en';
-  import { getKeyCapIdsForChar } from '$lib/symbol-utils';
+  import { createTypingStream, addAttempt } from '@/lib/stream-utils';
+  import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
+  import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
 
   const fullStreamText = 'The Quick brown fox jumps over the lazy dog.';
 

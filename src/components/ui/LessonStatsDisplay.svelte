@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { TypingStream } from '$interfaces/types';
-  import { calculateLessonStats } from '$lib/stats-calculator';
+  import type { TypingStream } from '@/interfaces/types';
+  import { calculateLessonStats } from '@/lib/stats-calculator';
 
   interface Props {
     stream: TypingStream;

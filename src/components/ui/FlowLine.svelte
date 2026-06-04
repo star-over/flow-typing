@@ -1,14 +1,14 @@
 <script lang="ts">
   import RegularSymbol from './RegularSymbol.svelte';
   import CursorSymbol from './CursorSymbol.svelte';
-  import { getSymbolChar, getSymbolType } from '$lib/stream-utils';
+  import { getSymbolChar, getSymbolType } from '@/lib/stream-utils';
   import type {
     TypingStream,
     KeyCapPressResult,
     FlowLineCursorType,
     FlowLineCursorMode,
     FlowLineSize,
-  } from '$interfaces/types';
+  } from '@/interfaces/types';
 
   interface Props {
     stream: TypingStream;

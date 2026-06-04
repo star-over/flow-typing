@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { appActor } from '$machines/appActor';
-  import type { trainingMachine } from '$machines/training.machine';
+  import { appActor } from '@/machines/appActor';
+  import type { trainingMachine } from '@/machines/training.machine';
   import type { Actor } from 'xstate';
 
-  import { dictionary } from '$lib/i18n';
-  import { preferences } from '$lib/preferences';
-  import { planExerciseIdSync } from '$lib/exercise-id-sync';
+  import { dictionary } from '@/lib/i18n';
+  import { preferences } from '@/lib/preferences';
+  import { planExerciseIdSync } from '@/lib/exercise-id-sync';
 
   import Header from './Header.svelte';
   import MainContent from './MainContent.svelte';
   import FooterActions from './FooterActions.svelte';
 
   import { onDestroy } from 'svelte';
-  import type { KeyCapId } from '$interfaces/key-cap-id';
+  import type { KeyCapId } from '@/interfaces/key-cap-id';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
 

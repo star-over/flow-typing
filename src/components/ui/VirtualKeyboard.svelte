@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { KeyboardLayout, SymbolLayout, VirtualLayout } from '$interfaces/types';
-  import { getLabel } from '$lib/symbol-utils';
+  import type { KeyboardLayout, SymbolLayout, VirtualLayout } from '@/interfaces/types';
+  import { getLabel } from '@/lib/symbol-utils';
   import KeyCap from './KeyCap.svelte';
 
   interface Props {

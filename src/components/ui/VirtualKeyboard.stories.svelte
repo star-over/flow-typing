@@ -1,10 +1,10 @@
 <script module>
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import VirtualKeyboard from './VirtualKeyboard.svelte';
-  import { fingerLayoutASDF } from '$data/layouts/finger-layout-asdf';
-  import { keyboardLayoutANSI } from '$data/layouts/keyboard-layout-ansi';
-  import { getSymbolLayout } from '$data/layouts/layouts';
-  import { createVirtualLayout } from '$lib/virtual-layout';
+  import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
+  import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
+  import { getSymbolLayout } from '@/data/layouts/layouts';
+  import { createVirtualLayout } from '@/lib/virtual-layout';
 
   const symbolLayoutEn = getSymbolLayout('qwerty');
   const symbolLayoutRu = getSymbolLayout('йцукен');

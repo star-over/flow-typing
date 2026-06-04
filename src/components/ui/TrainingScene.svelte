@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
-  import type { trainingMachine } from '$machines/training.machine';
-  import type { Dictionary, FingerLayout, KeyboardLayout } from '$interfaces/types';
+  import type { trainingMachine } from '@/machines/training.machine';
+  import type { Dictionary, FingerLayout, KeyboardLayout } from '@/interfaces/types';
 
-  import { createKeyboardGraph } from '$lib/pathfinding';
-  import { createKeyCoordinateMap } from '$lib/layout-utils';
-  import { generateHandsSceneViewModel } from '$lib/viewModel-builder';
-  import { getPressResult } from '$lib/press-result-utils';
-  import { getSymbolLayout } from '$data/layouts/layouts';
+  import { createKeyboardGraph } from '@/lib/pathfinding';
+  import { createKeyCoordinateMap } from '@/lib/layout-utils';
+  import { generateHandsSceneViewModel } from '@/lib/viewModel-builder';
+  import { getPressResult } from '@/lib/press-result-utils';
+  import { getSymbolLayout } from '@/data/layouts/layouts';
 
   import FlowLine from './FlowLine.svelte';
   import HandsExt from './HandsExt.svelte';

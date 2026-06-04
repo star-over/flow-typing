@@ -6,7 +6,7 @@
     KeyCapNavigationRole,
     KeyCapSymbolSize,
     KeyCapUnitWidth,
-  } from '$interfaces/types';
+  } from '@/interfaces/types';
   import NavArrow from './NavArrow.svelte';
 
   interface Props {

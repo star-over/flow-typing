@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { KeyCapNavigationArrow } from '$interfaces/types';
+  import type { KeyCapNavigationArrow } from '@/interfaces/types';
 
   interface Props {
     direction: KeyCapNavigationArrow;
