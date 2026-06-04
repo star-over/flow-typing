@@ -25,7 +25,7 @@
 
   let stats = $derived(calculateLessonStats(stream));
 
-  const { stats_card } = dictionary;
+  const stats_card = $derived(dictionary.stats_card);
 </script>
 
 {#if stream && stream.length > 0 && stream.some((s) => s.attempts.length > 0)}

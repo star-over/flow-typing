@@ -2,7 +2,6 @@
   import type { Actor } from 'xstate';
   import type { trainingMachine } from '$machines/training.machine';
   import type { Dictionary, FingerLayout, KeyboardLayout } from '$interfaces/types';
-  import { onDestroy } from 'svelte';
 
   import { createKeyboardGraph } from '$lib/pathfinding';
   import { createKeyCoordinateMap } from '$lib/layout-utils';
@@ -22,11 +21,16 @@
 
   let { trainingActor, fingerLayout, keyboardLayout, dictionary }: Props = $props();
 
+  // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
-  const sub = trainingActor.subscribe((s) => {
-    trainingState = s;
+
+  $effect(() => {
+    trainingState = trainingActor.getSnapshot();
+    const sub = trainingActor.subscribe((s) => {
+      trainingState = s;
+    });
+    return () => sub.unsubscribe();
   });
-  onDestroy(() => sub.unsubscribe());
 
   let stream = $derived(trainingState.context.stream);
   let currentIndex = $derived(trainingState.context.currentIndex);
