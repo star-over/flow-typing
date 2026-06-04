@@ -1,5 +1,7 @@
 // src/interfaces/user-preferences.ts
 
+import type { SymbolLayoutId } from '@/interfaces/types';
+
 /**
  * Определяет структуру пользовательских предпочтений приложения.
  * В MVP включает только базовые опции.
@@ -10,10 +12,10 @@ export interface UserPreferences {
    */
   language: 'en' | 'ru';
   /**
-   * Раскладка клавиатуры.
+   * Идентификатор символьной раскладки, выбранной пользователем (qwerty / йцукен).
    * Определяет как визуальное отображение, так и логику упражнений.
    */
-  keyboardLayout: 'qwerty' | 'йцукен';
+  symbolLayoutId: SymbolLayoutId;
 
   /**
    * Предпочтения, предназначенные для обмена через URL.

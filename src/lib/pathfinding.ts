@@ -3,22 +3,22 @@
  * @description Contains functions to represent the keyboard as a graph and find paths between keys.
  */
 
-import type { KeyboardLayout,KeyCapId } from "@/interfaces/types";
+import type { PhysicalLayout,KeyCapId } from "@/interfaces/types";
 
 export type AdjacencyList = Map<KeyCapId, KeyCapId[]>;
 
 /**
  * Creates a graph representation (adjacency list) of the keyboard layout.
  * Each key is a node, and edges connect to immediate geometric neighbors.
- * @param keyboardLayout The 2D array representing the physical keyboard layout.
+ * @param physicalLayout The 2D array representing the physical keyboard layout.
  * @returns An adjacency list (Map) representing the keyboard graph.
  */
-export function createKeyboardGraph(keyboardLayout: KeyboardLayout): AdjacencyList {
+export function createKeyboardGraph(physicalLayout: PhysicalLayout): AdjacencyList {
   const graph: AdjacencyList = new Map();
-  const rows = keyboardLayout.length;
+  const rows = physicalLayout.length;
 
   for (let r = 0; r < rows; r++) {
-    const row = keyboardLayout[r];
+    const row = physicalLayout[r];
     if (!row) continue;
     for (let c = 0; c < row.length; c++) {
       const key = row[c];
@@ -39,7 +39,7 @@ export function createKeyboardGraph(keyboardLayout: KeyboardLayout): AdjacencyLi
         const nr = r + dir.dr;
         const nc = c + dir.dc;
 
-        const neighborRow = keyboardLayout[nr];
+        const neighborRow = physicalLayout[nr];
         if (nr >= 0 && nr < rows && nc >= 0 && neighborRow && nc < neighborRow.length) {
           const neighborKey = neighborRow[nc];
           if (neighborKey) {

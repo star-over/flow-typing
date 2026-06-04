@@ -15,7 +15,7 @@ type TestParentEvent =
 
 function makeTestParent(
   stream: TypingStream,
-  keyboardLayout: UserPreferences['keyboardLayout'] = 'qwerty'
+  symbolLayoutId: UserPreferences['symbolLayoutId'] = 'qwerty'
 ) {
   return createMachine({
     id: 'testParent',
@@ -25,7 +25,7 @@ function makeTestParent(
     invoke: {
       id: 'training',
       src: trainingMachine,
-      input: ({ self }) => ({ stream, keyboardLayout, parentActor: self }),
+      input: ({ self }) => ({ stream, symbolLayoutId, parentActor: self }),
     },
     on: {
       KEY_PRESS: {

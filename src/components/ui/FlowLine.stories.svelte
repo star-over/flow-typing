@@ -2,20 +2,20 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import FlowLine from './FlowLine.svelte';
   import { createTypingStream, addAttempt } from '@/lib/stream-utils';
-  import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
+  import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
   import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
 
   const fullStreamText = 'The Quick brown fox jumps over the lazy dog.';
 
-  const baseStreamPending = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
+  const baseStreamPending = createTypingStream(fullStreamText, symbolLayoutQwerty);
 
   // Stream with one error on position 4
-  let streamWithOneError = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
+  let streamWithOneError = createTypingStream(fullStreamText, symbolLayoutQwerty);
   for (let i = 0; i < streamWithOneError.length; i++) {
     const targetChar = streamWithOneError[i]!.targetSymbol;
-    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutEnQwerty);
+    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);
     if (i === 4) {
-      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutEnQwerty);
+      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutQwerty);
       if (wrongKeys) {
         streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, pressedKeyCaps: wrongKeys, startAt: 0, endAt: 50 });
       }
@@ -26,16 +26,16 @@
   }
 
   // Stream with multiple errors
-  let streamWithMultipleErrors = createTypingStream(fullStreamText, symbolLayoutEnQwerty);
+  let streamWithMultipleErrors = createTypingStream(fullStreamText, symbolLayoutQwerty);
   for (let i = 0; i < streamWithMultipleErrors.length; i++) {
     const targetChar = streamWithMultipleErrors[i]!.targetSymbol;
-    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutEnQwerty);
+    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);
     if (i === 0) {
-      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutEnQwerty);
+      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutQwerty);
       if (wrongKeys) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys, startAt: 0, endAt: 50 });
     } else if (i === 1) {
-      const wrongKeys1 = getKeyCapIdsForChar('w', symbolLayoutEnQwerty);
-      const wrongKeys2 = getKeyCapIdsForChar('e', symbolLayoutEnQwerty);
+      const wrongKeys1 = getKeyCapIdsForChar('w', symbolLayoutQwerty);
+      const wrongKeys2 = getKeyCapIdsForChar('e', symbolLayoutQwerty);
       if (wrongKeys1) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys1, startAt: 0, endAt: 50 });
       if (wrongKeys2) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys2, startAt: 50, endAt: 100 });
     }

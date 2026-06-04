@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { FingerLayout, KeyboardLayout, SymbolLayout } from '@/interfaces/types';
+import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
 import * as SymbolUtils from './symbol-utils'; // Import the module to mock getSymbol
 import { createVirtualLayout } from './virtual-layout';
@@ -16,7 +16,7 @@ vi.mock('./symbol-utils', async (importOriginal) => {
 
 
 describe('createVirtualLayout', () => {
-  const mockKeyboardLayout: KeyboardLayout = [
+  const mockPhysicalLayout: PhysicalLayout = [
     [
       { keyCapId: 'KeyA', type: 'SYMBOL', unitWidth: '1U', label: 'a' },
       { keyCapId: 'KeyB', type: 'SYMBOL', unitWidth: '1U', label: 'b' },
@@ -40,18 +40,18 @@ describe('createVirtualLayout', () => {
 
   it('should create a VirtualLayout with correct dimensions', () => {
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
+      physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout).toHaveLength(mockKeyboardLayout.length);
-    expect(virtualLayout[0]).toHaveLength(mockKeyboardLayout[0]!.length);
+    expect(virtualLayout).toHaveLength(mockPhysicalLayout.length);
+    expect(virtualLayout[0]).toHaveLength(mockPhysicalLayout[0]!.length);
   });
 
   it('should correctly transfer physical key properties and set rowIndex/colIndex', () => {
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
+      physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
@@ -66,7 +66,7 @@ describe('createVirtualLayout', () => {
 
   it('should correctly derive symbol using getLabel', () => {
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
+      physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
@@ -76,18 +76,18 @@ describe('createVirtualLayout', () => {
     expect(keyA.symbol).toBe('A'); // The new getSymbol logic returns the uppercase variant
     expect(keyB.symbol).toBe('b'); // Only 'b' is defined, so it returns 'b'
     // Also check if getLabel was called correctly
-    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', mockSymbolLayout, mockKeyboardLayout);
-    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyB', mockSymbolLayout, mockKeyboardLayout);
+    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', mockSymbolLayout, mockPhysicalLayout);
+    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyB', mockSymbolLayout, mockPhysicalLayout);
   });
 
-  it('should set symbol to the label from keyboardLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
-    const customKeyboardLayout: KeyboardLayout = [
+  it('should set symbol to the label from physicalLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
+    const customPhysicalLayout: PhysicalLayout = [
       [{ keyCapId: 'KeyC', type: 'SYMBOL', label: 'c' }], // Changed from 'KeyUnknown'
     ];
     // getSymbol mock will return the label for 'KeyC'
 
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: customKeyboardLayout,
+      physicalLayout: customPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
@@ -97,7 +97,7 @@ describe('createVirtualLayout', () => {
 
   it('should correctly derive fingerId and isHomeKey from fingerLayout', () => {
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: mockKeyboardLayout,
+      physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
@@ -115,13 +115,13 @@ describe('createVirtualLayout', () => {
   });
 
   it('should use default fingerId "L1" if fingerLayout entry is missing', () => {
-    const customKeyboardLayout: KeyboardLayout = [
+    const customPhysicalLayout: PhysicalLayout = [
       [{ keyCapId: 'KeyD', type: 'SYMBOL', label: 'd' }], // Changed from 'KeyMissingFinger'
     ];
     // No entry for 'KeyD' in mockFingerLayout
 
     const virtualLayout = createVirtualLayout({
-      keyboardLayout: customKeyboardLayout,
+      physicalLayout: customPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });

@@ -15,7 +15,7 @@ export interface TrainingContext {
   stream: TypingStream;
   currentIndex: number;
   errors: number;
-  keyboardLayout: UserPreferences['keyboardLayout']; // Added to context
+  symbolLayoutId: UserPreferences['symbolLayoutId']; // Added to context
   symbolAppearanceTime: number;
   parentActor: ParentActor;
 }
@@ -37,7 +37,7 @@ export const trainingMachine = createMachine({
     events: TrainingEvent;
     input: {
       stream: TypingStream;
-      keyboardLayout: UserPreferences['keyboardLayout'],
+      symbolLayoutId: UserPreferences['symbolLayoutId'],
       parentActor: ParentActor
     };
   },  context: ({
@@ -46,7 +46,7 @@ export const trainingMachine = createMachine({
     stream: input.stream,
     currentIndex: 0,
     errors: 0,
-    keyboardLayout: input.keyboardLayout,
+    symbolLayoutId: input.symbolLayoutId,
     symbolAppearanceTime: 0,
     parentActor: input.parentActor,
   }),

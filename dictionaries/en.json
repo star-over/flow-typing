@@ -21,9 +21,9 @@
   "user_preferences": {
     "title": "User Preferences",
     "language_label": "Language",
-    "keyboard_layout_label": "Keyboard Layout",
+    "symbol_layout_label": "Keyboard Layout",
     "language_placeholder": "Select language",
-    "keyboard_layout_placeholder": "Select layout",
+    "symbol_layout_placeholder": "Select layout",
     "back_button": "Back"
   },
   "stats_card": {

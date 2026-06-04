@@ -23,7 +23,7 @@
 // Определено в src/interfaces/user-preferences.ts
 export interface UserPreferences {
   language: 'en' | 'ru';
-  keyboardLayout: 'qwerty' | 'йцукен';
+  symbolLayoutId: SymbolLayoutId; // 'qwerty' | 'йцукен'
   // Настройки, предназначенные для обмена через URL
   shared: {
     exerciseId?: string;
@@ -47,9 +47,9 @@ export interface UserPreferences {
 
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { UserPreferences } from '$interfaces/user-preferences';
-import { DEFAULT_USER_PREFERENCES } from '$user-preferences/user-preferences';
-import { deepMerge } from '$lib/utils';
+import type { UserPreferences } from '@/interfaces/user-preferences';
+import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
+import { deepMerge } from '@/lib/utils';
 
 function createPreferencesStore() {
   const load = (): UserPreferences => {
@@ -73,7 +73,7 @@ function createPreferencesStore() {
 }
 
 export const preferences = createPreferencesStore();
-export const keyboardLayout = derived(preferences, ($p) => $p.keyboardLayout);
+export const symbolLayoutId = derived(preferences, ($p) => $p.symbolLayoutId);
 
 export function updatePreferences(partial: Partial<UserPreferences>) {
   preferences.update((current) => deepMerge(current, partial));
@@ -89,7 +89,7 @@ export function updatePreferences(partial: Partial<UserPreferences>) {
 
 export const DEFAULT_USER_PREFERENCES: UserPreferences = {
   language: 'en',
-  keyboardLayout: 'qwerty',
+  symbolLayoutId: 'qwerty',
   shared: {},
 };
 ```

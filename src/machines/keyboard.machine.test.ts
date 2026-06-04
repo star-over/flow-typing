@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { assign, createActor, createMachine, sendTo } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
-import { keyboardLayoutANSI } from "@/data/layouts/keyboard-layout-ansi"; // Add this
+import { physicalLayoutANSI } from "@/data/layouts/physical-layout-ansi"; // Add this
 
 import { keyboardMachine } from "./keyboard.machine";
 
@@ -27,7 +27,7 @@ const testParentMachine = createMachine({
     src: keyboardMachine,
     input: ({ self }) => ({ 
       parentActor: self,
-      keyboardLayout: keyboardLayoutANSI // Add this
+      physicalLayout: physicalLayoutANSI // Add this
     }), 
   },
   on: {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
-import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
-import type { FingerLayout, KeyboardLayout, SymbolLayout } from '@/interfaces/types';
+import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
+import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
+import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
 import {
   FINGER_COSTS,
@@ -61,7 +61,7 @@ describe('difficulty-calculator', () => {
 
   describe('calculateCharDifficulty (real ANSI / ASDF / QWERTY-en)', () => {
     const calc = (char: string) =>
-      calculateCharDifficulty(char, symbolLayoutEnQwerty, fingerLayoutASDF, keyboardLayoutANSI);
+      calculateCharDifficulty(char, symbolLayoutQwerty, fingerLayoutASDF, physicalLayoutANSI);
 
     describe('home row keys (no movement: cost = fingerCost)', () => {
       it("'f' = L2 home → 1.0", () => {
@@ -161,7 +161,7 @@ describe('difficulty-calculator', () => {
   // -----------------------------------------------------------------------
 
   describe('fallback branches (synthetic layouts)', () => {
-    const wideKeyboard: KeyboardLayout = [
+    const wideKeyboard: PhysicalLayout = [
       [
         { keyCapId: 'KeyA', label: 'A', type: 'SYMBOL' },
         { keyCapId: 'KeyB', label: 'B', type: 'SYMBOL' },

@@ -4,7 +4,7 @@
   import type { trainingMachine } from '@/machines/training.machine';
   import type { Dictionary } from '@/interfaces/types';
   import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-  import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
+  import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
 
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
@@ -21,7 +21,7 @@
 </script>
 
 {#if state.matches({ training: 'running' }) && trainingActor}
-  <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} keyboardLayout={keyboardLayoutANSI} {dictionary} />
+  <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
 {:else if state.matches('trainingComplete') && state.context.lastTrainingStream}
   <LessonStatsDisplay stream={state.context.lastTrainingStream} {dictionary} />
 {:else if state.matches('settings')}

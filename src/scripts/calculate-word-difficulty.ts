@@ -10,9 +10,9 @@
  */
 
 import { calculateCharDifficulty } from '../lib/difficulty-calculator';
-import { symbolLayoutRu } from '../data/layouts/symbol-layout-ru';
+import { symbolLayoutJcuken } from '../data/layouts/symbol-layout-jcuken';
 import { fingerLayoutASDF } from '../data/layouts/finger-layout-asdf';
-import { keyboardLayoutANSI } from '../data/layouts/keyboard-layout-ansi';
+import { physicalLayoutANSI } from '../data/layouts/physical-layout-ansi';
 
 // --- Инициализация ---
 
@@ -33,9 +33,9 @@ console.log("---");
 for (const char of word) {
   const difficulty = calculateCharDifficulty(
     char,
-    symbolLayoutRu,
+    symbolLayoutJcuken,
     fingerLayoutASDF,
-    keyboardLayoutANSI
+    physicalLayoutANSI
   );
 
   // Вывод с округлением для наглядности

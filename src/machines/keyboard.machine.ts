@@ -1,6 +1,6 @@
 import { assign, sendTo, setup } from "xstate";
 
-import type { KeyCapId, ParentActor, KeyboardLayout } from "@/interfaces/types";
+import type { KeyCapId, ParentActor, PhysicalLayout } from "@/interfaces/types";
 import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
 /**
  * @description Контекст машины `keyboardMachine`.
@@ -10,7 +10,7 @@ import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
 export interface KeyboardMachineContext {
   pressedKeys: Set<KeyCapId>;
   parentActor: ParentActor;
-  keyboardLayout: KeyboardLayout; // Added
+  physicalLayout: PhysicalLayout; // Added
 }
 
 export type KeyboardMachineEvent =
@@ -22,7 +22,7 @@ export const keyboardMachine = setup({
   types: {
     context: {} as KeyboardMachineContext,
     events: {} as KeyboardMachineEvent,
-    input: {} as { parentActor: ParentActor; keyboardLayout: KeyboardLayout }, // Added
+    input: {} as { parentActor: ParentActor; physicalLayout: PhysicalLayout }, // Added
     // New types for output events
     output: {} as
       | { type: "KEYBOARD.CHARACTER_INPUT"; keys: KeyCapId[] }
@@ -63,7 +63,7 @@ export const keyboardMachine = setup({
         // Оставляем только другие модификаторы
         return new Set(
           Array.from(context.pressedKeys).filter(
-            (key) => isModifierKey(key, context.keyboardLayout) && key !== event.keyCapId
+            (key) => isModifierKey(key, context.physicalLayout) && key !== event.keyCapId
           )
         );
       },
@@ -97,7 +97,7 @@ export const keyboardMachine = setup({
       // The physical spacebar 'Space' should be treated as a text key
       // even though our virtual layout uses 'SpaceLeft' and 'SpaceRight'.
       if (event.keyCapId === 'Space') return true;
-      const result = isTextKey(event.keyCapId, context.keyboardLayout);
+      const result = isTextKey(event.keyCapId, context.physicalLayout);
       return result;
     },
     isNavigationalKeyGuard: ({ context, event }) => {
@@ -122,7 +122,7 @@ export const keyboardMachine = setup({
   context: ({ input }) => ({
     pressedKeys: new Set<KeyCapId>(),
     parentActor: input.parentActor,
-    keyboardLayout: input.keyboardLayout,
+    physicalLayout: input.physicalLayout,
   }),
   on: {
     // Общие обработчики для всех состояний

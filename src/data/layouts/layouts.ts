@@ -1,15 +1,14 @@
-import type { UserPreferences } from '@/interfaces/user-preferences';
-import type { SymbolLayout } from '@/interfaces/types';
-import { symbolLayoutEnQwerty } from './symbol-layout-en';
-import { symbolLayoutRu } from './symbol-layout-ru';
+import type { SymbolLayout, SymbolLayoutId } from '@/interfaces/types';
+import { symbolLayoutQwerty } from './symbol-layout-qwerty';
+import { symbolLayoutJcuken } from './symbol-layout-jcuken';
 
-const symbolLayouts: Record<UserPreferences['keyboardLayout'], SymbolLayout> = {
-  qwerty: symbolLayoutEnQwerty,
-  йцукен: symbolLayoutRu,
+const symbolLayouts: Record<SymbolLayoutId, SymbolLayout> = {
+  qwerty: symbolLayoutQwerty,
+  йцукен: symbolLayoutJcuken,
 };
 
 export const getSymbolLayout = (
-  layout: UserPreferences['keyboardLayout'] = 'qwerty'
+  layoutId: SymbolLayoutId = 'qwerty'
 ): SymbolLayout => {
-  return symbolLayouts[layout];
+  return symbolLayouts[layoutId];
 };

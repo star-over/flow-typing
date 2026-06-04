@@ -2,7 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import HandsExt from './HandsExt.svelte';
   import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-  import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi';
+  import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
   import { getSymbolLayout } from '@/data/layouts/layouts';
   import { idle } from '@/fixtures/hands-ext/idle';
   import { simple_space } from '@/fixtures/hands-ext/simple_space';
@@ -17,7 +17,7 @@
     args: {
       viewModel: idle.expectedOutput,
       fingerLayout: fingerLayoutASDF,
-      keyboardLayout: keyboardLayoutANSI,
+      physicalLayout: physicalLayoutANSI,
       symbolLayout,
       centerPointVisibility: 'INVISIBLE',
     },

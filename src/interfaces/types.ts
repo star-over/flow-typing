@@ -169,10 +169,14 @@ export interface PhysicalKey {
   type: KeyCapType;                     // Тип: буквенная, системная или текстовая клавиша
 }
 /**
- * Физический макет клавиатуры (холост).
+ * Физический макет клавиатуры (холст).
  * Описывает геометрию: расположение, размер и форму клавиш в виде двумерного массива.
+ * Инвариант железа — не зависит от выбора пользователя.
  */
-export type KeyboardLayout = PhysicalKey[][];
+export type PhysicalLayout = PhysicalKey[][];
+
+/** Идентификатор физического макета (форм-фактор). */
+export type PhysicalLayoutId = 'ANSI';
 
 /**
  * Пальцевый макет (инструкция).
@@ -185,6 +189,9 @@ export type FingerLayout = {
   isHomeKey?: boolean;
 }[];
 
+/** Идентификатор пальцевого макета (схема постановки рук). */
+export type FingerLayoutId = 'ASDF';
+
 /**
  * Символьный макет (слой краски).
  * Определяет, какой символ (`'a'`, `'!'`) или их комбинация соответствует каждой физической клавише.
@@ -194,6 +201,9 @@ export type SymbolLayout = {
   symbol: string;
   keyCaps: KeyCapId[];
 }[];
+
+/** Идентификатор символьного макета (то, что пользователь выбирает в настройках). */
+export type SymbolLayoutId = 'qwerty' | 'йцукен';
 
 // --- Virtual Keyboard ---
 
@@ -259,7 +269,7 @@ export interface SettingOption<T> {
 }
 
 export interface SettingMetadata<T> {
-  key: keyof UserPreferences; // The key used in UserPreferences (e.g., 'language', 'keyboardLayout')
+  key: keyof UserPreferences; // The key used in UserPreferences (e.g., 'language', 'symbolLayoutId')
   storageKey: string; // The key used for storage (e.g., in localStorage or DB)
   labelCode: string; // i18n code for the setting's display name
   descriptionCode: string; // i18n code for a detailed description of the setting

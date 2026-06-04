@@ -15,7 +15,7 @@
  */
 import type { SymbolLayout } from "@/interfaces/types";
 
-export const symbolLayoutEnQwerty: SymbolLayout = [
+export const symbolLayoutQwerty: SymbolLayout = [
   { symbol: " ", keyCaps: ["Space"] },
   { symbol: "`", keyCaps: ["Backquote"] },
   { symbol: "1", keyCaps: ["Digit1"] },

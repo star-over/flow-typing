@@ -14,7 +14,7 @@
 
 2.  **Описательность и отсутствие сокращений**: Имена должны быть полными, ясными и точно описывать сущность, которую они представляют. Следует избегать неоднозначных или неочевидных сокращений.
     
-    *   **Хорошо:** `KeyboardLayout`, `StreamSymbol`, `PerformanceScore`.
+    *   **Хорошо:** `PhysicalLayout`, `StreamSymbol`, `PerformanceScore`.
     *   **Плохо:** `KbdLayout`, `StrSym`, `PerfScore`.
 
 ## 2.2. Типы-идентификаторы и объединения (Union Types)
@@ -78,7 +78,7 @@ function processSymbols(symbols: StreamSymbolList): void;
 **Примеры:**
 ```typescript
 // Описывает всю физическую раскладку клавиатуры как единую сущность (массив рядов клавиш)
-type KeyboardLayout = PhysicalKey[][];
+type PhysicalLayout = PhysicalKey[][];
 
 // Описывает всю символьную раскладку как единую систему (массив сопоставлений)
 type SymbolLayout = {
@@ -86,4 +86,4 @@ type SymbolLayout = {
   keyCaps: KeyCapId[];
 }[];
 ```
-Здесь `KeyboardLayout` и `SymbolLayout` — это имена, описывающие целостную концепцию, а не просто "список".
+Здесь `PhysicalLayout` и `SymbolLayout` — это имена, описывающие целостную концепцию, а не просто "список".

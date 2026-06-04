@@ -5,7 +5,7 @@
  */
 
 import { getKeyCapIdsForChar } from './symbol-utils';
-import type { FingerLayout, KeyCapId, SymbolLayout, KeyboardLayout } from '@/interfaces/types';
+import type { FingerLayout, KeyCapId, SymbolLayout, PhysicalLayout } from '@/interfaces/types';
 import { type KeyCoordinateMap, createKeyCoordinateMap } from './layout-utils';
 
 
@@ -119,7 +119,7 @@ export function calculateCharDifficulty(
   char: string,
   symbolLayout: SymbolLayout,
   fingerLayout: FingerLayout,
-  keyboardLayout: KeyboardLayout
+  physicalLayout: PhysicalLayout
 ): number {
   const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
 
@@ -127,7 +127,7 @@ export function calculateCharDifficulty(
     return 10;
   }
 
-  const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(keyboardLayout);
+  const keyCoordinateMap: KeyCoordinateMap = createKeyCoordinateMap(physicalLayout);
 
   let totalDifficulty = 0;
 

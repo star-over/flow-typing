@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'; // Import vi for mocking
-import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en';
+import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
 import { generateTypingStream } from './lesson-generator';
 
 describe('generateLesson', () => {
   it('should generate a correct stream for a simple word', () => {
     const lessonText = 'hi';
-    const stream = generateTypingStream(lessonText, symbolLayoutEnQwerty);
+    const stream = generateTypingStream(lessonText, symbolLayoutQwerty);
 
     expect(stream).toHaveLength(2);
     expect(stream[0]).toEqual({
@@ -25,7 +25,7 @@ describe('generateLesson', () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const lessonText = 'a€b'; // € is not in the layout
-    const stream = generateTypingStream(lessonText, symbolLayoutEnQwerty);
+    const stream = generateTypingStream(lessonText, symbolLayoutQwerty);
 
     expect(stream).toHaveLength(2);
     expect(stream[0]!.targetSymbol).toBe('a');
@@ -41,7 +41,7 @@ describe('generateLesson', () => {
 
   it('should handle an empty string', () => {
     const lessonText = '';
-    const stream = generateTypingStream(lessonText, symbolLayoutEnQwerty);
+    const stream = generateTypingStream(lessonText, symbolLayoutQwerty);
     expect(stream).toHaveLength(0);
   });
 });

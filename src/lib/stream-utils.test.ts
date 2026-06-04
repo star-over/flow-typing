@@ -1,6 +1,6 @@
 import { describe, expect,it } from "vitest";
 
-import { symbolLayoutEnQwerty } from "@/data/layouts/symbol-layout-en"; // Corrected import path
+import { symbolLayoutQwerty } from "@/data/layouts/symbol-layout-qwerty"; // Corrected import path
 import type { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
@@ -10,7 +10,7 @@ import { nbsp } from "./symbol-utils";
 describe("createTypingStream", () => {
   it("should create a TypingStream from a string", () => {
     const text = "hello";
-    const stream = createTypingStream(text, symbolLayoutEnQwerty);
+    const stream = createTypingStream(text, symbolLayoutQwerty);
 
     expect(stream).toHaveLength(5);
     expect(stream[0]!.targetSymbol).toBe("h");
@@ -19,20 +19,20 @@ describe("createTypingStream", () => {
 
   it("should handle an empty string", () => {
     const text = "";
-    const stream = createTypingStream(text, symbolLayoutEnQwerty);
+    const stream = createTypingStream(text, symbolLayoutQwerty);
     expect(stream).toHaveLength(0);
   });
 
   it("should correctly handle spaces", () => {
     const text = "a b";
-    const stream = createTypingStream(text, symbolLayoutEnQwerty);
+    const stream = createTypingStream(text, symbolLayoutQwerty);
     expect(stream).toHaveLength(3);
     expect(stream[1]!.targetSymbol).toBe(" ");
   });
 
   it("should skip characters not in the layout", () => {
     const text = "a你好b"; // Assuming '你好' are not in the layout
-    const stream = createTypingStream(text, symbolLayoutEnQwerty);
+    const stream = createTypingStream(text, symbolLayoutQwerty);
     expect(stream).toHaveLength(2);
     expect(stream[0]!.targetSymbol).toBe("a");
     expect(stream[1]!.targetSymbol).toBe("b");
@@ -44,7 +44,7 @@ describe("addAttempt", () => {
   const pressedKeyCapsB: KeyCapId[] = ["KeyB"];
 
   it("should add an attempt to a symbol", () => {
-    const stream = createTypingStream("a", symbolLayoutEnQwerty);
+    const stream = createTypingStream("a", symbolLayoutQwerty);
     const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
 
     expect(newStream[0]!.attempts).toHaveLength(1);
@@ -52,7 +52,7 @@ describe("addAttempt", () => {
   });
 
   it("should add multiple attempts", () => {
-    let stream = createTypingStream("a", symbolLayoutEnQwerty);
+    let stream = createTypingStream("a", symbolLayoutQwerty);
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsB, startAt: 0, endAt: 100 });
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 100, endAt: 200 });
 
@@ -61,7 +61,7 @@ describe("addAttempt", () => {
   });
 
   it("should be immutable", () => {
-    const stream = createTypingStream("a", symbolLayoutEnQwerty);
+    const stream = createTypingStream("a", symbolLayoutQwerty);
     const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
     expect(newStream).not.toBe(stream);
     expect(newStream[0]).not.toBe(stream[0]);

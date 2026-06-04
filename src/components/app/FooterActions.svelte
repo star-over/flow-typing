@@ -2,7 +2,7 @@
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { Dictionary } from '@/interfaces/types';
-  import { keyboardLayout } from '@/lib/preferences';
+  import { symbolLayoutId } from '@/lib/preferences';
 
   interface Props {
     state: StateFrom<typeof appMachine>;
@@ -15,8 +15,8 @@
 
 <footer class="footer">
   <div class="actions">
-    {#if state.can({ type: 'START_TRAINING', keyboardLayout: $keyboardLayout })}
-      <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', keyboardLayout: $keyboardLayout })}>
+    {#if state.can({ type: 'START_TRAINING', symbolLayoutId: $symbolLayoutId })}
+      <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId: $symbolLayoutId })}>
         {dictionary.app.start_training}
       </button>
     {/if}

@@ -53,7 +53,7 @@ import {
   type HandsSceneViewModel,
   type KeyCapId,
   type KeySceneState,
-  type KeyboardLayout,
+  type PhysicalLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
   RIGHT_HAND_BASE,
@@ -432,14 +432,14 @@ export function generateHandsSceneViewModel(
  * @param fingerId Идентификатор пальца, для которого генерируется макет (например, 'L1', 'R3').
  * @param viewModel Общая модель представления сцены рук, содержащая состояние для всех пальцев и колпачков клавиш.
  * @param fingerLayout The layout defining which finger presses which key.
- * @param keyboardLayout The physical layout of the keyboard.
+ * @param physicalLayout The physical layout of the keyboard.
  * @returns Двумерный массив, представляющий виртуальный макет, где каждая клавиша обогащена состоянием сцены.
  */
 export const generateVirtualLayoutForFinger = (
   fingerId: FingerId,
   viewModel: HandsSceneViewModel,
   fingerLayout: FingerLayout,
-  keyboardLayout: KeyboardLayout,
+  physicalLayout: PhysicalLayout,
 ): VirtualLayout => {
   // Получаем состояние сцены конкретно для текущего пальца
   const fingerSceneState = viewModel[fingerId];
@@ -450,7 +450,7 @@ export const generateVirtualLayoutForFinger = (
   const homeKeyForFinger = getHomeKeyForFinger(fingerId, fingerLayout);
 
   // Проходим по стандартному макету клавиатуры ANSI, чтобы создать виртуальный макет для пальца
-  return keyboardLayout.map((row, rowIndex) =>
+  return physicalLayout.map((row, rowIndex) =>
     row.map((physicalKey): VirtualKey => {
       const { keyCapId } = physicalKey;
       // Получаем конкретное состояние для этого колпачка клавиши из состояния сцены пальца

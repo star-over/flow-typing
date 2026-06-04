@@ -9,7 +9,7 @@
       user_preferences: {
         title: string;
         language_label: string;
-        keyboard_layout_label: string;
+        symbol_layout_label: string;
         back_button: string;
       };
     };
@@ -22,7 +22,7 @@
     { value: 'ru', label: 'Русский' },
   ];
 
-  const layouts: { value: UserPreferences['keyboardLayout']; label: string }[] = [
+  const layouts: { value: UserPreferences['symbolLayoutId']; label: string }[] = [
     { value: 'qwerty', label: 'QWERTY' },
     { value: 'йцукен', label: 'ЙЦУКЕН' },
   ];
@@ -41,11 +41,11 @@
   </label>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.keyboard_layout_label}</span>
+    <span class="label-text">{dictionary.user_preferences.symbol_layout_label}</span>
     <Select
-      value={$preferences.keyboardLayout}
+      value={$preferences.symbolLayoutId}
       options={layouts}
-      onChange={(v) => updatePreferences({ keyboardLayout: v as UserPreferences['keyboardLayout'] })}
+      onChange={(v) => updatePreferences({ symbolLayoutId: v as UserPreferences['symbolLayoutId'] })}
     />
   </label>
 

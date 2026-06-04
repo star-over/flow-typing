@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, KeyboardLayout } from '@/interfaces/types';
+  import type { Dictionary, FingerLayout, PhysicalLayout } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -15,11 +15,11 @@
   interface Props {
     trainingActor: Actor<typeof trainingMachine>;
     fingerLayout: FingerLayout;
-    keyboardLayout: KeyboardLayout;
+    physicalLayout: PhysicalLayout;
     dictionary: Dictionary;
   }
 
-  const { trainingActor, fingerLayout, keyboardLayout, dictionary }: Props = $props();
+  const { trainingActor, fingerLayout, physicalLayout, dictionary }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
@@ -34,11 +34,11 @@
 
   const stream = $derived(trainingState.context.stream);
   const currentIndex = $derived(trainingState.context.currentIndex);
-  const keyboardLayoutPreference = $derived(trainingState.context.keyboardLayout);
+  const symbolLayoutId = $derived(trainingState.context.symbolLayoutId);
 
-  const keyboardGraph = $derived(createKeyboardGraph(keyboardLayout));
-  const keyCoordinateMap = $derived(createKeyCoordinateMap(keyboardLayout));
-  const symbolLayout = $derived(getSymbolLayout(keyboardLayoutPreference));
+  const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
+  const keyCoordinateMap = $derived(createKeyCoordinateMap(physicalLayout));
+  const symbolLayout = $derived(getSymbolLayout(symbolLayoutId));
 
   const viewModel = $derived(
     generateHandsSceneViewModel(
@@ -65,7 +65,7 @@
     isTyping={trainingState.matches('running')}
   />
 
-  <HandsExt {viewModel} {fingerLayout} {keyboardLayout} {symbolLayout} />
+  <HandsExt {viewModel} {fingerLayout} {physicalLayout} {symbolLayout} />
 </div>
 
 <style>

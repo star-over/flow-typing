@@ -17,7 +17,7 @@ import { simple_r_error_simple_f } from '@/fixtures/hands-ext/simple_r_error_sim
 import { simple_space } from '@/fixtures/hands-ext/simple_space';
 import { simple_t } from '@/fixtures/hands-ext/simple_t';
 
-import { fingerLayout, keyboardGraph, keyCoordinateMap, keyboardLayout } from '@/fixtures/hands-ext/test-data';
+import { fingerLayout, keyboardGraph, keyCoordinateMap, physicalLayout } from '@/fixtures/hands-ext/test-data';
 
 import { generateHandsSceneViewModel, generateVirtualLayoutForFinger } from './viewModel-builder';
 
@@ -195,7 +195,7 @@ describe('generateVirtualLayoutForFinger', () => {
     const targetFinger = 'L2';
 
     // 2. Act
-    const virtualLayout = generateVirtualLayoutForFinger(targetFinger, viewModel, fingerLayout, keyboardLayout);
+    const virtualLayout = generateVirtualLayoutForFinger(targetFinger, viewModel, fingerLayout, physicalLayout);
 
     // 3. Assert
     // Helper function to find a key in the generated layout

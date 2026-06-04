@@ -1,33 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { symbolLayoutEnQwerty } from '@/data/layouts/symbol-layout-en'; // Corrected import path
+import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty'; // Corrected import path
 import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf'; // Import fingerLayoutASDF
 
-import { keyboardLayoutANSI } from '../data/layouts/keyboard-layout-ansi';
+import { physicalLayoutANSI } from '../data/layouts/physical-layout-ansi';
 import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {
-    const keyCapIds = getKeyCapIdsForChar('a', symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar('a', symbolLayoutQwerty);
     expect(keyCapIds).toEqual(['KeyA']);
   });
 
   it('should return the correct KeyCapIds for an uppercase character', () => {
-    const keyCapIds = getKeyCapIdsForChar('A', symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar('A', symbolLayoutQwerty);
     expect(keyCapIds).toEqual(['KeyA', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapIds for a symbol character', () => {
-    const keyCapIds = getKeyCapIdsForChar('!', symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar('!', symbolLayoutQwerty);
     expect(keyCapIds).toEqual(['Digit1', 'ShiftRight']);
   });
 
   it('should return the correct KeyCapId for a space character', () => {
-    const keyCapIds = getKeyCapIdsForChar(' ', symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar(' ', symbolLayoutQwerty);
     expect(keyCapIds).toEqual(['Space']);
   });
 
   it('should return undefined for a character not in the layout', () => {
-    const keyCapIds = getKeyCapIdsForChar('€', symbolLayoutEnQwerty);
+    const keyCapIds = getKeyCapIdsForChar('€', symbolLayoutQwerty);
     expect(keyCapIds).toBeUndefined();
   });
 });
@@ -36,62 +36,62 @@ describe('getKeyCapIdsForChar', () => {
 
 describe('getLabel', () => {
   it('should return the uppercase symbol for a letter key', () => {
-    expect(getLabel('KeyA', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('A');
+    expect(getLabel('KeyA', symbolLayoutQwerty, physicalLayoutANSI)).toBe('A');
   });
 
   it('should return the combined label for a number key', () => {
-    expect(getLabel('Digit1', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('1\u202F!');
+    expect(getLabel('Digit1', symbolLayoutQwerty, physicalLayoutANSI)).toBe('1\u202F!');
   });
 
   it('should handle symbol keys with combined labels', () => {
-    expect(getLabel('Digit4', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('4\u202F$');
+    expect(getLabel('Digit4', symbolLayoutQwerty, physicalLayoutANSI)).toBe('4\u202F$');
   });
 
   it('should return the correct label for a modifier key', () => {
-    expect(getLabel('ShiftRight', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('Shift R');
+    expect(getLabel('ShiftRight', symbolLayoutQwerty, physicalLayoutANSI)).toBe('Shift R');
   });
 
   it('should return a placeholder if a key is not in any layout', () => {
-    expect(getLabel('Escape', symbolLayoutEnQwerty, keyboardLayoutANSI)).toBe('...');
+    expect(getLabel('Escape', symbolLayoutQwerty, physicalLayoutANSI)).toBe('...');
   });
 });
 
 describe('isTextKey', () => {
   it('should return true for a valid symbol KeyCapId', () => {
-    expect(isTextKey('KeyA', keyboardLayoutANSI)).toBe(true);
-    expect(isTextKey('Digit1', keyboardLayoutANSI)).toBe(true);
-    expect(isTextKey('Comma', keyboardLayoutANSI)).toBe(true);
+    expect(isTextKey('KeyA', physicalLayoutANSI)).toBe(true);
+    expect(isTextKey('Digit1', physicalLayoutANSI)).toBe(true);
+    expect(isTextKey('Comma', physicalLayoutANSI)).toBe(true);
   });
 
   it('should return false for a non-symbol KeyCapId', () => {
-    expect(isTextKey('ShiftLeft', keyboardLayoutANSI)).toBe(false);
-    expect(isTextKey('CapsLock', keyboardLayoutANSI)).toBe(false);
-    expect(isTextKey('Enter', keyboardLayoutANSI)).toBe(false);
+    expect(isTextKey('ShiftLeft', physicalLayoutANSI)).toBe(false);
+    expect(isTextKey('CapsLock', physicalLayoutANSI)).toBe(false);
+    expect(isTextKey('Enter', physicalLayoutANSI)).toBe(false);
   });
 
   it('should return false for an invalid or non-existent KeyCapId', () => {
-    expect(isTextKey('InvalidKey', keyboardLayoutANSI)).toBe(false);
-    expect(isTextKey('KeyZz', keyboardLayoutANSI)).toBe(false);
+    expect(isTextKey('InvalidKey', physicalLayoutANSI)).toBe(false);
+    expect(isTextKey('KeyZz', physicalLayoutANSI)).toBe(false);
   });
 });
 
 describe('isModifierKey', () => {
   it('should return true for a valid modifier KeyCapId', () => {
-    expect(isModifierKey('ShiftLeft', keyboardLayoutANSI)).toBe(true);
-    expect(isModifierKey('ControlRight', keyboardLayoutANSI)).toBe(true);
-    expect(isModifierKey('AltLeft', keyboardLayoutANSI)).toBe(true);
-    expect(isModifierKey('MetaRight', keyboardLayoutANSI)).toBe(true);
+    expect(isModifierKey('ShiftLeft', physicalLayoutANSI)).toBe(true);
+    expect(isModifierKey('ControlRight', physicalLayoutANSI)).toBe(true);
+    expect(isModifierKey('AltLeft', physicalLayoutANSI)).toBe(true);
+    expect(isModifierKey('MetaRight', physicalLayoutANSI)).toBe(true);
   });
 
   it('should return false for a non-modifier KeyCapId', () => {
-    expect(isModifierKey('KeyA', keyboardLayoutANSI)).toBe(false);
-    expect(isModifierKey('Enter', keyboardLayoutANSI)).toBe(false);
-    expect(isModifierKey('Tab', keyboardLayoutANSI)).toBe(false);
+    expect(isModifierKey('KeyA', physicalLayoutANSI)).toBe(false);
+    expect(isModifierKey('Enter', physicalLayoutANSI)).toBe(false);
+    expect(isModifierKey('Tab', physicalLayoutANSI)).toBe(false);
   });
 
   it('should return false for an invalid or non-existent KeyCapId', () => {
-    expect(isModifierKey('InvalidKey', keyboardLayoutANSI)).toBe(false);
-    expect(isModifierKey('Shift', keyboardLayoutANSI)).toBe(false);
+    expect(isModifierKey('InvalidKey', physicalLayoutANSI)).toBe(false);
+    expect(isModifierKey('Shift', physicalLayoutANSI)).toBe(false);
   });
 });
 

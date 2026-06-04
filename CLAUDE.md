@@ -58,7 +58,7 @@
 - `KeyCapId` (`src/interfaces/key-cap-id.ts`) — литеральное объединение всех физических клавиш.
 - `FingerId` = `L1..L5 | R1..R5 | LB | RB`: 1 = большой, 5 = мизинец, B = ладонь, L/R = левая/правая рука.
 - `StreamSymbol` (`{ targetSymbol, targetKeyCaps, attempts }`) — единица `TypingStream`.
-- Раскладки разделены: **физическая** (`keyboard-layout-ansi.ts`, геометрия), **символьная** (`symbol-layout-{en,ru}.ts`, символ → KeyCapId + модификаторы), **пальцевая** (`finger-layout-asdf.ts`, KeyCapId → FingerId).
+- Три слоя раскладок, у каждого — тип данных + идентификатор: **физическая** `PhysicalLayout` / `PhysicalLayoutId` (геометрия железа, ANSI, инвариант); **символьная** `SymbolLayout` / `SymbolLayoutId` (`'qwerty' \| 'йцукен'`, выбор пользователя в `UserPreferences.symbolLayoutId`); **пальцевая** `FingerLayout` / `FingerLayoutId` (ASDF). Имя слоя — в типе и в каждом поле: никаких `keyboardLayout`-полей с двойным смыслом.
 - `src/interfaces/types.ts` имеет header-комментарий: **JSDoc там — часть документации единого языка, не удалять при рефакторинге.**
 
 ### Settings и i18n
@@ -78,6 +78,5 @@
 ## Gotchas
 
 - **HMR и XState:** `appActor` создаётся на уровне модуля. `import.meta.hot.decline()` форсит full reload вместо HMR. Если при правке `appActor.ts` / `app.machine.ts` видите «двойные» события — это full-reload, состояние тренировки теряется (by design, snapshot-restore не реализован).
-- **Два слоя раскладки:** `appMachine` хардкодит `keyboardLayoutANSI` (**физическая** геометрия, инвариант), а `currentKeyboardLayout` (qwerty/йцукен — **символьная**) приходит из preferences через `START_TRAINING`. Не путать слои.
 - **`stream` иммутабелен по ссылке:** `trainingMachine` делает `[...stream]` + замену символа. UI-производные через `$derived` пересчитываются автоматически.
 - **`Space` vs `SpaceLeft`/`SpaceRight`:** физическая `Space` отдельно whitelist'нута как text key в `keyboardMachine.isTextKeyGuard`, потому что виртуальная раскладка делит пробел на две клавиши.

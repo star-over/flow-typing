@@ -8,16 +8,16 @@ const LANGUAGE_OPTIONS: SettingOption<UserPreferences['language']>[] = [
 ];
 
 // Options for keyboard layout setting
-const KEYBOARD_LAYOUT_OPTIONS: SettingOption<UserPreferences['keyboardLayout']>[] = [
-  { value: 'qwerty', labelCode: 'keyboardLayout.qwerty' },
-  { value: 'йцукен', labelCode: 'keyboardLayout.йцукен' },
+const SYMBOL_LAYOUT_OPTIONS: SettingOption<UserPreferences['symbolLayoutId']>[] = [
+  { value: 'qwerty', labelCode: 'symbolLayoutId.qwerty' },
+  { value: 'йцукен', labelCode: 'symbolLayoutId.йцукен' },
 ];
 
 /**
  * Metadata for all user preferences, defining their structure, display, and storage.
  */
 const USER_PREFERENCE_METADATA: (| SettingMetadata<UserPreferences['language']>
-  | SettingMetadata<UserPreferences['keyboardLayout']>)[] = [
+  | SettingMetadata<UserPreferences['symbolLayoutId']>)[] = [
   {
     key: 'language',
     storageKey: 'userLanguage',
@@ -30,13 +30,13 @@ const USER_PREFERENCE_METADATA: (| SettingMetadata<UserPreferences['language']>
     componentType: 'select',
   },
   {
-    key: 'keyboardLayout',
-    storageKey: 'userKeyboardLayout',
-    labelCode: 'user_preferences.keyboard_layout_label',
-    descriptionCode: 'user_preferences.keyboard_layout_description', // Assuming a description will be added to i18n
+    key: 'symbolLayoutId',
+    storageKey: 'userSymbolLayoutId',
+    labelCode: 'user_preferences.symbol_layout_label',
+    descriptionCode: 'user_preferences.symbol_layout_description', // Assuming a description will be added to i18n
     type: 'enum',
     defaultValue: 'qwerty',
-    options: KEYBOARD_LAYOUT_OPTIONS,
+    options: SYMBOL_LAYOUT_OPTIONS,
     categoryCode: 'user_preferences.category.general',
     componentType: 'select',
   },
@@ -57,6 +57,6 @@ const getSettingDefaultValue = <K extends keyof UserPreferences>(key: K): UserPr
 
 export const DEFAULT_USER_PREFERENCES: UserPreferences = {
   language: getSettingDefaultValue('language'),
-  keyboardLayout: getSettingDefaultValue('keyboardLayout'),
+  symbolLayoutId: getSettingDefaultValue('symbolLayoutId'),
   shared: {}, // 'shared' is not a user preference that needs metadata, it's a state property.
 };

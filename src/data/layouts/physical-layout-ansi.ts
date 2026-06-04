@@ -11,9 +11,9 @@
  * @see{@link /DOMAIN.md}
  * @see{@link /src/interfaces/types.ts}
  */
-import type { KeyboardLayout } from "@/interfaces/types";
+import type { PhysicalLayout } from "@/interfaces/types";
 
-export const keyboardLayoutANSI: KeyboardLayout = [
+export const physicalLayoutANSI: PhysicalLayout = [
   // ROW 1
   [
     { keyCapId: "Backquote",  label: "`\u202F~", unitWidth: "1U", type: "SYMBOL" },

@@ -2,7 +2,7 @@ import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type {
   FingerId,
   FingerLayout,
-  KeyboardLayout,
+  PhysicalLayout,
   SymbolLayout,
 } from "@/interfaces/types";
 
@@ -23,11 +23,11 @@ export const sp = '\u0020';
 /**
  * Проверяет, является ли клавиша модификатором.
  * @param key Код клавиши (`KeyboardEvent.code`).
- * @param keyboardLayout Макет клавиатуры, используемый для определения модификаторов.
+ * @param physicalLayout Макет клавиатуры, используемый для определения модификаторов.
  * @returns `true`, если клавиша является модификатором.
  */
-export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): boolean {
-  return keyboardLayout.flat()
+export function isModifierKey(key: string, physicalLayout: PhysicalLayout): boolean {
+  return physicalLayout.flat()
     .filter((k) => k.type === "MODIFIER")
     .map((k) => k.keyCapId)
     .includes(key as KeyCapId);
@@ -35,14 +35,14 @@ export function isModifierKey(key: string, keyboardLayout: KeyboardLayout): bool
 
 /**
  * Проверяет, является ли клавиша символьной (текстовой).
- * Зависит от глобальной переменной `symbolKeyCapIdSet`, которая инициализируется с `keyboardLayoutANSI`.
+ * Зависит от глобальной переменной `symbolKeyCapIdSet`, которая инициализируется с `physicalLayoutANSI`.
  * Для обеспечения полной чистоты и тестируемости, эта функция также должна быть рефакторизована
- * для принятия `KeyboardLayout` в качестве аргумента.
+ * для принятия `PhysicalLayout` в качестве аргумента.
  * @param key Код клавиши (`KeyboardEvent.code`).
  * @returns `true`, если клавиша является символьной.
  */
-export function isTextKey(key: string, keyboardLayout: KeyboardLayout): boolean {
-  return keyboardLayout.flat()
+export function isTextKey(key: string, physicalLayout: PhysicalLayout): boolean {
+  return physicalLayout.flat()
     .filter((k) => k.type === "SYMBOL")
     .map((k) => k.keyCapId)
     .includes(key as KeyCapId);
@@ -63,8 +63,8 @@ export function isTextKey(key: string, keyboardLayout: KeyboardLayout): boolean 
  * ShiftLeft vs. ShiftRight. It also correctly resolves the symbol for the
  * modifier key itself (e.g., finding "Sh L" for the "ShiftLeft" key).
  */
-export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, keyboardLayout: KeyboardLayout): string {
-  const physicalKey = keyboardLayout.flat().find((key) => key.keyCapId === keyCapId);
+export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, physicalLayout: PhysicalLayout): string {
+  const physicalKey = physicalLayout.flat().find((key) => key.keyCapId === keyCapId);
 
   // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
   if (physicalKey?.type !== 'SYMBOL') {

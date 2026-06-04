@@ -1,23 +1,21 @@
 import { assign, createMachine, sendTo } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
-import { keyboardLayoutANSI } from '@/data/layouts/keyboard-layout-ansi'; // Import keyboardLayoutANSI
+import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
+import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
+import { getSymbolLayout } from "@/data/layouts/layouts";
+import { generateTypingStream, lessons } from "@/lib/lesson-generator";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
-import type { UserPreferences } from "@/interfaces/user-preferences";
-import type { TypingStream } from "@/interfaces/types";
-import { generateTypingStream, lessons } from "@/lib/lesson-generator";
-import { getSymbolLayout } from "@/data/layouts/layouts";
 
-// Local types for appMachine
 export interface AppContext {
   lastTrainingStream: TypingStream | null;
-  currentKeyboardLayout: UserPreferences['keyboardLayout'];
+  currentSymbolLayoutId: SymbolLayoutId;
 }
 
 export type AppEvent =
-  | { type: 'START_TRAINING', keyboardLayout: UserPreferences['keyboardLayout'] }
+  | { type: 'START_TRAINING', symbolLayoutId: SymbolLayoutId }
   | { type: 'TO_SETTINGS' }
   | { type: 'TO_ALL_STAT' }
   | { type: 'TO_MENU' }
@@ -39,12 +37,12 @@ export const appMachine = createMachine({
     src: keyboardMachine,
     input: ({ self }) => ({
       parentActor: self,
-      keyboardLayout: keyboardLayoutANSI // Pass layout here
+      physicalLayout: physicalLayoutANSI,
     }),
   },
   context: {
     lastTrainingStream: null,
-    currentKeyboardLayout: 'qwerty' // Default value
+    currentSymbolLayoutId: 'qwerty',
   } as AppContext,
   types: {} as {
     context: AppContext;
@@ -92,12 +90,12 @@ export const appMachine = createMachine({
           reenter: true,
           actions: assign({
             lastTrainingStream: ({ event }) => {
-              const symbolLayout = getSymbolLayout(event.keyboardLayout);
+              const symbolLayout = getSymbolLayout(event.symbolLayoutId);
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
-            currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
+            currentSymbolLayoutId: ({ event }) => event.symbolLayoutId,
           })
         },
         TO_SETTINGS: 'settings',
@@ -113,7 +111,7 @@ export const appMachine = createMachine({
         input: ({ context, self }) => {
           return {
             stream: context.lastTrainingStream!,
-            keyboardLayout: context.currentKeyboardLayout,
+            symbolLayoutId: context.currentSymbolLayoutId,
             parentActor: self,
           };
         },
@@ -137,7 +135,7 @@ export const appMachine = createMachine({
           },
         },
         paused: {
-          entry: sendTo('keyboardService', { type: 'RESET' }), // <-- Added this
+          entry: sendTo('keyboardService', { type: 'RESET' }),
           on: {
             RESUME: 'running',
             TO_MENU: '#app.menu',
@@ -173,12 +171,12 @@ export const appMachine = createMachine({
           reenter: true,
           actions: assign({
             lastTrainingStream: ({ event }) => {
-              const symbolLayout = getSymbolLayout(event.keyboardLayout);
+              const symbolLayout = getSymbolLayout(event.symbolLayoutId);
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
-            currentKeyboardLayout: ({ event }) => event.keyboardLayout // Added
+            currentSymbolLayoutId: ({ event }) => event.symbolLayoutId,
           })
         },
         // Handle navigation keys after training completion
@@ -187,12 +185,12 @@ export const appMachine = createMachine({
           target: 'trainingStart',
           actions: assign({
             lastTrainingStream: ({ context }) => {
-              const symbolLayout = getSymbolLayout(context.currentKeyboardLayout);
+              const symbolLayout = getSymbolLayout(context.currentSymbolLayoutId);
               const randomIndex = Math.floor(Math.random() * lessons.length);
               const lessonText = lessons[randomIndex]!;
               return generateTypingStream(lessonText, symbolLayout);
             },
-            currentKeyboardLayout: ({ context }) => context.currentKeyboardLayout
+            currentSymbolLayoutId: ({ context }) => context.currentSymbolLayoutId,
           })
         }
       },
@@ -209,4 +207,3 @@ export const appMachine = createMachine({
     }
   },
 });
-

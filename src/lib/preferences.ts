@@ -30,7 +30,7 @@ function createPreferencesStore() {
 }
 
 export const preferences = createPreferencesStore();
-export const keyboardLayout = derived(preferences, ($p) => $p.keyboardLayout);
+export const symbolLayoutId = derived(preferences, ($p) => $p.symbolLayoutId);
 
 /** Deep-merge partial update to preserve nested fields (e.g. shared.exerciseId) */
 export function updatePreferences(partial: Partial<UserPreferences>) {

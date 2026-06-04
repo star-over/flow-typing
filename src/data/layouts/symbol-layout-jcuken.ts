@@ -15,7 +15,7 @@
  */
 import type { SymbolLayout } from "@/interfaces/types";
 
-export const symbolLayoutRu: SymbolLayout = [
+export const symbolLayoutJcuken: SymbolLayout = [
   { symbol: " ", keyCaps: ["Space"] },
   { symbol: "ё", keyCaps: ["Backquote"] },
   { symbol: "1", keyCaps: ["Digit1"] },

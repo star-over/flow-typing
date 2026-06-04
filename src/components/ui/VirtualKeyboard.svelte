@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { KeyboardLayout, SymbolLayout, VirtualLayout } from '@/interfaces/types';
+  import type { PhysicalLayout, SymbolLayout, VirtualLayout } from '@/interfaces/types';
   import { getLabel } from '@/lib/symbol-utils';
   import KeyCap from './KeyCap.svelte';
 
   interface Props {
     virtualLayout: VirtualLayout;
-    keyboardLayout: KeyboardLayout;
+    physicalLayout: PhysicalLayout;
     symbolLayout: SymbolLayout;
   }
 
-  const { virtualLayout, keyboardLayout, symbolLayout }: Props = $props();
+  const { virtualLayout, physicalLayout, symbolLayout }: Props = $props();
 </script>
 
 <div class="keyboard">
@@ -18,7 +18,7 @@
       {#each row as virtualKey (virtualKey.keyCapId)}
         <KeyCap
           keyCapId={virtualKey.keyCapId}
-          symbol={getLabel(virtualKey.keyCapId, symbolLayout, keyboardLayout)}
+          symbol={getLabel(virtualKey.keyCapId, symbolLayout, physicalLayout)}
           pressResult={virtualKey.pressResult ?? 'NONE'}
           visibility={virtualKey.visibility ?? 'VISIBLE'}
           fingerId={virtualKey.fingerId}

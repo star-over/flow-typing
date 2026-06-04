@@ -4,7 +4,7 @@
     FingerLayout,
     FingerState,
     HandsSceneViewModel,
-    KeyboardLayout,
+    PhysicalLayout,
     SymbolLayout,
     Visibility,
   } from '@/interfaces/types';
@@ -31,7 +31,7 @@
   interface Props {
     viewModel: HandsSceneViewModel;
     fingerLayout: FingerLayout;
-    keyboardLayout: KeyboardLayout;
+    physicalLayout: PhysicalLayout;
     symbolLayout: SymbolLayout;
     class?: string;
     centerPointVisibility?: Visibility;
@@ -40,7 +40,7 @@
   const {
     viewModel,
     fingerLayout,
-    keyboardLayout,
+    physicalLayout,
     symbolLayout,
     class: className = '',
     centerPointVisibility = 'INVISIBLE',
@@ -127,7 +127,7 @@
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
       {#if viewModel[fingerId].fingerState !== 'NONE' && viewModel[fingerId].keyCapStates}
-        {@const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel, fingerLayout, keyboardLayout)}
+        {@const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel, fingerLayout, physicalLayout)}
         {@const t = clusterTranslations[fingerId]}
         <div
           bind:this={clusterRefs[fingerId]}
@@ -136,7 +136,7 @@
           style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
           style:visibility={t ? 'visible' : 'hidden'}
         >
-          <VirtualKeyboard {virtualLayout} {keyboardLayout} {symbolLayout} />
+          <VirtualKeyboard {virtualLayout} {physicalLayout} {symbolLayout} />
         </div>
       {/if}
     {/each}
