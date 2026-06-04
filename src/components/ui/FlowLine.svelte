@@ -21,7 +21,7 @@
     class?: string;
   }
 
-  let {
+  const {
     stream,
     cursorPosition,
     pressResult = 'NONE',
@@ -35,11 +35,11 @@
   const completedCount = 100;
   const pendingCount = 100;
 
-  let startCompleted = $derived(Math.max(0, cursorPosition - completedCount));
-  let completedSymbols = $derived(stream.slice(startCompleted, cursorPosition));
-  let cursorSymbol = $derived(stream[cursorPosition]);
-  let endPending = $derived(cursorPosition + 1 + pendingCount);
-  let pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));
+  const startCompleted = $derived(Math.max(0, cursorPosition - completedCount));
+  const completedSymbols = $derived(stream.slice(startCompleted, cursorPosition));
+  const cursorSymbol = $derived(stream[cursorPosition]);
+  const endPending = $derived(cursorPosition + 1 + pendingCount);
+  const pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));
 </script>
 
 <div class="flow-line {size} {cursorMode} {pressResult} {className}">

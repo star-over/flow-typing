@@ -25,7 +25,7 @@
     navigationArrow?: KeyCapNavigationArrow;
   }
 
-  let {
+  const {
     symbol,
     keyCapId,
     pressResult = 'NONE',
@@ -41,7 +41,7 @@
     navigationArrow = 'NONE',
   }: Props = $props();
 
-  let unitMultiplier = $derived(parseFloat(unitWidth));
+  const unitMultiplier = $derived(parseFloat(unitWidth));
 </script>
 
 <div

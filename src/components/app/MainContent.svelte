@@ -17,7 +17,7 @@
     trainingActor: Actor<typeof trainingMachine> | undefined;
   }
 
-  let { state, send, dictionary, trainingActor }: Props = $props();
+  const { state, send, dictionary, trainingActor }: Props = $props();
 </script>
 
 {#if state.matches({ training: 'running' }) && trainingActor}

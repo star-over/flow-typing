@@ -1,6 +1,6 @@
 <script lang="ts">
   import { appActor } from '$machines/appActor';
-  import { trainingMachine } from '$machines/training.machine';
+  import type { trainingMachine } from '$machines/training.machine';
   import type { Actor } from 'xstate';
 
   import { dictionary } from '$lib/i18n';
@@ -25,14 +25,14 @@
   onDestroy(() => actorSub.unsubscribe());
 
   // Reactive keyboard layout from store for FooterActions
-  let keyboardLayout = $derived($preferences.keyboardLayout);
+  const keyboardLayout = $derived($preferences.keyboardLayout);
 
   const trainingActor = $derived(
     state.children.trainingService as Actor<typeof trainingMachine> | undefined
   );
 
   function handleKeyDown(event: KeyboardEvent) {
-    const currentState = state as StateFrom<typeof appMachine>;
+    const currentState = state;
     if (currentState.matches('training') && event.code === 'Space') {
       event.preventDefault();
     }

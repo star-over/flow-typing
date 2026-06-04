@@ -16,10 +16,8 @@ const KEYBOARD_LAYOUT_OPTIONS: SettingOption<UserPreferences['keyboardLayout']>[
 /**
  * Metadata for all user preferences, defining their structure, display, and storage.
  */
-const USER_PREFERENCE_METADATA: Array<
-  | SettingMetadata<UserPreferences['language']>
-  | SettingMetadata<UserPreferences['keyboardLayout']>
-> = [
+const USER_PREFERENCE_METADATA: (| SettingMetadata<UserPreferences['language']>
+  | SettingMetadata<UserPreferences['keyboardLayout']>)[] = [
   {
     key: 'language',
     storageKey: 'userLanguage',

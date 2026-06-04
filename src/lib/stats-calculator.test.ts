@@ -14,11 +14,11 @@ import type { TypingStream, KeyCapId } from '@/interfaces/types';
 describe('stats-calculator', () => {
   // Helper to create a simple stream for testing
   const createTestStream = (
-    symbols: Array<{
+    symbols: {
       targetSymbol: string;
       targetKeyCaps: KeyCapId[];
-      attempts: Array<{ startAt?: number; endAt?: number; pressedKeyCups: KeyCapId[] }>;
-    }>,
+      attempts: { startAt?: number; endAt?: number; pressedKeyCups: KeyCapId[] }[];
+    }[],
   ): TypingStream => {
     return symbols.map((s) => ({
       ...s,

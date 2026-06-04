@@ -7,7 +7,7 @@
     class?: string;
   }
 
-  let { symbol, symbolType = 'PENDING', class: className = '' }: Props = $props();
+  const { symbol, symbolType = 'PENDING', class: className = '' }: Props = $props();
 </script>
 
 <span class="symbol {symbolType} {className}">

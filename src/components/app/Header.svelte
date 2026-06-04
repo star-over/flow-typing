@@ -5,7 +5,7 @@
     appStateValue: string;
   }
 
-  let { title, appStateLabel, appStateValue }: Props = $props();
+  const { title, appStateLabel, appStateValue }: Props = $props();
 </script>
 
 <header class="header">

@@ -5,7 +5,7 @@
     direction: KeyCapNavigationArrow;
   }
 
-  let { direction }: Props = $props();
+  const { direction }: Props = $props();
 
   const uid = $props.id();
   const gradientId = `nav-arrow-grad-${uid}`;

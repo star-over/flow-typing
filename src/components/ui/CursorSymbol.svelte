@@ -7,7 +7,7 @@
     isTyping?: boolean;
   }
 
-  let { symbol, cursorType = 'RECTANGLE', isTyping = true }: Props = $props();
+  const { symbol, cursorType = 'RECTANGLE', isTyping = true }: Props = $props();
   let visible = $state(true);
   let timer: ReturnType<typeof setInterval>;
 

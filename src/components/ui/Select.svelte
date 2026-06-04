@@ -10,7 +10,7 @@
     onChange: (value: string) => void;
   }
 
-  let { value, options, onChange }: Props = $props();
+  const { value, options, onChange }: Props = $props();
 </script>
 
 <div class="select-wrapper">

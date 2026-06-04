@@ -2,7 +2,7 @@
   import '../app.css';
   import { preferences } from '$lib/preferences';
 
-  let { children } = $props();
+  const { children } = $props();
 
   // Sync <html lang> with preferences (runs on mount + subscription)
   $effect(() => {

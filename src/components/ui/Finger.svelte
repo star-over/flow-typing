@@ -16,10 +16,10 @@
     centerRef = $bindable(null),
   }: Props = $props();
 
-  let partKey = $derived(fingerId.slice(1) as keyof typeof FINGER_PATHS);
-  let path = $derived(FINGER_PATHS[partKey]);
-  let fingerNum = $derived(fingerId.slice(1));
-  let centerPoint = $derived(
+  const partKey = $derived(fingerId.slice(1) as keyof typeof FINGER_PATHS);
+  const path = $derived(FINGER_PATHS[partKey]);
+  const fingerNum = $derived(fingerId.slice(1));
+  const centerPoint = $derived(
     fingerId in FINGER_CENTER_POINTS
       ? FINGER_CENTER_POINTS[fingerId as keyof typeof FINGER_CENTER_POINTS]
       : null

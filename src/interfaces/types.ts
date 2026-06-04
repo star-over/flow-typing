@@ -6,11 +6,11 @@
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
 import type { UserPreferences } from '@/interfaces/user-preferences';
-import { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
+import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 
-export type KeyCapLabel = { symbol?: string };
+export interface KeyCapLabel { symbol?: string }
 
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
 export const KEY_CAP_HOME_KEY_MARKERS = ["NONE", "BAR", "DOT"] as const;
@@ -134,11 +134,11 @@ export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
  * Представляет одну попытку пользователя набрать целевой символ.
  * Включает в себя информацию о нажатой клавише и времени.
  */
-export type StreamAttempt = {
+export interface StreamAttempt {
   pressedKeyCups: KeyCapId[];   // Данные о нажатом сочетании клавише. Необходимые клавиши для набора (напр., ['KeyF', 'ShiftRight'])
   startAt?: number;              //Время начала нажатия (timestamp).
   endAt?: number;                //Время окончания нажатия (timestamp).
-};
+}
 
 /**
  * Расширенное представление одного "шага" в упражнении.
@@ -159,7 +159,7 @@ export type TypingStream = StreamSymbol[];
 // --- Layout Types ---
 
 /** Описывает одну физическую клавишу: ее геометрию и базовый тип. */
-export type PhysicalKey = {
+export interface PhysicalKey {
   keyCapId: KeyCapId;                   // (напр. 'KeyF'
   label: string;                        // Надпись на клавише (напр. 'F')
   unitWidth?: KeyCapUnitWidth;          // Ширина клавиши
@@ -167,7 +167,7 @@ export type PhysicalKey = {
   homeKeyMarker?: KeyCapHomeKeyMarker;  // Тип Home Маркета
   colorGroup?: KeyCapColorGroup;        // Цветовая группа
   type: KeyCapType;                     // Тип: буквенная, системная или текстовая клавиша
-};
+}
 /**
  * Физический макет клавиатуры (холост).
  * Описывает геометрию: расположение, размер и форму клавиш в виде двумерного массива.
@@ -202,7 +202,7 @@ export type SymbolLayout = {
  * Это финальная, "ожившая" модель, объединяющая информацию
  * из `PhysicalKey`, `SymbolLayout` и `FingerLayout`, а также динамическое UI-состояние.
  */
-export type VirtualKey = {
+export interface VirtualKey {
   // --- From PhysicalKey ---
   keyCapId: KeyCapId;
   unitWidth?: KeyCapUnitWidth;
@@ -232,7 +232,7 @@ export type VirtualKey = {
   navigationRole?: KeyCapNavigationRole;
   /** Стрелка направления движения пальца к клавише. */
   navigationArrow?: KeyCapNavigationArrow;
-};
+}
 /**
  * Виртуальный макет клавиатуры.
  * Представляет собой полную, готовую к рендерингу модель клавиатуры
@@ -244,12 +244,10 @@ export type VirtualLayout = VirtualKey[][];
  * Объект, описывающий состояние всех пальцев и кистей.
  * Ключ - `FingerId`, значение - `FingerState`.
  */
-export type HandStates = {
-  [F in FingerId]: FingerState;
-};
+export type HandStates = Record<FingerId, FingerState>;
 
 // --- i18n ---
-import en from '../../dictionaries/en.json';
+import type en from '../../dictionaries/en.json';
 
 export type Locale = 'en' | 'ru';
 export type Dictionary = typeof en;
@@ -298,6 +296,6 @@ export type HandsSceneViewModel = Record<FingerId, {
   keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
 }>;
 
-import { type ActorRefFrom } from 'xstate';
+import type { ActorRefFrom } from 'xstate';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ParentActor = ActorRefFrom<any>;

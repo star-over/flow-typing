@@ -15,14 +15,14 @@
     };
   }
 
-  let { onBack, dictionary }: Props = $props();
+  const { onBack, dictionary }: Props = $props();
 
-  const languages: Array<{ value: UserPreferences['language']; label: string }> = [
+  const languages: { value: UserPreferences['language']; label: string }[] = [
     { value: 'en', label: 'English' },
     { value: 'ru', label: 'Русский' },
   ];
 
-  const layouts: Array<{ value: UserPreferences['keyboardLayout']; label: string }> = [
+  const layouts: { value: UserPreferences['keyboardLayout']; label: string }[] = [
     { value: 'qwerty', label: 'QWERTY' },
     { value: 'йцукен', label: 'ЙЦУКЕН' },
   ];

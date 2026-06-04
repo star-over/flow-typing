@@ -9,7 +9,7 @@
     symbolLayout: SymbolLayout;
   }
 
-  let { virtualLayout, keyboardLayout, symbolLayout }: Props = $props();
+  const { virtualLayout, keyboardLayout, symbolLayout }: Props = $props();
 </script>
 
 <div class="keyboard">

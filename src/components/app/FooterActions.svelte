@@ -10,7 +10,7 @@
     dictionary: Dictionary;
   }
 
-  let { state, send, dictionary }: Props = $props();
+  const { state, send, dictionary }: Props = $props();
 </script>
 
 <footer class="footer">

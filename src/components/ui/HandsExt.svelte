@@ -37,7 +37,7 @@
     centerPointVisibility?: Visibility;
   }
 
-  let {
+  const {
     viewModel,
     fingerLayout,
     keyboardLayout,
@@ -47,7 +47,7 @@
   }: Props = $props();
 
   // Per-finger derived states for the <Finger> components
-  let fingerStates = $derived(
+  const fingerStates = $derived(
     Object.fromEntries(
       Object.entries(viewModel).map(([fingerId, fingerSceneState]) => [
         fingerId,
@@ -59,12 +59,12 @@
   // Refs (keyed by FingerId). All FingerIds are pre-initialised to null so that
   // `bind:` on a not-yet-mounted element doesn't trip Svelte's
   // props_invalid_value guard for $bindable props.
-  let fingerCenterRefs: Record<FingerId, SVGCircleElement | null> = $state(emptyRefMap<SVGCircleElement>());
-  let clusterRefs: Record<FingerId, HTMLDivElement | null> = $state(emptyRefMap<HTMLDivElement>());
+  const fingerCenterRefs: Record<FingerId, SVGCircleElement | null> = $state(emptyRefMap<SVGCircleElement>());
+  const clusterRefs: Record<FingerId, HTMLDivElement | null> = $state(emptyRefMap<HTMLDivElement>());
 
   // Computed translations per finger; once set, reused across rerenders so the
   // cluster snaps into place without flicker when remounted.
-  let clusterTranslations: Partial<Record<FingerId, { dx: number; dy: number }>> = $state({});
+  const clusterTranslations: Partial<Record<FingerId, { dx: number; dy: number }>> = $state({});
 
   $effect(() => {
     // Reactive reads to retrigger when the scene changes

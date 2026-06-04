@@ -21,9 +21,9 @@
     };
   }
 
-  let { stream, dictionary }: Props = $props();
+  const { stream, dictionary }: Props = $props();
 
-  let stats = $derived(calculateLessonStats(stream));
+  const stats = $derived(calculateLessonStats(stream));
 
   const stats_card = $derived(dictionary.stats_card);
 </script>

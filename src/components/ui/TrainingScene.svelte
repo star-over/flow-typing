@@ -19,7 +19,7 @@
     dictionary: Dictionary;
   }
 
-  let { trainingActor, fingerLayout, keyboardLayout, dictionary }: Props = $props();
+  const { trainingActor, fingerLayout, keyboardLayout, dictionary }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
@@ -32,15 +32,15 @@
     return () => sub.unsubscribe();
   });
 
-  let stream = $derived(trainingState.context.stream);
-  let currentIndex = $derived(trainingState.context.currentIndex);
-  let keyboardLayoutPreference = $derived(trainingState.context.keyboardLayout);
+  const stream = $derived(trainingState.context.stream);
+  const currentIndex = $derived(trainingState.context.currentIndex);
+  const keyboardLayoutPreference = $derived(trainingState.context.keyboardLayout);
 
-  let keyboardGraph = $derived(createKeyboardGraph(keyboardLayout));
-  let keyCoordinateMap = $derived(createKeyCoordinateMap(keyboardLayout));
-  let symbolLayout = $derived(getSymbolLayout(keyboardLayoutPreference));
+  const keyboardGraph = $derived(createKeyboardGraph(keyboardLayout));
+  const keyCoordinateMap = $derived(createKeyCoordinateMap(keyboardLayout));
+  const symbolLayout = $derived(getSymbolLayout(keyboardLayoutPreference));
 
-  let viewModel = $derived(
+  const viewModel = $derived(
     generateHandsSceneViewModel(
       stream?.[currentIndex],
       fingerLayout,
@@ -48,7 +48,7 @@
       keyCoordinateMap
     )
   );
-  let pressResult = $derived(getPressResult(stream?.[currentIndex]));
+  const pressResult = $derived(getPressResult(stream?.[currentIndex]));
 </script>
 
 <div class="training-scene">
