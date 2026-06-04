@@ -4,6 +4,19 @@ import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import svelteConfig from './svelte.config.js';
 
+// Очищенная копия svelteConfig для parserOptions: убираем несериализуемые поля
+// (`preprocess`/`kit.adapter` содержат функции), чтобы работал `eslint --cache`.
+// Парсеру по факту нужен только `kit.alias` для резолва импортов.
+const eslintSvelteConfig = {
+  ...svelteConfig,
+  preprocess: undefined,
+  kit: svelteConfig.kit && {
+    ...svelteConfig.kit,
+    adapter: undefined,
+    typescript: undefined,
+  },
+};
+
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   js.configs.recommended,
@@ -82,7 +95,7 @@ export default [
     languageOptions: {
       parserOptions: {
         parser: ts.parser,
-        svelteConfig,
+        svelteConfig: eslintSvelteConfig,
         projectService: {
           allowDefaultProject: [
             '*.config.ts',

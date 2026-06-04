@@ -110,7 +110,7 @@ lint-fix: install
 	npx eslint . --fix
 
 check-dev: install
-	npx eslint . --quiet
+	npx eslint . --quiet --cache --cache-location node_modules/.cache/eslint/
 	npx svelte-kit sync
 	npx svelte-check --tsconfig ./tsconfig.json
 	npx vitest run --reporter=dot --passWithNoTests
