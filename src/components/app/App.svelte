@@ -60,6 +60,9 @@
         }));
         break;
       case 'STORE_TO_URL':
+        // query-only navigation (без смены route): SvelteKit `resolve()` тут
+        // нечего резолвить, потому правило не применимо к этому случаю.
+        // eslint-disable-next-line svelte/no-navigation-without-resolve
         goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
         break;
     }

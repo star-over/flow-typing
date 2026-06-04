@@ -72,7 +72,9 @@ export default [
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-redundant-type-constituents': 'warn',
 
-      'prefer-const': 'warn',
+      // destructuring: 'all' — не ругаться на let-деструктуризацию, если хотя бы
+      // одна переменная действительно требует let (например, `$bindable()` в Svelte 5).
+      'prefer-const': ['warn', { destructuring: 'all' }],
 
       'svelte/require-each-key': 'warn',
       'svelte/prefer-svelte-reactivity': 'warn',
@@ -86,7 +88,10 @@ export default [
       'svelte/valid-compile': 'warn',
       'svelte/prefer-const': [
         'warn',
-        { excludedRunes: ['$props', '$derived', '$state'] },
+        {
+          destructuring: 'all',
+          excludedRunes: ['$props', '$derived', '$state'],
+        },
       ],
     },
   },
@@ -124,6 +129,9 @@ export default [
       // В тестах и storybook-фикстурах indexed access с `!` — контролируемая среда,
       // фикстуры детерминированы. Подавляем шум после noUncheckedIndexedAccess.
       '@typescript-eslint/no-non-null-assertion': 'off',
+      // `mockImplementation(() => {})` — стандартный идиом для suppressing console
+      // во время теста; пустая функция здесь намеренная.
+      '@typescript-eslint/no-empty-function': 'off',
     },
   },
   {
@@ -148,6 +156,7 @@ export default [
       'storybook-static/',
       'build/',
       'tmp/',
+      'coverage/',
       'convex/_generated/',
     ],
   },
