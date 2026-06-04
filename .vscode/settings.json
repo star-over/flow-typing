@@ -16,8 +16,6 @@
       "*.jsx": "${capture}.js",
       "*.ts": "${capture}.js, ${capture}.test.ts",
       "*.tsx": "${capture}.ts, ${capture}.stories.tsx",
-      "package.json": "package-lock.json",
-      "readme.md": "*.md",
       "vitest.config.ts": "vitest.shims.d.ts",
-      "tsconfig.json": "tsconfig.*.json, jsconfig.json, tsconfig.tsbuildinfo"  }
+      "tsconfig.json": "package.json, tsconfig*.tsbuildinfo, tsconfig.*.json, jsconfig.json, *.config.ts, *.config.js, *.config.mjs, *.config.cjs, .env, .env.*, .gitignore, .editorconfig, Makefile"  }
 }
