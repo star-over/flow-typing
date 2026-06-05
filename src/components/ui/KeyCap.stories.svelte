@@ -1,6 +1,19 @@
-<script module>
+<script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import KeyCap from './KeyCap.svelte';
+  import {
+    KEY_CAP_HOME_KEY_MARKERS,
+    KEY_CAP_NAVIGATION_ARROWS,
+    KEY_CAP_NAVIGATION_ROLES,
+    KEY_CAP_PRESS_RESULTS,
+    KEY_CAP_SYMBOL_SIZES,
+    KEY_CAP_UNIT_WIDTHS,
+    LEFT_HAND_BASE,
+    LEFT_HAND_FINGERS,
+    RIGHT_HAND_BASE,
+    RIGHT_HAND_FINGERS,
+    VISIBILITY_STATES,
+  } from '@/interfaces/types';
 
   const { Story } = defineMeta({
     title: 'UI/KeyCap',
@@ -9,6 +22,20 @@
       symbol: 'A',
       pressResult: 'NONE',
       isActive: false,
+    },
+    argTypes: {
+      visibility: { options: VISIBILITY_STATES, control: 'inline-radio' },
+      isHomeKey: { control: 'boolean' },
+      fingerId: {
+        options: [...LEFT_HAND_FINGERS, ...RIGHT_HAND_FINGERS, LEFT_HAND_BASE, RIGHT_HAND_BASE],
+        control: 'inline-radio',
+      },
+      navigationRole: { options: KEY_CAP_NAVIGATION_ROLES, control: 'inline-radio' },
+      navigationArrow: { options: KEY_CAP_NAVIGATION_ARROWS, control: 'inline-radio' },
+      homeKeyMarker: { options: KEY_CAP_HOME_KEY_MARKERS, control: 'inline-radio' },
+      unitWidth: { options: KEY_CAP_UNIT_WIDTHS, control: 'inline-radio' },
+      symbolSize: { options: KEY_CAP_SYMBOL_SIZES, control: 'inline-radio' },
+      pressResult: { options: KEY_CAP_PRESS_RESULTS, control: 'inline-radio' },
     },
   });
 </script>

@@ -2,6 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import type { ComponentProps } from 'svelte';
   import NavArrow from './NavArrow.svelte';
+  import { KEY_CAP_NAVIGATION_ARROWS } from '@/interfaces/types';
 
   const { Story } = defineMeta({
     title: 'UI/NavArrow',
@@ -9,8 +10,8 @@
     args: { direction: 'UP' },
     argTypes: {
       direction: {
-        control: 'select',
-        options: ['NONE', 'UP', 'RIGHT', 'DOWN', 'LEFT'],
+        options: KEY_CAP_NAVIGATION_ARROWS,
+        control: 'inline-radio',
       },
     },
     parameters: { layout: 'centered' },

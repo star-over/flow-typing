@@ -3,6 +3,13 @@
   import type { ComponentProps } from 'svelte';
   import Finger from './Finger.svelte';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
+  import {
+    FINGER_STATES,
+    LEFT_HAND_BASE,
+    LEFT_HAND_FINGERS,
+    RIGHT_HAND_BASE,
+    RIGHT_HAND_FINGERS,
+  } from '@/interfaces/types';
 
   const { Story } = defineMeta({
     title: 'UI/Finger',
@@ -10,12 +17,12 @@
     args: { fingerId: 'L2', state: 'TARGET' },
     argTypes: {
       fingerId: {
-        control: 'select',
-        options: ['L1', 'L2', 'L3', 'L4', 'L5', 'LB', 'R1', 'R2', 'R3', 'R4', 'R5', 'RB'],
+        options: [...LEFT_HAND_FINGERS, ...RIGHT_HAND_FINGERS, LEFT_HAND_BASE, RIGHT_HAND_BASE],
+        control: 'inline-radio',
       },
       state: {
-        control: 'select',
-        options: ['NONE', 'TARGET', 'INACTIVE', 'ERROR'],
+        options: FINGER_STATES,
+        control: 'inline-radio',
       },
     },
     parameters: { layout: 'centered' },

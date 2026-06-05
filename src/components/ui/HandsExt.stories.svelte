@@ -1,9 +1,10 @@
-<script module>
+<script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import HandsExt from './HandsExt.svelte';
   import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
   import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
   import { getSymbolLayout } from '@/data/layouts/layouts';
+  import { VISIBILITY_STATES } from '@/interfaces/types';
   import { idle } from '@/fixtures/hands-ext/idle';
   import { simple_space } from '@/fixtures/hands-ext/simple_space';
   import { simple_e_error_simple_d } from '@/fixtures/hands-ext/simple_e_error_simple_d';
@@ -20,6 +21,13 @@
       physicalLayout: physicalLayoutANSI,
       symbolLayout,
       centerPointVisibility: 'INVISIBLE',
+    },
+    argTypes: {
+      viewModel: { control: false },
+      fingerLayout: { control: false },
+      physicalLayout: { control: false },
+      symbolLayout: { control: false },
+      centerPointVisibility: { options: VISIBILITY_STATES, control: 'inline-radio' },
     },
     parameters: {
       layout: 'fullscreen',

@@ -4,6 +4,12 @@
   import { createTypingStream, addAttempt } from '@/lib/stream-utils';
   import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
   import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
+  import {
+    FLOW_LINE_CURSOR_MODES,
+    FLOW_LINE_CURSOR_TYPES,
+    FLOW_LINE_SIZES,
+    KEY_CAP_PRESS_RESULTS,
+  } from '@/interfaces/types';
 
   const fullStreamText = 'The Quick brown fox jumps over the lazy dog.';
 
@@ -55,6 +61,15 @@
       cursorMode: 'HALF',
       size: 'MD',
       isTyping: false,
+    },
+    argTypes: {
+      stream: { control: false },
+      cursorPosition: { control: { type: 'number', min: 0 } },
+      isTyping: { options: [true, false], control: 'inline-radio' },
+      cursorType: { options: FLOW_LINE_CURSOR_TYPES, control: 'inline-radio' },
+      size: { options: FLOW_LINE_SIZES, control: 'inline-radio' },
+      pressResult: { options: KEY_CAP_PRESS_RESULTS, control: 'inline-radio' },
+      cursorMode: { options: FLOW_LINE_CURSOR_MODES, control: 'inline-radio' },
     },
   });
 </script>
