@@ -100,10 +100,13 @@ interface TypingContext {
 }
 
 // STAGE 1: Determine Typing Context (Pure helper function)
-function determineTypingContext(
-    currentStreamSymbol: StreamSymbol,
-    fingerLayout: FingerLayout
-): TypingContext {
+function determineTypingContext({
+  currentStreamSymbol,
+  fingerLayout,
+}: {
+  currentStreamSymbol: StreamSymbol;
+  fingerLayout: FingerLayout;
+}): TypingContext {
     const targetKeyCaps = currentStreamSymbol.targetKeyCaps;
     const activeFingers = new Set<FingerId>();
     targetKeyCaps.forEach((keyId: KeyCapId) => {
@@ -161,10 +164,13 @@ function determineTypingContext(
 }
 
 // STAGE 2: Apply Target Finger States to ViewModel
-function applyTargetFingerStates(
-    viewModel: HandsSceneViewModel,
-    typingContext: TypingContext
-): HandsSceneViewModel {
+function applyTargetFingerStates({
+  viewModel,
+  typingContext,
+}: {
+  viewModel: HandsSceneViewModel;
+  typingContext: TypingContext;
+}): HandsSceneViewModel {
     const newViewModel = { ...viewModel };
     const { activeFingers, activeHands } = typingContext;
 
@@ -192,10 +198,13 @@ function applyTargetFingerStates(
 
 
 // STAGE 3: Build initial visible clusters for active fingers
-function buildVisibleClusters(
-  viewModel: HandsSceneViewModel,
-  fingerLayout: FingerLayout
-): HandsSceneViewModel {
+function buildVisibleClusters({
+  viewModel,
+  fingerLayout,
+}: {
+  viewModel: HandsSceneViewModel;
+  fingerLayout: FingerLayout;
+}): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
 
   for (const fingerId of FINGER_IDS) {
@@ -221,11 +230,15 @@ function buildVisibleClusters(
 }
 
 // --- Internal helpers for applyNavigationPaths ---
-function _applyNavigationRoles(
-  fingerData: HandsSceneViewModel[FingerId],
-  path: KeyCapId[],
-  targetKey: KeyCapId
-) {
+function _applyNavigationRoles({
+  fingerData,
+  path,
+  targetKey,
+}: {
+  fingerData: HandsSceneViewModel[FingerId];
+  path: KeyCapId[];
+  targetKey: KeyCapId;
+}) {
   const { keyCapStates } = fingerData;
   if (!keyCapStates) return;
   const targetState = keyCapStates[targetKey];
@@ -239,11 +252,15 @@ function _applyNavigationRoles(
   });
 }
 
-function _applyNavigationArrows(
-  fingerData: HandsSceneViewModel[FingerId],
-  path: KeyCapId[],
-  keyCoordinateMap: KeyCoordinateMap
-) {
+function _applyNavigationArrows({
+  fingerData,
+  path,
+  keyCoordinateMap,
+}: {
+  fingerData: HandsSceneViewModel[FingerId];
+  path: KeyCapId[];
+  keyCoordinateMap: KeyCoordinateMap;
+}) {
   const { keyCapStates } = fingerData;
   if (!keyCapStates) return;
   path.forEach((keyId, index) => {
@@ -263,13 +280,19 @@ function _applyNavigationArrows(
 }
 
 // STAGE 4: Apply navigation paths and roles to visible clusters
-function applyNavigationPaths(
-  viewModel: HandsSceneViewModel,
-  typingContext: TypingContext,
-  fingerLayout: FingerLayout,
-  keyboardGraph: AdjacencyList,
-  keyCoordinateMap: KeyCoordinateMap
-): HandsSceneViewModel {
+function applyNavigationPaths({
+  viewModel,
+  typingContext,
+  fingerLayout,
+  keyboardGraph,
+  keyCoordinateMap,
+}: {
+  viewModel: HandsSceneViewModel;
+  typingContext: TypingContext;
+  fingerLayout: FingerLayout;
+  keyboardGraph: AdjacencyList;
+  keyCoordinateMap: KeyCoordinateMap;
+}): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
   const { targetKeyCaps } = typingContext;
 
@@ -289,17 +312,20 @@ function applyNavigationPaths(
       path = findOptimalPath({ startKey: homeKey, endKey: targetKey, graph: keyboardGraph });
     }
 
-    _applyNavigationRoles(fingerData, path, targetKey);
-    _applyNavigationArrows(fingerData, path, keyCoordinateMap);
+    _applyNavigationRoles({ fingerData, path, targetKey });
+    _applyNavigationArrows({ fingerData, path, keyCoordinateMap });
   }
   return newViewModel;
 }
 
 // STAGE 5: Apply error states to fingers
-function applyErrorFingerStates(
-  viewModel: HandsSceneViewModel,
-  typingContext: TypingContext
-): HandsSceneViewModel {
+function applyErrorFingerStates({
+  viewModel,
+  typingContext,
+}: {
+  viewModel: HandsSceneViewModel;
+  typingContext: TypingContext;
+}): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
   const { errorFingers } = typingContext;
 
@@ -312,10 +338,13 @@ function applyErrorFingerStates(
 }
 
 // STAGE 6: Apply press results to keys
-function applyKeyPressResults(
-  viewModel: HandsSceneViewModel,
-  typingContext: TypingContext
-): HandsSceneViewModel {
+function applyKeyPressResults({
+  viewModel,
+  typingContext,
+}: {
+  viewModel: HandsSceneViewModel;
+  typingContext: TypingContext;
+}): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
   const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
 
@@ -356,19 +385,18 @@ function applyKeyPressResults(
 /**
  * Builds the complete HandsSceneViewModel from the current state of the app machine.
  * This is the core "factory" for the visual representation of the trainer.
- *
- * @param currentStreamSymbol The current symbol being typed.
- * @param fingerLayout The layout defining which finger presses which key.
- * @param keyboardGraph The graph representation of the keyboard for pathfinding.
- * @param keyCoordinateMap A map of key coordinates.
- * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function createHandsSceneViewModel(
-  currentStreamSymbol: StreamSymbol | undefined,
-  fingerLayout: FingerLayout,
-  keyboardGraph: AdjacencyList,
-  keyCoordinateMap: KeyCoordinateMap
-): HandsSceneViewModel {
+export function createHandsSceneViewModel({
+  currentStreamSymbol,
+  fingerLayout,
+  keyboardGraph,
+  keyCoordinateMap,
+}: {
+  currentStreamSymbol: StreamSymbol | undefined;
+  fingerLayout: FingerLayout;
+  keyboardGraph: AdjacencyList;
+  keyCoordinateMap: KeyCoordinateMap;
+}): HandsSceneViewModel {
   // If training is not active or there's no symbol, return a completely idle view.
   if (!currentStreamSymbol) {
     return createIdleViewModel();
@@ -378,40 +406,28 @@ export function createHandsSceneViewModel(
   let viewModel = createIdleViewModel();
 
   // Data Analysis Stage: Determine the context for the current typing step
-  const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);
+  const typingContext = determineTypingContext({ currentStreamSymbol, fingerLayout });
 
   // Stage 1: Apply TARGET finger states (TARGET, INACTIVE)
-  viewModel = applyTargetFingerStates(
-    viewModel,
-    typingContext
-  );
+  viewModel = applyTargetFingerStates({ viewModel, typingContext });
 
   // Stage 2: Build initial visible clusters for active fingers
-  viewModel = buildVisibleClusters(
-    viewModel,
-    fingerLayout
-  );
+  viewModel = buildVisibleClusters({ viewModel, fingerLayout });
 
   // Stage 3: Apply navigation paths and roles to visible clusters
-  viewModel = applyNavigationPaths(
+  viewModel = applyNavigationPaths({
     viewModel,
     typingContext,
     fingerLayout,
     keyboardGraph,
-    keyCoordinateMap
-  );
+    keyCoordinateMap,
+  });
 
   // Stage 4: Apply feedback - incorrect fingers
-  viewModel = applyErrorFingerStates(
-    viewModel,
-    typingContext
-  );
+  viewModel = applyErrorFingerStates({ viewModel, typingContext });
 
   // Stage 5: Apply feedback - key press results
-  viewModel = applyKeyPressResults(
-    viewModel,
-    typingContext
-  );
+  viewModel = applyKeyPressResults({ viewModel, typingContext });
 
   return viewModel;
 }

@@ -47,7 +47,7 @@
   const currentSymbol = $derived(stream[currentIndex]);
 
   const viewModel = $derived(
-    createHandsSceneViewModel(currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap)
+    createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
   );
   const pressResult = $derived(getPressResult(currentSymbol));
 </script>
