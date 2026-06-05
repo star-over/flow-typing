@@ -229,7 +229,6 @@ function _applyNavigationRoles(
   path: KeyCapId[],
   targetKey: KeyCapId
 ) {
-  // TODO: Add settings check here in the future to enable/disable roles
   const { keyCapStates } = fingerData;
   if (!keyCapStates) return;
   const targetState = keyCapStates[targetKey];
@@ -248,7 +247,6 @@ function _applyNavigationArrows(
   path: KeyCapId[],
   keyCoordinateMap: KeyCoordinateMap
 ) {
-  // TODO: Add settings check here in the future to enable/disable arrows
   const { keyCapStates } = fingerData;
   if (!keyCapStates) return;
   path.forEach((keyId, index) => {
@@ -294,9 +292,7 @@ function applyNavigationPaths(
       path = findOptimalPath(homeKey, targetKey, keyboardGraph);
     }
 
-    // TODO: Add settings check here in the future
     _applyNavigationRoles(fingerData, path, targetKey);
-    // TODO: Add settings check here in the future
     _applyNavigationArrows(fingerData, path, keyCoordinateMap);
   }
   return newViewModel;
