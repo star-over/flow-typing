@@ -14,7 +14,7 @@ export interface TrainingContext {
   stream: TypingStream;
   currentIndex: number;
   errors: number;
-  symbolLayoutId: SymbolLayoutId;
+  currentSymbolLayoutId: SymbolLayoutId;
   symbolAppearanceTime: number;
   parentActor: ParentActor;
 }
@@ -79,7 +79,7 @@ export const trainingMachine = setup({
     stream: input.stream,
     currentIndex: 0,
     errors: 0,
-    symbolLayoutId: input.symbolLayoutId,
+    currentSymbolLayoutId: input.symbolLayoutId,
     symbolAppearanceTime: 0,
     parentActor: input.parentActor,
   }),

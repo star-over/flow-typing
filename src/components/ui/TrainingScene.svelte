@@ -34,11 +34,11 @@
 
   const stream = $derived(trainingState.context.stream);
   const currentIndex = $derived(trainingState.context.currentIndex);
-  const symbolLayoutId = $derived(trainingState.context.symbolLayoutId);
+  const currentSymbolLayoutId = $derived(trainingState.context.currentSymbolLayoutId);
 
   const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
   const keyCoordinateMap = $derived(createKeyCoordinateMap(physicalLayout));
-  const symbolLayout = $derived(getSymbolLayout(symbolLayoutId));
+  const symbolLayout = $derived(getSymbolLayout(currentSymbolLayoutId));
 
   // Может быть undefined на одном кадре между завершающим correct-attempt
   // (assign currentIndex++) и переходом trainingMachine в lessonComplete.
