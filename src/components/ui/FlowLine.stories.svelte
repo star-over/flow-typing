@@ -8,7 +8,6 @@
   import {
     FLOW_LINE_CURSOR_MODES,
     FLOW_LINE_CURSOR_TYPES,
-    FLOW_LINE_SIZES,
     KEY_CAP_PRESS_RESULTS,
   } from '@/interfaces/types';
 
@@ -60,7 +59,6 @@
       pressResult: 'NONE',
       cursorType: 'RECTANGLE',
       cursorMode: 'HALF',
-      size: 'MD',
       isTyping: false,
     },
     argTypes: {
@@ -68,7 +66,6 @@
       cursorPosition: { control: { type: 'number', min: 0 } },
       isTyping: { options: [true, false], control: 'inline-radio' },
       cursorType: { options: FLOW_LINE_CURSOR_TYPES, control: 'inline-radio' },
-      size: { options: FLOW_LINE_SIZES, control: 'inline-radio' },
       pressResult: { options: KEY_CAP_PRESS_RESULTS, control: 'inline-radio' },
       cursorMode: { options: FLOW_LINE_CURSOR_MODES, control: 'inline-radio' },
     },
@@ -82,8 +79,6 @@
 <Story name="WithMultipleErrors" args={{ stream: streamWithMultipleErrors, cursorPosition: 10 }} />
 
 <Story name="Completed" args={{ stream: streamWithOneError, cursorPosition: 20 }} />
-
-<Story name="SizeLarge" args={{ size: 'LG' }} />
 
 <Story name="CursorCorrect" args={{ pressResult: 'CORRECT' }} />
 

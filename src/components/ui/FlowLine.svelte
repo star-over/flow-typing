@@ -7,7 +7,6 @@
     KeyCapPressResult,
     FlowLineCursorType,
     FlowLineCursorMode,
-    FlowLineSize,
   } from '@/interfaces/types';
 
   interface Props {
@@ -16,7 +15,6 @@
     pressResult?: KeyCapPressResult;
     cursorType?: FlowLineCursorType;
     cursorMode?: FlowLineCursorMode;
-    size?: FlowLineSize;
     isTyping?: boolean;
     class?: string;
   }
@@ -27,7 +25,6 @@
     pressResult = 'NONE',
     cursorType,
     cursorMode = 'HALF',
-    size = 'MD',
     isTyping = false,
     class: className = '',
   }: Props = $props();
@@ -43,7 +40,7 @@
   const pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));
 </script>
 
-<div class="flow-line {size} {cursorMode} {pressResult} {className}">
+<div class="flow-line {cursorMode} {pressResult} {className}">
   <div class="completed-symbols">
     {#each completedSymbols as symbol, i (startCompleted + i)}
       <RegularSymbol symbol={getSymbolChar(symbol)} symbolType={getSymbolType(symbol)} />
@@ -66,6 +63,7 @@
     align-items: center;
     width: 100vw;
     font-family: var(--font-mono);
+    font-size: 1.875rem;
     border: 2px solid var(--color-cursor-border);
   }
 
@@ -84,13 +82,6 @@
     text-align: left;
     overflow: hidden;
   }
-
-  /* Size variants */
-  .XS { font-size: 1.25rem; }
-  .SM { font-size: 1.5rem; }
-  .MD { font-size: 1.875rem; }
-  .LG { font-size: 2.25rem; }
-  .XL { font-size: 3rem; }
 
   /* Cursor mode variants */
   .HALF .completed-symbols { width: 50%; }

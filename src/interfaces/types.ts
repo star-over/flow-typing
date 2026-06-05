@@ -59,7 +59,12 @@ export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 /** Функциональный тип клавиши. */
 export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 
-/** Размер символа (легенды) на клавише. */
+/**
+ * Размер легенды клавиши — intrinsic-свойство данных раскладки.
+ * Выбирается по длине надписи ('A' = MD, 'Ctrl' = SM, 'BackSpace' = XS) и
+ * назначается в `PhysicalLayout`. Это НЕ пользовательский UI-масштаб —
+ * для масштабирования всего тренажёра используется иной механизм.
+ */
 export const KEY_CAP_SYMBOL_SIZES = ["MD", "SM", "XS"] as const;
 export type KeyCapSymbolSize = typeof KEY_CAP_SYMBOL_SIZES[number];
 
@@ -125,10 +130,6 @@ export const FLOW_LINE_SYMBOL_TYPES = [
   "ERRORS", // Был напечатан пользвателем не корректно несколько раз
 ] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
-
-/** Размер шрифта в FlowLine. */
-export const FLOW_LINE_SIZES = ["XS", "SM", "MD", "LG", "XL"] as const;
-export type FlowLineSize = typeof FLOW_LINE_SIZES[number];
 
 /** Режим отображения курсора в FlowLine. */
 export const FLOW_LINE_CURSOR_MODES = ["HALF", "THIRD", "QUARTER", "DINAMIC"] as const;
