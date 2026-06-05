@@ -69,7 +69,7 @@ export function getSymbolType(symbol?: StreamSymbol): FlowLineSymbolType {
 
   const lastAttempt = attempts[attempts.length - 1];
   if (!lastAttempt) return "PENDING";
-  const isCorrect = areKeyCapIdArraysEqual(lastAttempt.pressedKeyCaps, (symbol as StreamSymbol).targetKeyCaps);
+  const isCorrect = areKeyCapIdArraysEqual({ a: lastAttempt.pressedKeyCaps, b: (symbol as StreamSymbol).targetKeyCaps });
 
   if (isCorrect) {
     return attempts.length > 1 ? "CORRECTED" : "CORRECT";

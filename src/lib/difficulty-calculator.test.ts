@@ -61,7 +61,12 @@ describe('difficulty-calculator', () => {
 
   describe('calculateCharDifficulty (real ANSI / ASDF / QWERTY-en)', () => {
     const calc = (char: string) =>
-      calculateCharDifficulty(char, symbolLayoutQwerty, fingerLayoutASDF, physicalLayoutANSI);
+      calculateCharDifficulty({
+        char,
+        symbolLayout: symbolLayoutQwerty,
+        fingerLayout: fingerLayoutASDF,
+        physicalLayout: physicalLayoutANSI,
+      });
 
     describe('home row keys (no movement: cost = fingerCost)', () => {
       it("'f' = L2 home → 1.0", () => {
@@ -189,11 +194,21 @@ describe('difficulty-calculator', () => {
 
     it('horizontal distance > 3 falls back to the last HORIZONTAL cost (5.0)', () => {
       // L2 (1.0) × HORIZONTAL[2] (5.0) = 5.0
-      expect(calculateCharDifficulty('l', wideSymbol, wideFinger, wideKeyboard)).toBe(5.0);
+      expect(calculateCharDifficulty({
+        char: 'l',
+        symbolLayout: wideSymbol,
+        fingerLayout: wideFinger,
+        physicalLayout: wideKeyboard,
+      })).toBe(5.0);
     });
 
     it('symbol whose key is missing from fingerLayout yields the 99 sentinel', () => {
-      expect(calculateCharDifficulty('orphan', wideSymbol, wideFinger, wideKeyboard)).toBe(99);
+      expect(calculateCharDifficulty({
+        char: 'orphan',
+        symbolLayout: wideSymbol,
+        fingerLayout: wideFinger,
+        physicalLayout: wideKeyboard,
+      })).toBe(99);
     });
   });
 });

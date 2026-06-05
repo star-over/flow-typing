@@ -20,28 +20,28 @@ export const sp = '\u0020';
 
 
 
-/**
- * Проверяет, является ли клавиша модификатором.
- * @param key Код клавиши (`KeyboardEvent.code`).
- * @param physicalLayout Макет клавиатуры, используемый для определения модификаторов.
- * @returns `true`, если клавиша является модификатором.
- */
-export function isModifierKey(key: string, physicalLayout: PhysicalLayout): boolean {
+/** Проверяет, является ли клавиша модификатором. */
+export function isModifierKey({
+  key,
+  physicalLayout,
+}: {
+  key: string;
+  physicalLayout: PhysicalLayout;
+}): boolean {
   return physicalLayout.flat()
     .filter((k) => k.type === "MODIFIER")
     .map((k) => k.keyCapId)
     .includes(key as KeyCapId);
 }
 
-/**
- * Проверяет, является ли клавиша символьной (текстовой).
- * Зависит от глобальной переменной `symbolKeyCapIdSet`, которая инициализируется с `physicalLayoutANSI`.
- * Для обеспечения полной чистоты и тестируемости, эта функция также должна быть рефакторизована
- * для принятия `PhysicalLayout` в качестве аргумента.
- * @param key Код клавиши (`KeyboardEvent.code`).
- * @returns `true`, если клавиша является символьной.
- */
-export function isTextKey(key: string, physicalLayout: PhysicalLayout): boolean {
+/** Проверяет, является ли клавиша символьной (текстовой). */
+export function isTextKey({
+  key,
+  physicalLayout,
+}: {
+  key: string;
+  physicalLayout: PhysicalLayout;
+}): boolean {
   return physicalLayout.flat()
     .filter((k) => k.type === "SYMBOL")
     .map((k) => k.keyCapId)
@@ -51,9 +51,6 @@ export function isTextKey(key: string, physicalLayout: PhysicalLayout): boolean 
 
 /**
  * Finds a symbol in the layout that exactly matches a given combination of a base key and modifiers.
- * @param keyCapId The base physical key ID.
- * @param activeModifiers An array of active modifiers.
- * @returns The matching symbol character or null if no exact match is found.
  *
  * @architectural_note
  * The core of this function is a "canonicalization" step. Both the input keys
@@ -63,7 +60,15 @@ export function isTextKey(key: string, physicalLayout: PhysicalLayout): boolean 
  * ShiftLeft vs. ShiftRight. It also correctly resolves the symbol for the
  * modifier key itself (e.g., finding "Sh L" for the "ShiftLeft" key).
  */
-export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, physicalLayout: PhysicalLayout): string {
+export function getLabel({
+  keyCapId,
+  symbolLayout,
+  physicalLayout,
+}: {
+  keyCapId: KeyCapId;
+  symbolLayout: SymbolLayout;
+  physicalLayout: PhysicalLayout;
+}): string {
   const physicalKey = physicalLayout.flat().find((key) => key.keyCapId === keyCapId);
 
   // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
@@ -105,32 +110,38 @@ export function getLabel(keyCapId: KeyCapId, symbolLayout: SymbolLayout, physica
 
 
 
-/**
- * Получает массив `KeyCapId`, необходимых для набора заданного символа.
- * @param char Символ для поиска.
- * @returns Массив `KeyCapId` или `undefined`, если символ не найден.
- */
-export function getKeyCapIdsForChar(char: string, symbolLayout: SymbolLayout): KeyCapId[] | undefined {
+/** Получает массив `KeyCapId`, необходимых для набора заданного символа. */
+export function getKeyCapIdsForChar({
+  char,
+  symbolLayout,
+}: {
+  char: string;
+  symbolLayout: SymbolLayout;
+}): KeyCapId[] | undefined {
   const entry = symbolLayout.find((item) => item.symbol === char);
   return entry?.keyCaps;
 }
 
-/**
- * Получает `fingerId` для заданного `KeyCapId` из пальцевого макета.
- * @param keyCapId `KeyCapId` для поиска.
- * @param fingerLayout Схема расположения пальцев.
- * @returns `FingerId` или `undefined`, если не найден.
- */
-export function getFingerByKeyCap( keyCapId: KeyCapId, fingerLayout: FingerLayout ): FingerId | undefined {
+/** Получает `fingerId` для заданного `KeyCapId` из пальцевого макета. */
+export function getFingerByKeyCap({
+  keyCapId,
+  fingerLayout,
+}: {
+  keyCapId: KeyCapId;
+  fingerLayout: FingerLayout;
+}): FingerId | undefined {
   const entry = fingerLayout.find((item) => item.keyCapId === keyCapId);
   return entry ? entry.fingerId : undefined;
 }
 
-export function areKeyCapIdArraysEqual(arr1: KeyCapId[], arr2: KeyCapId[]): boolean {
-  if (arr1.length !== arr2.length) {
+/**
+ * Сравнивает два массива `KeyCapId` как неупорядоченные множества.
+ * Предполагается, что в каждом массиве нет дубликатов — для аккордов это
+ * безопасное предположение.
+ */
+export function areKeyCapIdArraysEqual({ a, b }: { a: KeyCapId[]; b: KeyCapId[] }): boolean {
+  if (a.length !== b.length) {
     return false;
   }
-  // This works correctly under the assumption that neither arr1 nor arr2 contains duplicate entries.
-  // For keyboard chords, this is a safe assumption.
-  return arr1.every((keyCap) => arr2.includes(keyCap));
+  return a.every((keyCap) => b.includes(keyCap));
 }

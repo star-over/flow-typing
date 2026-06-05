@@ -20,9 +20,9 @@
   let streamWithOneError = createTypingStream({ drillText: fullStreamText, symbolLayout: symbolLayoutQwerty });
   for (let i = 0; i < streamWithOneError.length; i++) {
     const targetChar = streamWithOneError[i]!.targetSymbol;
-    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);
+    const correctKeys = getKeyCapIdsForChar({ char: targetChar, symbolLayout: symbolLayoutQwerty });
     if (i === 4) {
-      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutQwerty);
+      const wrongKeys = getKeyCapIdsForChar({ char: 'w', symbolLayout: symbolLayoutQwerty });
       if (wrongKeys) {
         streamWithOneError = addAttempt({ stream: streamWithOneError, cursorPosition: i, pressedKeyCaps: wrongKeys, startAt: 0, endAt: 50 });
       }
@@ -36,13 +36,13 @@
   let streamWithMultipleErrors = createTypingStream({ drillText: fullStreamText, symbolLayout: symbolLayoutQwerty });
   for (let i = 0; i < streamWithMultipleErrors.length; i++) {
     const targetChar = streamWithMultipleErrors[i]!.targetSymbol;
-    const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);
+    const correctKeys = getKeyCapIdsForChar({ char: targetChar, symbolLayout: symbolLayoutQwerty });
     if (i === 0) {
-      const wrongKeys = getKeyCapIdsForChar('w', symbolLayoutQwerty);
+      const wrongKeys = getKeyCapIdsForChar({ char: 'w', symbolLayout: symbolLayoutQwerty });
       if (wrongKeys) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys, startAt: 0, endAt: 50 });
     } else if (i === 1) {
-      const wrongKeys1 = getKeyCapIdsForChar('w', symbolLayoutQwerty);
-      const wrongKeys2 = getKeyCapIdsForChar('e', symbolLayoutQwerty);
+      const wrongKeys1 = getKeyCapIdsForChar({ char: 'w', symbolLayout: symbolLayoutQwerty });
+      const wrongKeys2 = getKeyCapIdsForChar({ char: 'e', symbolLayout: symbolLayoutQwerty });
       if (wrongKeys1) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys1, startAt: 0, endAt: 50 });
       if (wrongKeys2) streamWithMultipleErrors = addAttempt({ stream: streamWithMultipleErrors, cursorPosition: i, pressedKeyCaps: wrongKeys2, startAt: 50, endAt: 100 });
     }

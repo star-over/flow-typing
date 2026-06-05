@@ -18,7 +18,7 @@
       {#each row as sceneKey (sceneKey.keyCapId)}
         <KeyCap
           keyCapId={sceneKey.keyCapId}
-          symbol={getLabel(sceneKey.keyCapId, symbolLayout, physicalLayout)}
+          symbol={getLabel({ keyCapId: sceneKey.keyCapId, symbolLayout, physicalLayout })}
           pressResult={sceneKey.pressResult ?? 'NONE'}
           visibility={sceneKey.visibility ?? 'VISIBLE'}
           fingerId={sceneKey.fingerId}

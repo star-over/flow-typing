@@ -42,7 +42,7 @@ export function createKeyboardScene(
     .map((row: PhysicalKey[], rowIndex: number) => {
       return row.map((physicalKey: PhysicalKey, colIndex: number): KeyboardSceneKey => {
         const keyCapId = physicalKey.keyCapId;
-        const symbol = getLabel(keyCapId, symbolLayout, physicalLayout);
+        const symbol = getLabel({ keyCapId, symbolLayout, physicalLayout });
         const fingerKey = fingerLayout.find((item) => item.keyCapId === physicalKey.keyCapId);
 
         const sceneKey: KeyboardSceneKey = {

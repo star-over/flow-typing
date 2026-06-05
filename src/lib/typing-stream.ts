@@ -22,7 +22,7 @@ export function createTypingStream({
   const stream: TypingStream = drillText
     .split('')
     .map((targetSymbol): TypingStream[number] | null => {
-      const targetKeyCaps = getKeyCapIdsForChar(targetSymbol, symbolLayout);
+      const targetKeyCaps = getKeyCapIdsForChar({ char: targetSymbol, symbolLayout });
 
       if (!targetKeyCaps) {
         console.warn(`Character "${targetSymbol}" not found in symbol layout.`);

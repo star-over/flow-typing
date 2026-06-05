@@ -31,12 +31,12 @@ console.log(`Анализ сложности для слова: "${word}"`);
 console.log("---");
 
 for (const char of word) {
-  const difficulty = calculateCharDifficulty(
+  const difficulty = calculateCharDifficulty({
     char,
-    symbolLayoutJcuken,
-    fingerLayoutASDF,
-    physicalLayoutANSI
-  );
+    symbolLayout: symbolLayoutJcuken,
+    fingerLayout: fingerLayoutASDF,
+    physicalLayout: physicalLayoutANSI,
+  });
 
   // Вывод с округлением для наглядности
   console.log(`Символ: '${char}', Сложность: ${difficulty.toFixed(2)}`);

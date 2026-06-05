@@ -67,7 +67,7 @@ export const trainingMachine = setup({
     isAttemptCorrect: ({ context, event }) => {
       const currentSymbol = context.stream[context.currentIndex];
       if (!currentSymbol) return false;
-      return areKeyCapIdArraysEqual(currentSymbol.targetKeyCaps, event.keys);
+      return areKeyCapIdArraysEqual({ a: currentSymbol.targetKeyCaps, b: event.keys });
     },
     isLessonComplete: ({ context }) => context.currentIndex >= context.stream.length,
   },

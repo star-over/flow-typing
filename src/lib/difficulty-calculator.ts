@@ -4,8 +4,9 @@
  * на основе нескольких факторов: используемого пальца, расстояния движения и использования модификаторов.
  */
 
+import { getHomeKeyForFinger } from './hand-utils';
 import { getKeyCapIdsForChar } from './symbol-utils';
-import type { FingerLayout, KeyCapId, SymbolLayout, PhysicalLayout } from '@/interfaces/types';
+import type { FingerLayout, FingerId, KeyCapId, SymbolLayout, PhysicalLayout } from '@/interfaces/types';
 import { type KeyCoordinateMap, createKeyCoordinateMap } from './layout-utils';
 
 
@@ -50,25 +51,22 @@ export const MODIFIER_COSTS: Record<string, number> = {
 // =================================================================================
 
 /**
- * Находит домашнюю клавишу для указанного пальца.
- */
-function getHomeKeyForFinger(fingerId: string, fingerLayout: FingerLayout): KeyCapId | undefined {
-  return fingerLayout.find((f) => f.fingerId === fingerId && f.isHomeKey)?.keyCapId;
-}
-
-/**
  * Рассчитывает стоимость нажатия одной клавиши.
  */
-function calculateKeyCost(
-  keyCapId: KeyCapId,
-  fingerLayout: FingerLayout,
-  keyCoordinateMap: KeyCoordinateMap
-): number {
+function calculateKeyCost({
+  keyCapId,
+  fingerLayout,
+  keyCoordinateMap,
+}: {
+  keyCapId: KeyCapId;
+  fingerLayout: FingerLayout;
+  keyCoordinateMap: KeyCoordinateMap;
+}): number {
   const fingerAssignment = fingerLayout.find((f) => f.keyCapId === keyCapId);
   if (!fingerAssignment) return 99;
 
-  const { fingerId } = fingerAssignment;
-  const homeKey = getHomeKeyForFinger(fingerId, fingerLayout);
+  const fingerId: FingerId = fingerAssignment.fingerId;
+  const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
 
   let totalMovementCost = 1.0; // Базовая стоимость, если нет движения
 
@@ -115,13 +113,18 @@ function calculateKeyCost(
 /**
  * Рассчитывает общую сложность набора одного символа, включая аккорды (модификаторы).
  */
-export function calculateCharDifficulty(
-  char: string,
-  symbolLayout: SymbolLayout,
-  fingerLayout: FingerLayout,
-  physicalLayout: PhysicalLayout
-): number {
-  const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
+export function calculateCharDifficulty({
+  char,
+  symbolLayout,
+  fingerLayout,
+  physicalLayout,
+}: {
+  char: string;
+  symbolLayout: SymbolLayout;
+  fingerLayout: FingerLayout;
+  physicalLayout: PhysicalLayout;
+}): number {
+  const keyCapIds = getKeyCapIdsForChar({ char, symbolLayout });
 
   if (!keyCapIds || keyCapIds.length === 0) {
     return 10;
@@ -136,7 +139,7 @@ export function calculateCharDifficulty(
     if (modifierCost !== undefined) {
       totalDifficulty += modifierCost;
     } else {
-      totalDifficulty += calculateKeyCost(keyId, fingerLayout, keyCoordinateMap);
+      totalDifficulty += calculateKeyCost({ keyCapId: keyId, fingerLayout, keyCoordinateMap });
     }
   });
 

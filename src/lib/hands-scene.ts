@@ -107,7 +107,7 @@ function determineTypingContext(
     const targetKeyCaps = currentStreamSymbol.targetKeyCaps;
     const activeFingers = new Set<FingerId>();
     targetKeyCaps.forEach((keyId: KeyCapId) => {
-        const finger = getFingerByKeyCap(keyId, fingerLayout);
+        const finger = getFingerByKeyCap({ keyCapId: keyId, fingerLayout });
         if (finger) {
             activeFingers.add(finger);
         }
@@ -116,7 +116,7 @@ function determineTypingContext(
     const errorFingers = new Set<FingerId>();
     const lastAttempt =
         currentStreamSymbol.attempts[currentStreamSymbol.attempts.length - 1];
-    const wasAttemptIncorrect = !!lastAttempt && !areKeyCapIdArraysEqual(lastAttempt.pressedKeyCaps, targetKeyCaps);
+    const wasAttemptIncorrect = !!lastAttempt && !areKeyCapIdArraysEqual({ a: lastAttempt.pressedKeyCaps, b: targetKeyCaps });
 
     if (wasAttemptIncorrect) {
         const incorrectPressFingers = new Set<FingerId>();
@@ -133,7 +133,7 @@ function determineTypingContext(
                 return;
             }
 
-            const finger = getFingerByKeyCap(keyId, fingerLayout);
+            const finger = getFingerByKeyCap({ keyCapId: keyId, fingerLayout });
             if (finger) {
                 incorrectPressFingers.add(finger);
             }
@@ -279,7 +279,7 @@ function applyNavigationPaths(
 
     const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
     const targetKey = targetKeyCaps.find(
-      (k: KeyCapId) => getFingerByKeyCap(k, fingerLayout) === fingerId
+      (k: KeyCapId) => getFingerByKeyCap({ keyCapId: k, fingerLayout }) === fingerId
     );
 
     if (!targetKey) continue;

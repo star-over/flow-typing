@@ -63,7 +63,7 @@ export const keyboardMachine = setup({
         // Оставляем только другие модификаторы
         return new Set(
           Array.from(context.pressedKeys).filter(
-            (key) => isModifierKey(key, context.physicalLayout) && key !== event.keyCapId
+            (key) => isModifierKey({ key, physicalLayout: context.physicalLayout }) && key !== event.keyCapId
           )
         );
       },
@@ -97,7 +97,7 @@ export const keyboardMachine = setup({
       // The physical spacebar 'Space' should be treated as a text key
       // even though our keyboard scene uses 'SpaceLeft' and 'SpaceRight'.
       if (event.keyCapId === 'Space') return true;
-      const result = isTextKey(event.keyCapId, context.physicalLayout);
+      const result = isTextKey({ key: event.keyCapId, physicalLayout: context.physicalLayout });
       return result;
     },
     isNavigationalKeyGuard: ({ context, event }) => {
