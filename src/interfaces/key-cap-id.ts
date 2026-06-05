@@ -80,3 +80,14 @@ export const KEY_CAP_IDS = [
 ] as const;
 
 export type KeyCapId = typeof KEY_CAP_IDS[number];
+
+/**
+ * Type guard для границы system-input → domain.
+ * `KeyboardEvent.code` — это `string`, в нём могут быть клавиши, которых нет
+ * в `KEY_CAP_IDS` (F13–F24, MediaPlayPause, Lang1, 'Unidentified', и т.д.).
+ * Без фильтра такие коды протекают в `keyboardMachine.pressedKeys` и
+ * «загрязняют» chord, превращая корректное нажатие в ошибочную попытку.
+ */
+export function isKnownKeyCapId(code: string): code is KeyCapId {
+  return (KEY_CAP_IDS as readonly string[]).includes(code);
+}

@@ -13,7 +13,7 @@
   import FooterActions from './FooterActions.svelte';
 
   import { onDestroy } from 'svelte';
-  import type { KeyCapId } from '@/interfaces/key-cap-id';
+  import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
 
@@ -28,15 +28,16 @@
   );
 
   function handleKeyDown(event: KeyboardEvent) {
-    const currentState = state;
-    if (inState(currentState, 'training') && event.code === 'Space') {
+    if (!isKnownKeyCapId(event.code)) return;
+    if (inState(state, 'training') && event.code === 'Space') {
       event.preventDefault();
     }
-    appActor.send({ type: 'KEY_DOWN', keyCapId: event.code as KeyCapId });
+    appActor.send({ type: 'KEY_DOWN', keyCapId: event.code });
   }
 
   function handleKeyUp(event: KeyboardEvent) {
-    appActor.send({ type: 'KEY_UP', keyCapId: event.code as KeyCapId });
+    if (!isKnownKeyCapId(event.code)) return;
+    appActor.send({ type: 'KEY_UP', keyCapId: event.code });
   }
 
   function handleBlur() {
