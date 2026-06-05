@@ -14,7 +14,7 @@
 
 {#if direction !== 'NONE'}
   <span class="nav-arrow {direction}" aria-hidden="true">
-    <svg width="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <mask id={maskId} fill="white">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M27 21L13.5 0L0 21H5.70578V28H20.9231V21H27Z" />
       </mask>
@@ -39,6 +39,10 @@
     line-height: 0;
     pointer-events: none;
     z-index: 10;
+  }
+
+  .nav-arrow svg {
+    width: 1.625em;
   }
 
   .nav-arrow.UP {

@@ -55,13 +55,13 @@
   }
 
   .bar.VERTICAL {
-    width: 4px;
+    width: 0.15em;
     height: 100%;
   }
 
   .bar.UNDERSCORE {
     width: 100%;
-    height: 4px;
+    height: 0.15em;
   }
 
   .char {
