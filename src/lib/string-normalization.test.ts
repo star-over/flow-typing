@@ -100,20 +100,20 @@ describe('normalizeString function (Complex)', () => {
   it('should apply all default rules correctly in order', () => {
     const input = '« Это   —   текст   с   разными   „символами“  и  пробелами ; \u2014 и  множеством\u00A0точек\u2026»';
     const expected = '" Это- текст с разными "символами" и пробелами;- и множеством точек..."';
-    expect(normalizeString(input)).toBe(expected);
+    expect(normalizeString({ text: input })).toBe(expected);
   });
 
   it('should handle complex input with various issues', () => {
     const input = '   “ Hello — World ”   .   This   is   a   test \u2013 text\u2026  with   non\u00A0breaking   spaces .   ';
     const expected = '" Hello- World ". This is a test- text... with non breaking spaces.';
-    expect(normalizeString(input)).toBe(expected);
+    expect(normalizeString({ text: input })).toBe(expected);
   });
 
   it('should return an empty string for empty input', () => {
-    expect(normalizeString('')).toBe('');
+    expect(normalizeString({ text: '' })).toBe('');
   });
 
   it('should handle string with only spaces', () => {
-    expect(normalizeString('   ')).toBe('');
+    expect(normalizeString({ text: '   ' })).toBe('');
   });
 });

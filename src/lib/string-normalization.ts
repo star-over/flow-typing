@@ -84,15 +84,17 @@ export const normalizeApostrophes: NormalizationRule = {
 
 
 /**
- * The main function to normalize a string using a predefined set of rules.
+ * Normalizes a string using a predefined set of rules.
  * Rules are applied in the order they appear in the `rules` array.
- *
- * @param text The input string to normalize.
- * @param rules An optional array of NormalizationRule objects to apply.
- *              If not provided, a default set of rules will be used.
- * @returns The normalized string.
+ * `customRules` overrides the default rule set entirely.
  */
-export function normalizeString(text: string, customRules?: NormalizationRule[]): string {
+export function normalizeString({
+  text,
+  customRules,
+}: {
+  text: string;
+  customRules?: NormalizationRule[];
+}): string {
   const defaultRules: NormalizationRule[] = [
     normalizeNonBreakingSpaces, // Process non-breaking spaces first to ensure consistent space handling
     replaceFancyQuotes,

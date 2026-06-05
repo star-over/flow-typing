@@ -54,13 +54,16 @@ export function getTotalCharacters(stream: TypingStream): number {
 }
 
 /**
- * Calculates the accuracy percentage.
- * Accuracy is defined as (Total Characters / Total Attempts) * 100%.
- * @param totalCharacters The total number of characters in the lesson.
- * @param totalAttempts The total number of key presses (attempts).
- * @returns The accuracy percentage, or 0 if no attempts.
+ * Calculates the accuracy percentage: (totalCharacters / totalAttempts) * 100%.
+ * Returns 0 when there are no attempts.
  */
-export function calculateAccuracy(totalCharacters: number, totalAttempts: number): number {
+export function calculateAccuracy({
+  totalCharacters,
+  totalAttempts,
+}: {
+  totalCharacters: number;
+  totalAttempts: number;
+}): number {
   if (totalAttempts === 0) {
     return 0;
   }
@@ -69,11 +72,15 @@ export function calculateAccuracy(totalCharacters: number, totalAttempts: number
 
 /**
  * Calculates Characters Per Minute (CPM).
- * @param totalCharacters The total number of characters.
- * @param durationInSeconds The duration of the lesson in seconds.
- * @returns CPM, or 0 if duration is 0.
+ * Returns 0 when duration is 0.
  */
-export function calculateCpm(totalCharacters: number, durationInSeconds: number): number {
+export function calculateCpm({
+  totalCharacters,
+  durationInSeconds,
+}: {
+  totalCharacters: number;
+  durationInSeconds: number;
+}): number {
   if (durationInSeconds === 0) {
     return 0;
   }
@@ -100,8 +107,8 @@ export function calculateLessonStats(stream: TypingStream): LessonStats {
   const totalCharacters = getTotalCharacters(stream);
   const totalAttempts = getTotalAttempts(stream);
 
-  const accuracy = calculateAccuracy(totalCharacters, totalAttempts);
-  const cpm = calculateCpm(totalCharacters, durationInSeconds);
+  const accuracy = calculateAccuracy({ totalCharacters, totalAttempts });
+  const cpm = calculateCpm({ totalCharacters, durationInSeconds });
   const wpm = calculateWpm(cpm);
 
   return {

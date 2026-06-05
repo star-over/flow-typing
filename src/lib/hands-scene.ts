@@ -203,7 +203,7 @@ function buildVisibleClusters(
     if (fingerData.fingerState !== "TARGET") continue;
 
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-    const keyCluster = getFingerKeys(fingerId, fingerLayout);
+    const keyCluster = getFingerKeys({ fingerId, fingerLayout });
 
     keyCluster.forEach((keyId) => {
       keyCapStates[keyId] = {
@@ -277,7 +277,7 @@ function applyNavigationPaths(
     const fingerData = newViewModel[fingerId];
     if (fingerData.fingerState !== "TARGET" || !fingerData.keyCapStates) continue;
 
-    const homeKey = getHomeKeyForFinger(fingerId, fingerLayout);
+    const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
     const targetKey = targetKeyCaps.find(
       (k: KeyCapId) => getFingerByKeyCap(k, fingerLayout) === fingerId
     );

@@ -87,7 +87,7 @@ export const createKeyboardSceneForFinger = ({
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
     fingerSceneState.keyCapStates || {};
 
-  const homeKeyForFinger = getHomeKeyForFinger(fingerId, fingerLayout);
+  const homeKeyForFinger = getHomeKeyForFinger({ fingerId, fingerLayout });
 
   // Проходим по физической геометрии ANSI, чтобы построить сцену для пальца
   return physicalLayout.map((row, rowIndex) =>

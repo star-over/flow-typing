@@ -156,33 +156,33 @@ describe('stats-calculator', () => {
 
   describe('calculateAccuracy', () => {
     it('should return 0 when totalAttempts is 0', () => {
-      expect(calculateAccuracy(10, 0)).toBe(0);
+      expect(calculateAccuracy({ totalCharacters: 10, totalAttempts: 0 })).toBe(0);
     });
 
     it('should return 100 for perfect accuracy', () => {
-      expect(calculateAccuracy(10, 10)).toBe(100);
+      expect(calculateAccuracy({ totalCharacters: 10, totalAttempts: 10 })).toBe(100);
     });
 
     it('should calculate accuracy correctly for some errors', () => {
       // 10 chars, 15 attempts means 5 errors
-      expect(calculateAccuracy(10, 15)).toBeCloseTo(66.67);
+      expect(calculateAccuracy({ totalCharacters: 10, totalAttempts: 15 })).toBeCloseTo(66.67);
       // 5 chars, 10 attempts means 5 errors
-      expect(calculateAccuracy(5, 10)).toBe(50);
+      expect(calculateAccuracy({ totalCharacters: 5, totalAttempts: 10 })).toBe(50);
     });
   });
 
   describe('calculateCpm', () => {
     it('should return 0 when durationInSeconds is 0', () => {
-      expect(calculateCpm(100, 0)).toBe(0);
+      expect(calculateCpm({ totalCharacters: 100, durationInSeconds: 0 })).toBe(0);
     });
 
     it('should calculate CPM correctly', () => {
       // 100 characters in 60 seconds
-      expect(calculateCpm(100, 60)).toBe(100);
+      expect(calculateCpm({ totalCharacters: 100, durationInSeconds: 60 })).toBe(100);
       // 150 characters in 30 seconds
-      expect(calculateCpm(150, 30)).toBe(300);
+      expect(calculateCpm({ totalCharacters: 150, durationInSeconds: 30 })).toBe(300);
       // 50 characters in 10 seconds
-      expect(calculateCpm(50, 10)).toBe(300);
+      expect(calculateCpm({ totalCharacters: 50, durationInSeconds: 10 })).toBe(300);
     });
   });
 
