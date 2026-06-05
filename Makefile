@@ -8,7 +8,7 @@
 SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test lint lint-fix \
-        storybook storybook-build check-all compile-drills generate-drills \
+        storybook storybook-build check-all compile-drills create-drills \
         normalize-rus-corp reinstall-gemini-cli
 
 all: help
@@ -41,7 +41,7 @@ help:
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
 	@echo "  make storybook-build  - storybook static build"
 	@echo ""
-	@echo "  make generate-drills  - Сгенерировать данные упражнений"
+	@echo "  make create-drills    - Сгенерировать данные упражнений"
 	@echo "  make normalize-rus-corp - Нормализовать русский корпус"
 	@echo "------------------------------------------------------------------"
 
@@ -129,9 +129,9 @@ compile-drills: install
 	@echo "📄 Компиляция скрипта генерации упражнений..."
 	npx tsc --project tsconfig.scripts.json
 
-generate-drills: compile-drills
+create-drills: compile-drills
 	@echo "📝 Генерация данных упражнений..."
-	node dist/src/scripts/generate-drills.js
+	node dist/src/scripts/create-drills.js
 
 normalize-rus-corp:
 	@echo "⚙️  Компиляция и запуск скрипта нормализации..."

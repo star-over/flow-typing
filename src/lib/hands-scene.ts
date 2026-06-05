@@ -18,7 +18,7 @@
  *
  * The pipeline consists of the following key stages:
  *
- * 1.  **`getIdleViewModel`**: Creates the initial 'NONE' state.
+ * 1.  **`createIdleViewModel`**: Creates the initial 'NONE' state.
  *
  * 2.  **`determineTypingContext`**: A pure helper that analyzes the
  *     current typing symbol and last attempt to determine `activeFingers`,
@@ -75,7 +75,7 @@ import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
  * This is the default state when no training is active.
  * @returns A HandsSceneViewModel with all fingers in 'NONE' state.
  */
-export function getIdleViewModel(): HandsSceneViewModel {
+export function createIdleViewModel(): HandsSceneViewModel {
   const idleState: FingerState = "NONE";
   const viewModel: Partial<HandsSceneViewModel> = {};
   const allFingerIds: FingerId[] = [
@@ -371,11 +371,11 @@ export function createHandsSceneViewModel(
 ): HandsSceneViewModel {
   // If training is not active or there's no symbol, return a completely idle view.
   if (!currentStreamSymbol) {
-    return getIdleViewModel();
+    return createIdleViewModel();
   }
 
   // --- Pipeline Start ---
-  let viewModel = getIdleViewModel();
+  let viewModel = createIdleViewModel();
 
   // Data Analysis Stage: Determine the context for the current typing step
   const typingContext = determineTypingContext(currentStreamSymbol, fingerLayout);

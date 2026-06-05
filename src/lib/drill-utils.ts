@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 
 /**
- * Generates a SHA-1 hash of the input text to serve as a unique ID for the drill.
+ * Builds a SHA-1 hash of the input text to serve as a unique ID for the drill.
  * @param text The drill text.
  * @returns A SHA-1 hash string.
  */
-export function generateDrillId(text: string): string {
+export function createDrillId(text: string): string {
   return crypto.createHash('sha1').update(text).digest('hex');
 }
 

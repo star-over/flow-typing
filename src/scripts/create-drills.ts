@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { type Drill, DrillSchema } from '../interfaces/drill-data.types';
 import {
-  generateDrillId,
+  createDrillId,
   getCharCount,
   getWordCount,
   getAverageWordLength,
@@ -20,7 +20,7 @@ import {
 const inputSentencesPath = path.join(process.cwd(), 'tmp/ru/input-sentences.txt');
 const outputDrillsPath = path.join(process.cwd(), 'src/data/drills/drills.json');
 
-async function generateDrills() {
+async function createDrills() {
   console.log('Starting drill generation process...');
 
   // 1. Read input sentences
@@ -54,7 +54,7 @@ async function generateDrills() {
 
   // 3. Process each new sentence
   for (const sentence of sentences) {
-    const id = generateDrillId(sentence);
+    const id = createDrillId(sentence);
 
     if (existingDrillIds.has(id)) {
       console.log(`Skipping duplicate drill: "${sentence.substring(0, 50)}..."`);
@@ -101,4 +101,4 @@ async function generateDrills() {
   }
 }
 
-generateDrills();
+createDrills();
