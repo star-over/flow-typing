@@ -34,7 +34,7 @@ help:
 	@echo ""
 	@echo "  make check            - svelte-check (типы Svelte+TS)"
 	@echo "  make test             - vitest run"
-	@echo "  make coverage         - vitest run --coverage (HTML отчёт в coverage/)"
+	@echo "  make coverage         - vitest run --coverage (text-отчёт в консоли)"
 	@echo "  make lint             - eslint ."
 	@echo "  make lint-fix         - eslint . --fix"
 	@echo "  make check-all        - lint + check + test + build"

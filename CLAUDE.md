@@ -24,7 +24,7 @@
 | `make dev` | `vite dev` на http://localhost:5173 |
 | `make build` / `make preview` | сборка SPA в `build/` / preview |
 | `make test` | `vitest run` |
-| `make coverage` | `vitest run --coverage` (v8 provider, HTML отчёт в `coverage/`) |
+| `make coverage` | `vitest run --coverage` (v8 provider, text-отчёт в консоли) |
 | `make check` | `svelte-kit sync` + `svelte-check` |
 | `make lint` / `make lint-fix` | ESLint |
 | `make storybook` | Storybook на http://localhost:6006 |
