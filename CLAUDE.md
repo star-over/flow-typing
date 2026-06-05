@@ -79,4 +79,4 @@
 
 - **HMR и XState:** `appActor` создаётся на уровне модуля. `import.meta.hot.decline()` форсит full reload вместо HMR. Если при правке `appActor.ts` / `app.machine.ts` видите «двойные» события — это full-reload, состояние тренировки теряется (by design, snapshot-restore не реализован).
 - **`stream` иммутабелен по ссылке:** `trainingMachine` делает `[...stream]` + замену символа. UI-производные через `$derived` пересчитываются автоматически.
-- **`Space` vs `SpaceLeft`/`SpaceRight`:** физическая `Space` отдельно whitelist'нута как text key в `keyboardMachine.isTextKeyGuard`, потому что виртуальная раскладка делит пробел на две клавиши.
+- **`Space` vs `SpaceLeft`/`SpaceRight`:** физическая `Space` отдельно whitelist'нута как text key в `keyboardMachine.isTextKeyGuard`, потому что клавиатурная сцена (`KeyboardSceneViewModel`) делит пробел на две клавиши.

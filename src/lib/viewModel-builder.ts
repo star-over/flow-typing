@@ -60,8 +60,8 @@ import {
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
   type StreamSymbol,
-  type VirtualLayout,
-  type VirtualKey,
+  type KeyboardSceneViewModel,
+  type KeyboardSceneKey,
   type Visibility,
 } from "@/interfaces/types";
 
@@ -421,22 +421,22 @@ export function generateHandsSceneViewModel(
 }
 
 /**
- * Генерирует виртуальный макет клавиатуры, адаптированный для конкретного пальца на основе общей модели сцены.
- * Эта функция определяет, какие клавиши должны быть видимыми и каково их состояние (например, целевая, путь)
- * для данного пальца, обеспечивая отображение только релевантных клавиш в кластере пальца.
+ * Создаёт клавиатурную сцену, адаптированную под конкретный палец, на основе общей сцены рук.
+ * Определяет, какие клавиши должны быть видимыми и каково их состояние (TARGET, PATH, …)
+ * для данного пальца — на выходе только клавиши его кластера обогащены сценическим состоянием.
  *
- * @param fingerId Идентификатор пальца, для которого генерируется макет (например, 'L1', 'R3').
- * @param viewModel Общая модель представления сцены рук, содержащая состояние для всех пальцев и колпачков клавиш.
- * @param fingerLayout The layout defining which finger presses which key.
- * @param physicalLayout The physical layout of the keyboard.
- * @returns Двумерный массив, представляющий виртуальный макет, где каждая клавиша обогащена состоянием сцены.
+ * @param fingerId Идентификатор пальца (например, 'L1', 'R3').
+ * @param viewModel Сцена рук — состояние всех пальцев и их клавиатурных кластеров.
+ * @param fingerLayout Пальцевая раскладка: какой палец отвечает за какую клавишу.
+ * @param physicalLayout Физическая геометрия клавиатуры.
+ * @returns `KeyboardSceneViewModel` — двумерная сцена, где каждая клавиша несёт состояние для рендера.
  */
-export const generateVirtualLayoutForFinger = (
+export const createKeyboardSceneForFinger = (
   fingerId: FingerId,
   viewModel: HandsSceneViewModel,
   fingerLayout: FingerLayout,
   physicalLayout: PhysicalLayout,
-): VirtualLayout => {
+): KeyboardSceneViewModel => {
   // Получаем состояние сцены конкретно для текущего пальца
   const fingerSceneState = viewModel[fingerId];
   // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет
@@ -445,9 +445,9 @@ export const generateVirtualLayoutForFinger = (
 
   const homeKeyForFinger = getHomeKeyForFinger(fingerId, fingerLayout);
 
-  // Проходим по стандартному макету клавиатуры ANSI, чтобы создать виртуальный макет для пальца
+  // Проходим по физической геометрии ANSI, чтобы построить сцену для пальца
   return physicalLayout.map((row, rowIndex) =>
-    row.map((physicalKey): VirtualKey => {
+    row.map((physicalKey): KeyboardSceneKey => {
       const { keyCapId } = physicalKey;
       // Получаем конкретное состояние для этого колпачка клавиши из состояния сцены пальца
       const keyCapState = keyCapStates[keyCapId];
@@ -460,7 +460,7 @@ export const generateVirtualLayoutForFinger = (
         ...physicalKey,
         rowIndex,
         colIndex: 0, // colIndex не используется в текущей логике макета для этого компонента
-        symbol: keyCapId, // Заполнитель, компонент VirtualKeyboard рассчитает фактический отображаемый символ
+        symbol: keyCapId, // Заполнитель, компонент KeyboardScene рассчитает фактический отображаемый символ
         fingerId: fingerId, // Присваиваем идентификатор пальца, с запасным значением
         isHomeKey: keyCapId === homeKeyForFinger, // Отмечаем, является ли это "домашней" клавишей для этого пальца
         // Динамические свойства из ViewModel

@@ -1,31 +1,31 @@
 <script module>
   import { defineMeta } from '@storybook/addon-svelte-csf';
-  import VirtualKeyboard from './VirtualKeyboard.svelte';
+  import KeyboardScene from './KeyboardScene.svelte';
   import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
   import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
   import { getSymbolLayout } from '@/data/layouts/layouts';
-  import { createVirtualLayout } from '@/lib/virtual-layout';
+  import { createKeyboardScene } from '@/lib/keyboard-scene';
 
   const symbolLayoutEn = getSymbolLayout('qwerty');
   const symbolLayoutJcuken = getSymbolLayout('йцукен');
 
-  const virtualLayoutEn = createVirtualLayout({
+  const keyboardSceneEn = createKeyboardScene({
     physicalLayout: physicalLayoutANSI,
     symbolLayout: symbolLayoutEn,
     fingerLayout: fingerLayoutASDF,
   });
 
-  const virtualLayoutRu = createVirtualLayout({
+  const keyboardSceneRu = createKeyboardScene({
     physicalLayout: physicalLayoutANSI,
     symbolLayout: symbolLayoutJcuken,
     fingerLayout: fingerLayoutASDF,
   });
 
   const { Story } = defineMeta({
-    title: 'UI/VirtualKeyboard',
-    component: VirtualKeyboard,
+    title: 'UI/KeyboardScene',
+    component: KeyboardScene,
     args: {
-      virtualLayout: virtualLayoutEn,
+      keyboardScene: keyboardSceneEn,
       physicalLayout: physicalLayoutANSI,
       symbolLayout: symbolLayoutEn,
     },
@@ -34,4 +34,4 @@
 
 <Story name="WholeKeyboard" />
 
-<Story name="CyrillicKeyboard" args={{ virtualLayout: virtualLayoutRu, symbolLayout: symbolLayoutJcuken }} />
+<Story name="CyrillicKeyboard" args={{ keyboardScene: keyboardSceneRu, symbolLayout: symbolLayoutJcuken }} />

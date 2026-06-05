@@ -15,10 +15,10 @@
     RIGHT_HAND_FINGERS,
   } from '@/interfaces/types';
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
-  import { generateVirtualLayoutForFinger } from '@/lib/viewModel-builder';
+  import { createKeyboardSceneForFinger } from '@/lib/viewModel-builder';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import Finger from './Finger.svelte';
-  import VirtualKeyboard from './VirtualKeyboard.svelte';
+  import KeyboardScene from './KeyboardScene.svelte';
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -127,7 +127,7 @@
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
       {#if viewModel[fingerId].fingerState !== 'NONE' && viewModel[fingerId].keyCapStates}
-        {@const virtualLayout = generateVirtualLayoutForFinger(fingerId, viewModel, fingerLayout, physicalLayout)}
+        {@const keyboardScene = createKeyboardSceneForFinger(fingerId, viewModel, fingerLayout, physicalLayout)}
         {@const t = clusterTranslations[fingerId]}
         <div
           bind:this={clusterRefs[fingerId]}
@@ -136,7 +136,7 @@
           style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
           style:visibility={t ? 'visible' : 'hidden'}
         >
-          <VirtualKeyboard {virtualLayout} {physicalLayout} {symbolLayout} />
+          <KeyboardScene {keyboardScene} {physicalLayout} {symbolLayout} />
         </div>
       {/if}
     {/each}

@@ -214,14 +214,14 @@ export type SymbolLayout = {
 /** Идентификатор символьного макета (то, что пользователь выбирает в настройках). */
 export type SymbolLayoutId = 'qwerty' | 'йцукен';
 
-// --- Virtual Keyboard ---
+// --- Keyboard Scene (render-ready view-model of the keyboard) ---
 
 /**
- * Описывает одну виртуальную клавишу, готовую для отображения в UI.
- * Это финальная, "ожившая" модель, объединяющая информацию
+ * Одна клавиша в render-готовой модели клавиатурной сцены.
+ * Это финальная, «ожившая» сущность, объединяющая информацию
  * из `PhysicalKey`, `SymbolLayout` и `FingerLayout`, а также динамическое UI-состояние.
  */
-export interface VirtualKey {
+export interface KeyboardSceneKey {
   // --- From PhysicalKey ---
   keyCapId: KeyCapId;
   unitWidth?: KeyCapUnitWidth;
@@ -239,9 +239,9 @@ export interface VirtualKey {
   isHomeKey?: boolean;
 
   // --- UI State ---
-  /** Индекс ряда клавиши в `VirtualLayout`. */
+  /** Индекс ряда клавиши в `KeyboardSceneViewModel`. */
   rowIndex?: number,
-  /** Индекс колонки клавиши в `VirtualLayout`. */
+  /** Индекс колонки клавиши в `KeyboardSceneViewModel`. */
   colIndex?: number,
   /** Видимость клавиши в данный момент. */
   visibility?: Visibility;
@@ -255,9 +255,9 @@ export interface VirtualKey {
 /**
  * Виртуальный макет клавиатуры.
  * Представляет собой полную, готовую к рендерингу модель клавиатуры
- * в виде двумерного массива `VirtualKey`.
+ * в виде двумерного массива `KeyboardSceneKey`.
  */
-export type VirtualLayout = VirtualKey[][];
+export type KeyboardSceneViewModel = KeyboardSceneKey[][];
 
 /**
  * Объект, описывающий состояние всех пальцев и кистей.

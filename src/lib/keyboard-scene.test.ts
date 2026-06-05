@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
-import { createVirtualLayout } from './virtual-layout';
+import { createKeyboardScene } from './keyboard-scene';
 
-describe('createVirtualLayout', () => {
+describe('createKeyboardScene', () => {
   const mockPhysicalLayout: PhysicalLayout = [
     [
       { keyCapId: 'KeyA', type: 'SYMBOL', unitWidth: '1U', label: 'a' },
@@ -27,25 +27,25 @@ describe('createVirtualLayout', () => {
     { keyCapId: 'ShiftLeft', fingerId: 'L5' },
   ];
 
-  it('should create a VirtualLayout with correct dimensions', () => {
-    const virtualLayout = createVirtualLayout({
+  it('should create a KeyboardSceneViewModel with correct dimensions', () => {
+    const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout).toHaveLength(mockPhysicalLayout.length);
-    expect(virtualLayout[0]).toHaveLength(mockPhysicalLayout[0]!.length);
+    expect(keyboardScene).toHaveLength(mockPhysicalLayout.length);
+    expect(keyboardScene[0]).toHaveLength(mockPhysicalLayout[0]!.length);
   });
 
   it('should correctly transfer physical key properties and set rowIndex/colIndex', () => {
-    const virtualLayout = createVirtualLayout({
+    const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0]![0]!;
+    const keyA = keyboardScene[0]![0]!;
     expect(keyA.keyCapId).toBe('KeyA');
     expect(keyA.type).toBe('SYMBOL');
     expect(keyA.unitWidth).toBe('1U');
@@ -54,14 +54,14 @@ describe('createVirtualLayout', () => {
   });
 
   it('derives symbol from symbolLayout (uppercase variant when shifted entry exists)', () => {
-    const virtualLayout = createVirtualLayout({
+    const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0]![0]!;
-    const keyB = virtualLayout[0]![1]!;
+    const keyA = keyboardScene[0]![0]!;
+    const keyB = keyboardScene[0]![1]!;
     expect(keyA.symbol).toBe('A'); // KeyA has both 'a' and Shift+'A' → uppercase preferred
     expect(keyB.symbol).toBe('b'); // KeyB only has 'b' → as-is
   });
@@ -72,25 +72,25 @@ describe('createVirtualLayout', () => {
     ];
     // getSymbol mock will return the label for 'KeyC'
 
-    const virtualLayout = createVirtualLayout({
+    const keyboardScene = createKeyboardScene({
       physicalLayout: customPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout[0]![0]!.symbol).toBe('c');
+    expect(keyboardScene[0]![0]!.symbol).toBe('c');
   });
 
   it('should correctly derive fingerId and isHomeKey from fingerLayout', () => {
-    const virtualLayout = createVirtualLayout({
+    const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    const keyA = virtualLayout[0]![0]!;
-    const keyB = virtualLayout[0]![1]!;
-    const shiftLeft = virtualLayout[1]![0]!;
+    const keyA = keyboardScene[0]![0]!;
+    const keyB = keyboardScene[0]![1]!;
+    const shiftLeft = keyboardScene[1]![0]!;
 
     expect(keyA.fingerId).toBe('L1');
     expect(keyA.isHomeKey).toBe(true);
@@ -106,12 +106,12 @@ describe('createVirtualLayout', () => {
     ];
     // No entry for 'KeyD' in mockFingerLayout
 
-    const virtualLayout = createVirtualLayout({
+    const keyboardScene = createKeyboardScene({
       physicalLayout: customPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    expect(virtualLayout[0]![0]!.fingerId).toBe('L1');
+    expect(keyboardScene[0]![0]!.fingerId).toBe('L1');
   });
 });

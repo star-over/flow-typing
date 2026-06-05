@@ -19,7 +19,7 @@ import { simple_t } from '@/fixtures/hands-ext/simple_t';
 
 import { fingerLayout, keyboardGraph, keyCoordinateMap, physicalLayout } from '@/fixtures/hands-ext/test-data';
 
-import { generateHandsSceneViewModel, generateVirtualLayoutForFinger } from './viewModel-builder';
+import { generateHandsSceneViewModel, createKeyboardSceneForFinger } from './viewModel-builder';
 
 describe('generateHandsSceneViewModel', () => {
 
@@ -187,7 +187,7 @@ describe('generateHandsSceneViewModel', () => {
   });
 });
 
-describe('generateVirtualLayoutForFinger', () => {
+describe('createKeyboardSceneForFinger', () => {
   it('should create a contextual layout for a specific finger', () => {
     // 1. Arrange
     // We use the expected output from a known fixture as the input for our function.
@@ -195,15 +195,15 @@ describe('generateVirtualLayoutForFinger', () => {
     const targetFinger = 'L2';
 
     // 2. Act
-    const virtualLayout = generateVirtualLayoutForFinger(targetFinger, viewModel, fingerLayout, physicalLayout);
+    const keyboardScene = createKeyboardSceneForFinger(targetFinger, viewModel, fingerLayout, physicalLayout);
 
     // 3. Assert
     // Helper function to find a key in the generated layout
     const findKey = (keyCapId: string) =>
-      virtualLayout.flat().find((k) => k.keyCapId === keyCapId);
+      keyboardScene.flat().find((k) => k.keyCapId === keyCapId);
 
     // Check visibility: Only keys for finger L2 should be visible.
-    const visibleKeys = virtualLayout.flat().filter((k) => k.visibility === 'VISIBLE');
+    const visibleKeys = keyboardScene.flat().filter((k) => k.visibility === 'VISIBLE');
     const l2Keys = Object.keys(viewModel.L2.keyCapStates!);
     expect(visibleKeys.length).toBe(l2Keys.length);
     visibleKeys.forEach((key) => {
