@@ -56,10 +56,7 @@ export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 /** Группа цвета клавиши для визуального разделения. */
 export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 
-/**
- * Функциональный тип клавиши.
- * @see /TASKS.md
- */
+/** Функциональный тип клавиши. */
 export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 
 /** A key that can modify the output of another key (e.g., Shift, Ctrl). */
