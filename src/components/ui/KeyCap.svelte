@@ -71,7 +71,7 @@
 
 <style>
   .keycap {
-    --keycap-unit: 36px;
+    --keycap-unit: 2.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,7 +79,7 @@
     flex-shrink: 0;
     box-sizing: border-box;
     border-radius: var(--radius-sm);
-    height: 32px;
+    height: 2rem;
     width: calc(var(--keycap-unit) * var(--unit-multiplier, 1));
     padding: 0 var(--spacing-2);
     background-color: transparent;
@@ -94,9 +94,9 @@
   }
 
   /* --- Symbol size --- */
-  .size-MD .keycap-label { font-size: 13px; }
-  .size-SM .keycap-label { font-size: 11px; }
-  .size-XS .keycap-label { font-size: 9px; }
+  .size-MD .keycap-label { font-size: 0.8125rem; }
+  .size-SM .keycap-label { font-size: 0.6875rem; }
+  .size-XS .keycap-label { font-size: 0.5625rem; }
 
   /* --- Color group --- */
   .color-SECONDARY {
@@ -140,19 +140,19 @@
 
   /* --- Home key ring --- */
   .keycap.home {
-    box-shadow: 0 0 0 2px var(--color-keycap-label);
+    box-shadow: 0 0 0 0.125rem var(--color-keycap-label);
   }
 
   /* --- Navigation role (overridden by press result below) --- */
   .keycap.role-path {
-    box-shadow: 0 0 0 4px var(--color-keycap-label);
+    box-shadow: 0 0 0 0.25rem var(--color-keycap-label);
     font-weight: 700;
   }
 
   .keycap.role-target {
     background-color: var(--color-keycap-role-target-bg);
     color: var(--color-keycap-role-target-fg);
-    box-shadow: 0 0 0 4px var(--color-keycap-role-target-bg);
+    box-shadow: 0 0 0 0.25rem var(--color-keycap-role-target-bg);
     font-weight: 900;
   }
 
@@ -187,19 +187,20 @@
   }
 
   .marker-BAR .keycap-marker {
-    width: 12px;
-    height: 2px;
+    width: 0.75rem;
+    height: 0.125rem;
   }
 
   .marker-DOT .keycap-marker {
-    width: 4px;
-    height: 4px;
+    width: 0.25rem;
+    height: 0.25rem;
   }
 
   .marker-NONE .keycap-marker {
     visibility: hidden;
   }
 
+  /* JS anchor used by HandsExt positioning logic — не масштабируется намеренно. */
   .keycap-center-point {
     position: absolute;
     top: 50%;
