@@ -15,7 +15,7 @@
     RIGHT_HAND_FINGERS,
   } from '@/interfaces/types';
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
-  import { createKeyboardSceneForFinger } from '@/lib/viewModel-builder';
+  import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import Finger from './Finger.svelte';
   import KeyboardScene from './KeyboardScene.svelte';

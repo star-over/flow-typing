@@ -1,5 +1,5 @@
 /**
- * @file View Model Builder for Hands Scene
+ * @file Сборка `HandsSceneViewModel` — финальной render-готовой модели рук.
  * @description This module is responsible for generating the complete visual state
  * for the hands scene based on the current application state.
  *
@@ -54,15 +54,11 @@ import {
   type HandsSceneViewModel,
   type KeyCapId,
   type KeySceneState,
-  type PhysicalLayout,
   LEFT_HAND_BASE,
   LEFT_HAND_FINGERS,
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
   type StreamSymbol,
-  type KeyboardSceneViewModel,
-  type KeyboardSceneKey,
-  type Visibility,
 } from "@/interfaces/types";
 
 import {
@@ -419,58 +415,3 @@ export function generateHandsSceneViewModel(
 
   return viewModel;
 }
-
-/**
- * Создаёт клавиатурную сцену, адаптированную под конкретный палец, на основе общей сцены рук.
- * Определяет, какие клавиши должны быть видимыми и каково их состояние (TARGET, PATH, …)
- * для данного пальца — на выходе только клавиши его кластера обогащены сценическим состоянием.
- *
- * @param fingerId Идентификатор пальца (например, 'L1', 'R3').
- * @param viewModel Сцена рук — состояние всех пальцев и их клавиатурных кластеров.
- * @param fingerLayout Пальцевая раскладка: какой палец отвечает за какую клавишу.
- * @param physicalLayout Физическая геометрия клавиатуры.
- * @returns `KeyboardSceneViewModel` — двумерная сцена, где каждая клавиша несёт состояние для рендера.
- */
-export const createKeyboardSceneForFinger = (
-  fingerId: FingerId,
-  viewModel: HandsSceneViewModel,
-  fingerLayout: FingerLayout,
-  physicalLayout: PhysicalLayout,
-): KeyboardSceneViewModel => {
-  // Получаем состояние сцены конкретно для текущего пальца
-  const fingerSceneState = viewModel[fingerId];
-  // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет
-  const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
-    fingerSceneState.keyCapStates || {};
-
-  const homeKeyForFinger = getHomeKeyForFinger(fingerId, fingerLayout);
-
-  // Проходим по физической геометрии ANSI, чтобы построить сцену для пальца
-  return physicalLayout.map((row, rowIndex) =>
-    row.map((physicalKey): KeyboardSceneKey => {
-      const { keyCapId } = physicalKey;
-      // Получаем конкретное состояние для этого колпачка клавиши из состояния сцены пальца
-      const keyCapState = keyCapStates[keyCapId];
-
-      // Определяем видимость: клавиша видима, если у нее есть определенное состояние в viewModel для этого пальца
-      const isVisible = !!keyCapState;
-      const visibility: Visibility = isVisible ? "VISIBLE" : "INVISIBLE";
-
-      return {
-        ...physicalKey,
-        rowIndex,
-        colIndex: 0, // colIndex не используется в текущей логике макета для этого компонента
-        symbol: keyCapId, // Заполнитель, компонент KeyboardScene рассчитает фактический отображаемый символ
-        fingerId: fingerId, // Присваиваем идентификатор пальца, с запасным значением
-        isHomeKey: keyCapId === homeKeyForFinger, // Отмечаем, является ли это "домашней" клавишей для этого пальца
-        // Динамические свойства из ViewModel
-        visibility: visibility,
-        navigationRole: keyCapState?.navigationRole || "NONE", // Роль (TARGET, PATH, NONE)
-        navigationArrow: keyCapState?.navigationArrow || "NONE", // Направление стрелки для навигации
-        pressResult: keyCapState?.pressResult || "NONE", // Результат нажатия клавиши (CORRECT, INCORRECT, NEUTRAL)
-      };
-    }),
-  );
-};
-
-

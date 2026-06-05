@@ -1,4 +1,4 @@
-import { getIdleViewModel } from '@/lib/viewModel-builder';
+import { getIdleViewModel } from '@/lib/hands-scene';
 
 import type { HandsExtFixture } from './types';
 

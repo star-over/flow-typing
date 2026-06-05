@@ -5,7 +5,7 @@
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
-  import { generateHandsSceneViewModel } from '@/lib/viewModel-builder';
+  import { generateHandsSceneViewModel } from '@/lib/hands-scene';
   import { getPressResult } from '@/lib/press-result-utils';
   import { getSymbolLayout } from '@/data/layouts/layouts';
 
