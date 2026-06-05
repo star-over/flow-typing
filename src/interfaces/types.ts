@@ -13,39 +13,45 @@ export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 export interface KeyCapLabel { symbol?: string }
 
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
-export type KeyCapHomeKeyMarker = "NONE" | "BAR" | "DOT";
+export const KEY_CAP_HOME_KEY_MARKERS = ["NONE", "BAR", "DOT"] as const;
+export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
 
 /**
  * Определяет навигационную роль клавиши в текущем упражнении.
  * Используется для визуальных подсказок пользователю.
- * - NONE: Клавиша не участвует в текущей навигации.
- * - PATH: Клавиша находится на пути движения пальца к 'TARGET'.
- * - TARGET: Целевая клавиша, которую необходимо нажать.
  */
-export type KeyCapNavigationRole = "NONE" | "PATH" | "TARGET";
+export const KEY_CAP_NAVIGATION_ROLES = [
+  "NONE", // Клавиша не участвует в текущей навигации.
+  "PATH", // Клавиша находится на пути движения пальца к 'TARGET'.
+  "TARGET", // Целевая клавиша, которую необходимо нажать.
+] as const;
+export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
 
 
 /**
  * Определяет навигационную роль клавиши в текущем упражнении.
- * Используется для визуальных стрелок направления движения пальца к клавише.
- * - NONE: Стрелка не отображается.
- * - UP: Отображается стрелка сверху.
- * - RIGHT: Отображается стрелка справа.
- * - DOWN: Отображается стрелка снизу.
- * - LEFT: Отображается стрелка слева.
+ * Используется для визуальных стрелок направления движения пальца к клавише
  */
-export type KeyCapNavigationArrow = "NONE" | "UP" | "RIGHT" | "DOWN" | "LEFT";
+export const KEY_CAP_NAVIGATION_ARROWS = [
+  "NONE",   // Стрелка не отображается.
+  "UP",     // Отображается стрелка c верху.
+  "RIGHT",  // Отображается стрелка с права.
+  "DOWN",   // Отображается стрелка с низу.
+  "LEFT",   // Отображается стрелка с лева.
+] as const;
+export type KeyCapNavigationArrow = typeof KEY_CAP_NAVIGATION_ARROWS[number];
 
-/**
- * Результат нажатия клавиши пользователем.
- * - NONE: Нейтральное состояние, нажатие еще не оценено.
- * - CORRECT: Нажатие было правильным.
- * - ERROR: Нажатие было ошибочным.
- */
-export type KeyCapPressResult = "NONE" | "CORRECT" | "ERROR";
+/** Результат нажатия клавиши пользователем. */
+export const KEY_CAP_PRESS_RESULTS = [
+  "NONE", // Нейтральное состояние, нажатие еще не оценено.
+  "CORRECT", // Нажатие было правильным.
+  "ERROR", // Нажатие было ошибочным.
+] as const;
+export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 
 /** Стандартные размеры ширины клавиш, выраженные в "юнитах" (1U ~ 19мм). */
-export type KeyCapUnitWidth = "1U" | "1.25U" | "1.5U" | "1.75U" | "2U" | "2.5U" | "3U" | "5U";
+export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "2.5U", "3U", "5U"] as const;
+export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 
 /** Группа цвета клавиши для визуального разделения. */
 export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
@@ -57,10 +63,12 @@ export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 export type ModifierKey = 'shift' | 'ctrl' | 'alt' | 'meta';
 
 /** Размер символа (легенды) на клавише. */
-export type KeyCapSymbolSize = "MD" | "SM" | "XS";
+export const KEY_CAP_SYMBOL_SIZES = ["MD", "SM", "XS"] as const;
+export type KeyCapSymbolSize = typeof KEY_CAP_SYMBOL_SIZES[number];
 
 /** Видимость UI элемента. */
-export type Visibility = "INVISIBLE" | "VISIBLE";
+export const VISIBILITY_STATES = ["INVISIBLE", "VISIBLE"] as const;
+export type Visibility = typeof VISIBILITY_STATES[number];
 
 // --- Finger and Hand Types ---
 
@@ -98,7 +106,8 @@ export const FINGER_IDS = [
 export type FingerId = typeof FINGER_IDS[number];
 
 /** Состояние отдельного пальца. */
-export type FingerState = "NONE" | "TARGET" | "INACTIVE" | "ERROR";
+export const FINGER_STATES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;
+export type FingerState = typeof FINGER_STATES[number];
 
 /** Идентификаторы сторон рук. */
 export const HAND_SIDES = ["LEFT", "RIGHT"] as const;
@@ -107,23 +116,26 @@ export type HandSide = typeof HAND_SIDES[number];
 // --- FlowLine Types ---
 
 /** Тип курсора в FlowLine. */
-export type FlowLineCursorType = "RECTANGLE" | "UNDERSCORE" | "VERTICAL";
+export const FLOW_LINE_CURSOR_TYPES = ["RECTANGLE", "UNDERSCORE", "VERTICAL"] as const;
+export type FlowLineCursorType = typeof FLOW_LINE_CURSOR_TYPES[number];
 
-/**
- * Состояние отдельного символа в FlowLine.
- * - PENDING: Еще не был напечатан, ожидается ввод пользователя.
- * - CORRECT: Напечатан корректно с первой попытки.
- * - CORRECTED: Напечатан корректно не с первой попытки.
- * - ERROR: Напечатан некорректно один раз.
- * - ERRORS: Напечатан некорректно несколько раз.
- */
-export type FlowLineSymbolType = "PENDING" | "CORRECT" | "CORRECTED" | "ERROR" | "ERRORS";
+/** Состояние отдельного символа в FlowLine. */
+export const FLOW_LINE_SYMBOL_TYPES = [
+  "PENDING",    // Еще не был напечатан пользователем, он только показан, ожидается взаимодействие с пользователем
+  "CORRECT",    // Был напечатан пользователем корректно с первой попытки
+  "CORRECTED",  // Был напечатан пользователем корректно не с первой попытки
+  "ERROR",      // Был напечатан пользователем не корректно один раз
+  "ERRORS", // Был напечатан пользвателем не корректно несколько раз
+] as const;
+export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 
 /** Размер шрифта в FlowLine. */
-export type FlowLineSize = "XS" | "SM" | "MD" | "LG" | "XL";
+export const FLOW_LINE_SIZES = ["XS", "SM", "MD", "LG", "XL"] as const;
+export type FlowLineSize = typeof FLOW_LINE_SIZES[number];
 
 /** Режим отображения курсора в FlowLine. */
-export type FlowLineCursorMode = "HALF" | "THIRD" | "QUARTER" | "DINAMIC";
+export const FLOW_LINE_CURSOR_MODES = ["HALF", "THIRD", "QUARTER", "DINAMIC"] as const;
+export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
 
 // --- Typing Stream and Attempts ---
 
