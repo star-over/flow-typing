@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { assign, createActor, createMachine, sendTo } from 'xstate';
+import { assign, createActor, createMachine, sendTo, type SnapshotFrom } from 'xstate';
 
 import type { KeyCapId, StreamAttempt, TypingStream } from '@/interfaces/types';
 import type { UserPreferences } from '@/interfaces/user-preferences';
 
 import { trainingMachine } from './training.machine';
+
+type TrainingSnapshot = SnapshotFrom<typeof trainingMachine>;
 
 interface TestParentContext {
   completedStream: TypingStream | null;
@@ -42,8 +44,12 @@ function makeTestParent(
   });
 }
 
-function getChild(actor: ReturnType<typeof createActor>) {
-  return actor.getSnapshot().children.training!.getSnapshot();
+// Возвращаем типизированный snapshot trainingMachine — это даёт точные литералы
+// state name в .matches(), .value и context. Без приведения snapshot был бы
+// generic и принимал бы любую строку (например, matches('lessonComplete') прошёл бы
+// typecheck — тот самый класс ошибок, который мы здесь страхуем).
+function getChild(actor: ReturnType<typeof createActor>): TrainingSnapshot {
+  return actor.getSnapshot().children.training!.getSnapshot() as TrainingSnapshot;
 }
 
 describe('trainingMachine', () => {
@@ -162,6 +168,34 @@ describe('trainingMachine', () => {
     const child = getChild(actor);
     expect(child.value).toBe('lessonComplete');
     expect(child.context.currentIndex).toBe(2);
+  });
+
+  // Регрессионный тест на инвариант, который используется в TrainingScene.svelte:
+  //   isTyping={!trainingState.matches('lessonComplete')}
+  // Машина имеет ровно 5 состояний: awaitingInput, processingInput, correctInput,
+  // incorrectInput, lessonComplete. До исправления setup() здесь использовалась
+  // строка 'running' — литерал, которого в этой машине нет (это state app.machine).
+  // matches('lessonComplete') всегда возвращал false, isTyping был сломан незаметно.
+  // Сейчас .matches('lessonComplete') проверяется по литеральному union типу:
+  // любой неверный state name (включая 'running') свалит typecheck.
+  it("matches('lessonComplete') = false до последнего символа, true после", () => {
+    const stream: TypingStream = [
+      { targetSymbol: 'a', targetKeyCaps: ['KeyA'], attempts: [] },
+      { targetSymbol: 'b', targetKeyCaps: ['KeyB'], attempts: [] },
+    ];
+    const actor = createActor(makeTestParent(stream));
+    actor.start();
+
+    expect(getChild(actor).matches('lessonComplete')).toBe(false);
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+    expect(getChild(actor).matches('lessonComplete')).toBe(false);
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyZ'] }); // error — не должно завершить
+    expect(getChild(actor).matches('lessonComplete')).toBe(false);
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyB'] });
+    expect(getChild(actor).matches('lessonComplete')).toBe(true);
   });
 
   it('records startAt/endAt timestamps on each attempt within wall-clock window', () => {

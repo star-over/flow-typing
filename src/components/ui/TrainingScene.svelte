@@ -63,7 +63,7 @@
     {stream}
     cursorPosition={currentIndex}
     {pressResult}
-    isTyping={trainingState.matches('running')}
+    isTyping={!trainingState.matches('lessonComplete')}
   />
 
   <HandsExt {viewModel} {fingerLayout} {physicalLayout} {symbolLayout} />
