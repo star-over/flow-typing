@@ -22,15 +22,15 @@
   const { state, send, dictionary, trainingActor }: Props = $props();
 </script>
 
-{#if inState(state, { training: 'running' }) && trainingActor}
+{#if inState({ snapshot: state, value: { training: 'running' } }) && trainingActor}
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
-{:else if inState(state, 'trainingComplete') && state.context.lastTrainingStream}
+{:else if inState({ snapshot: state, value: 'trainingComplete' }) && state.context.lastTrainingStream}
   <LessonStatsDisplay stream={state.context.lastTrainingStream} {dictionary} />
-{:else if inState(state, 'settings')}
+{:else if inState({ snapshot: state, value: 'settings' })}
   <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} {dictionary} />
-{:else if inState(state, 'allStat')}
+{:else if inState({ snapshot: state, value: 'allStat' })}
   <h2 class="screen-title">{dictionary.app.stats_screen_title}</h2>
-{:else if inState(state, { training: 'paused' })}
+{:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
 {:else}
   <div class="welcome">

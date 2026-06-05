@@ -34,24 +34,24 @@ describe("pathfinding utilities", () => {
 
   describe("findOptimalPath", () => {
     it("should find a direct path between two adjacent keys", () => {
-      const path = findOptimalPath("KeyF", "KeyG", graph);
+      const path = findOptimalPath({ startKey: "KeyF", endKey: "KeyG", graph });
       expect(path).toEqual(["KeyF", "KeyG"]);
     });
 
     it("should find a valid shortest path involving vertical and horizontal movement", () => {
       // Path from J (home key) to Y
-      const pathJY = findOptimalPath("KeyJ", "KeyY", graph);
+      const pathJY = findOptimalPath({ startKey: "KeyJ", endKey: "KeyY", graph });
       expect(pathJY.length).toBe(3);
       expect(pathJY[0]).toBe("KeyJ");
       expect(pathJY[2]).toBe("KeyY");
 
       // Path from J (home key) to U (adjacent)
-      const pathJU = findOptimalPath("KeyJ", "KeyU", graph);
+      const pathJU = findOptimalPath({ startKey: "KeyJ", endKey: "KeyU", graph });
       expect(pathJU).toEqual(["KeyJ", "KeyU"]);
     });
 
     it("should return a path with only the start node if start and end are the same", () => {
-      const path = findOptimalPath("KeyA", "KeyA", graph);
+      const path = findOptimalPath({ startKey: "KeyA", endKey: "KeyA", graph });
       expect(path).toEqual(["KeyA"]);
     });
 
@@ -60,17 +60,17 @@ describe("pathfinding utilities", () => {
       const disconnectedGraph = new Map();
       disconnectedGraph.set("KeyA", []);
       disconnectedGraph.set("KeyB", []);
-      const path = findOptimalPath("KeyA", "KeyB", disconnectedGraph);
+      const path = findOptimalPath({ startKey: "KeyA", endKey: "KeyB", graph: disconnectedGraph });
       expect(path).toEqual([]);
     });
 
     it("should return an empty array if start or end key is not in the graph", () => {
       // @ts-expect-error Testing with a non-existent key
-      const path1 = findOptimalPath("KeyA", "NonExistentKey", graph);
+      const path1 = findOptimalPath({ startKey: "KeyA", endKey: "NonExistentKey", graph });
       expect(path1).toEqual([]);
 
       // @ts-expect-error Testing with a non-existent key
-      const path2 = findOptimalPath("NonExistentKey", "KeyA", graph);
+      const path2 = findOptimalPath({ startKey: "NonExistentKey", endKey: "KeyA", graph });
       expect(path2).toEqual([]);
     });
   });

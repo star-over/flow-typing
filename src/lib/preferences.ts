@@ -9,7 +9,7 @@ function createPreferencesStore() {
     if (!browser) return DEFAULT_USER_PREFERENCES;
     try {
       const stored = localStorage.getItem('flow-typing-user-preferences');
-      if (stored) return deepMerge(DEFAULT_USER_PREFERENCES, JSON.parse(stored)) as UserPreferences;
+      if (stored) return deepMerge({ target: DEFAULT_USER_PREFERENCES, source: JSON.parse(stored) }) as UserPreferences;
     } catch { /* ignore parse errors */ }
     return DEFAULT_USER_PREFERENCES;
   };
@@ -34,5 +34,5 @@ export const symbolLayoutId = derived(preferences, ($p) => $p.symbolLayoutId);
 
 /** Deep-merge partial update to preserve nested fields (e.g. shared.exerciseId) */
 export function updatePreferences(partial: Partial<UserPreferences>) {
-  preferences.update((current) => deepMerge(current, partial));
+  preferences.update((current) => deepMerge({ target: current, source: partial }));
 }

@@ -45,7 +45,7 @@ export const appMachine = setup({
       const randomIndex = Math.floor(Math.random() * defaultDrillTexts.length);
       const drillText = defaultDrillTexts[randomIndex]!;
       return {
-        lastTrainingStream: createTypingStream(drillText, symbolLayout),
+        lastTrainingStream: createTypingStream({ drillText, symbolLayout }),
         currentSymbolLayoutId: params.symbolLayoutId,
       };
     }),

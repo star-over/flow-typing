@@ -61,23 +61,26 @@ export function createKeyboardScene(
   return keyboardScene;
 }
 
+interface CreateKeyboardSceneForFingerOptions {
+  fingerId: FingerId;
+  viewModel: HandsSceneViewModel;
+  fingerLayout: FingerLayout;
+  physicalLayout: PhysicalLayout;
+}
+
 /**
  * Создаёт клавиатурную сцену, адаптированную под конкретный палец, на основе общей сцены рук.
  * Определяет, какие клавиши должны быть видимыми и каково их состояние (TARGET, PATH, …)
  * для данного пальца — на выходе только клавиши его кластера обогащены сценическим состоянием.
  *
- * @param fingerId Идентификатор пальца (например, 'L1', 'R3').
- * @param viewModel Сцена рук — состояние всех пальцев и их клавиатурных кластеров.
- * @param fingerLayout Пальцевая раскладка: какой палец отвечает за какую клавишу.
- * @param physicalLayout Физическая геометрия клавиатуры.
  * @returns `KeyboardSceneViewModel` — двумерная сцена, где каждая клавиша несёт состояние для рендера.
  */
-export const createKeyboardSceneForFinger = (
-  fingerId: FingerId,
-  viewModel: HandsSceneViewModel,
-  fingerLayout: FingerLayout,
-  physicalLayout: PhysicalLayout,
-): KeyboardSceneViewModel => {
+export const createKeyboardSceneForFinger = ({
+  fingerId,
+  viewModel,
+  fingerLayout,
+  physicalLayout,
+}: CreateKeyboardSceneForFingerOptions): KeyboardSceneViewModel => {
   // Получаем состояние сцены конкретно для текущего пальца
   const fingerSceneState = viewModel[fingerId];
   // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет

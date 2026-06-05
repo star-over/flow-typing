@@ -13,7 +13,7 @@ describe("addAttempt", () => {
   const pressedKeyCapsB: KeyCapId[] = ["KeyB"];
 
   it("should add an attempt to a symbol", () => {
-    const stream = createTypingStream("a", symbolLayoutQwerty);
+    const stream = createTypingStream({ drillText: "a", symbolLayout: symbolLayoutQwerty });
     const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
 
     expect(newStream[0]!.attempts).toHaveLength(1);
@@ -21,7 +21,7 @@ describe("addAttempt", () => {
   });
 
   it("should add multiple attempts", () => {
-    let stream = createTypingStream("a", symbolLayoutQwerty);
+    let stream = createTypingStream({ drillText: "a", symbolLayout: symbolLayoutQwerty });
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsB, startAt: 0, endAt: 100 });
     stream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 100, endAt: 200 });
 
@@ -30,7 +30,7 @@ describe("addAttempt", () => {
   });
 
   it("should be immutable", () => {
-    const stream = createTypingStream("a", symbolLayoutQwerty);
+    const stream = createTypingStream({ drillText: "a", symbolLayout: symbolLayoutQwerty });
     const newStream = addAttempt({ stream, cursorPosition: 0, pressedKeyCaps: pressedKeyCapsA, startAt: 0, endAt: 100 });
     expect(newStream).not.toBe(stream);
     expect(newStream[0]).not.toBe(stream[0]);

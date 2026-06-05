@@ -8,13 +8,16 @@ const isObject = (item: unknown): item is Record<string, unknown> => {
 };
 
 /**
- * Deeply merges two objects. Properties from the source object overwrite properties in the target object.
+ * Deeply merges two objects. Properties from `source` overwrite properties in `target`.
  * Arrays are replaced, not merged.
- * @param target The target object to merge into.
- * @param source The source object to merge from.
- * @returns The merged object.
  */
-export function deepMerge<T extends object, U extends object>(target: T, source: U): T & U {
+export function deepMerge<T extends object, U extends object>({
+  target,
+  source,
+}: {
+  target: T;
+  source: U;
+}): T & U {
   const output = { ...target } as T & U;
 
   if (isObject(target) && isObject(source)) {
@@ -24,7 +27,10 @@ export function deepMerge<T extends object, U extends object>(target: T, source:
         if (Object.prototype.hasOwnProperty.call(target, key)) {
           const targetValue = target[key as keyof T];
           if (isObject(sourceValue) && isObject(targetValue)) {
-            (output as Record<string, unknown>)[key] = deepMerge(targetValue as object, sourceValue as object);
+            (output as Record<string, unknown>)[key] = deepMerge({
+              target: targetValue as object,
+              source: sourceValue as object,
+            });
           } else {
             (output as Record<string, unknown>)[key] = sourceValue;
           }

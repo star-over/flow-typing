@@ -55,12 +55,17 @@ export function createKeyboardGraph(physicalLayout: PhysicalLayout): AdjacencyLi
 
 /**
  * Finds the shortest path between two keys on the keyboard graph using Breadth-First Search (BFS).
- * @param startKey The starting KeyCapId.
- * @param endKey The ending KeyCapId.
- * @param graph The adjacency list representation of the keyboard.
  * @returns An array of KeyCapIds representing the shortest path, or an empty array if no path is found.
  */
-export function findOptimalPath(startKey: KeyCapId, endKey: KeyCapId, graph: AdjacencyList): KeyCapId[] {
+export function findOptimalPath({
+  startKey,
+  endKey,
+  graph,
+}: {
+  startKey: KeyCapId;
+  endKey: KeyCapId;
+  graph: AdjacencyList;
+}): KeyCapId[] {
   if (!graph.has(startKey) || !graph.has(endKey)) {
     return []; // Start or end key not in graph
   }

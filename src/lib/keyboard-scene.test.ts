@@ -126,7 +126,7 @@ describe('createKeyboardSceneForFinger', () => {
     const targetFinger = 'L2';
 
     // 2. Act
-    const keyboardScene = createKeyboardSceneForFinger(targetFinger, viewModel, fingerLayout, physicalLayout);
+    const keyboardScene = createKeyboardSceneForFinger({ fingerId: targetFinger, viewModel, fingerLayout, physicalLayout });
 
     // 3. Assert
     // Helper function to find a key in the generated layout

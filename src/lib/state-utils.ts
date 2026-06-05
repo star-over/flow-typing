@@ -9,5 +9,10 @@ import type { AnyMachineSnapshot, StateValue } from 'xstate';
  * narrowing к концу цепочки делает оставшиеся ветки `never` и ломает тип-
  * чек, не давая ничего ценного взамен.
  */
-export const inState = (snapshot: AnyMachineSnapshot, value: StateValue): boolean =>
-  (snapshot.matches as (v: StateValue) => boolean)(value);
+export const inState = ({
+  snapshot,
+  value,
+}: {
+  snapshot: AnyMachineSnapshot;
+  value: StateValue;
+}): boolean => (snapshot.matches as (v: StateValue) => boolean)(value);

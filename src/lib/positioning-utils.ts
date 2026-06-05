@@ -4,17 +4,17 @@
 
 /**
  * Вычисляет смещение (translation) для контейнера кластера клавиш.
- *
- * @param fingerElement - DOM-элемент центральной точки пальца.
- * @param keyElement - DOM-элемент центральной точки "домашней" клавиши внутри кластера.
- * @param containerElement - DOM-элемент, относительно которого позиционируется кластер.
- * @returns Объект с `deltaX` и `deltaY` или `null`, если не удалось получить размеры контейнера.
+ * @returns `{ deltaX, deltaY }` или `null`, если контейнера нет.
  */
-export function calculateClusterTranslation(
-  fingerElement: Element,
-  keyElement: Element,
-  containerElement: Element | null
-): { deltaX: number, deltaY: number } | null {
+export function calculateClusterTranslation({
+  fingerElement,
+  keyElement,
+  containerElement,
+}: {
+  fingerElement: Element;
+  keyElement: Element;
+  containerElement: Element | null;
+}): { deltaX: number, deltaY: number } | null {
   if (!containerElement) return null;
   const fingerRect = fingerElement.getBoundingClientRect();
   const keyRect = keyElement.getBoundingClientRect();

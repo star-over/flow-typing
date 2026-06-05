@@ -29,7 +29,7 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
-    if (inState(state, 'training') && event.code === 'Space') {
+    if (inState({ snapshot: state, value: 'training' }) && event.code === 'Space') {
       event.preventDefault();
     }
     appActor.send({ type: 'KEY_DOWN', keyCapId: event.code });

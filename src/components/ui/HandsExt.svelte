@@ -89,11 +89,11 @@
       );
       if (!keyEl) return;
 
-      const translation = calculateClusterTranslation(
-        centerEl,
-        keyEl,
-        clusterEl.parentElement
-      );
+      const translation = calculateClusterTranslation({
+        fingerElement: centerEl,
+        keyElement: keyEl,
+        containerElement: clusterEl.parentElement,
+      });
       if (translation) {
         clusterTranslations[fingerId] = { dx: translation.deltaX, dy: translation.deltaY };
       }
@@ -127,7 +127,7 @@
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
       {#if viewModel[fingerId].fingerState !== 'NONE' && viewModel[fingerId].keyCapStates}
-        {@const keyboardScene = createKeyboardSceneForFinger(fingerId, viewModel, fingerLayout, physicalLayout)}
+        {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, viewModel, fingerLayout, physicalLayout })}
         {@const t = clusterTranslations[fingerId]}
         <div
           bind:this={clusterRefs[fingerId]}

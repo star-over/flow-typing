@@ -14,10 +14,10 @@
 
   const fullStreamText = 'The Quick brown fox jumps over the lazy dog.';
 
-  const baseStreamPending = createTypingStream(fullStreamText, symbolLayoutQwerty);
+  const baseStreamPending = createTypingStream({ drillText: fullStreamText, symbolLayout: symbolLayoutQwerty });
 
   // Stream with one error on position 4
-  let streamWithOneError = createTypingStream(fullStreamText, symbolLayoutQwerty);
+  let streamWithOneError = createTypingStream({ drillText: fullStreamText, symbolLayout: symbolLayoutQwerty });
   for (let i = 0; i < streamWithOneError.length; i++) {
     const targetChar = streamWithOneError[i]!.targetSymbol;
     const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);
@@ -33,7 +33,7 @@
   }
 
   // Stream with multiple errors
-  let streamWithMultipleErrors = createTypingStream(fullStreamText, symbolLayoutQwerty);
+  let streamWithMultipleErrors = createTypingStream({ drillText: fullStreamText, symbolLayout: symbolLayoutQwerty });
   for (let i = 0; i < streamWithMultipleErrors.length; i++) {
     const targetChar = streamWithMultipleErrors[i]!.targetSymbol;
     const correctKeys = getKeyCapIdsForChar(targetChar, symbolLayoutQwerty);

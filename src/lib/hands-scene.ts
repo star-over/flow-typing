@@ -286,7 +286,7 @@ function applyNavigationPaths(
 
     let path: KeyCapId[] = [];
     if (homeKey) {
-      path = findOptimalPath(homeKey, targetKey, keyboardGraph);
+      path = findOptimalPath({ startKey: homeKey, endKey: targetKey, graph: keyboardGraph });
     }
 
     _applyNavigationRoles(fingerData, path, targetKey);
