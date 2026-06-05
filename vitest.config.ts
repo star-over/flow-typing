@@ -6,5 +6,11 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{ts,svelte}'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/fixtures/**', 'src/scripts/**'],
+    },
   },
 });

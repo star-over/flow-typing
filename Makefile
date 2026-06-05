@@ -7,7 +7,7 @@
 
 SHELL := /bin/bash
 
-.PHONY: all help install sync clean dev build preview check test lint lint-fix \
+.PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         storybook storybook-build check-all compile-drills create-drills \
         normalize-rus-corp reinstall-gemini-cli
 
@@ -34,6 +34,7 @@ help:
 	@echo ""
 	@echo "  make check            - svelte-check (типы Svelte+TS)"
 	@echo "  make test             - vitest run"
+	@echo "  make coverage         - vitest run --coverage (HTML отчёт в coverage/)"
 	@echo "  make lint             - eslint ."
 	@echo "  make lint-fix         - eslint . --fix"
 	@echo "  make check-all        - lint + check + test + build"
@@ -95,6 +96,10 @@ preview: build
 test: install
 	@echo "🧪 vitest run..."
 	npx vitest run
+
+coverage: install
+	@echo "📊 vitest run --coverage..."
+	npx vitest run --coverage
 
 check: install
 	@echo "🧐 svelte-check..."
