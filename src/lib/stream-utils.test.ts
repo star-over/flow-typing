@@ -3,41 +3,10 @@ import { describe, expect,it } from "vitest";
 import { symbolLayoutQwerty } from "@/data/layouts/symbol-layout-qwerty"; // Corrected import path
 import type { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
-import { addAttempt, createTypingStream, getSymbolChar,getSymbolType } from "./stream-utils";
+import { addAttempt, getSymbolChar,getSymbolType } from "./stream-utils";
 import { nbsp } from "./symbol-utils";
+import { createTypingStream } from "./typing-stream";
 
-
-describe("createTypingStream", () => {
-  it("should create a TypingStream from a string", () => {
-    const text = "hello";
-    const stream = createTypingStream(text, symbolLayoutQwerty);
-
-    expect(stream).toHaveLength(5);
-    expect(stream[0]!.targetSymbol).toBe("h");
-    expect(stream[4]!.targetSymbol).toBe("o");
-  });
-
-  it("should handle an empty string", () => {
-    const text = "";
-    const stream = createTypingStream(text, symbolLayoutQwerty);
-    expect(stream).toHaveLength(0);
-  });
-
-  it("should correctly handle spaces", () => {
-    const text = "a b";
-    const stream = createTypingStream(text, symbolLayoutQwerty);
-    expect(stream).toHaveLength(3);
-    expect(stream[1]!.targetSymbol).toBe(" ");
-  });
-
-  it("should skip characters not in the layout", () => {
-    const text = "a你好b"; // Assuming '你好' are not in the layout
-    const stream = createTypingStream(text, symbolLayoutQwerty);
-    expect(stream).toHaveLength(2);
-    expect(stream[0]!.targetSymbol).toBe("a");
-    expect(stream[1]!.targetSymbol).toBe("b");
-  });
-});
 
 describe("addAttempt", () => {
   const pressedKeyCapsA: KeyCapId[] = ["KeyA"];

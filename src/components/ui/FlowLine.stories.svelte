@@ -1,7 +1,8 @@
 <script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import FlowLine from './FlowLine.svelte';
-  import { createTypingStream, addAttempt } from '@/lib/stream-utils';
+  import { addAttempt } from '@/lib/stream-utils';
+  import { createTypingStream } from '@/lib/typing-stream';
   import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
   import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
   import {

@@ -24,4 +24,17 @@ describe('createTypingStream', () => {
   it('handles an empty string', () => {
     expect(createTypingStream('', symbolLayoutQwerty)).toHaveLength(0);
   });
+
+  it('keeps the space character as a regular stream symbol', () => {
+    const stream = createTypingStream('a b', symbolLayoutQwerty);
+    expect(stream).toHaveLength(3);
+    expect(stream[1]!.targetSymbol).toBe(' ');
+  });
+
+  it('skips multi-byte characters not present in the layout (CJK)', () => {
+    const stream = createTypingStream('a你好b', symbolLayoutQwerty);
+    expect(stream).toHaveLength(2);
+    expect(stream[0]!.targetSymbol).toBe('a');
+    expect(stream[1]!.targetSymbol).toBe('b');
+  });
 });

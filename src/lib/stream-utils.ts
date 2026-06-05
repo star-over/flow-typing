@@ -3,30 +3,9 @@
  * @description Содержит функции для создания, обновления и анализа потока,
  * который представляет собой упражнение для пользователя.
  */
-import type { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, SymbolLayout, TypingStream } from '@/interfaces/types';
+import type { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, TypingStream } from '@/interfaces/types';
 
-import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, nbsp, sp } from "./symbol-utils";
-
-/**
- * Создает `TypingStream` из строки.
- * Каждый символ строки, поддерживаемый раскладкой, преобразуется в `StreamSymbol`.
- * @param text Входная строка для преобразования.
- * @returns Массив `TypingStream`.
- */
-export function createTypingStream(text: string, symbolLayout: SymbolLayout): TypingStream {
-  const stream: TypingStream = [];
-  for (const char of text.split('')) {
-    const keyCapIds = getKeyCapIdsForChar(char, symbolLayout);
-    if (keyCapIds) {
-      stream.push({
-        targetSymbol: char,
-        targetKeyCaps: keyCapIds,
-        attempts: [],
-      });
-    }
-  }
-  return stream;
-}
+import { areKeyCapIdArraysEqual, nbsp, sp } from "./symbol-utils";
 
 /**
  * Добавляет новую попытку набора к символу в `TypingStream`.
