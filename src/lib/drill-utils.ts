@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 
 /**
- * Generates a SHA-1 hash of the input text to serve as a unique ID for the verse.
- * @param text The verse text.
+ * Generates a SHA-1 hash of the input text to serve as a unique ID for the drill.
+ * @param text The drill text.
  * @returns A SHA-1 hash string.
  */
-export function generateVerseId(text: string): string {
+export function generateDrillId(text: string): string {
   return crypto.createHash('sha1').update(text).digest('hex');
 }
 
@@ -26,7 +26,7 @@ function extractWords(text: string): string[] {
 
 /**
  * Counts alphabetic characters in the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns The count of alphabetic characters.
  */
 export function getCharCount(text: string): number {
@@ -35,7 +35,7 @@ export function getCharCount(text: string): number {
 
 /**
  * Counts words in the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns The count of words.
  */
 export function getWordCount(text: string): number {
@@ -44,7 +44,7 @@ export function getWordCount(text: string): number {
 
 /**
  * Calculates the average word length in the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns The average word length.
  */
 export function getAverageWordLength(text: string): number {
@@ -56,7 +56,7 @@ export function getAverageWordLength(text: string): number {
 
 /**
  * Finds the maximum word length in the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns The maximum word length.
  */
 export function getMaxWordLength(text: string): number {
@@ -67,7 +67,7 @@ export function getMaxWordLength(text: string): number {
 
 /**
  * Extracts unique alphabetic characters from the text, lowercased.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns An array of unique alphabetic characters.
  */
 export function getUniqueChars(text: string): string[] {
@@ -77,7 +77,7 @@ export function getUniqueChars(text: string): string[] {
 
 /**
  * Extracts unique symbols (all characters) from the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns An array of unique symbols.
  */
 export function getUniqueSymbols(text: string): string[] {
@@ -86,7 +86,7 @@ export function getUniqueSymbols(text: string): string[] {
 
 /**
  * Calculates the frequency of alphabetic characters in the text, lowercased.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns A record of character frequencies.
  */
 export function getCharFrequency(text: string): Record<string, number> {
@@ -101,7 +101,7 @@ export function getCharFrequency(text: string): Record<string, number> {
 
 /**
  * Calculates the frequency of all symbols in the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns A record of symbol frequencies.
  */
 export function getSymbolFrequency(text: string): Record<string, number> {
@@ -114,7 +114,7 @@ export function getSymbolFrequency(text: string): Record<string, number> {
 
 /**
  * Extracts bigrams (sequences of two characters) from the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns An array of bigrams.
  */
 export function getBigrams(text: string): string[] {
@@ -127,7 +127,7 @@ export function getBigrams(text: string): string[] {
 
 /**
  * Extracts trigrams (sequences of three characters) from the text.
- * @param text The verse text.
+ * @param text The drill text.
  * @returns An array of trigrams.
  */
 export function getTrigrams(text: string): string[] {

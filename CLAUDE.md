@@ -29,7 +29,7 @@
 | `make storybook` | Storybook на http://localhost:6006 |
 | `make check-all` | lint + check + test + build (перед коммитом) |
 | `make check-dev` | быстрый цикл: eslint --quiet, svelte-check, vitest --dot |
-| `make generate-verses` | компиляция и запуск `src/scripts/generate-verses.ts` |
+| `make generate-drills` | компиляция и запуск `src/scripts/generate-drills.ts` |
 
 Один тест: `npx vitest run src/lib/<file>.test.ts` или `npx vitest run -t "имя теста"`.
 
