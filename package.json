@@ -10,10 +10,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^10.4.2",
-    "@storybook/addon-docs": "^10.4.2",
     "@storybook/addon-svelte-csf": "^5.1.2",
-    "@storybook/addon-themes": "^10.4.2",
-    "@storybook/addon-vitest": "^10.4.2",
     "@storybook/svelte": "^10.4.2",
     "@storybook/sveltekit": "^10.4.2",
     "@sveltejs/adapter-static": "^3.0.10",

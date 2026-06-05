@@ -4,9 +4,6 @@ const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(svelte|ts)'],
   addons: [
     '@storybook/addon-a11y',
-    '@storybook/addon-docs',
-    '@storybook/addon-themes',
-    '@storybook/addon-vitest',
     '@storybook/addon-svelte-csf',
   ],
   framework: {
