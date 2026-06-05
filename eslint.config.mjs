@@ -72,6 +72,26 @@ export default [
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-redundant-type-constituents': 'warn',
 
+      // Convention CLAUDE.md → 2+ параметров принимаем одним object literal.
+      // Селекторы только на объявления функций в нашем коде; коллбэки HOF
+      // (CallExpression > ArrowFunctionExpression) и xstate actions/guards
+      // (Property > ArrowFunctionExpression) под правило не попадают.
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: 'FunctionDeclaration[params.length>=2]',
+          message: 'Функции с 2+ параметрами — принимать одним object literal с деструктуризацией.',
+        },
+        {
+          selector: 'VariableDeclarator > ArrowFunctionExpression[params.length>=2]',
+          message: 'Функции с 2+ параметрами — принимать одним object literal с деструктуризацией.',
+        },
+        {
+          selector: 'VariableDeclarator > FunctionExpression[params.length>=2]',
+          message: 'Функции с 2+ параметрами — принимать одним object literal с деструктуризацией.',
+        },
+      ],
+
       // destructuring: 'all' — не ругаться на let-деструктуризацию, если хотя бы
       // одна переменная действительно требует let (например, `$bindable()` в Svelte 5).
       'prefer-const': ['warn', { destructuring: 'all' }],
@@ -132,6 +152,9 @@ export default [
       // `mockImplementation(() => {})` — стандартный идиом для suppressing console
       // во время теста; пустая функция здесь намеренная.
       '@typescript-eslint/no-empty-function': 'off',
+      // Локальные test-/story-хелперы с позиционными аргументами — норма;
+      // boilerplate из object-literal параметров здесь только мешает читать.
+      'no-restricted-syntax': 'off',
     },
   },
   {
