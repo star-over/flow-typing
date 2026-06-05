@@ -85,6 +85,18 @@ export const LEFT_HAND_BASE = "LB" as const;
 export const RIGHT_HAND_BASE = "RB" as const;
 
 /**
+ * Полный список всех идентификаторов пальцев (10 пальцев + 2 ладони).
+ * Используется для типизированного итерирования по `HandsSceneViewModel`
+ * без `for...in` + `as FingerId` каста.
+ */
+export const FINGER_IDS = [
+  ...LEFT_HAND_FINGERS,
+  ...RIGHT_HAND_FINGERS,
+  LEFT_HAND_BASE,
+  RIGHT_HAND_BASE,
+] as const;
+
+/**
  * Уникальный идентификатор пальца.
  * L/R - левая/правая рука.
  * 1: Большой (Thumb)
@@ -94,7 +106,7 @@ export const RIGHT_HAND_BASE = "RB" as const;
  * 5: Мизинец (Little)
  * B: Основание кисти (Base)
  */
-export type FingerId = typeof LEFT_HAND_FINGERS[number] | typeof RIGHT_HAND_FINGERS[number] | typeof LEFT_HAND_BASE | typeof RIGHT_HAND_BASE;
+export type FingerId = typeof FINGER_IDS[number];
 
 /** Состояние отдельного пальца. */
 export const FINGER_STATES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;

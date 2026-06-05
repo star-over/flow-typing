@@ -45,6 +45,7 @@
  */
 
 import {
+  FINGER_IDS,
   type FingerId,
   type FingerLayout,
   type FingerState,
@@ -201,12 +202,12 @@ function buildVisibleClusters(
 ): HandsSceneViewModel {
   const newViewModel = { ...viewModel };
 
-  for (const fingerId in newViewModel) {
-    const fingerData = newViewModel[fingerId as FingerId];
+  for (const fingerId of FINGER_IDS) {
+    const fingerData = newViewModel[fingerId];
     if (fingerData.fingerState !== "TARGET") continue;
 
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
-    const keyCluster = getFingerKeys(fingerId as FingerId, fingerLayout);
+    const keyCluster = getFingerKeys(fingerId, fingerLayout);
 
     keyCluster.forEach((keyId) => {
       keyCapStates[keyId] = {
@@ -276,11 +277,11 @@ function applyNavigationPaths(
   const newViewModel = { ...viewModel };
   const { targetKeyCaps } = typingContext;
 
-  for (const fingerId in newViewModel) {
-    const fingerData = newViewModel[fingerId as FingerId];
+  for (const fingerId of FINGER_IDS) {
+    const fingerData = newViewModel[fingerId];
     if (fingerData.fingerState !== "TARGET" || !fingerData.keyCapStates) continue;
 
-    const homeKey = getHomeKeyForFinger(fingerId as FingerId, fingerLayout);
+    const homeKey = getHomeKeyForFinger(fingerId, fingerLayout);
     const targetKey = targetKeyCaps.find(
       (k: KeyCapId) => getFingerByKeyCap(k, fingerLayout) === fingerId
     );
@@ -329,16 +330,15 @@ function applyKeyPressResults(
   const targetSet = new Set(targetKeyCaps);
   const extraKeysPressed = lastAttempt.pressedKeyCaps.filter((k) => !targetSet.has(k));
 
-  for (const fingerId in newViewModel) {
-    const fingerData = newViewModel[fingerId as FingerId];
+  for (const fingerId of FINGER_IDS) {
+    const fingerData = newViewModel[fingerId];
     const { keyCapStates } = fingerData;
     if (!keyCapStates) continue;
 
-    for (const keyId in keyCapStates) {
-      const keyState = keyCapStates[keyId as KeyCapId];
-      if (!keyState) continue;
-      const wasKeyPressed = pressedSet.has(keyId as KeyCapId);
-      const wasKeyRequired = targetSet.has(keyId as KeyCapId);
+    for (const [keyIdRaw, keyState] of Object.entries(keyCapStates)) {
+      const keyId = keyIdRaw as KeyCapId;
+      const wasKeyPressed = pressedSet.has(keyId);
+      const wasKeyRequired = targetSet.has(keyId);
 
       if (wasKeyRequired && wasKeyPressed) {
         keyState.pressResult = 'CORRECT';
