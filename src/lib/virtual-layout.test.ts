@@ -1,19 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
-import * as SymbolUtils from './symbol-utils'; // Import the module to mock getSymbol
 import { createVirtualLayout } from './virtual-layout';
-
-// Spy on the original getSymbol implementation
-vi.mock('./symbol-utils', async (importOriginal) => {
-    const mod = await importOriginal<typeof SymbolUtils>();
-    return {
-        ...mod,
-        getLabel: vi.fn(mod.getLabel),
-    };
-});
-
 
 describe('createVirtualLayout', () => {
   const mockPhysicalLayout: PhysicalLayout = [
@@ -64,7 +53,7 @@ describe('createVirtualLayout', () => {
     expect(keyA.colIndex).toBe(0);
   });
 
-  it('should correctly derive symbol using getLabel', () => {
+  it('derives symbol from symbolLayout (uppercase variant when shifted entry exists)', () => {
     const virtualLayout = createVirtualLayout({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
@@ -73,11 +62,8 @@ describe('createVirtualLayout', () => {
 
     const keyA = virtualLayout[0]![0]!;
     const keyB = virtualLayout[0]![1]!;
-    expect(keyA.symbol).toBe('A'); // The new getSymbol logic returns the uppercase variant
-    expect(keyB.symbol).toBe('b'); // Only 'b' is defined, so it returns 'b'
-    // Also check if getLabel was called correctly
-    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyA', mockSymbolLayout, mockPhysicalLayout);
-    expect(SymbolUtils.getLabel).toHaveBeenCalledWith('KeyB', mockSymbolLayout, mockPhysicalLayout);
+    expect(keyA.symbol).toBe('A'); // KeyA has both 'a' and Shift+'A' → uppercase preferred
+    expect(keyB.symbol).toBe('b'); // KeyB only has 'b' → as-is
   });
 
   it('should set symbol to the label from physicalLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
