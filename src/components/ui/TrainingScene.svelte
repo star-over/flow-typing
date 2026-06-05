@@ -5,7 +5,7 @@
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
-  import { generateHandsSceneViewModel } from '@/lib/hands-scene';
+  import { createHandsSceneViewModel } from '@/lib/hands-scene';
   import { getPressResult } from '@/lib/press-result-utils';
   import { getSymbolLayout } from '@/data/layouts/layouts';
 
@@ -42,12 +42,12 @@
 
   // Может быть undefined на одном кадре между завершающим correct-attempt
   // (assign currentIndex++) и переходом trainingMachine в lessonComplete.
-  // Оба потребителя принимают undefined: generateHandsSceneViewModel → idle scene,
+  // Оба потребителя принимают undefined: createHandsSceneViewModel → idle scene,
   // getPressResult → 'NONE'.
   const currentSymbol = $derived(stream[currentIndex]);
 
   const viewModel = $derived(
-    generateHandsSceneViewModel(currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap)
+    createHandsSceneViewModel(currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap)
   );
   const pressResult = $derived(getPressResult(currentSymbol));
 </script>

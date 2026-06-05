@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
-import { generateTypingStream } from './typing-stream';
+import { createTypingStream } from './typing-stream';
 
-describe('generateTypingStream', () => {
+describe('createTypingStream', () => {
   it('generates a correct stream for a simple word', () => {
-    const stream = generateTypingStream('hi', symbolLayoutQwerty);
+    const stream = createTypingStream('hi', symbolLayoutQwerty);
 
     expect(stream).toHaveLength(2);
     expect(stream[0]).toEqual({ targetSymbol: 'h', targetKeyCaps: ['KeyH'], attempts: [] });
@@ -14,7 +14,7 @@ describe('generateTypingStream', () => {
   it('skips characters not present in the symbol layout', () => {
     // The contract is "skip unknown chars". Whether or not a console.warn
     // is emitted is an implementation detail, not part of the contract.
-    const stream = generateTypingStream('a€b', symbolLayoutQwerty);
+    const stream = createTypingStream('a€b', symbolLayoutQwerty);
 
     expect(stream).toHaveLength(2);
     expect(stream[0]!.targetSymbol).toBe('a');
@@ -22,6 +22,6 @@ describe('generateTypingStream', () => {
   });
 
   it('handles an empty string', () => {
-    expect(generateTypingStream('', symbolLayoutQwerty)).toHaveLength(0);
+    expect(createTypingStream('', symbolLayoutQwerty)).toHaveLength(0);
   });
 });

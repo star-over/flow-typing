@@ -3,9 +3,9 @@
  * @description This module is responsible for generating the complete visual state
  * for the hands scene based on the current application state.
  *
- * @method generateHandsSceneViewModel
+ * @method createHandsSceneViewModel
  *
- * The core of this module is the `generateHandsSceneViewModel` function, which
+ * The core of this module is the `createHandsSceneViewModel` function, which
  * operates as a pipeline. The process starts with an initial "idle" view model,
  * which is then passed sequentially through a series of transformation functions.
  * Each function in the pipeline is responsible for a specific aspect of the
@@ -354,7 +354,7 @@ function applyKeyPressResults(
 
 
 /**
- * Generates the complete HandsSceneViewModel from the current state of the app machine.
+ * Builds the complete HandsSceneViewModel from the current state of the app machine.
  * This is the core "factory" for the visual representation of the trainer.
  *
  * @param currentStreamSymbol The current symbol being typed.
@@ -363,7 +363,7 @@ function applyKeyPressResults(
  * @param keyCoordinateMap A map of key coordinates.
  * @returns A HandsSceneViewModel object ready for rendering by UI components.
  */
-export function generateHandsSceneViewModel(
+export function createHandsSceneViewModel(
   currentStreamSymbol: StreamSymbol | undefined,
   fingerLayout: FingerLayout,
   keyboardGraph: AdjacencyList,

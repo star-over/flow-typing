@@ -9,12 +9,12 @@ export const defaultDrillTexts = [
 ];
 
 /**
- * Generates a TypingStream from a given drill text.
+ * Builds a TypingStream from a given drill text.
  * For each character, it pre-calculates the `targetKeyCaps`.
  * @param drillText The drill text to convert.
  * @param symbolLayout The symbol layout to use for character-to-key mapping.
  */
-export function generateTypingStream(drillText: string, symbolLayout: SymbolLayout): TypingStream {
+export function createTypingStream(drillText: string, symbolLayout: SymbolLayout): TypingStream {
   const stream: TypingStream = drillText
     .split('')
     .map((targetSymbol): TypingStream[number] | null => {
