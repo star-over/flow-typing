@@ -41,7 +41,7 @@
 
 ### XState-машины
 
-- `appMachine` (`src/machines/app.machine.ts`) — корневая FSM экранов (`menu`, `settings`, `allStat`, `training`, `trainingComplete`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.decline()`, чтобы HMR не плодил «двойных» акторов).
+- `appMachine` (`src/machines/app.machine.ts`) — корневая FSM экранов (`menu`, `settings`, `allStat`, `training`, `trainingComplete`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.invalidate()`, чтобы HMR не плодил «двойных» акторов).
 - `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` форвардит `CHARACTER_INPUT` в `trainingService`.
 - `trainingMachine` — invoked в state `training`. Прогоняет `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts` с таймстемпами, по завершении шлёт `TRAINING.COMPLETE`.
 
@@ -77,6 +77,6 @@
 
 ## Gotchas
 
-- **HMR и XState:** `appActor` создаётся на уровне модуля. `import.meta.hot.decline()` форсит full reload вместо HMR. Если при правке `appActor.ts` / `app.machine.ts` видите «двойные» события — это full-reload, состояние тренировки теряется (by design, snapshot-restore не реализован).
+- **HMR и XState:** `appActor` создаётся на уровне модуля. `import.meta.hot.invalidate()` форсит full reload вместо HMR. Если при правке `appActor.ts` / `app.machine.ts` видите «двойные» события — это full-reload, состояние тренировки теряется (by design, snapshot-restore не реализован).
 - **`stream` иммутабелен по ссылке:** `trainingMachine` делает `[...stream]` + замену символа. UI-производные через `$derived` пересчитываются автоматически.
 - **`Space` vs `SpaceLeft`/`SpaceRight`:** физическая `Space` отдельно whitelist'нута как text key в `keyboardMachine.isTextKeyGuard`, потому что клавиатурная сцена (`KeyboardSceneViewModel`) делит пробел на две клавиши.
