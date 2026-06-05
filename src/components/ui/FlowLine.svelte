@@ -37,6 +37,7 @@
 
   const startCompleted = $derived(Math.max(0, cursorPosition - completedCount));
   const completedSymbols = $derived(stream.slice(startCompleted, cursorPosition));
+  // undefined для пустого потока или cursorPosition >= stream.length — guard в JSX ниже.
   const cursorSymbol = $derived(stream[cursorPosition]);
   const endPending = $derived(cursorPosition + 1 + pendingCount);
   const pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));

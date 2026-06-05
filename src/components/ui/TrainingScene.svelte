@@ -40,15 +40,16 @@
   const keyCoordinateMap = $derived(createKeyCoordinateMap(physicalLayout));
   const symbolLayout = $derived(getSymbolLayout(symbolLayoutId));
 
+  // Может быть undefined на одном кадре между завершающим correct-attempt
+  // (assign currentIndex++) и переходом trainingMachine в lessonComplete.
+  // Оба потребителя принимают undefined: generateHandsSceneViewModel → idle scene,
+  // getPressResult → 'NONE'.
+  const currentSymbol = $derived(stream[currentIndex]);
+
   const viewModel = $derived(
-    generateHandsSceneViewModel(
-      stream[currentIndex],
-      fingerLayout,
-      keyboardGraph,
-      keyCoordinateMap
-    )
+    generateHandsSceneViewModel(currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap)
   );
-  const pressResult = $derived(getPressResult(stream[currentIndex]));
+  const pressResult = $derived(getPressResult(currentSymbol));
 </script>
 
 <div class="training-scene">
