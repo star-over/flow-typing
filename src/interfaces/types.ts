@@ -59,9 +59,6 @@ export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
 /** Функциональный тип клавиши. */
 export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 
-/** A key that can modify the output of another key (e.g., Shift, Ctrl). */
-export type ModifierKey = 'shift' | 'ctrl' | 'alt' | 'meta';
-
 /** Размер символа (легенды) на клавише. */
 export const KEY_CAP_SYMBOL_SIZES = ["MD", "SM", "XS"] as const;
 export type KeyCapSymbolSize = typeof KEY_CAP_SYMBOL_SIZES[number];
