@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 /**
- * A self-contained, layout-agnostic block of text used to generate lessons.
+ * A self-contained, layout-agnostic block of text used to generate a TypingStream for a lesson.
  * It contains pre-calculated, layout-independent statistics.
  * This represents a single document in our 'drills' collection/JSON file.
  */

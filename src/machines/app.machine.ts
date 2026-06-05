@@ -4,7 +4,7 @@ import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
 import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
 import { getSymbolLayout } from "@/data/layouts/layouts";
-import { generateTypingStream, lessons } from "@/lib/lesson-generator";
+import { generateTypingStream, defaultDrillTexts } from "@/lib/typing-stream";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
@@ -42,10 +42,10 @@ export const appMachine = setup({
     // во всех трёх точках старта/рестарта тренировки.
     startNewTrainingStream: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => {
       const symbolLayout = getSymbolLayout(params.symbolLayoutId);
-      const randomIndex = Math.floor(Math.random() * lessons.length);
-      const lessonText = lessons[randomIndex]!;
+      const randomIndex = Math.floor(Math.random() * defaultDrillTexts.length);
+      const drillText = defaultDrillTexts[randomIndex]!;
       return {
-        lastTrainingStream: generateTypingStream(lessonText, symbolLayout),
+        lastTrainingStream: generateTypingStream(drillText, symbolLayout),
         currentSymbolLayoutId: params.symbolLayoutId,
       };
     }),

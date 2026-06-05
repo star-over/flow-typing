@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
-import { generateTypingStream } from './lesson-generator';
+import { generateTypingStream } from './typing-stream';
 
 describe('generateTypingStream', () => {
   it('generates a correct stream for a simple word', () => {

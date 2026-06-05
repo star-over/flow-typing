@@ -1,7 +1,7 @@
 import type { SymbolLayout, TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
-export const lessons = [
+export const defaultDrillTexts = [
   // "The Quick Brown Fox Jumps Over The Lazy Dog.",
   // "-_=+[{]}\\\|'",
   // "To Be Or Not To Be, That Is The Question.",
@@ -9,14 +9,13 @@ export const lessons = [
 ];
 
 /**
- * Generates a TypingStream from a given text.
+ * Generates a TypingStream from a given drill text.
  * For each character, it pre-calculates the `targetKeyCaps`.
- * @param lessonText The string to convert into a lesson.
+ * @param drillText The drill text to convert.
  * @param symbolLayout The symbol layout to use for character-to-key mapping.
- * @returns A TypingStream for the lesson.
  */
-export function generateTypingStream(lessonText: string, symbolLayout: SymbolLayout): TypingStream {
-  const stream: TypingStream = lessonText
+export function generateTypingStream(drillText: string, symbolLayout: SymbolLayout): TypingStream {
+  const stream: TypingStream = drillText
     .split('')
     .map((targetSymbol): TypingStream[number] | null => {
       const targetKeyCaps = getKeyCapIdsForChar(targetSymbol, symbolLayout);
