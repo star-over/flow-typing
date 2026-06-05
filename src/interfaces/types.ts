@@ -306,6 +306,11 @@ export type HandsSceneViewModel = Record<FingerId, {
   keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
 }>;
 
-import type { ActorRefFrom } from 'xstate';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ParentActor = ActorRefFrom<any>;
+import type { AnyActorRef } from 'xstate';
+/**
+ * Универсальный тип ссылки на родительский XState-актор.
+ * Используется в input child-машин (keyboardMachine, trainingMachine), которые
+ * шлют события "вверх" через `sendTo(parentActor, ...)` — у нас нет нужды знать
+ * точный тип родителя в этих машинах, поэтому используем встроенный `AnyActorRef`.
+ */
+export type ParentActor = AnyActorRef;

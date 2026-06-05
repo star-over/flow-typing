@@ -6,6 +6,8 @@
   import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
   import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
 
+  import { inState } from '@/lib/state-utils';
+
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
   import UserPreferencesPage from '@/components/ui/UserPreferencesPage.svelte';
@@ -20,20 +22,16 @@
   const { state, send, dictionary, trainingActor }: Props = $props();
 </script>
 
-{#if state.matches({ training: 'running' }) && trainingActor}
+{#if inState(state, { training: 'running' }) && trainingActor}
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
-{:else if state.matches('trainingComplete') && state.context.lastTrainingStream}
+{:else if inState(state, 'trainingComplete') && state.context.lastTrainingStream}
   <LessonStatsDisplay stream={state.context.lastTrainingStream} {dictionary} />
-{:else if state.matches('settings')}
+{:else if inState(state, 'settings')}
   <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} {dictionary} />
-{:else if state.matches('allStat')}
+{:else if inState(state, 'allStat')}
   <h2 class="screen-title">{dictionary.app.stats_screen_title}</h2>
-{:else if state.matches({ training: 'paused' })}
+{:else if inState(state, { training: 'paused' })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
-{:else if state.matches('error')}
-  <h2 class="screen-title error">{dictionary.app.error_title}</h2>
-{:else if state.matches('initializing')}
-  <div class="loading">{dictionary.app.loading}</div>
 {:else}
   <div class="welcome">
     <p>{dictionary.app.welcome}</p>
@@ -48,14 +46,6 @@
 
   .pause {
     color: var(--color-text-secondary);
-  }
-
-  .error {
-    color: var(--color-error);
-  }
-
-  .loading {
-    color: var(--color-text-muted);
   }
 
   .welcome {

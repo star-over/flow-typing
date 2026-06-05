@@ -10,25 +10,25 @@ describe('appMachine', () => {
     it('settles in menu after initializing (always transition)', () => {
       const actor = createActor(appMachine);
       actor.start();
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
 
     it('navigates menu → settings → menu', () => {
       const actor = createActor(appMachine);
       actor.start();
       actor.send({ type: 'TO_SETTINGS' });
-      expect(actor.getSnapshot().matches('settings')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('settings');
       actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
 
     it('navigates menu → allStat → menu', () => {
       const actor = createActor(appMachine);
       actor.start();
       actor.send({ type: 'TO_ALL_STAT' });
-      expect(actor.getSnapshot().matches('allStat')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('allStat');
       actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
   });
 
@@ -39,7 +39,7 @@ describe('appMachine', () => {
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
       const snap = actor.getSnapshot();
-      expect(snap.matches({ training: 'running' })).toBe(true);
+      expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
       expect(snap.context.lastTrainingStream).not.toBeNull();
       expect(snap.context.lastTrainingStream!.length).toBeGreaterThan(0);
@@ -58,13 +58,13 @@ describe('appMachine', () => {
       const actor = createActor(appMachine);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
-      expect(actor.getSnapshot().matches({ training: 'running' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
 
       actor.send({ type: 'PAUSE' });
-      expect(actor.getSnapshot().matches({ training: 'paused' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
 
       actor.send({ type: 'RESUME' });
-      expect(actor.getSnapshot().matches({ training: 'running' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
     });
 
     it('Escape in training.running → paused', () => {
@@ -73,7 +73,7 @@ describe('appMachine', () => {
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().matches({ training: 'paused' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
     });
 
     it('Escape in training.paused → menu', () => {
@@ -83,7 +83,7 @@ describe('appMachine', () => {
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
 
     it('Enter in training.paused → resumes training.running', () => {
@@ -93,7 +93,7 @@ describe('appMachine', () => {
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
-      expect(actor.getSnapshot().matches({ training: 'running' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
     });
 
     it('TO_MENU from training.paused → menu', () => {
@@ -103,7 +103,7 @@ describe('appMachine', () => {
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
 
     it('NAVIGATION_KEY other than Escape/Enter does not transition from running', () => {
@@ -112,7 +112,7 @@ describe('appMachine', () => {
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Tab' });
-      expect(actor.getSnapshot().matches({ training: 'running' })).toBe(true);
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
     });
   });
 
@@ -128,7 +128,7 @@ describe('appMachine', () => {
       actor.send({ type: 'TRAINING.COMPLETE', stream: finalStream });
 
       const snap = actor.getSnapshot();
-      expect(snap.matches('trainingComplete')).toBe(true);
+      expect(snap.value).toBe('trainingComplete');
       expect(snap.context.lastTrainingStream).toEqual(finalStream);
     });
   });
@@ -144,11 +144,11 @@ describe('appMachine', () => {
 
     it('START_TRAINING restarts with a new layout, updates currentSymbolLayoutId', () => {
       const actor = arriveInTrainingComplete('qwerty');
-      expect(actor.getSnapshot().matches('trainingComplete')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('trainingComplete');
 
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
       const snap = actor.getSnapshot();
-      expect(snap.matches({ training: 'running' })).toBe(true);
+      expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
     });
 
@@ -157,7 +157,7 @@ describe('appMachine', () => {
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
       const snap = actor.getSnapshot();
-      expect(snap.matches({ training: 'running' })).toBe(true);
+      expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
       expect(snap.context.lastTrainingStream).not.toBeNull();
       expect(snap.context.lastTrainingStream!.length).toBeGreaterThan(0);
@@ -167,14 +167,14 @@ describe('appMachine', () => {
       const actor = arriveInTrainingComplete();
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().matches('trainingComplete')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('trainingComplete');
     });
 
     it('TO_MENU returns to menu', () => {
       const actor = arriveInTrainingComplete();
 
       actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().matches('menu')).toBe(true);
+      expect(actor.getSnapshot().value).toBe('menu');
     });
   });
 });

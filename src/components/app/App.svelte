@@ -6,6 +6,7 @@
   import { dictionary } from '@/lib/i18n';
   import { preferences } from '@/lib/preferences';
   import { planExerciseIdSync } from '@/lib/exercise-id-sync';
+  import { inState } from '@/lib/state-utils';
 
   import Header from './Header.svelte';
   import MainContent from './MainContent.svelte';
@@ -28,7 +29,7 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     const currentState = state;
-    if (currentState.matches('training') && event.code === 'Space') {
+    if (inState(currentState, 'training') && event.code === 'Space') {
       event.preventDefault();
     }
     appActor.send({ type: 'KEY_DOWN', keyCapId: event.code as KeyCapId });
