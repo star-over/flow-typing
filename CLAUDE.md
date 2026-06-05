@@ -73,6 +73,7 @@
 
 - **Naming** (`docs/02-naming-conventions.md`): `PascalCase` для типов; union- и object-типы — в единственном числе (`KeyCapPressResult`, `StreamSymbol`, не `...Results`). Никаких аббревиатур (`KbdLayout`, `StrSym`) — только полные имена.
 - **Импорты**: единственный алиас — `@/...` (= `src/`), объявлен в `svelte.config.js`. SvelteKit добавляет ещё `$lib` (built-in) автоматически, но проект его не использует.
+- **Параметры функций** (для функций, которые мы объявляем сами): 1 параметр — позиционный (`fn(x)`); 2 и более — одним object literal с деструктуризацией (`fn({ a, b, c })`). Снимает зависимость от порядка аргументов и делает call-site самодокументируемым. Исключение — сигнатуры, которые мы не выбираем: коллбэки HOF (`.map((x, i) => …)`), event handlers, action/guard сигнатуры xstate, методы стандартных классов.
 - **Branch / commit**: ветки `feat/...`, `fix/...`; Conventional Commits.
 - Перед коммитом — `make check-all`.
 
