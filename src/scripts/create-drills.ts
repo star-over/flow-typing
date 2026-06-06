@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { type Drill, DrillSchema } from '../interfaces/drill-data.types';
-import type { TextLanguage } from '../interfaces/types';
+import { DrillSchema } from '../interfaces/drill-data.types';
 import {
   createDrillId,
   getCharCount,
@@ -16,80 +14,56 @@ import {
   getSymbolFrequency,
   getBigrams,
   getTrigrams,
-} from '../lib/drill-utils'; // Ensure this path is correct
+} from '../lib/drill-utils';
 
-const CYRILLIC_RE = /[а-яё]/i;
-const LATIN_RE = /[a-z]/i;
+const CYRILLIC = /[а-яё]/i;
+const LATIN = /[a-z]/i;
 
-function detectTextLanguage(uniqueChars: string[]): TextLanguage | null {
-  const hasCyr = uniqueChars.some((c) => CYRILLIC_RE.test(c));
-  const hasLat = uniqueChars.some((c) => LATIN_RE.test(c));
-  if (hasCyr && hasLat) return null;
-  if (hasCyr) return 'ru';
-  if (hasLat) return 'en';
+function detectTextLanguage(text: string): 'en' | 'ru' | null {
+  const hasCyr = CYRILLIC.test(text);
+  const hasLat = LATIN.test(text);
+  if (hasCyr && !hasLat) return 'ru';
+  if (hasLat && !hasCyr) return 'en';
   return null;
 }
 
-const inputSentencesPath = path.join(process.cwd(), 'tmp/ru/input-sentences.txt');
-const outputDrillsPath = path.join(process.cwd(), 'src/data/drills/drills.json');
+const cwd = process.cwd();
+const inputPath = path.join(cwd, 'tmp/input-sentences.txt');
+const outputPath = path.join(cwd, 'src/data/drills/drills.jsonl');
 
-async function createDrills() {
-  console.log('Starting drill generation process...');
+async function main() {
+  const raw = await fs.promises.readFile(inputPath, 'utf-8');
+  const sentences = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
 
-  // 1. Read input sentences
-  let sentences: string[];
-  try {
-    const rawInput = await fs.promises.readFile(inputSentencesPath, 'utf-8');
-    sentences = rawInput.split('\n').map((s) => s.trim()).filter((s) => s.length > 0);
-    console.log(`Read ${sentences.length} sentences from ${inputSentencesPath}`);
-  } catch (error) {
-    console.error(`Error reading input sentences file: ${error}`);
-    return;
-  }
-
-  // 2. Read existing drills
-  let existingDrills: Drill[] = [];
-  try {
-    const rawExisting = await fs.promises.readFile(outputDrillsPath, 'utf-8');
-    existingDrills = JSON.parse(rawExisting);
-    console.log(`Read ${existingDrills.length} existing drills from ${outputDrillsPath}`);
-  } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null && 'code' in error && (error as { code: string }).code === 'ENOENT') {
-      console.log('No existing drills file found, starting fresh.');
-    } else {
-      console.error(`Error reading existing drills file: ${error}`);
-      return;
+  // Существующие ID — читаем построчно
+  const existingIds = new Set<string>();
+  if (fs.existsSync(outputPath)) {
+    const existing = await fs.promises.readFile(outputPath, 'utf-8');
+    for (const line of existing.split('\n')) {
+      if (line.trim()) existingIds.add(JSON.parse(line).id);
     }
   }
 
-  const existingDrillIds = new Set(existingDrills.map((v) => v.id));
-  const newDrills: Drill[] = [];
-
-  // 3. Process each new sentence
+  const newLines: string[] = [];
   for (const sentence of sentences) {
     const id = createDrillId(sentence);
+    if (existingIds.has(id)) continue;
 
-    if (existingDrillIds.has(id)) {
-      console.log(`Skipping duplicate drill: "${sentence.substring(0, 50)}..."`);
+    const textLanguage = detectTextLanguage(sentence);
+    if (!textLanguage) {
+      console.warn(`Skipped (mixed or neutral): "${sentence}"`);
       continue;
     }
 
-    const uniqueChars = getUniqueChars(sentence);
-    const textLanguage = detectTextLanguage(uniqueChars);
-    if (textLanguage === null) {
-      console.warn(`Skipping drill with mixed/neutral language: "${sentence.substring(0, 50)}..."`);
-      continue;
-    }
-
-    const drillData: Drill = {
-      id: id,
+    const drill = {
+      id,
       text: sentence,
       textLanguage,
       char_count: getCharCount(sentence),
       word_count: getWordCount(sentence),
       avg_word_length: getAverageWordLength(sentence),
       max_word_length: getMaxWordLength(sentence),
-      unique_chars: uniqueChars,
+      unique_chars: getUniqueChars(sentence),
       unique_symbols: getUniqueSymbols(sentence),
       char_freq: getCharFrequency(sentence),
       symbol_freq: getSymbolFrequency(sentence),
@@ -97,29 +71,21 @@ async function createDrills() {
       trigrams: getTrigrams(sentence),
     };
 
-    // Validate against schema (optional, but good for robustness)
     try {
-      DrillSchema.parse(drillData);
-      newDrills.push(drillData);
-      console.log(`Generated data for new drill: "${sentence.substring(0, 50)}..."`);
-    } catch (validationError) {
-      console.error(`Validation failed for drill "${sentence}":`, validationError);
+      DrillSchema.parse(drill);
+      newLines.push(JSON.stringify(drill));
+    } catch (e) {
+      console.error(`Validation failed for "${sentence}":`, e);
     }
   }
 
-  if (newDrills.length === 0) {
-    console.log('No new drills to add. Exiting.');
+  if (newLines.length === 0) {
+    console.log('No new drills to append.');
     return;
   }
 
-  // 4. Combine and write updated drills
-  const updatedDrills = [...existingDrills, ...newDrills];
-  try {
-    await fs.promises.writeFile(outputDrillsPath, JSON.stringify(updatedDrills), 'utf-8');
-    console.log(`Successfully updated ${outputDrillsPath} with ${newDrills.length} new drills. Total drills: ${updatedDrills.length}`);
-  } catch (error) {
-    console.error(`Error writing updated drills to file: ${error}`);
-  }
+  await fs.promises.appendFile(outputPath, newLines.join('\n') + '\n');
+  console.log(`Appended ${newLines.length} new drills to ${outputPath}.`);
 }
 
-createDrills();
+main().catch(e => { console.error(e); process.exit(1); });
