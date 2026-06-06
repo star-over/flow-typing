@@ -1,0 +1,199 @@
+{
+  "$meta": {
+    "name": "FlowTyping design system",
+    "source": "src/app.css",
+    "note": "Declarative snapshot of src/app.css for AI tooling (e.g. Claude Design). Hand-synced; NOT part of the build. When tokens in app.css change, mirror them here. Domain semantics live in JSDoc inside app.css and in docs/03-ui-viewmodel-contract.md — descriptions below are short pointers, not the source of truth."
+  },
+  "$layers": ["primitives", "semantic", "domain"],
+
+  "primitives": {
+    "$description": "Raw values without product meaning. Safe to extend without touching UI.",
+    "font": {
+      "sans": { "value": "'Geist', system-ui, sans-serif" },
+      "mono": { "value": "'Geist Mono', monospace" }
+    },
+    "fontSize": {
+      "$description": "Tailwind v4 type scale as calc(N * base). Change --font-size-base to rescale the whole UI.",
+      "base": { "value": "1rem" },
+      "xs":   { "value": "calc(0.75  * var(--font-size-base))" },
+      "sm":   { "value": "calc(0.875 * var(--font-size-base))" },
+      "md":   { "value": "calc(1     * var(--font-size-base))" },
+      "lg":   { "value": "calc(1.125 * var(--font-size-base))" },
+      "xl":   { "value": "calc(1.25  * var(--font-size-base))" },
+      "2xl":  { "value": "calc(1.5   * var(--font-size-base))" }
+    },
+    "lineHeight": {
+      "tight":  { "value": 1.2 },
+      "normal": { "value": 1.5 },
+      "loose":  { "value": 1.75 }
+    },
+    "fontWeight": {
+      "regular":  { "value": 400 },
+      "medium":   { "value": 500 },
+      "semibold": { "value": 600 },
+      "bold":     { "value": 700 }
+    },
+    "radius": {
+      "$description": "calc(N * --radius). Tailwind v4 radius ladder (2/3/4 = sm/md/lg) but numeric for consistency with spacing.",
+      "base": { "value": "0.125rem" },
+      "2":    { "value": "calc(2 * var(--radius))" },
+      "3":    { "value": "calc(3 * var(--radius))" },
+      "4":    { "value": "calc(4 * var(--radius))" }
+    },
+    "spacing": {
+      "$description": "calc(N * --spacing). Change --spacing to rescale UI density.",
+      "base": { "value": "0.25rem" },
+      "1":    { "value": "calc(1 * var(--spacing))" },
+      "2":    { "value": "calc(2 * var(--spacing))" },
+      "3":    { "value": "calc(3 * var(--spacing))" },
+      "4":    { "value": "calc(4 * var(--spacing))" },
+      "6":    { "value": "calc(6 * var(--spacing))" },
+      "8":    { "value": "calc(8 * var(--spacing))" }
+    },
+    "shadow": {
+      "$description": "Tailwind v4 default shadow set. Neutral RGBA, no tint.",
+      "sm": { "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)" },
+      "md": { "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)" },
+      "lg": { "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" },
+      "xl": { "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }
+    },
+    "motionDuration": {
+      "fast": { "value": "120ms" },
+      "base": { "value": "200ms" },
+      "slow": { "value": "400ms" }
+    },
+    "motionEase": {
+      "$description": "Material 3 emphasized easings. standard = enter+exit, decelerate = enter, accelerate = exit.",
+      "standard":   { "value": "cubic-bezier(0.2, 0, 0, 1)" },
+      "decelerate": { "value": "cubic-bezier(0, 0, 0, 1)" },
+      "accelerate": { "value": "cubic-bezier(0.3, 0, 1, 1)" }
+    }
+  },
+
+  "semantic": {
+    "$description": "Role tokens with app-wide UI meaning, independent of FlowTyping domain.",
+    "color": {
+      "bg":             { "value": "oklch(1 0 0)" },
+      "surface":        { "value": "oklch(0.95 0 0)" },
+      "surface-hover":  { "value": "oklch(0.9 0 0)" },
+      "border":         { "value": "oklch(0.9 0 0)" },
+      "text": {
+        "primary":   { "value": "oklch(0.14 0 0)" },
+        "secondary": { "value": "oklch(0.44 0 0)" },
+        "muted":     { "value": "oklch(0.56 0 0)" }
+      },
+      "success":     { "value": "oklch(0.72 0.19 150)" },
+      "success-dim": { "value": "oklch(0.72 0.19 150 / 0.2)" },
+      "error":       { "value": "oklch(0.64 0.21 25)" },
+      "error-dim":   { "value": "oklch(0.64 0.21 25 / 0.2)" },
+      "warning":     { "value": "oklch(0.77 0.16 70)" }
+    }
+  },
+
+  "domain": {
+    "$description": "FlowTyping-specific tokens bound to the domain model (FingerId, KeyCap roles, press results, TypingStream). See docs/03-ui-viewmodel-contract.md.",
+    "color": {
+      "finger": {
+        "$description": "Per-FingerId active color. Applied ONLY when fingerState='TARGET'. Index = anatomy: 1=thumb, 2=index, 3=middle, 4=ring, 5=pinky; base=palm (LB/RB). Do NOT replace with a single accent.",
+        "1":    { "value": "oklch(0.86 0.17 92)",  "description": "thumb" },
+        "2":    { "value": "oklch(0.76 0.16 56)",  "description": "index" },
+        "3":    { "value": "oklch(0.80 0.18 152)", "description": "middle" },
+        "4":    { "value": "oklch(0.71 0.14 255)", "description": "ring" },
+        "5":    { "value": "oklch(0.72 0.18 306)", "description": "pinky" },
+        "base": { "value": "oklch(0.95 0.02 75)",  "description": "palm base (LB/RB)" }
+      },
+      "fingerState": {
+        "$description": "Non-TARGET finger states from HandsSceneViewModel (docs/03 §3.3).",
+        "inactive": { "value": "oklch(0.95 0.02 75)",  "description": "INACTIVE — neighbour finger on active hand" },
+        "idle":     { "value": "oklch(0.95 0.02 260)", "description": "IDLE / NONE — finger on inactive hand" },
+        "error":    { "value": "oklch(0.60 0.20 20)",  "description": "ERROR — finger that pressed wrong key" }
+      },
+      "navigationVisualization": {
+        "$description": "Core product visualization: path of the finger from home key to target. Cold blue path + warm amber target = mechanical keyboard + living hand. Preserve the duality.",
+        "path-highlight": { "value": "oklch(0.62 0.19 260)", "description": "finger-center-point fill on the path" },
+        "target-marker":  { "value": "oklch(0.77 0.16 70)",  "description": "amber overlay on the active finger" },
+        "cursor-border":  { "value": "oklch(0.84 0.16 84)",  "description": "amber outer border of FlowLine focus frame" }
+      },
+      "symbol": {
+        "$description": "TypingStream symbol lifecycle. fg = RegularSymbol colour, -bg = FlowLine row bg. Lifecycle: pending → correct | corrected | error | errors.",
+        "pending":    { "value": "oklch(0.45 0.03 257)", "description": "not yet typed" },
+        "correct":    { "value": "oklch(0.45 0.11 151)", "description": "typed correctly first try" },
+        "corrected":  { "value": "oklch(0.41 0.15 10)",  "description": "typed after correcting an error" },
+        "error":      { "value": "oklch(0.68 0.14 76)",  "description": "current error, single attempt" },
+        "errors":     { "value": "oklch(0.51 0.2 17)",   "description": "repeated errors on the same symbol" },
+        "correct-bg": { "value": "oklch(0.96 0.04 157)", "description": "FlowLine row bg for correct symbol" },
+        "error-bg":   { "value": "oklch(0.94 0.03 18)",  "description": "FlowLine row bg for error symbol" }
+      },
+      "cursor": {
+        "$description": "CursorSymbol block caret in FlowLine. Only inverted-colour symbol; marks current input position.",
+        "bg": { "value": "oklch(0.28 0.03 257)", "description": "dark block bg" },
+        "fg": { "value": "oklch(0.98 0 0)",      "description": "light text on caret" }
+      },
+      "keycap": {
+        "$description": "KeyCap rendering layers: base typography, per-finger colour groups, system-key overrides (secondary/accent), navigation role, press result.",
+        "base": {
+          "label":  { "value": "oklch(0.39 0.08 241)", "description": "key label colour; also home-key ring and PATH outline" },
+          "marker": { "value": "oklch(0.21 0.04 266)", "description": "home-key marker dot/bar fill" }
+        },
+        "group": {
+          "$description": "Five per-finger column colour groups. Mapping: neutral→L1/R1 (thumb), yellow→L2/R2 (index), sky→L3/R3 (middle), indigo→L4/R4 (ring), purple→L5/R5 (pinky). Colour = finger owner, not decoration.",
+          "neutral": {
+            "bg":     { "value": "oklch(0.95 0    0 / 0.7)" },
+            "border": { "value": "oklch(0.85 0    0)" }
+          },
+          "yellow": {
+            "bg":     { "value": "oklch(0.95 0.03 95 / 0.7)" },
+            "border": { "value": "oklch(0.90 0.15 90)" }
+          },
+          "sky": {
+            "bg":     { "value": "oklch(0.95 0.03 235 / 0.7)" },
+            "border": { "value": "oklch(0.85 0.10 230)" }
+          },
+          "indigo": {
+            "bg":     { "value": "oklch(0.95 0.03 275 / 0.7)" },
+            "border": { "value": "oklch(0.80 0.10 275)" }
+          },
+          "purple": {
+            "bg":     { "value": "oklch(0.95 0.03 300 / 0.7)" },
+            "border": { "value": "oklch(0.85 0.11 300)" }
+          }
+        },
+        "secondary": {
+          "$description": "Override for neutral system keys (Tab, Shift, Enter, Backspace, etc.).",
+          "bg":     { "value": "oklch(0.97 0 0)" },
+          "fg":     { "value": "oklch(0.72 0 68)" },
+          "border": { "value": "oklch(0.87 0 0)" }
+        },
+        "accent": {
+          "$description": "Warm orange colour-group override for highlighted accent keys. Not the same as navigationRole='TARGET'.",
+          "bg":     { "value": "oklch(0.98 0.02 74)" },
+          "fg":     { "value": "oklch(0.76 0.16 56)" },
+          "border": { "value": "oklch(0.90 0.07 71)" }
+        },
+        "role-target": {
+          "$description": "navigationRole='TARGET' — key the player must press now. Overridden only by press result.",
+          "bg": { "value": "oklch(0.29 0.06 243 / 0.7)" },
+          "fg": { "value": "oklch(0.98 0.01 237)" }
+        },
+        "correct": {
+          "$description": "pressResult='CORRECT'. Overrides navigation role.",
+          "bg":     { "value": "oklch(0.45 0.11 150 / 0.8)" },
+          "fg":     { "value": "oklch(0.98 0.01 180)" },
+          "border": { "value": "oklch(0.72 0.19 150)" }
+        },
+        "error": {
+          "$description": "pressResult='ERROR'. Overrides navigation role.",
+          "bg":     { "value": "oklch(0.64 0.2 30 / 0.8)" },
+          "fg":     { "value": "oklch(0.97 0.0 20)" },
+          "border": { "value": "oklch(0.7 0.17 20)" }
+        }
+      },
+      "arrow": {
+        "$description": "NavArrow SVG inside KeyCap when navigationRole='PATH' — points to next key on finger path. Custom green, distinct from finger palette and path-highlight.",
+        "fill":     { "value": "oklch(0.66 0.16 150)" },
+        "stroke":   { "value": "oklch(0.60 0.14 150)" },
+        "gradient": { "value": "oklch(0.85 0.29 140)" }
+      }
+    }
+  }
+}
