@@ -28,6 +28,28 @@
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
 
+  /* --- Typography scale --- */
+  /* Размеры производны от --font-size-base через множители Tailwind v4
+   * type scale. Поменяв --font-size-base, масштабируешь всю шкалу UI.
+   * Числовая ladder не используется (как у spacing/radius), потому что
+   * шаг типографики нелинейный — t-shirt sizes читабельнее. */
+  --font-size-base: 1rem;
+  --font-size-xs : calc(0.75  * var(--font-size-base));  /* 0.75rem  / 12px */
+  --font-size-sm : calc(0.875 * var(--font-size-base));  /* 0.875rem / 14px */
+  --font-size-md : calc(1     * var(--font-size-base));  /* 1rem     / 16px */
+  --font-size-lg : calc(1.125 * var(--font-size-base));  /* 1.125rem / 18px */
+  --font-size-xl : calc(1.25  * var(--font-size-base));  /* 1.25rem  / 20px */
+  --font-size-2xl: calc(1.5   * var(--font-size-base));  /* 1.5rem   / 24px */
+
+  --line-height-tight : 1.2;
+  --line-height-normal: 1.5;
+  --line-height-loose : 1.75;
+
+  --font-weight-regular : 400;
+  --font-weight-medium  : 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold    : 700;
+
   /* --- Radius --- */
   /* Шкала производна от --radius (1 unit = 0.125rem = 2px при html font-size 16px).
    * Та же логика, что у --spacing: --radius-N = N * --radius. Ladder совпадает с
@@ -49,6 +71,27 @@
   --spacing-4: calc(4 * var(--spacing));  /* 1rem    / 16px */
   --spacing-6: calc(6 * var(--spacing));  /* 1.5rem  / 24px */
   --spacing-8: calc(8 * var(--spacing));  /* 2rem    / 32px */
+
+  /* --- Elevation / shadow --- */
+  /* 4-step ladder из Tailwind v4 default shadow set — RGBA с low alpha,
+   * нейтральный (без тонировки). Семантика — высота над поверхностью. */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* --- Motion --- */
+  /* Длительности и easings — язык для обсуждения анимации в продукте про
+   * «визуализацию движения». Easings — Material 3 emphasized set:
+   *   standard    — вход + выход, в т.ч. transform/opacity на финале.
+   *   decelerate  — появление элемента (вход), быстрый старт → плавный финиш.
+   *   accelerate  — уход элемента, плавный старт → быстрый финиш. */
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 200ms;
+  --motion-duration-slow: 400ms;
+  --motion-ease-standard  : cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --motion-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
 
   /* ============================================================
    * LAYER 2 · SEMANTIC — role tokens, app-wide UI meaning
