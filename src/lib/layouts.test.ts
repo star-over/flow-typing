@@ -25,7 +25,6 @@ describe('symbol layout registry', () => {
   });
 
   it('getDefault для неизвестного диалекта откатывается к родителю', () => {
-    // 'en-CA' нет в реестре — фолбэк к 'en' → qwerty
     expect(getDefaultSymbolLayoutForTextLanguage('en-CA' as TextLanguage).symbolLayoutId)
       .toBe('qwerty');
   });

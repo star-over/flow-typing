@@ -1,9 +1,10 @@
 <script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import HandsExt from './HandsExt.svelte';
-  import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-  import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
-  import { getSymbolLayout } from '@/data/layouts/layouts';
+  import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
+
+  const fingerLayoutASDF = getFingerLayout('asdf');
+  const physicalLayoutANSI = getPhysicalLayout('ansi');
   import { VISIBILITY_STATES } from '@/interfaces/types';
 
   // Все фикстуры из hands-scene.test.ts — единый источник правды

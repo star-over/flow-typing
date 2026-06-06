@@ -1,0 +1,61 @@
+{"keyCapId":"Backquote","x":0,"y":0,"w":1,"label":"` ~","type":"SYMBOL"}
+{"keyCapId":"Digit1","x":1,"y":0,"w":1,"label":"1 !","type":"SYMBOL"}
+{"keyCapId":"Digit2","x":2,"y":0,"w":1,"label":"2 @","type":"SYMBOL"}
+{"keyCapId":"Digit3","x":3,"y":0,"w":1,"label":"3 #","type":"SYMBOL"}
+{"keyCapId":"Digit4","x":4,"y":0,"w":1,"label":"4 $","type":"SYMBOL"}
+{"keyCapId":"Digit5","x":5,"y":0,"w":1,"label":"5 %","type":"SYMBOL"}
+{"keyCapId":"Digit6","x":6,"y":0,"w":1,"label":"6 ^","type":"SYMBOL"}
+{"keyCapId":"Digit7","x":7,"y":0,"w":1,"label":"7 &","type":"SYMBOL"}
+{"keyCapId":"Digit8","x":8,"y":0,"w":1,"label":"8 *","type":"SYMBOL"}
+{"keyCapId":"Digit9","x":9,"y":0,"w":1,"label":"9 (","type":"SYMBOL"}
+{"keyCapId":"Digit0","x":10,"y":0,"w":1,"label":"0 )","type":"SYMBOL"}
+{"keyCapId":"Minus","x":11,"y":0,"w":1,"label":"- _","type":"SYMBOL"}
+{"keyCapId":"Equal","x":12,"y":0,"w":1,"label":"= +","type":"SYMBOL"}
+{"keyCapId":"Backspace","x":13,"y":0,"w":2,"label":"del","type":"SYSTEM"}
+{"keyCapId":"Tab","x":0,"y":1,"w":1.5,"label":"Tab","type":"SYSTEM"}
+{"keyCapId":"KeyQ","x":1.5,"y":1,"w":1,"label":"Q","type":"SYMBOL"}
+{"keyCapId":"KeyW","x":2.5,"y":1,"w":1,"label":"W","type":"SYMBOL"}
+{"keyCapId":"KeyE","x":3.5,"y":1,"w":1,"label":"E","type":"SYMBOL"}
+{"keyCapId":"KeyR","x":4.5,"y":1,"w":1,"label":"R","type":"SYMBOL"}
+{"keyCapId":"KeyT","x":5.5,"y":1,"w":1,"label":"T","type":"SYMBOL"}
+{"keyCapId":"KeyY","x":6.5,"y":1,"w":1,"label":"Y","type":"SYMBOL"}
+{"keyCapId":"KeyU","x":7.5,"y":1,"w":1,"label":"U","type":"SYMBOL"}
+{"keyCapId":"KeyI","x":8.5,"y":1,"w":1,"label":"I","type":"SYMBOL"}
+{"keyCapId":"KeyO","x":9.5,"y":1,"w":1,"label":"O","type":"SYMBOL"}
+{"keyCapId":"KeyP","x":10.5,"y":1,"w":1,"label":"P","type":"SYMBOL"}
+{"keyCapId":"BracketLeft","x":11.5,"y":1,"w":1,"label":"[ {","type":"SYMBOL"}
+{"keyCapId":"BracketRight","x":12.5,"y":1,"w":1,"label":"] }","type":"SYMBOL"}
+{"keyCapId":"Backslash","x":13.5,"y":1,"w":1.5,"label":"\\ |","type":"SYMBOL"}
+{"keyCapId":"CapsLock","x":0,"y":2,"w":1.75,"label":"Caps","type":"SYSTEM"}
+{"keyCapId":"KeyA","x":1.75,"y":2,"w":1,"label":"A","type":"SYMBOL"}
+{"keyCapId":"KeyS","x":2.75,"y":2,"w":1,"label":"S","type":"SYMBOL"}
+{"keyCapId":"KeyD","x":3.75,"y":2,"w":1,"label":"D","type":"SYMBOL"}
+{"keyCapId":"KeyF","x":4.75,"y":2,"w":1,"label":"F","type":"SYMBOL","homeKeyMarker":"BAR"}
+{"keyCapId":"KeyG","x":5.75,"y":2,"w":1,"label":"G","type":"SYMBOL"}
+{"keyCapId":"KeyH","x":6.75,"y":2,"w":1,"label":"H","type":"SYMBOL"}
+{"keyCapId":"KeyJ","x":7.75,"y":2,"w":1,"label":"J","type":"SYMBOL","homeKeyMarker":"BAR"}
+{"keyCapId":"KeyK","x":8.75,"y":2,"w":1,"label":"K","type":"SYMBOL"}
+{"keyCapId":"KeyL","x":9.75,"y":2,"w":1,"label":"L","type":"SYMBOL"}
+{"keyCapId":"Semicolon","x":10.75,"y":2,"w":1,"label":"; :","type":"SYMBOL"}
+{"keyCapId":"Quote","x":11.75,"y":2,"w":1,"label":"' \"","type":"SYMBOL"}
+{"keyCapId":"Enter","x":12.75,"y":2,"w":2,"label":"Enter","type":"SYSTEM"}
+{"keyCapId":"ShiftLeft","x":0,"y":3,"w":2,"label":"Shift L","type":"MODIFIER"}
+{"keyCapId":"KeyZ","x":2,"y":3,"w":1,"label":"Z","type":"SYMBOL"}
+{"keyCapId":"KeyX","x":3,"y":3,"w":1,"label":"X","type":"SYMBOL"}
+{"keyCapId":"KeyC","x":4,"y":3,"w":1,"label":"C","type":"SYMBOL"}
+{"keyCapId":"KeyV","x":5,"y":3,"w":1,"label":"V","type":"SYMBOL"}
+{"keyCapId":"KeyB","x":6,"y":3,"w":1,"label":"B","type":"SYMBOL"}
+{"keyCapId":"KeyN","x":7,"y":3,"w":1,"label":"N","type":"SYMBOL"}
+{"keyCapId":"KeyM","x":8,"y":3,"w":1,"label":"M","type":"SYMBOL"}
+{"keyCapId":"Comma","x":9,"y":3,"w":1,"label":", <","type":"SYMBOL"}
+{"keyCapId":"Period","x":10,"y":3,"w":1,"label":". >","type":"SYMBOL"}
+{"keyCapId":"Slash","x":11,"y":3,"w":1,"label":"/ ?","type":"SYMBOL"}
+{"keyCapId":"ShiftRight","x":12,"y":3,"w":2.5,"label":"Shift R","type":"MODIFIER"}
+{"keyCapId":"ControlLeft","x":0,"y":4,"w":1.25,"label":"^","type":"MODIFIER"}
+{"keyCapId":"AltLeft","x":1.25,"y":4,"w":1.25,"label":"⌥","type":"MODIFIER"}
+{"keyCapId":"MetaLeft","x":2.5,"y":4,"w":1.25,"label":"⌘","type":"MODIFIER"}
+{"keyCapId":"Space","x":3.75,"y":4,"w":5,"label":"Space","type":"SYMBOL"}
+{"keyCapId":"MetaRight","x":8.75,"y":4,"w":1.25,"label":"⌘","type":"MODIFIER"}
+{"keyCapId":"AltRight","x":10,"y":4,"w":1.25,"label":"⌥","type":"MODIFIER"}
+{"keyCapId":"ContextMenu","x":11.25,"y":4,"w":1.25,"label":"xx","type":"SYSTEM"}
+{"keyCapId":"ControlRight","x":12.5,"y":4,"w":1.25,"label":" ^","type":"MODIFIER"}

@@ -2,8 +2,9 @@ import { assign, sendTo, setup } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
-import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
-import { getSymbolLayoutDescriptor } from "@/data/layouts/layouts";
+import { getPhysicalLayout, getSymbolLayoutDescriptor } from "@/lib/layouts";
+
+const physicalLayoutANSI = getPhysicalLayout('ansi');
 import { createTypingStream } from "@/lib/typing-stream";
 import { DRILL_CORPUS } from "@/lib/drill-corpus";
 import { filterDrillsBySymbolLayout, selectRandomDrill } from "@/lib/drill-selection";

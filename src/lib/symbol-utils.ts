@@ -69,7 +69,7 @@ export function getLabel({
   symbolLayout: SymbolLayout;
   physicalLayout: PhysicalLayout;
 }): string {
-  const physicalKey = physicalLayout.flat().find((key) => key.keyCapId === keyCapId);
+  const physicalKey = physicalLayout.find((key) => key.keyCapId === keyCapId);
 
   // 1. Handle non-symbol keys (MODIFIER, SYSTEM)
   if (physicalKey?.type !== 'SYMBOL') {

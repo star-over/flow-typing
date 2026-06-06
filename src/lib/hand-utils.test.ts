@@ -1,7 +1,9 @@
 import { describe, expect,it } from "vitest";
 
-import { fingerLayoutASDF } from "../data/layouts/finger-layout-asdf";
+import { getFingerLayout } from "@/lib/layouts";
 import { getFingerKeys } from "./hand-utils";
+
+const fingerLayoutASDF = getFingerLayout('asdf');
 
 describe('getFingerKeys', () => {
   it('should return all keyCapIds for L2 (index finger left hand)', () => {

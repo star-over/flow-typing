@@ -8,13 +8,9 @@ import { createKeyboardScene, createKeyboardSceneForFinger } from './keyboard-sc
 
 describe('createKeyboardScene', () => {
   const mockPhysicalLayout: PhysicalLayout = [
-    [
-      { keyCapId: 'KeyA', type: 'SYMBOL', unitWidth: '1U', label: 'a' },
-      { keyCapId: 'KeyB', type: 'SYMBOL', unitWidth: '1U', label: 'b' },
-    ],
-    [
-      { keyCapId: 'ShiftLeft', type: 'MODIFIER', unitWidth: '2U', label: 'Sh L' },
-    ],
+    { keyCapId: 'KeyA', x: 0, y: 0, w: 1, type: 'SYMBOL', label: 'a' },
+    { keyCapId: 'KeyB', x: 1, y: 0, w: 1, type: 'SYMBOL', label: 'b' },
+    { keyCapId: 'ShiftLeft', x: 0, y: 1, w: 2, type: 'MODIFIER', label: 'Sh L' },
   ];
 
   const mockSymbolLayout: SymbolLayout = [
@@ -29,15 +25,16 @@ describe('createKeyboardScene', () => {
     { keyCapId: 'ShiftLeft', fingerId: 'L5' },
   ];
 
-  it('should create a KeyboardSceneViewModel with correct dimensions', () => {
+  it('should create a KeyboardSceneViewModel grouped by y into rows', () => {
     const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
       fingerLayout: mockFingerLayout,
     });
 
-    expect(keyboardScene).toHaveLength(mockPhysicalLayout.length);
-    expect(keyboardScene[0]).toHaveLength(mockPhysicalLayout[0]!.length);
+    expect(keyboardScene).toHaveLength(2); // два ряда (y=0, y=1)
+    expect(keyboardScene[0]).toHaveLength(2); // KeyA, KeyB
+    expect(keyboardScene[1]).toHaveLength(1); // ShiftLeft
   });
 
   it('should correctly transfer physical key properties and set rowIndex/colIndex', () => {
@@ -70,9 +67,8 @@ describe('createKeyboardScene', () => {
 
   it('should set symbol to the label from physicalLayout if symbol is not found in symbolLayout (Level 3 Fallback)', () => {
     const customPhysicalLayout: PhysicalLayout = [
-      [{ keyCapId: 'KeyC', type: 'SYMBOL', label: 'c' }], // Changed from 'KeyUnknown'
+      { keyCapId: 'KeyC', x: 0, y: 0, w: 1, type: 'SYMBOL', label: 'c' },
     ];
-    // getSymbol mock will return the label for 'KeyC'
 
     const keyboardScene = createKeyboardScene({
       physicalLayout: customPhysicalLayout,
@@ -97,16 +93,15 @@ describe('createKeyboardScene', () => {
     expect(keyA.fingerId).toBe('L1');
     expect(keyA.isHomeKey).toBe(true);
     expect(keyB.fingerId).toBe('L2');
-    expect(keyB.isHomeKey).toBeUndefined(); // Not a home key
+    expect(keyB.isHomeKey).toBeUndefined();
     expect(shiftLeft.fingerId).toBe('L5');
     expect(shiftLeft.isHomeKey).toBeUndefined();
   });
 
   it('should use default fingerId "L1" if fingerLayout entry is missing', () => {
     const customPhysicalLayout: PhysicalLayout = [
-      [{ keyCapId: 'KeyD', type: 'SYMBOL', label: 'd' }], // Changed from 'KeyMissingFinger'
+      { keyCapId: 'KeyD', x: 0, y: 0, w: 1, type: 'SYMBOL', label: 'd' },
     ];
-    // No entry for 'KeyD' in mockFingerLayout
 
     const keyboardScene = createKeyboardScene({
       physicalLayout: customPhysicalLayout,
@@ -120,20 +115,14 @@ describe('createKeyboardScene', () => {
 
 describe('createKeyboardSceneForFinger', () => {
   it('should create a contextual layout for a specific finger', () => {
-    // 1. Arrange
-    // We use the expected output from a known fixture as the input for our function.
     const viewModel = simple_t.expectedOutput;
     const targetFinger = 'L2';
 
-    // 2. Act
     const keyboardScene = createKeyboardSceneForFinger({ fingerId: targetFinger, viewModel, fingerLayout, physicalLayout });
 
-    // 3. Assert
-    // Helper function to find a key in the generated layout
     const findKey = (keyCapId: string) =>
       keyboardScene.flat().find((k) => k.keyCapId === keyCapId);
 
-    // Check visibility: Only keys for finger L2 should be visible.
     const visibleKeys = keyboardScene.flat().filter((k) => k.visibility === 'VISIBLE');
     const l2Keys = Object.keys(viewModel.L2.keyCapStates!);
     expect(visibleKeys.length).toBe(l2Keys.length);
@@ -141,7 +130,6 @@ describe('createKeyboardSceneForFinger', () => {
       expect(l2Keys).toContain(key.keyCapId);
     });
 
-    // Check roles for specific keys
     const keyT = findKey('KeyT');
     expect(keyT?.navigationRole).toBe('TARGET');
 
@@ -151,11 +139,9 @@ describe('createKeyboardSceneForFinger', () => {
     const keyF = findKey('KeyF');
     expect(keyF?.navigationRole).toBe('PATH');
 
-    // Check a key in the cluster that is not on the path
     const keyG = findKey('KeyG');
     expect(keyG?.navigationRole).toBe('NONE');
 
-    // Check a key outside the cluster
     const keyA = findKey('KeyA');
     expect(keyA?.visibility).toBe('INVISIBLE');
   });

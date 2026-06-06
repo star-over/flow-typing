@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { SymbolLayoutRegistrySchema } from '@/interfaces/types';
 import { DrillSchema } from '@/interfaces/drill-data.types';
-import { SYMBOL_LAYOUT_REGISTRY } from '@/data/layouts/layouts';
+import { SYMBOL_LAYOUT_REGISTRY } from '@/lib/layouts';
 import { DRILL_CORPUS } from '@/lib/drill-corpus';
 import { filterDrillsBySymbolLayout } from '@/lib/drill-selection';
 

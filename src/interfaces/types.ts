@@ -173,25 +173,36 @@ export type TypingStream = StreamSymbol[];
 
 // --- Layout Types ---
 
-/** Описывает одну физическую клавишу: ее геометрию и базовый тип. */
+/**
+ * Описывает одну физическую клавишу: её геометрию (координаты `x`/`y` и ширину `w`
+ * в U-юнитах, 1U ~ 19мм), надпись и базовый тип.
+ *
+ * `x` — позиция левого края клавиши от левого края клавиатуры в U;
+ * `y` — номер ряда (целое 0..N для стандартных клавиатур);
+ * `w` — ширина клавиши в U (1, 1.25, 1.5, 1.75, 2, 2.25, 2.75, 5, 6.25 ...).
+ *
+ * Ряды как первоклассная сущность здесь отсутствуют: 2D-восстановление —
+ * через group-by `y` + sort-by `x` в `keyboard-scene.ts`.
+ */
 export interface PhysicalKey {
-  keyCapId: KeyCapId;                   // (напр. 'KeyF'
-  label: string;                        // Надпись на клавише (напр. 'F')
-  unitWidth?: KeyCapUnitWidth;          // Ширина клавиши
+  keyCapId: KeyCapId;                   // (напр. 'KeyF')
+  x: number;                            // Позиция левого края в U
+  y: number;                            // Номер ряда
+  w: number;                            // Ширина клавиши в U
+  label: string;                        // Надпись на колпачке (напр. 'F', '1 !', 'Shift L')
   symbolSize?: KeyCapSymbolSize;        // Размер надписи
-  homeKeyMarker?: KeyCapHomeKeyMarker;  // Тип Home Маркета
+  homeKeyMarker?: KeyCapHomeKeyMarker;  // Физический маркер home-ряда (BAR/DOT на F и J)
   colorGroup?: KeyCapColorGroup;        // Цветовая группа
-  type: KeyCapType;                     // Тип: буквенная, системная или текстовая клавиша
+  type: KeyCapType;                     // Тип: буквенная, системная или модификатор
 }
 /**
  * Физический макет клавиатуры (холст).
- * Описывает геометрию: расположение, размер и форму клавиш в виде двумерного массива.
- * Инвариант железа — не зависит от выбора пользователя.
+ * Плоский список клавиш с геометрией. Инвариант железа — не зависит от выбора пользователя.
  */
-export type PhysicalLayout = PhysicalKey[][];
+export type PhysicalLayout = PhysicalKey[];
 
 /** Идентификатор физического макета (форм-фактор). */
-export type PhysicalLayoutId = 'ANSI';
+export type PhysicalLayoutId = 'ansi';
 
 /**
  * Пальцевый макет (инструкция).
@@ -205,7 +216,7 @@ export type FingerLayout = {
 }[];
 
 /** Идентификатор пальцевого макета (схема постановки рук). */
-export type FingerLayoutId = 'ASDF';
+export type FingerLayoutId = 'asdf';
 
 /**
  * Символьный макет (слой краски).

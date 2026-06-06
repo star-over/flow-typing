@@ -7,7 +7,7 @@
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
   import { getPressResult } from '@/lib/press-result-utils';
-  import { getSymbolLayout } from '@/data/layouts/layouts';
+  import { getSymbolLayout } from '@/lib/layouts';
 
   import FlowLine from './FlowLine.svelte';
   import HandsExt from './HandsExt.svelte';

@@ -1,7 +1,9 @@
-import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
+import { getFingerLayout, getPhysicalLayout } from '@/lib/layouts';
 import { createKeyCoordinateMap } from '@/lib/layout-utils';
 import { createKeyboardGraph } from '@/lib/pathfinding';
+
+const fingerLayoutASDF = getFingerLayout('asdf');
+const physicalLayoutANSI = getPhysicalLayout('ansi');
 
 export const fingerLayout = fingerLayoutASDF;
 export const physicalLayout = physicalLayoutANSI;

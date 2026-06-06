@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
+import { getSymbolLayout } from '@/lib/layouts';
 import { createTypingStream } from './typing-stream';
+
+const symbolLayoutQwerty = getSymbolLayout('qwerty');
 
 describe('createTypingStream', () => {
   it('generates a correct stream for a simple word', () => {

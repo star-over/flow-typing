@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { physicalLayoutANSI } from "@/data/layouts/physical-layout-ansi";
+import { getPhysicalLayout } from "@/lib/layouts";
 
 import { createKeyboardGraph, findOptimalPath } from "./pathfinding";
 
 describe("pathfinding utilities", () => {
+  const physicalLayoutANSI = getPhysicalLayout('ansi');
   const graph = createKeyboardGraph(physicalLayoutANSI);
 
   describe("createKeyboardGraph", () => {
     it("should create a graph with all keys from the layout", () => {
-      const totalKeys = physicalLayoutANSI.flat().length;
+      const totalKeys = physicalLayoutANSI.length;
       expect(graph.size).toBe(totalKeys);
     });
 

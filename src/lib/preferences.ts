@@ -13,7 +13,7 @@ import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
 import {
   getCompatibleSymbolLayoutsForTextLanguage,
   getDefaultSymbolLayoutForTextLanguage,
-} from '@/data/layouts/layouts';
+} from '@/lib/layouts';
 
 const STORAGE_KEY = 'flow-typing-user-preferences';
 

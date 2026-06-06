@@ -2,7 +2,7 @@
   import { preferences, updatePreferences } from '@/lib/preferences';
   import Select from './Select.svelte';
   import type { UserPreferences } from '@/interfaces/user-preferences';
-  import { getCompatibleSymbolLayoutsForTextLanguage } from '@/data/layouts/layouts';
+  import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
 
   interface Props {
     onBack: () => void;

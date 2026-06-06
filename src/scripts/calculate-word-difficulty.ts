@@ -10,9 +10,11 @@
  */
 
 import { calculateCharDifficulty } from '../lib/difficulty-calculator';
-import { symbolLayoutJcuken } from '../data/layouts/symbol-layout-jcuken';
-import { fingerLayoutASDF } from '../data/layouts/finger-layout-asdf';
-import { physicalLayoutANSI } from '../data/layouts/physical-layout-ansi';
+import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '../lib/layouts';
+
+const symbolLayoutJcuken = getSymbolLayout('йцукен');
+const fingerLayoutASDF = getFingerLayout('asdf');
+const physicalLayoutANSI = getPhysicalLayout('ansi');
 
 // --- Инициализация ---
 

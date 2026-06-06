@@ -3,7 +3,9 @@
   import FlowLine from './FlowLine.svelte';
   import { addAttempt } from '@/lib/stream-utils';
   import { createTypingStream } from '@/lib/typing-stream';
-  import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
+  import { getSymbolLayout } from '@/lib/layouts';
+
+  const symbolLayoutQwerty = getSymbolLayout('qwerty');
   import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
   import {
     FLOW_LINE_CURSOR_MODES,

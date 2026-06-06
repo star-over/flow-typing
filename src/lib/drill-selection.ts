@@ -1,6 +1,6 @@
 import type { Drill } from '@/interfaces/drill-data.types';
 import type { SymbolLayoutDescriptor } from '@/interfaces/types';
-import { getSymbolsSupportedBySymbolLayout } from '@/data/layouts/layouts';
+import { getSymbolsSupportedBySymbolLayout } from '@/lib/layouts';
 import { isDrillCompatibleWithSymbolLayout } from '@/lib/text-language-utils';
 
 /**

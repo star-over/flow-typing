@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty'; // Corrected import path
-import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf'; // Import fingerLayoutASDF
+import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
+import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils';
 
-import { physicalLayoutANSI } from '../data/layouts/physical-layout-ansi';
-import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils'; // Import getFingerByKeyCap
+const symbolLayoutQwerty = getSymbolLayout('qwerty');
+const fingerLayoutASDF = getFingerLayout('asdf');
+const physicalLayoutANSI = getPhysicalLayout('ansi');
 
 describe('getKeyCapIdsForChar', () => {
   it('should return the correct KeyCapId for a lowercase character', () => {

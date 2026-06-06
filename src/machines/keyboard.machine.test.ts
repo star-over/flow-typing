@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { assign, createActor, createMachine, sendTo } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/types"; // Import types from interfaces
-import { physicalLayoutANSI } from "@/data/layouts/physical-layout-ansi"; // Add this
+import { getPhysicalLayout } from "@/lib/layouts";
+
+const physicalLayoutANSI = getPhysicalLayout('ansi');
 
 import { keyboardMachine } from "./keyboard.machine";
 

@@ -3,8 +3,10 @@
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { trainingMachine } from '@/machines/training.machine';
   import type { Dictionary } from '@/interfaces/types';
-  import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-  import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
+  import { getFingerLayout, getPhysicalLayout } from '@/lib/layouts';
+
+  const fingerLayoutASDF = getFingerLayout('asdf');
+  const physicalLayoutANSI = getPhysicalLayout('ansi');
 
   import { inState } from '@/lib/state-utils';
 

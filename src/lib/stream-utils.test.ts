@@ -1,6 +1,8 @@
 import { describe, expect,it } from "vitest";
 
-import { symbolLayoutQwerty } from "@/data/layouts/symbol-layout-qwerty"; // Corrected import path
+import { getSymbolLayout } from "@/lib/layouts";
+
+const symbolLayoutQwerty = getSymbolLayout('qwerty');
 import type { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, getSymbolChar,getSymbolType } from "./stream-utils";

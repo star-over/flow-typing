@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { fingerLayoutASDF } from '@/data/layouts/finger-layout-asdf';
-import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
-import { symbolLayoutQwerty } from '@/data/layouts/symbol-layout-qwerty';
+import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
+
+const fingerLayoutASDF = getFingerLayout('asdf');
+const physicalLayoutANSI = getPhysicalLayout('ansi');
+const symbolLayoutQwerty = getSymbolLayout('qwerty');
 import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
 import {
@@ -167,20 +169,18 @@ describe('difficulty-calculator', () => {
 
   describe('fallback branches (synthetic layouts)', () => {
     const wideKeyboard: PhysicalLayout = [
-      [
-        { keyCapId: 'KeyA', label: 'A', type: 'SYMBOL' },
-        { keyCapId: 'KeyB', label: 'B', type: 'SYMBOL' },
-        { keyCapId: 'KeyC', label: 'C', type: 'SYMBOL' },
-        { keyCapId: 'KeyD', label: 'D', type: 'SYMBOL' },
-        { keyCapId: 'KeyE', label: 'E', type: 'SYMBOL' },
-        { keyCapId: 'KeyF', label: 'F', type: 'SYMBOL' },
-        { keyCapId: 'KeyG', label: 'G', type: 'SYMBOL' },
-        { keyCapId: 'KeyH', label: 'H', type: 'SYMBOL' },
-        { keyCapId: 'KeyI', label: 'I', type: 'SYMBOL' },
-        { keyCapId: 'KeyJ', label: 'J', type: 'SYMBOL' },
-        { keyCapId: 'KeyK', label: 'K', type: 'SYMBOL' },
-        { keyCapId: 'KeyL', label: 'L', type: 'SYMBOL' },
-      ],
+      { keyCapId: 'KeyA', x: 0, y: 0, w: 1, label: 'A', type: 'SYMBOL' },
+      { keyCapId: 'KeyB', x: 1, y: 0, w: 1, label: 'B', type: 'SYMBOL' },
+      { keyCapId: 'KeyC', x: 2, y: 0, w: 1, label: 'C', type: 'SYMBOL' },
+      { keyCapId: 'KeyD', x: 3, y: 0, w: 1, label: 'D', type: 'SYMBOL' },
+      { keyCapId: 'KeyE', x: 4, y: 0, w: 1, label: 'E', type: 'SYMBOL' },
+      { keyCapId: 'KeyF', x: 5, y: 0, w: 1, label: 'F', type: 'SYMBOL' },
+      { keyCapId: 'KeyG', x: 6, y: 0, w: 1, label: 'G', type: 'SYMBOL' },
+      { keyCapId: 'KeyH', x: 7, y: 0, w: 1, label: 'H', type: 'SYMBOL' },
+      { keyCapId: 'KeyI', x: 8, y: 0, w: 1, label: 'I', type: 'SYMBOL' },
+      { keyCapId: 'KeyJ', x: 9, y: 0, w: 1, label: 'J', type: 'SYMBOL' },
+      { keyCapId: 'KeyK', x: 10, y: 0, w: 1, label: 'K', type: 'SYMBOL' },
+      { keyCapId: 'KeyL', x: 11, y: 0, w: 1, label: 'L', type: 'SYMBOL' },
     ];
     const wideFinger: FingerLayout = [
       { keyCapId: 'KeyA', fingerId: 'L2', isHomeKey: true },

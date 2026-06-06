@@ -1,14 +1,18 @@
 /**
  * @file Сборка `KeyboardSceneViewModel` — финальной render-готовой модели клавиатуры.
  * @description Объединяет три раскладки-источника (Physical, Symbol, Finger) в одну
- * плоскую сцену, которую отрисовывает компонент `KeyboardScene.svelte`. Это не «слой»
+ * двумерную сцену, которую отрисовывает компонент `KeyboardScene.svelte`. Это не «слой»
  * (как `*Layout`), а его производное — артефакт для UI.
+ *
+ * Physical layout — плоский список клавиш с координатами `(x, y, w)`. Двумерное
+ * представление для рендера восстанавливается через group-by `y` + sort-by `x`.
  */
 import type {
   FingerId,
   FingerLayout,
   HandsSceneViewModel,
   KeyCapId,
+  KeyCapUnitWidth,
   KeyboardSceneKey,
   KeyboardSceneViewModel,
   KeySceneState,
@@ -17,8 +21,31 @@ import type {
   SymbolLayout,
   Visibility,
 } from "@/interfaces/types";
+import { KEY_CAP_UNIT_WIDTHS } from "@/interfaces/types";
 import { getHomeKeyForFinger } from "@/lib/hand-utils";
 import { getLabel } from "@/lib/symbol-utils";
+
+/**
+ * Группирует плоский physical-layout в массив рядов и сортирует клавиши внутри каждого ряда
+ * по x-координате. Восстанавливает форму, ожидаемую `KeyboardScene.svelte` (`{#each rows as row}`).
+ */
+function groupByRow(physicalLayout: PhysicalLayout): PhysicalKey[][] {
+  const rows = new Map<number, PhysicalKey[]>();
+  for (const key of physicalLayout) {
+    const row = rows.get(key.y) ?? [];
+    row.push(key);
+    rows.set(key.y, row);
+  }
+  return [...rows.keys()]
+    .sort((a, b) => a - b)
+    .map((y) => rows.get(y)!.sort((a, b) => a.x - b.x));
+}
+
+/** Конвертирует `w` (число в U) в `KeyCapUnitWidth` для совместимости с `KeyCap.svelte`. */
+function widthToUnitWidth(w: number): KeyCapUnitWidth | undefined {
+  const candidate = `${w}U` as KeyCapUnitWidth;
+  return (KEY_CAP_UNIT_WIDTHS as readonly string[]).includes(candidate) ? candidate : undefined;
+}
 
 interface CreateKeyboardSceneOptions {
   physicalLayout: PhysicalLayout;
@@ -28,37 +55,34 @@ interface CreateKeyboardSceneOptions {
 
 /**
  * Строит `KeyboardSceneViewModel` для всей клавиатуры из трёх раскладок-источников.
- * @param options.physicalLayout Геометрия клавиш (форм-фактор).
- * @param options.symbolLayout Какой символ на какой клавише в выбранной раскладке.
- * @param options.fingerLayout Какой палец отвечает за какую клавишу.
- * @returns Двумерный массив `KeyboardSceneKey`, готовый для рендера.
  */
 export function createKeyboardScene(
   options: CreateKeyboardSceneOptions
 ): KeyboardSceneViewModel {
   const { physicalLayout, symbolLayout, fingerLayout } = options;
+  const rows = groupByRow(physicalLayout);
 
-  const keyboardScene: KeyboardSceneViewModel = physicalLayout
-    .map((row: PhysicalKey[], rowIndex: number) => {
-      return row.map((physicalKey: PhysicalKey, colIndex: number): KeyboardSceneKey => {
-        const keyCapId = physicalKey.keyCapId;
-        const symbol = getLabel({ keyCapId, symbolLayout, physicalLayout });
-        const fingerKey = fingerLayout.find((item) => item.keyCapId === physicalKey.keyCapId);
+  return rows.map((row, rowIndex) =>
+    row.map((physicalKey, colIndex): KeyboardSceneKey => {
+      const keyCapId = physicalKey.keyCapId;
+      const symbol = getLabel({ keyCapId, symbolLayout, physicalLayout });
+      const fingerKey = fingerLayout.find((item) => item.keyCapId === keyCapId);
 
-        const sceneKey: KeyboardSceneKey = {
-          ...physicalKey,
-          rowIndex,
-          colIndex,
-          symbol: symbol || "...",
-          fingerId: fingerKey?.fingerId || "L1",
-          isHomeKey: fingerKey?.isHomeKey,
-        };
-
-        return sceneKey;
-      });
-    });
-
-  return keyboardScene;
+      return {
+        keyCapId,
+        unitWidth: widthToUnitWidth(physicalKey.w),
+        symbolSize: physicalKey.symbolSize,
+        homeKeyMarker: physicalKey.homeKeyMarker,
+        colorGroup: physicalKey.colorGroup,
+        type: physicalKey.type,
+        rowIndex,
+        colIndex,
+        symbol: symbol || "...",
+        fingerId: fingerKey?.fingerId || "L1",
+        isHomeKey: fingerKey?.isHomeKey,
+      };
+    })
+  );
 }
 
 interface CreateKeyboardSceneForFingerOptions {
@@ -72,8 +96,6 @@ interface CreateKeyboardSceneForFingerOptions {
  * Создаёт клавиатурную сцену, адаптированную под конкретный палец, на основе общей сцены рук.
  * Определяет, какие клавиши должны быть видимыми и каково их состояние (TARGET, PATH, …)
  * для данного пальца — на выходе только клавиши его кластера обогащены сценическим состоянием.
- *
- * @returns `KeyboardSceneViewModel` — двумерная сцена, где каждая клавиша несёт состояние для рендера.
  */
 export const createKeyboardSceneForFinger = ({
   fingerId,
@@ -81,38 +103,38 @@ export const createKeyboardSceneForFinger = ({
   fingerLayout,
   physicalLayout,
 }: CreateKeyboardSceneForFingerOptions): KeyboardSceneViewModel => {
-  // Получаем состояние сцены конкретно для текущего пальца
   const fingerSceneState = viewModel[fingerId];
-  // Извлекаем состояния колпачков клавиш для этого пальца, по умолчанию пустой объект, если их нет
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
     fingerSceneState.keyCapStates || {};
 
   const homeKeyForFinger = getHomeKeyForFinger({ fingerId, fingerLayout });
+  const rows = groupByRow(physicalLayout);
 
-  // Проходим по физической геометрии ANSI, чтобы построить сцену для пальца
-  return physicalLayout.map((row, rowIndex) =>
+  return rows.map((row, rowIndex) =>
     row.map((physicalKey): KeyboardSceneKey => {
       const { keyCapId } = physicalKey;
-      // Получаем конкретное состояние для этого колпачка клавиши из состояния сцены пальца
       const keyCapState = keyCapStates[keyCapId];
 
-      // Определяем видимость: клавиша видима, если у нее есть определенное состояние в viewModel для этого пальца
       const isVisible = !!keyCapState;
       const visibility: Visibility = isVisible ? "VISIBLE" : "INVISIBLE";
 
       return {
-        ...physicalKey,
+        keyCapId,
+        unitWidth: widthToUnitWidth(physicalKey.w),
+        symbolSize: physicalKey.symbolSize,
+        homeKeyMarker: physicalKey.homeKeyMarker,
+        colorGroup: physicalKey.colorGroup,
+        type: physicalKey.type,
         rowIndex,
-        colIndex: 0, // colIndex не используется в текущей логике макета для этого компонента
-        symbol: keyCapId, // Заполнитель, компонент KeyboardScene рассчитает фактический отображаемый символ
-        fingerId: fingerId, // Присваиваем идентификатор пальца, с запасным значением
-        isHomeKey: keyCapId === homeKeyForFinger, // Отмечаем, является ли это "домашней" клавишей для этого пальца
-        // Динамические свойства из ViewModel
-        visibility: visibility,
-        navigationRole: keyCapState?.navigationRole || "NONE", // Роль (TARGET, PATH, NONE)
-        navigationArrow: keyCapState?.navigationArrow || "NONE", // Направление стрелки для навигации
-        pressResult: keyCapState?.pressResult || "NONE", // Результат нажатия клавиши (CORRECT, INCORRECT, NEUTRAL)
+        colIndex: 0,
+        symbol: keyCapId,
+        fingerId,
+        isHomeKey: keyCapId === homeKeyForFinger,
+        visibility,
+        navigationRole: keyCapState?.navigationRole || "NONE",
+        navigationArrow: keyCapState?.navigationArrow || "NONE",
+        pressResult: keyCapState?.pressResult || "NONE",
       };
-    }),
+    })
   );
 };
