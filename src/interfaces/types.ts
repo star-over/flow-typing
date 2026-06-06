@@ -6,7 +6,6 @@
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
 import { z } from 'zod';
-import type { UserPreferences } from '@/interfaces/user-preferences';
 import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
@@ -339,28 +338,6 @@ export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
 import type en from '../../dictionaries/en.json';
 
 export type Dictionary = typeof en;
-
-// New interfaces for user settings metadata
-export interface SettingOption<T> {
-  value: T;
-  labelCode: string; // i18n code for the option's label
-}
-
-export interface SettingMetadata<T> {
-  key: keyof UserPreferences; // The key used in UserPreferences (e.g., 'language', 'symbolLayoutId')
-  storageKey: string; // The key used for storage (e.g., in localStorage or DB)
-  labelCode: string; // i18n code for the setting's display name
-  descriptionCode: string; // i18n code for a detailed description of the setting
-  type: 'string' | 'number' | 'boolean' | 'enum'; // Type of the setting value
-  defaultValue: T; // The default value for this setting
-  options?: SettingOption<T>[]; // Optional: for 'enum' types, a list of available options
-  categoryCode?: string; // Optional: i18n code for grouping settings (e.g., 'general', 'appearance')
-  componentType?: 'select' | 'checkbox' | 'range' | 'text'; // Optional: Hint for UI component
-}
-
-// --- HandsScene ViewModel ---
-
-// --- HandsScene ViewModel ---
 
 // --- HandsScene ViewModel ---
 
