@@ -20,8 +20,12 @@
   },
   "user_preferences": {
     "title": "User Preferences",
-    "language_label": "Language",
+    "interface_language_label": "Interface Language",
+    "interface_language_description": "Language of the UI (menus, hints).",
+    "text_language_label": "Text Language",
+    "text_language_description": "Language of typing exercises.",
     "symbol_layout_label": "Keyboard Layout",
+    "symbol_layout_description": "Physical keyboard mapping.",
     "language_placeholder": "Select language",
     "symbol_layout_placeholder": "Select layout",
     "back_button": "Back"
@@ -43,9 +47,13 @@
     "state_title": "State"
   },
   "options": {
-    "languages": {
+    "interfaceLanguages": {
       "en": "English",
       "ru": "Русский"
+    },
+    "textLanguages": {
+      "en": "English",
+      "ru": "Russian"
     },
     "layouts": {
       "qwerty": "QWERTY (English)",

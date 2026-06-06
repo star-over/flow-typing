@@ -20,8 +20,12 @@
   },
   "user_preferences": {
     "title": "Пользовательские Предпочтения",
-    "language_label": "Язык",
+    "interface_language_label": "Язык интерфейса",
+    "interface_language_description": "Язык меню и подсказок UI.",
+    "text_language_label": "Язык упражнений",
+    "text_language_description": "Язык текстов для тренировки.",
     "symbol_layout_label": "Раскладка клавиатуры",
+    "symbol_layout_description": "Физическое отображение клавиш.",
     "language_placeholder": "Выберите язык",
     "symbol_layout_placeholder": "Выберите раскладку",
     "back_button": "Назад"
@@ -43,7 +47,11 @@
     "state_title": "Состояние"
   },
   "options": {
-    "languages": {
+    "interfaceLanguages": {
+      "en": "Английский",
+      "ru": "Русский"
+    },
+    "textLanguages": {
       "en": "Английский",
       "ru": "Русский"
     },

@@ -1,62 +1,61 @@
 import type { UserPreferences } from '@/interfaces/user-preferences';
 import type { SettingMetadata, SettingOption } from '@/interfaces/types';
 
-// Options for language setting
-const LANGUAGE_OPTIONS: SettingOption<UserPreferences['language']>[] = [
-  { value: 'en', labelCode: 'language.en' },
-  { value: 'ru', labelCode: 'language.ru' },
+const INTERFACE_LANGUAGE_OPTIONS: SettingOption<UserPreferences['interfaceLanguage']>[] = [
+  { value: 'en', labelCode: 'options.interfaceLanguages.en' },
+  { value: 'ru', labelCode: 'options.interfaceLanguages.ru' },
 ];
 
-// Options for keyboard layout setting
-const SYMBOL_LAYOUT_OPTIONS: SettingOption<UserPreferences['symbolLayoutId']>[] = [
-  { value: 'qwerty', labelCode: 'symbolLayoutId.qwerty' },
-  { value: 'йцукен', labelCode: 'symbolLayoutId.йцукен' },
+const TEXT_LANGUAGE_OPTIONS: SettingOption<UserPreferences['textLanguage']>[] = [
+  { value: 'en', labelCode: 'options.textLanguages.en' },
+  { value: 'ru', labelCode: 'options.textLanguages.ru' },
 ];
 
-/**
- * Metadata for all user preferences, defining their structure, display, and storage.
- */
-const USER_PREFERENCE_METADATA: (| SettingMetadata<UserPreferences['language']>
-  | SettingMetadata<UserPreferences['symbolLayoutId']>)[] = [
+const USER_PREFERENCE_METADATA: Array<
+  | SettingMetadata<UserPreferences['interfaceLanguage']>
+  | SettingMetadata<UserPreferences['textLanguage']>
+  | SettingMetadata<UserPreferences['symbolLayoutId']>
+> = [
   {
-    key: 'language',
-    storageKey: 'userLanguage',
-    labelCode: 'user_preferences.language_label',
-    descriptionCode: 'user_preferences.language_description', // Assuming a description will be added to i18n
+    key: 'interfaceLanguage',
+    storageKey: 'userInterfaceLanguage',
+    labelCode: 'user_preferences.interface_language_label',
+    descriptionCode: 'user_preferences.interface_language_description',
     type: 'enum',
     defaultValue: 'en',
-    options: LANGUAGE_OPTIONS,
-    categoryCode: 'user_preferences.category.general', // Assuming a category will be added to i18n
+    options: INTERFACE_LANGUAGE_OPTIONS,
+    categoryCode: 'user_preferences.category.general',
+    componentType: 'select',
+  },
+  {
+    key: 'textLanguage',
+    storageKey: 'userTextLanguage',
+    labelCode: 'user_preferences.text_language_label',
+    descriptionCode: 'user_preferences.text_language_description',
+    type: 'enum',
+    defaultValue: 'en',
+    options: TEXT_LANGUAGE_OPTIONS,
+    categoryCode: 'user_preferences.category.general',
     componentType: 'select',
   },
   {
     key: 'symbolLayoutId',
     storageKey: 'userSymbolLayoutId',
     labelCode: 'user_preferences.symbol_layout_label',
-    descriptionCode: 'user_preferences.symbol_layout_description', // Assuming a description will be added to i18n
+    descriptionCode: 'user_preferences.symbol_layout_description',
     type: 'enum',
     defaultValue: 'qwerty',
-    options: SYMBOL_LAYOUT_OPTIONS,
+    // Опции для symbolLayoutId — динамические, рендерятся в UserPreferencesPage напрямую
+    // из getCompatibleSymbolLayoutsForTextLanguage(prefs.textLanguage).
+    options: [],
     categoryCode: 'user_preferences.category.general',
     componentType: 'select',
   },
-  // 'shared' property is awaiting user clarification
 ];
 
-// Helper function to find metadata by key and extract its defaultValue
-const getSettingDefaultValue = <K extends keyof UserPreferences>(key: K): UserPreferences[K] => {
-  // Cast the found metadata item to the specific SettingMetadata type for the given key.
-  // This asserts that if an item is found, its type matches the expected UserPreferences[K].
-  const metadataItem = USER_PREFERENCE_METADATA.find((m) => m.key === key) as SettingMetadata<UserPreferences[K]> | undefined;
-
-  if (!metadataItem) {
-    throw new Error(`Metadata not found for setting key: ${key}`);
-  }
-  return metadataItem.defaultValue;
-};
-
 export const DEFAULT_USER_PREFERENCES: UserPreferences = {
-  language: getSettingDefaultValue('language'),
-  symbolLayoutId: getSettingDefaultValue('symbolLayoutId'),
-  shared: {}, // 'shared' is not a user preference that needs metadata, it's a state property.
+  interfaceLanguage: 'en',
+  textLanguage: 'en',
+  symbolLayoutId: 'qwerty',
+  shared: {},
 };

@@ -1,13 +1,6 @@
 import type { SymbolLayout, TypingStream } from "@/interfaces/types";
 import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
 
-export const defaultDrillTexts = [
-  // "The Quick Brown Fox Jumps Over The Lazy Dog.",
-  // "-_=+[{]}\\\|'",
-  // "To Be Or Not To Be, That Is The Question.",
-  "Привет, как дела?",
-];
-
 /**
  * Builds a TypingStream from a given drill text.
  * For each character, it pre-calculates the `targetKeyCaps`.

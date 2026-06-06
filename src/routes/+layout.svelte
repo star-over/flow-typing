@@ -6,7 +6,7 @@
 
   // Sync <html lang> with preferences (runs on mount + subscription)
   $effect(() => {
-    const lang = $preferences.language;
+    const lang = $preferences.interfaceLanguage;
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
     }

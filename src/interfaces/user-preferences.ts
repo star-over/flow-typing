@@ -1,26 +1,20 @@
-// src/interfaces/user-preferences.ts
-
-import type { SymbolLayoutId } from '@/interfaces/types';
+import type {
+  InterfaceLanguage,
+  SymbolLayoutId,
+  TextLanguage,
+} from '@/interfaces/types';
 
 /**
- * Определяет структуру пользовательских предпочтений приложения.
- * В MVP включает только базовые опции.
+ * Структура пользовательских предпочтений.
+ * - `interfaceLanguage` — язык UI (меню, словари).
+ * - `textLanguage` — язык упражнений (первичная ось выбора в настройках,
+ *   определяет какие drill'ы попадают в тренировку, какие раскладки доступны).
+ * - `symbolLayoutId` — выбранная пользователем раскладка (производное от textLanguage).
  */
 export interface UserPreferences {
-  /**
-   * Язык интерфейса и упражнений.
-   */
-  language: 'en' | 'ru';
-  /**
-   * Идентификатор символьной раскладки, выбранной пользователем (qwerty / йцукен).
-   * Определяет как визуальное отображение, так и логику упражнений.
-   */
+  interfaceLanguage: InterfaceLanguage;
+  textLanguage: TextLanguage;
   symbolLayoutId: SymbolLayoutId;
-
-  /**
-   * Предпочтения, предназначенные для обмена через URL.
-   * Позволяют делиться ссылками на конкретные упражнения или состояния.
-   */
   shared: {
     exerciseId?: string;
   };

@@ -2,41 +2,66 @@
   import { preferences, updatePreferences } from '@/lib/preferences';
   import Select from './Select.svelte';
   import type { UserPreferences } from '@/interfaces/user-preferences';
+  import { getCompatibleSymbolLayoutsForTextLanguage } from '@/data/layouts/layouts';
 
   interface Props {
     onBack: () => void;
     dictionary: {
       user_preferences: {
         title: string;
-        language_label: string;
+        interface_language_label: string;
+        text_language_label: string;
         symbol_layout_label: string;
         back_button: string;
+      };
+      options: {
+        interfaceLanguages: Record<UserPreferences['interfaceLanguage'], string>;
+        textLanguages: Record<UserPreferences['textLanguage'], string>;
+        layouts: Record<UserPreferences['symbolLayoutId'], string>;
       };
     };
   }
 
   const { onBack, dictionary }: Props = $props();
 
-  const languages: { value: UserPreferences['language']; label: string }[] = [
-    { value: 'en', label: 'English' },
-    { value: 'ru', label: 'Русский' },
-  ];
+  const interfaceLanguages = $derived([
+    { value: 'en' as const, label: dictionary.options.interfaceLanguages.en },
+    { value: 'ru' as const, label: dictionary.options.interfaceLanguages.ru },
+  ]);
 
-  const layouts: { value: UserPreferences['symbolLayoutId']; label: string }[] = [
-    { value: 'qwerty', label: 'QWERTY' },
-    { value: 'йцукен', label: 'ЙЦУКЕН' },
-  ];
+  const textLanguages = $derived([
+    { value: 'en' as const, label: dictionary.options.textLanguages.en },
+    { value: 'ru' as const, label: dictionary.options.textLanguages.ru },
+  ]);
+
+  // Опции раскладок зависят от выбранного textLanguage.
+  const layoutOptions = $derived(
+    getCompatibleSymbolLayoutsForTextLanguage($preferences.textLanguage)
+      .map(d => ({
+        value: d.symbolLayoutId,
+        label: dictionary.options.layouts[d.symbolLayoutId],
+      }))
+  );
 </script>
 
 <div class="preferences-page">
   <h2>{dictionary.user_preferences.title}</h2>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.language_label}</span>
+    <span class="label-text">{dictionary.user_preferences.interface_language_label}</span>
     <Select
-      value={$preferences.language}
-      options={languages}
-      onChange={(v) => updatePreferences({ language: v as UserPreferences['language'] })}
+      value={$preferences.interfaceLanguage}
+      options={interfaceLanguages}
+      onChange={(v) => updatePreferences({ interfaceLanguage: v as UserPreferences['interfaceLanguage'] })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.user_preferences.text_language_label}</span>
+    <Select
+      value={$preferences.textLanguage}
+      options={textLanguages}
+      onChange={(v) => updatePreferences({ textLanguage: v as UserPreferences['textLanguage'] })}
     />
   </label>
 
@@ -44,7 +69,7 @@
     <span class="label-text">{dictionary.user_preferences.symbol_layout_label}</span>
     <Select
       value={$preferences.symbolLayoutId}
-      options={layouts}
+      options={layoutOptions}
       onChange={(v) => updatePreferences({ symbolLayoutId: v as UserPreferences['symbolLayoutId'] })}
     />
   </label>

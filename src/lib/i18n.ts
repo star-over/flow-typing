@@ -5,4 +5,4 @@ import ru from '../../dictionaries/ru.json';
 
 const dictionaries = { en, ru } as const;
 
-export const dictionary = derived(preferences, ($p) => dictionaries[$p.language]);
+export const dictionary = derived(preferences, ($p) => dictionaries[$p.interfaceLanguage]);

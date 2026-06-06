@@ -3,8 +3,10 @@ import { assign, sendTo, setup } from "xstate";
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
 import { physicalLayoutANSI } from '@/data/layouts/physical-layout-ansi';
-import { getSymbolLayout } from "@/data/layouts/layouts";
-import { createTypingStream, defaultDrillTexts } from "@/lib/typing-stream";
+import { getSymbolLayoutDescriptor } from "@/data/layouts/layouts";
+import { createTypingStream } from "@/lib/typing-stream";
+import { DRILL_CORPUS } from "@/lib/drill-corpus";
+import { filterDrillsBySymbolLayout, selectRandomDrill } from "@/lib/drill-selection";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { trainingMachine } from "./training.machine";
@@ -41,11 +43,21 @@ export const appMachine = setup({
     // Единственное место, где рождается новый TypingStream. Используется
     // во всех трёх точках старта/рестарта тренировки.
     startNewTrainingStream: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => {
-      const symbolLayout = getSymbolLayout(params.symbolLayoutId);
-      const randomIndex = Math.floor(Math.random() * defaultDrillTexts.length);
-      const drillText = defaultDrillTexts[randomIndex]!;
+      const descriptor = getSymbolLayoutDescriptor(params.symbolLayoutId);
+      const compatible = filterDrillsBySymbolLayout({
+        allDrills: DRILL_CORPUS,
+        symbolLayoutDescriptor: descriptor,
+      });
+      const drill = selectRandomDrill({ drills: compatible });
+      // Защищено ApplicationDataSchema на старте — сюда мы не должны попасть с пустым массивом.
+      if (!drill) {
+        throw new Error(`No compatible drills for layout=${params.symbolLayoutId}`);
+      }
       return {
-        lastTrainingStream: createTypingStream({ drillText, symbolLayout }),
+        lastTrainingStream: createTypingStream({
+          drillText: drill.text,
+          symbolLayout: descriptor.symbolLayout,
+        }),
         currentSymbolLayoutId: params.symbolLayoutId,
       };
     }),
