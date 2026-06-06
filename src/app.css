@@ -1,14 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
 
+/* cSpell:ignore oklch бывш */
+
 /*
+ * Design system tokens — three-layer model.
+ *
+ * LAYER 1 · PRIMITIVES — raw values, no product semantics. Font families,
+ *   spacing/radius geometry. Safe to extend/renumber without touching UI.
+ * LAYER 2 · SEMANTIC — role tokens (surfaces, text, outcomes). Describe
+ *   "what is this for in any UI" independent of FlowTyping domain.
+ * LAYER 3 · DOMAIN — FlowTyping-specific tokens (finger palette, keycap
+ *   groups/roles, navigation visualization, typing-stream statuses).
+ *   Bound to the domain model (FingerId, KeyCap roles, press results) —
+ *   see docs/03-ui-viewmodel-contract.md.
+ *
  * Палитра — литералы oklch (математическая конверсия исходных hex,
- * совпадает с Tailwind v4 oklch-числами).
- * Комментарии справа: исходный hex и имя токена (Tailwind v3) — origin
- * каждого цвета, чтобы было от чего отталкиваться при пересборке визуала.
+ * совпадает с Tailwind v4 oklch-числами). Комментарии справа от цветовых
+ * токенов: исходный hex и имя токена (Tailwind v3) — origin каждого цвета,
+ * чтобы было от чего отталкиваться при пересборке визуала.
  */
 :root {
+  /* ============================================================
+   * LAYER 1 · PRIMITIVES — raw values, no semantics
+   * ============================================================ */
+
+  /* --- Typography families --- */
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
+
+  /* --- Radius --- */
+  /* Шкала производна от --radius (1 unit = 0.125rem = 2px при html font-size 16px).
+   * Та же логика, что у --spacing: --radius-N = N * --radius. Ladder совпадает с
+   * радиус-шкалой Tailwind v4 (radius-xs = 2px, sm = 4px, md = 6px, lg = 8px),
+   * но индексация числовая для единообразия с --spacing. */
+  --radius: 0.125rem;
+  --radius-2: calc(2 * var(--radius));  /* 0.25rem  / 4px (бывш. sm) */
+  --radius-3: calc(3 * var(--radius));  /* 0.375rem / 6px (бывш. md) */
+  --radius-4: calc(4 * var(--radius));  /* 0.5rem   / 8px (бывш. lg) */
+
+  /* --- Spacing --- */
+  /* Шкала производна от --spacing (1 unit = 0.25rem = 4px при html font-size 16px).
+   * Аналог Tailwind v4: --spacing-N = N * --spacing. Чтобы изменить плотность всего
+   * UI — достаточно поправить --spacing. */
+  --spacing: 0.25rem;
+  --spacing-1: calc(1 * var(--spacing));  /* 0.25rem / 4px  */
+  --spacing-2: calc(2 * var(--spacing));  /* 0.5rem  / 8px  */
+  --spacing-3: calc(3 * var(--spacing));  /* 0.75rem / 12px */
+  --spacing-4: calc(4 * var(--spacing));  /* 1rem    / 16px */
+  --spacing-6: calc(6 * var(--spacing));  /* 1.5rem  / 24px */
+  --spacing-8: calc(8 * var(--spacing));  /* 2rem    / 32px */
+
+  /* ============================================================
+   * LAYER 2 · SEMANTIC — role tokens, app-wide UI meaning
+   * ============================================================ */
 
   /* --- Surfaces --- */
   --color-bg           : oklch(1 0 0);     /* #ffffff             */
@@ -27,6 +71,10 @@
   --color-error      : oklch(0.64 0.21 25);         /* #ef4444 red-500   */
   --color-error-dim  : oklch(0.64 0.21 25 / 0.2);
   --color-warning    : oklch(0.77 0.16 70);         /* #f59e0b amber-500 */
+
+  /* ============================================================
+   * LAYER 3 · DOMAIN — FlowTyping-specific
+   * ============================================================ */
 
   /* --- Finger palette (per FingerId numeric index, used for TARGET state) --- */
   --color-finger-1   : oklch(0.86 0.17 92);   /* #facc15 yellow-400 */
@@ -101,28 +149,6 @@
   --color-arrow-fill    : oklch(0.66 0.16 150);  /* #27ae60 */
   --color-arrow-stroke  : oklch(0.60 0.14 150);   /* #2a9852 */
   --color-arrow-gradient: oklch(0.85 0.29 140);  /* #24ff00 */
-
-  /* --- Radius --- */
-  /* Шкала производна от --radius (1 unit = 0.125rem = 2px при html font-size 16px).
-   * Та же логика, что у --spacing: --radius-N = N * --radius. Ladder совпадает с
-   * радиус-шкалой Tailwind v4 (radius-xs = 2px, sm = 4px, md = 6px, lg = 8px),
-   * но индексация числовая для единообразия с --spacing. */
-  --radius: 0.125rem;
-  --radius-2: calc(2 * var(--radius));  /* 0.25rem  / 4px (бывш. sm) */
-  --radius-3: calc(3 * var(--radius));  /* 0.375rem / 6px (бывш. md) */
-  --radius-4: calc(4 * var(--radius));  /* 0.5rem   / 8px (бывш. lg) */
-
-  /* --- Spacing --- */
-  /* Шкала производна от --spacing (1 unit = 0.25rem = 4px при html font-size 16px).
-   * Аналог Tailwind v4: --spacing-N = N * --spacing. Чтобы изменить плотность всего
-   * UI — достаточно поправить --spacing. */
-  --spacing: 0.25rem;
-  --spacing-1: calc(1 * var(--spacing));  /* 0.25rem / 4px  */
-  --spacing-2: calc(2 * var(--spacing));  /* 0.5rem  / 8px  */
-  --spacing-3: calc(3 * var(--spacing));  /* 0.75rem / 12px */
-  --spacing-4: calc(4 * var(--spacing));  /* 1rem    / 16px */
-  --spacing-6: calc(6 * var(--spacing));  /* 1.5rem  / 24px */
-  --spacing-8: calc(8 * var(--spacing));  /* 2rem    / 32px */
 }
 
 * {
