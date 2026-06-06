@@ -119,7 +119,12 @@
    * LAYER 3 · DOMAIN — FlowTyping-specific
    * ============================================================ */
 
-  /* --- Finger palette (per FingerId numeric index, used for TARGET state) --- */
+  /* --- Finger palette (per FingerId numeric index) ---
+   * Cвет «активного» пальца. Индекс совпадает с FingerId по руке:
+   * 1=thumb, 2=index, 3=middle, 4=ring, 5=pinky; B=ладонь (LB/RB).
+   * Применяется ТОЛЬКО к пальцам с fingerState='TARGET'
+   * (см. docs/03-ui-viewmodel-contract.md, §3.3). Цвет — функция
+   * анатомии пальца, не «декор»: не подменять единым акцентом. */
   --color-finger-1   : oklch(0.86 0.17 92);   /* #facc15 yellow-400 */
   --color-finger-2   : oklch(0.76 0.16 56);   /* #fb923c orange-400 */
   --color-finger-3   : oklch(0.80 0.18 152);   /* #4ade80 green-400  */
@@ -127,17 +132,36 @@
   --color-finger-5   : oklch(0.72 0.18 306);  /* #c084fc purple-400 */
   --color-finger-base: oklch(0.95 0.02 75);   /* #fff7ed orange-50  */
 
-  /* --- Finger state colors (non-TARGET) --- */
+  /* --- Finger state colors (non-TARGET) ---
+   * Палитра пальцев, которые НЕ являются текущей целью. Покрывает три
+   * fingerState из контракта ViewModel:
+   *   INACTIVE — соседний палец на активной руке (тише, но видим).
+   *   IDLE     — палец на полностью неактивной руке (Active Hand Rule).
+   *   ERROR    — палец, совершивший ошибочное нажатие (Сценарий 2). */
   --color-finger-inactive: oklch(0.95 0.02 75);   /* #fff7ed orange-50 */
   --color-finger-idle    : oklch(0.95 0.02 260);  /* #e5e7eb gray-200  */
   --color-finger-error   : oklch(0.60 0.20 20);   /* #e11d48 rose-600  */
 
-  /* --- Navigation visualization --- */
+  /* --- Navigation visualization ---
+   * «Визуализация движения» — ядро продукта (см. docs/01). Это не
+   * подсветка клавиш, а отрисовка ПУТИ пальца от домашней позиции до
+   * цели. Холодный path-highlight (точка-центр пальца) + тёплый
+   * target-marker (overlay активного пальца) = «механический контракт
+   * клавиатуры + живая рука». Дуальность сохранять. cursor-border —
+   * амбер-рамка FlowLine, общий каркас «фокус ввода». */
   --color-path-highlight: oklch(0.62 0.19 260);  /* #3b82f6 blue-500 — finger-center-point fill */
   --color-target-marker : oklch(0.77 0.16 70);   /* #f59e0b amber-500 — Finger.active overlay   */
   --color-cursor-border : oklch(0.84 0.16 84);   /* #fbbf24 amber-400 — FlowLine outer border    */
 
-  /* --- Typing-stream symbol statuses (RegularSymbol + FlowLine row bg) --- */
+  /* --- Typing-stream symbol statuses (RegularSymbol + FlowLine row bg) ---
+   * Жизненный цикл символа в TypingStream — от ожидания до результата.
+   * fg-варианты красят сам символ (RegularSymbol), -bg варианты — фон
+   * строки во FlowLine. Семантика статусов:
+   *   pending    — ещё не введён, ждёт своей очереди.
+   *   correct    — введён с первой попытки.
+   *   corrected  — введён после исправления (был error → стал correct).
+   *   error      — текущая ошибка (одна попытка).
+   *   errors     — повторная/множественная ошибка на одном символе. */
   --color-symbol-pending   : oklch(0.45 0.03 257);  /* #4b5563 gray-600  */
   --color-symbol-correct   : oklch(0.45 0.11 151);  /* #166534 green-800 */
   --color-symbol-corrected : oklch(0.41 0.15 10);   /* #881337 rose-900  */
@@ -146,15 +170,29 @@
   --color-symbol-correct-bg: oklch(0.96 0.04 157);  /* #dcfce7 green-100 */
   --color-symbol-error-bg  : oklch(0.94 0.03 18);   /* #fee2e2 red-100   */
 
-  /* --- Caret / cursor block (CursorSymbol) --- */
+  /* --- Caret / cursor block (CursorSymbol) ---
+   * Блок-курсор на текущей позиции во FlowLine — единственный, кто
+   * инвертирует цвета строки. bg тёмный, fg светлый, чтобы сразу читался
+   * как «здесь сейчас ввод», не сливаясь с обычными символами. */
   --color-cursor-bg: oklch(0.28 0.03 257);  /* #1f2937 gray-800 */
   --color-cursor-fg: oklch(0.98 0 0);       /* #f9fafb gray-50  */
 
-  /* --- KeyCap base typography + home-key marker dot --- */
+  /* --- KeyCap base typography + home-key marker dot ---
+   * Базовая «механика» клавиши, общая для всех состояний:
+   *   keycap-label  — цвет подписи клавиши; также используется как
+   *                   цвет рамки home-key (ASDF/JKL;) и navigationRole='PATH'.
+   *   keycap-marker — точка/полоска маркера домашней клавиши под подписью. */
   --color-keycap-label : oklch(0.39 0.08 241);  /* #0c4a6e sky-900   */
   --color-keycap-marker: oklch(0.21 0.04 266);  /* #0f172a slate-900 */
 
-  /* --- KeyCap color groups (per finger column, translucent fill + border) --- */
+  /* --- KeyCap color groups (per finger column, translucent fill + border) ---
+   * Пять групп окраски клавиш по столбцу пальца, который за них отвечает
+   * в раскладке finger-layout-asdf. Привязка фиксирована:
+   *   neutral → L1/R1 (thumb)   yellow → L2/R2 (index)
+   *   sky     → L3/R3 (middle)  indigo → L4/R4 (ring)
+   *   purple  → L5/R5 (pinky)
+   * Фон translucent — клавиши не «гасят» сцену. Группы должны читаться
+   * как карта руки, а не как декор: цвет ↔ палец-владелец. */
   --color-keycap-group-neutral-bg    : oklch(0.95 0    0 / 0.7);       /* #f5f5f4 stone-100/70  */
   --color-keycap-group-neutral-border: oklch(0.85 0    0);             /* #d6d3d1 stone-300     */
   --color-keycap-group-yellow-bg     : oklch(0.95 0.03 95 / 0.7);   /* #fef3c7 amber-100/70  */
@@ -166,21 +204,35 @@
   --color-keycap-group-purple-bg     : oklch(0.95 0.03 300 / 0.7);  /* #f3e8ff purple-100/70 */
   --color-keycap-group-purple-border : oklch(0.85 0.11 300);        /* #d8b4fe purple-300    */
 
-  /* --- KeyCap SECONDARY (neutral system keys: Tab, Shift, etc.) --- */
+  /* --- KeyCap SECONDARY (neutral system keys) ---
+   * Color group override для Tab, Shift, CapsLock, Enter, Backspace и
+   * прочих не-текстовых клавиш — нейтральный stone-вариант поверх
+   * per-finger color group. Не использовать для буквенно-цифровых клавиш. */
   --color-keycap-secondary-bg    : oklch(0.97 0 0);      /* #f5f5f4 stone-100 */
   --color-keycap-secondary-fg    : oklch(0.72 0 68);  /* #a8a29c stone-400 */
   --color-keycap-secondary-border: oklch(0.87 0 0);      /* #d6d3d1 stone-300 */
 
-  /* --- KeyCap ACCENT (colored target key) --- */
+  /* --- KeyCap ACCENT (colored target key) ---
+   * Color group override для подсвеченных клавиш-акцентов поверх
+   * per-finger color group. Тёплый orange-набор. Не путать с
+   * navigationRole='TARGET' (это отдельный слой, см. ниже). */
   --color-keycap-accent-bg    : oklch(0.98 0.02 74);  /* #fff7ed orange-50  */
   --color-keycap-accent-fg    : oklch(0.76 0.16 56);  /* #fb923c orange-400 */
   --color-keycap-accent-border: oklch(0.90 0.07 71);   /* #fed7aa orange-200 */
 
-  /* --- KeyCap navigation role TARGET --- */
+  /* --- KeyCap navigation role TARGET ---
+   * Цвет клавиши, которую игрок должен нажать прямо сейчас
+   * (navigationRole='TARGET' в KeySceneState). Контрастный тёмно-синий
+   * фон поверх color group, чтобы цель читалась мгновенно. Перекрывается
+   * только press result (см. ниже). См. docs/03 §3.3.4. */
   --color-keycap-role-target-bg: oklch(0.29 0.06 243 / 0.7);  /* #082f49 sky-950/70 */
   --color-keycap-role-target-fg: oklch(0.98 0.01 237);        /* #f0f9ff sky-50     */
 
-  /* --- KeyCap press result --- */
+  /* --- KeyCap press result (overrides navigation role) ---
+   * Финальная обратная связь по нажатию (pressResult в KeySceneState).
+   * CORRECT — нажато правильно; ERROR — ошибочная клавиша / лишний или
+   * пропущенный модификатор. Имеет приоритет над navigationRole, потому
+   * что результат важнее намерения. См. docs/03 §3.3.5 и сценарии 1-4. */
   --color-keycap-correct-bg    : oklch(0.45 0.11 150 / 0.8);  /* #166534 green-800/80 */
   --color-keycap-correct-fg    : oklch(0.98 0.01 180);        /* #f0fdfa teal-50      */
   --color-keycap-correct-border: oklch(0.72 0.19 150);        /* #22c55e green-500    */
@@ -188,7 +240,11 @@
   --color-keycap-error-fg      : oklch(0.97 0.0 20);          /* #fef2f2 red-50       */
   --color-keycap-error-border  : oklch(0.7 0.17 20);          /* #f87171 red-400      */
 
-  /* --- Navigation arrow marker (KeyCap SVG glyph) — custom, not in Tailwind palette --- */
+  /* --- Navigation arrow marker (KeyCap SVG glyph) ---
+   * Зелёная стрелка, которую KeyCap рисует при navigationRole='PATH' —
+   * указывает направление к следующей клавише пути пальца. Кастомный
+   * цвет (вне Tailwind палитры), потому что должен резко отличаться и от
+   * fingers (warm/cool), и от path-highlight (cold blue). */
   --color-arrow-fill    : oklch(0.66 0.16 150);  /* #27ae60 */
   --color-arrow-stroke  : oklch(0.60 0.14 150);   /* #2a9852 */
   --color-arrow-gradient: oklch(0.85 0.29 140);  /* #24ff00 */
