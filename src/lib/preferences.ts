@@ -52,7 +52,7 @@ export function normalizePreferences(raw: unknown): UserPreferences {
 
   const textLanguage: TextLanguage = isTextLanguage(stored.textLanguage)
     ? stored.textLanguage
-    : (interfaceLanguage as TextLanguage);
+    : interfaceLanguage;
 
   const candidate = isSymbolLayoutId(stored.symbolLayoutId) ? stored.symbolLayoutId : undefined;
   const symbolLayoutId: SymbolLayoutId =

@@ -338,7 +338,6 @@ export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
 // --- i18n ---
 import type en from '../../dictionaries/en.json';
 
-export type Locale = 'en' | 'ru';
 export type Dictionary = typeof en;
 
 // New interfaces for user settings metadata
