@@ -8,7 +8,7 @@ function parseCorpus(raw: string): Drill[] {
     try {
       return DrillSchema.parse(JSON.parse(line));
     } catch (e) {
-      throw new Error(`Invalid drill at line ${index + 1}: ${e}`);
+      throw new Error(`Invalid drill at line ${index + 1}`, { cause: e });
     }
   });
 }
