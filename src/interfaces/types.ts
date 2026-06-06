@@ -10,6 +10,14 @@ import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 
+/** Языки, на которых пишутся тексты упражнений (BCP 47). */
+export const TEXT_LANGUAGES = ['en', 'ru'] as const;
+export type TextLanguage = typeof TEXT_LANGUAGES[number];
+
+/** Языки интерфейса (UI). */
+export const INTERFACE_LANGUAGES = ['en', 'ru'] as const;
+export type InterfaceLanguage = typeof INTERFACE_LANGUAGES[number];
+
 export interface KeyCapLabel { symbol?: string }
 
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
@@ -210,7 +218,8 @@ export type SymbolLayout = {
 }[];
 
 /** Идентификатор символьного макета (то, что пользователь выбирает в настройках). */
-export type SymbolLayoutId = 'qwerty' | 'йцукен';
+export const SYMBOL_LAYOUT_IDS = ['qwerty', 'йцукен'] as const;
+export type SymbolLayoutId = typeof SYMBOL_LAYOUT_IDS[number];
 
 // --- Keyboard Scene (render-ready view-model of the keyboard) ---
 
