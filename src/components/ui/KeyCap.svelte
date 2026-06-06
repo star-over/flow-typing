@@ -78,7 +78,7 @@
     position: relative;
     flex-shrink: 0;
     box-sizing: border-box;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-2);
     height: 2rem;
     width: calc(var(--keycap-unit) * var(--unit-multiplier, 1));
     padding: 0 var(--spacing-2);

@@ -87,6 +87,6 @@
     font-family: var(--font-mono);
     background-color: var(--color-surface);
     padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-2);
   }
 </style>

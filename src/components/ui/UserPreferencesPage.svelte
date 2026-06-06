@@ -77,7 +77,7 @@
   .btn {
     margin-top: var(--spacing-4);
     padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-3);
     border: 1px solid var(--color-border);
     background-color: var(--color-surface);
     color: var(--color-text-primary);

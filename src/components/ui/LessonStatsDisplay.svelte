@@ -58,7 +58,7 @@
     max-width: 640px;
     padding: var(--spacing-6);
     background-color: var(--color-surface);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-4);
     border: 1px solid var(--color-border);
   }
 
@@ -87,7 +87,7 @@
     justify-content: center;
     padding: var(--spacing-4);
     background-color: var(--color-bg);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-3);
   }
 
   .stat-label {

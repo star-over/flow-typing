@@ -1,112 +1,128 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
 
+/*
+ * Палитра — литералы oklch (математическая конверсия исходных hex,
+ * совпадает с Tailwind v4 oklch-числами).
+ * Комментарии справа: исходный hex и имя токена (Tailwind v3) — origin
+ * каждого цвета, чтобы было от чего отталкиваться при пересборке визуала.
+ */
 :root {
   --font-sans: 'Geist', system-ui, sans-serif;
   --font-mono: 'Geist Mono', monospace;
 
   /* --- Surfaces --- */
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f5;
-  --color-surface-hover: #e5e5e5;
-  --color-border: #d4d4d4;
+  --color-bg           : oklch(1 0 0);     /* #ffffff             */
+  --color-surface      : oklch(0.95 0 0);  /* #f5f5f5 neutral-100 */
+  --color-surface-hover: oklch(0.9 0 0);   /* #e5e5e5 neutral-200 */
+  --color-border       : oklch(0.9 0 0);   /* #d4d4d4 neutral-300 */
 
   /* --- Text --- */
-  --color-text-primary: #0a0a0a;
-  --color-text-secondary: #525252;
-  --color-text-muted: #737373;
+  --color-text-primary  : oklch(0.14 0 0);  /* #0a0a0a neutral-950 */
+  --color-text-secondary: oklch(0.44 0 0);  /* #525252 neutral-600 */
+  --color-text-muted    : oklch(0.56 0 0);  /* #737373 neutral-500 */
 
   /* --- Semantic outcomes --- */
-  --color-success: #22c55e;
-  --color-success-dim: rgba(34, 197, 94, 0.2);
-  --color-error: #ef4444;
-  --color-error-dim: rgba(239, 68, 68, 0.2);
-  --color-warning: #f59e0b;
+  --color-success    : oklch(0.72 0.19 150);        /* #22c55e green-500 */
+  --color-success-dim: oklch(0.72 0.19 150 / 0.2);
+  --color-error      : oklch(0.64 0.21 25);         /* #ef4444 red-500   */
+  --color-error-dim  : oklch(0.64 0.21 25 / 0.2);
+  --color-warning    : oklch(0.77 0.16 70);         /* #f59e0b amber-500 */
 
   /* --- Finger palette (per FingerId numeric index, used for TARGET state) --- */
-  --color-finger-1: #facc15;    /* yellow-400  */
-  --color-finger-2: #fb923c;    /* orange-400  */
-  --color-finger-3: #4ade80;    /* green-400   */
-  --color-finger-4: #60a5fa;    /* blue-400    */
-  --color-finger-5: #c084fc;    /* purple-400  */
-  --color-finger-base: #fff7ed; /* orange-50   */
+  --color-finger-1   : oklch(0.86 0.17 92);   /* #facc15 yellow-400 */
+  --color-finger-2   : oklch(0.76 0.16 56);   /* #fb923c orange-400 */
+  --color-finger-3   : oklch(0.80 0.18 152);   /* #4ade80 green-400  */
+  --color-finger-4   : oklch(0.71 0.14 255);  /* #60a5fa blue-400   */
+  --color-finger-5   : oklch(0.72 0.18 306);  /* #c084fc purple-400 */
+  --color-finger-base: oklch(0.95 0.02 75);   /* #fff7ed orange-50  */
 
   /* --- Finger state colors (non-TARGET) --- */
-  --color-finger-inactive: #fff7ed; /* orange-50 */
-  --color-finger-idle: #e5e7eb;     /* gray-200  */
-  --color-finger-error: #e11d48;    /* rose-600  */
+  --color-finger-inactive: oklch(0.95 0.02 75);   /* #fff7ed orange-50 */
+  --color-finger-idle    : oklch(0.95 0.02 260);  /* #e5e7eb gray-200  */
+  --color-finger-error   : oklch(0.60 0.20 20);   /* #e11d48 rose-600  */
 
   /* --- Navigation visualization --- */
-  --color-path-highlight: #3b82f6;  /* blue-500 — finger-center-point fill */
-  --color-target-marker: #f59e0b;   /* amber-500 — Finger.active overlay   */
-  --color-cursor-border: #fbbf24;   /* amber-400 — FlowLine outer border    */
+  --color-path-highlight: oklch(0.62 0.19 260);  /* #3b82f6 blue-500 — finger-center-point fill */
+  --color-target-marker : oklch(0.77 0.16 70);   /* #f59e0b amber-500 — Finger.active overlay   */
+  --color-cursor-border : oklch(0.84 0.16 84);   /* #fbbf24 amber-400 — FlowLine outer border    */
 
   /* --- Typing-stream symbol statuses (RegularSymbol + FlowLine row bg) --- */
-  --color-symbol-pending: #4b5563;     /* gray-600  */
-  --color-symbol-correct: #166534;     /* green-800 */
-  --color-symbol-corrected: #881337;   /* rose-900  */
-  --color-symbol-error: #ca8a04;       /* yellow-600 */
-  --color-symbol-errors: #be123c;      /* rose-700  */
-  --color-symbol-correct-bg: #dcfce7;  /* green-100 */
-  --color-symbol-error-bg: #fee2e2;    /* red-100   */
+  --color-symbol-pending   : oklch(0.45 0.03 257);  /* #4b5563 gray-600  */
+  --color-symbol-correct   : oklch(0.45 0.11 151);  /* #166534 green-800 */
+  --color-symbol-corrected : oklch(0.41 0.15 10);   /* #881337 rose-900  */
+  --color-symbol-error     : oklch(0.68 0.14 76);   /* #ca8a04 yellow-600 */
+  --color-symbol-errors    : oklch(0.51 0.2 17);    /* #be123c rose-700  */
+  --color-symbol-correct-bg: oklch(0.96 0.04 157);  /* #dcfce7 green-100 */
+  --color-symbol-error-bg  : oklch(0.94 0.03 18);   /* #fee2e2 red-100   */
 
   /* --- Caret / cursor block (CursorSymbol) --- */
-  --color-cursor-bg: #1f2937;          /* gray-800 */
-  --color-cursor-fg: #f9fafb;          /* gray-50  */
+  --color-cursor-bg: oklch(0.28 0.03 257);  /* #1f2937 gray-800 */
+  --color-cursor-fg: oklch(0.98 0 0);       /* #f9fafb gray-50  */
 
   /* --- KeyCap base typography + home-key marker dot --- */
-  --color-keycap-label: #0c4a6e;       /* sky-900   */
-  --color-keycap-marker: #0f172a;      /* slate-900 */
+  --color-keycap-label : oklch(0.39 0.08 241);  /* #0c4a6e sky-900   */
+  --color-keycap-marker: oklch(0.21 0.04 266);  /* #0f172a slate-900 */
 
   /* --- KeyCap color groups (per finger column, translucent fill + border) --- */
-  --color-keycap-group-neutral-bg: rgba(245, 245, 244, 0.7); /* stone-100/70 */
-  --color-keycap-group-neutral-border: #d6d3d1;              /* stone-300    */
-  --color-keycap-group-yellow-bg: rgba(254, 243, 199, 0.7);  /* amber-100/70 */
-  --color-keycap-group-yellow-border: #fcd34d;               /* amber-300    */
-  --color-keycap-group-sky-bg: rgba(224, 242, 254, 0.7);     /* sky-100/70   */
-  --color-keycap-group-sky-border: #7dd3fc;                  /* sky-300      */
-  --color-keycap-group-indigo-bg: rgba(224, 231, 255, 0.7);  /* indigo-100/70 */
-  --color-keycap-group-indigo-border: #a5b4fc;               /* indigo-300   */
-  --color-keycap-group-purple-bg: rgba(243, 232, 255, 0.7);  /* purple-100/70 */
-  --color-keycap-group-purple-border: #d8b4fe;               /* purple-300   */
+  --color-keycap-group-neutral-bg    : oklch(0.95 0    0 / 0.7);       /* #f5f5f4 stone-100/70  */
+  --color-keycap-group-neutral-border: oklch(0.85 0    0);             /* #d6d3d1 stone-300     */
+  --color-keycap-group-yellow-bg     : oklch(0.95 0.03 95 / 0.7);   /* #fef3c7 amber-100/70  */
+  --color-keycap-group-yellow-border : oklch(0.90 0.15 90);         /* #fcd34d amber-300     */
+  --color-keycap-group-sky-bg        : oklch(0.95 0.03 235 / 0.7);  /* #e0f2fe sky-100/70    */
+  --color-keycap-group-sky-border    : oklch(0.85 0.10 230);         /* #7dd3fc sky-300       */
+  --color-keycap-group-indigo-bg     : oklch(0.95 0.03 275 / 0.7);  /* #e0e7ff indigo-100/70 */
+  --color-keycap-group-indigo-border : oklch(0.80 0.10 275);         /* #a5b4fc indigo-300    */
+  --color-keycap-group-purple-bg     : oklch(0.95 0.03 300 / 0.7);  /* #f3e8ff purple-100/70 */
+  --color-keycap-group-purple-border : oklch(0.85 0.11 300);        /* #d8b4fe purple-300    */
 
   /* --- KeyCap SECONDARY (neutral system keys: Tab, Shift, etc.) --- */
-  --color-keycap-secondary-bg: #f5f5f4;     /* stone-100 */
-  --color-keycap-secondary-fg: #a8a29c;     /* stone-400 */
-  --color-keycap-secondary-border: #d6d3d1; /* stone-300 */
+  --color-keycap-secondary-bg    : oklch(0.97 0 0);      /* #f5f5f4 stone-100 */
+  --color-keycap-secondary-fg    : oklch(0.72 0 68);  /* #a8a29c stone-400 */
+  --color-keycap-secondary-border: oklch(0.87 0 0);      /* #d6d3d1 stone-300 */
 
   /* --- KeyCap ACCENT (colored target key) --- */
-  --color-keycap-accent-bg: #fff7ed;        /* orange-50  */
-  --color-keycap-accent-fg: #fb923c;        /* orange-400 */
-  --color-keycap-accent-border: #fed7aa;    /* orange-200 */
+  --color-keycap-accent-bg    : oklch(0.98 0.02 74);  /* #fff7ed orange-50  */
+  --color-keycap-accent-fg    : oklch(0.76 0.16 56);  /* #fb923c orange-400 */
+  --color-keycap-accent-border: oklch(0.90 0.07 71);   /* #fed7aa orange-200 */
 
   /* --- KeyCap navigation role TARGET --- */
-  --color-keycap-role-target-bg: rgba(8, 47, 73, 0.7);  /* sky-900/70 */
-  --color-keycap-role-target-fg: #f0f9ff;                /* sky-50     */
+  --color-keycap-role-target-bg: oklch(0.29 0.06 243 / 0.7);  /* #082f49 sky-950/70 */
+  --color-keycap-role-target-fg: oklch(0.98 0.01 237);        /* #f0f9ff sky-50     */
 
   /* --- KeyCap press result --- */
-  --color-keycap-correct-bg: rgba(22, 101, 52, 0.8);    /* green-800/80 */
-  --color-keycap-correct-fg: #f0fdfa;                    /* teal-50      */
-  --color-keycap-correct-border: #22c55e;                /* green-500    */
-  --color-keycap-error-bg: rgba(239, 68, 68, 0.8);      /* red-500/80   */
-  --color-keycap-error-fg: #fef2f2;                      /* red-50       */
-  --color-keycap-error-border: #f87171;                  /* red-400      */
+  --color-keycap-correct-bg    : oklch(0.45 0.11 150 / 0.8);  /* #166534 green-800/80 */
+  --color-keycap-correct-fg    : oklch(0.98 0.01 180);        /* #f0fdfa teal-50      */
+  --color-keycap-correct-border: oklch(0.72 0.19 150);        /* #22c55e green-500    */
+  --color-keycap-error-bg      : oklch(0.64 0.2 30 / 0.8);    /* #ef4444 red-500/80   */
+  --color-keycap-error-fg      : oklch(0.97 0.0 20);          /* #fef2f2 red-50       */
+  --color-keycap-error-border  : oklch(0.7 0.17 20);          /* #f87171 red-400      */
 
-  /* --- Navigation arrow marker (KeyCap SVG glyph) --- */
-  --color-arrow-fill: #27ae60;
-  --color-arrow-stroke: #2a9852;
-  --color-arrow-gradient: #24ff00;
+  /* --- Navigation arrow marker (KeyCap SVG glyph) — custom, not in Tailwind palette --- */
+  --color-arrow-fill    : oklch(0.66 0.16 150);  /* #27ae60 */
+  --color-arrow-stroke  : oklch(0.60 0.14 150);   /* #2a9852 */
+  --color-arrow-gradient: oklch(0.85 0.29 140);  /* #24ff00 */
 
-  /* --- Radius / spacing --- */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* --- Radius --- */
+  /* Шкала производна от --radius (1 unit = 0.125rem = 2px при html font-size 16px).
+   * Та же логика, что у --spacing: --radius-N = N * --radius. Ladder совпадает с
+   * радиус-шкалой Tailwind v4 (radius-xs = 2px, sm = 4px, md = 6px, lg = 8px),
+   * но индексация числовая для единообразия с --spacing. */
+  --radius: 0.125rem;
+  --radius-2: calc(2 * var(--radius));  /* 0.25rem  / 4px (бывш. sm) */
+  --radius-3: calc(3 * var(--radius));  /* 0.375rem / 6px (бывш. md) */
+  --radius-4: calc(4 * var(--radius));  /* 0.5rem   / 8px (бывш. lg) */
 
-  --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
+  /* --- Spacing --- */
+  /* Шкала производна от --spacing (1 unit = 0.25rem = 4px при html font-size 16px).
+   * Аналог Tailwind v4: --spacing-N = N * --spacing. Чтобы изменить плотность всего
+   * UI — достаточно поправить --spacing. */
+  --spacing: 0.25rem;
+  --spacing-1: calc(1 * var(--spacing));  /* 0.25rem / 4px  */
+  --spacing-2: calc(2 * var(--spacing));  /* 0.5rem  / 8px  */
+  --spacing-3: calc(3 * var(--spacing));  /* 0.75rem / 12px */
+  --spacing-4: calc(4 * var(--spacing));  /* 1rem    / 16px */
+  --spacing-6: calc(6 * var(--spacing));  /* 1.5rem  / 24px */
+  --spacing-8: calc(8 * var(--spacing));  /* 2rem    / 32px */
 }
 
 * {

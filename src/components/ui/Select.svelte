@@ -31,7 +31,7 @@
     appearance: none;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-3);
     padding: var(--spacing-2) var(--spacing-6) var(--spacing-2) var(--spacing-3);
     color: var(--color-text-primary);
     font-family: var(--font-sans);

@@ -41,7 +41,7 @@
     justify-content: center;
     background: var(--color-bg);
     border: 1px dashed var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-2);
     color: var(--color-keycap-label);
     font-family: var(--font-mono);
     font-size: 13px;
