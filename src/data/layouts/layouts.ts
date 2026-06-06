@@ -40,25 +40,25 @@ export const getSymbolLayoutDescriptor = (
   SYMBOL_LAYOUT_REGISTRY.find(d => d.symbolLayoutId === id)!;
 
 export const getDefaultSymbolLayoutForTextLanguage = (
-  textLang: TextLanguage
+  textLanguage: TextLanguage
 ): SymbolLayoutDescriptor => {
   const exact = SYMBOL_LAYOUT_REGISTRY.find(
-    d => d.isDefaultForTextLanguages.includes(textLang)
+    d => d.isDefaultForTextLanguages.includes(textLanguage)
   );
   if (exact) return exact;
   // Фолбэк по родителю (BCP 47): 'en-CA' → 'en'
-  const parent = textLang.split('-').slice(0, -1).join('-');
+  const parent = textLanguage.split('-').slice(0, -1).join('-');
   if (parent.length > 0) {
     return getDefaultSymbolLayoutForTextLanguage(parent as TextLanguage);
   }
-  throw new Error(`No default symbol layout for textLanguage: ${textLang}`);
+  throw new Error(`No default symbol layout for textLanguage: ${textLanguage}`);
 };
 
 export const getCompatibleSymbolLayoutsForTextLanguage = (
-  textLang: TextLanguage
+  textLanguage: TextLanguage
 ): SymbolLayoutDescriptor[] =>
   SYMBOL_LAYOUT_REGISTRY.filter(
-    d => d.textLanguage === textLang || d.textLanguage.startsWith(textLang + '-')
+    d => d.textLanguage === textLanguage || d.textLanguage.startsWith(textLanguage + '-')
   );
 
 export const getSymbolsSupportedBySymbolLayout = (
