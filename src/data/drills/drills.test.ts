@@ -1,20 +1,31 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import rawCorpus from './drills.jsonl?raw';
 import { DrillSchema } from '../../interfaces/drill-data.types';
-import drillsData from './drills.json';
 
-describe('Drill Data Validation', () => {
-  it('should validate the structure of drills.json successfully', () => {
-    // Suppress console.log for this test
-    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+function parseCorpus(raw: string) {
+  const lines = raw.split('\n').filter(l => l.trim().length > 0);
+  return lines.map((line, i) => {
+    try {
+      return DrillSchema.parse(JSON.parse(line));
+    } catch (e) {
+      throw new Error(`Invalid drill at line ${i + 1}: ${e}`, { cause: e });
+    }
+  });
+}
 
-    // The .parse() method will throw a detailed error if the data does not match the schema,
-    // which will automatically fail the test. If it doesn't throw, the data is valid.
-    const parsingFunction = () => DrillSchema.array().parse(drillsData);
+describe('drills.jsonl', () => {
+  it('весь корпус успешно парсится через DrillSchema (инварианты 6, 7)', () => {
+    expect(() => parseCorpus(rawCorpus)).not.toThrow();
+  });
 
-    expect(parsingFunction).not.toThrow();
+  it('корпус не пустой', () => {
+    expect(parseCorpus(rawCorpus).length).toBeGreaterThan(0);
+  });
 
-    // No console.log here, as per user's request.
-
-    consoleLogSpy.mockRestore(); // Restore original console.log
+  it('в корпусе есть и en, и ru drills', () => {
+    const corpus = parseCorpus(rawCorpus);
+    const langs = new Set(corpus.map(d => d.textLanguage));
+    expect(langs.has('en')).toBe(true);
+    expect(langs.has('ru')).toBe(true);
   });
 });

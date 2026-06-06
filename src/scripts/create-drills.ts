@@ -3,6 +3,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { type Drill, DrillSchema } from '../interfaces/drill-data.types';
+import type { TextLanguage } from '../interfaces/types';
 import {
   createDrillId,
   getCharCount,
@@ -16,6 +17,18 @@ import {
   getBigrams,
   getTrigrams,
 } from '../lib/drill-utils'; // Ensure this path is correct
+
+const CYRILLIC_RE = /[а-яё]/i;
+const LATIN_RE = /[a-z]/i;
+
+function detectTextLanguage(uniqueChars: string[]): TextLanguage | null {
+  const hasCyr = uniqueChars.some((c) => CYRILLIC_RE.test(c));
+  const hasLat = uniqueChars.some((c) => LATIN_RE.test(c));
+  if (hasCyr && hasLat) return null;
+  if (hasCyr) return 'ru';
+  if (hasLat) return 'en';
+  return null;
+}
 
 const inputSentencesPath = path.join(process.cwd(), 'tmp/ru/input-sentences.txt');
 const outputDrillsPath = path.join(process.cwd(), 'src/data/drills/drills.json');
@@ -61,14 +74,22 @@ async function createDrills() {
       continue;
     }
 
+    const uniqueChars = getUniqueChars(sentence);
+    const textLanguage = detectTextLanguage(uniqueChars);
+    if (textLanguage === null) {
+      console.warn(`Skipping drill with mixed/neutral language: "${sentence.substring(0, 50)}..."`);
+      continue;
+    }
+
     const drillData: Drill = {
       id: id,
       text: sentence,
+      textLanguage,
       char_count: getCharCount(sentence),
       word_count: getWordCount(sentence),
       avg_word_length: getAverageWordLength(sentence),
       max_word_length: getMaxWordLength(sentence),
-      unique_chars: getUniqueChars(sentence),
+      unique_chars: uniqueChars,
       unique_symbols: getUniqueSymbols(sentence),
       char_freq: getCharFrequency(sentence),
       symbol_freq: getSymbolFrequency(sentence),
