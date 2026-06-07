@@ -1,15 +1,15 @@
 
-import type { HandsExtFixture } from './types';
-export const shift_o_error_simple_o: HandsExtFixture = {
+import type { HandsSceneFixture } from './types';
+export const shift_o: HandsSceneFixture = {
   input: {
     targetSymbol: "O",
     targetKeyCaps: ["KeyO", "ShiftLeft"],
-    attempts: [{ pressedKeyCaps: ["KeyO"], startAt: 1768029529467, endAt: 1768029529467 }]
+    attempts: []
   },
   expectedOutput: {
-    L1: { fingerState: "INACTIVE" }, L2: { fingerState: "INACTIVE" }, L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" },
+    L1: { navigationRole: "INACTIVE" }, L2: { navigationRole: "INACTIVE" }, L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" },
     L5: {
-      fingerState: "TARGET",
+      navigationRole: "TARGET",
       keyCapStates: {
         Backquote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit1: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -18,23 +18,23 @@ export const shift_o_error_simple_o: HandsExtFixture = {
         KeyZ: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "LEFT" },
         Tab: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         CapsLock: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        ShiftLeft: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "ERROR", navigationArrow: "NONE" },
+        ShiftLeft: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },
         ControlLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         MetaLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        AltLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
+        AltLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
       }
     },
-    LB: { fingerState: "INACTIVE" },
-    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "INACTIVE" }, R3: { fingerState: "INACTIVE" },
-        R4: {
-      fingerState: "TARGET",
+    LB: { navigationRole: "INACTIVE" }, R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "INACTIVE" }, R3: { navigationRole: "INACTIVE" },
+    R4: {
+      navigationRole: "TARGET",
       keyCapStates: {
         Digit9: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "CORRECT", navigationArrow: "NONE" },
+        KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },
         KeyL: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "UP" },
         Period: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
+
       }
     },
-    R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" }
+    R5: { navigationRole: "INACTIVE" }, RB: { navigationRole: "INACTIVE" }
   },
 };

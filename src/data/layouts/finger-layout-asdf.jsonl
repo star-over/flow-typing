@@ -9,10 +9,10 @@
 {"keyCapId":"KeyE","fingerId":"L3"}
 {"keyCapId":"KeyR","fingerId":"L2"}
 {"keyCapId":"KeyT","fingerId":"L2"}
-{"keyCapId":"KeyA","fingerId":"L5","isHomeKey":true}
-{"keyCapId":"KeyS","fingerId":"L4","isHomeKey":true}
-{"keyCapId":"KeyD","fingerId":"L3","isHomeKey":true}
-{"keyCapId":"KeyF","fingerId":"L2","isHomeKey":true}
+{"keyCapId":"KeyA","fingerId":"L5","home":true}
+{"keyCapId":"KeyS","fingerId":"L4","home":true}
+{"keyCapId":"KeyD","fingerId":"L3","home":true}
+{"keyCapId":"KeyF","fingerId":"L2","home":true}
 {"keyCapId":"KeyG","fingerId":"L2"}
 {"keyCapId":"KeyZ","fingerId":"L5"}
 {"keyCapId":"KeyX","fingerId":"L4"}
@@ -42,10 +42,10 @@
 {"keyCapId":"BracketRight","fingerId":"R5"}
 {"keyCapId":"Backslash","fingerId":"R5"}
 {"keyCapId":"KeyH","fingerId":"R2"}
-{"keyCapId":"KeyJ","fingerId":"R2","isHomeKey":true}
-{"keyCapId":"KeyK","fingerId":"R3","isHomeKey":true}
-{"keyCapId":"KeyL","fingerId":"R4","isHomeKey":true}
-{"keyCapId":"Semicolon","fingerId":"R5","isHomeKey":true}
+{"keyCapId":"KeyJ","fingerId":"R2","home":true}
+{"keyCapId":"KeyK","fingerId":"R3","home":true}
+{"keyCapId":"KeyL","fingerId":"R4","home":true}
+{"keyCapId":"Semicolon","fingerId":"R5","home":true}
 {"keyCapId":"Quote","fingerId":"R5"}
 {"keyCapId":"Enter","fingerId":"R5"}
 {"keyCapId":"KeyN","fingerId":"R2"}
@@ -59,4 +59,4 @@
 {"keyCapId":"AltRight","fingerId":"R5"}
 {"keyCapId":"Fn","fingerId":"R5"}
 {"keyCapId":"ContextMenu","fingerId":"R5"}
-{"keyCapId":"Space","fingerId":"R1","isHomeKey":true}
+{"keyCapId":"Space","fingerId":"R1","home":true}

@@ -5,7 +5,7 @@
  * При рефакторинге или добавлении новых типов, пожалуйста, сохраняйте
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
-import { z } from 'zod';
+import { number, z } from 'zod';
 import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
@@ -61,9 +61,6 @@ export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "2.5U", "3U", "5U"] as const;
 export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 
-/** Группа цвета клавиши для визуального разделения. */
-export type KeyCapColorGroup = "PRIMARY" | "SECONDARY" | "ACCENT";
-
 /** Функциональный тип клавиши. */
 export type KeyCapType = "SYMBOL" | "SYSTEM" | "MODIFIER";
 
@@ -116,8 +113,8 @@ export const FINGER_IDS = [
 export type FingerId = typeof FINGER_IDS[number];
 
 /** Состояние отдельного пальца. */
-export const FINGER_STATES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;
-export type FingerState = typeof FINGER_STATES[number];
+export const FINGER_NAVIGATION_ROLES = ["NONE", "TARGET", "INACTIVE", "ERROR"] as const;
+export type FingerNavigationRole = typeof FINGER_NAVIGATION_ROLES[number];
 
 /** Идентификаторы сторон рук. */
 export const HAND_SIDES = ["LEFT", "RIGHT"] as const;
@@ -192,7 +189,6 @@ export interface PhysicalKey {
   label: string;                        // Надпись на колпачке (напр. 'F', '1 !', 'Shift L')
   symbolSize?: KeyCapSymbolSize;        // Размер надписи
   homeKeyMarker?: KeyCapHomeKeyMarker;  // Физический маркер home-ряда (BAR/DOT на F и J)
-  colorGroup?: KeyCapColorGroup;        // Цветовая группа
   type: KeyCapType;                     // Тип: буквенная, системная или модификатор
 }
 /**
@@ -212,7 +208,7 @@ export type PhysicalLayoutId = 'ansi';
 export type FingerLayout = {
   keyCapId: KeyCapId;
   fingerId: FingerId;
-  isHomeKey?: boolean;
+  home?: boolean;
 }[];
 
 /** Идентификатор пальцевого макета (схема постановки рук). */
@@ -245,7 +241,6 @@ export interface KeyboardSceneKey {
   unitWidth?: KeyCapUnitWidth;
   symbolSize?: KeyCapSymbolSize;
   homeKeyMarker?: KeyCapHomeKeyMarker;
-  colorGroup?: KeyCapColorGroup;
   type: KeyCapType;
 
   // --- From SymbolLayout ---
@@ -254,7 +249,7 @@ export interface KeyboardSceneKey {
 
   // --- From FingerLayout ---
   fingerId: FingerId;
-  isHomeKey?: boolean;
+  home?: boolean;
 
   // --- UI State ---
   /** Индекс ряда клавиши в `KeyboardSceneViewModel`. */
@@ -279,9 +274,9 @@ export type KeyboardSceneViewModel = KeyboardSceneKey[][];
 
 /**
  * Объект, описывающий состояние всех пальцев и кистей.
- * Ключ - `FingerId`, значение - `FingerState`.
+ * Ключ - `FingerId`, значение - `FingerNavigationRole`.
  */
-export type HandStates = Record<FingerId, FingerState>;
+export type HandStates = Record<FingerId, FingerNavigationRole>;
 
 // --- Symbol Layout Descriptor (запись реестра раскладок) ---
 
@@ -368,7 +363,7 @@ export interface KeySceneState {
  * @see /VisualContract.md
  */
 export type HandsSceneViewModel = Record<FingerId, {
-  fingerState: FingerState;
+  navigationRole: FingerNavigationRole;
   keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
 }>;
 

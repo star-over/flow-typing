@@ -48,7 +48,7 @@ export function getHomeKeyForFinger({
   fingerLayout: FingerLayout;
 }): KeyCapId | undefined {
   const entry = fingerLayout.find(
-    (item) => item.fingerId === fingerId && item.isHomeKey
+    (item) => item.fingerId === fingerId && item.home
   );
   return entry ? entry.keyCapId : undefined;
 }

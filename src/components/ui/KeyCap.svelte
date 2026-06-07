@@ -1,6 +1,5 @@
 <script lang="ts">
   import type {
-    KeyCapColorGroup,
     KeyCapHomeKeyMarker,
     KeyCapNavigationArrow,
     KeyCapNavigationRole,
@@ -14,12 +13,10 @@
     keyCapId?: string;
     pressResult?: 'NONE' | 'CORRECT' | 'ERROR';
     visibility?: 'VISIBLE' | 'INVISIBLE';
-    isActive?: boolean;
-    isHomeKey?: boolean;
+    home?: boolean;
     fingerId?: string;
     unitWidth?: KeyCapUnitWidth;
     symbolSize?: KeyCapSymbolSize;
-    colorGroup?: KeyCapColorGroup;
     homeKeyMarker?: KeyCapHomeKeyMarker;
     navigationRole?: KeyCapNavigationRole;
     navigationArrow?: KeyCapNavigationArrow;
@@ -30,12 +27,10 @@
     keyCapId,
     pressResult = 'NONE',
     visibility = 'VISIBLE',
-    isActive = false,
-    isHomeKey = false,
+    home = false,
     fingerId,
     unitWidth = '1U',
     symbolSize = 'MD',
-    colorGroup = 'PRIMARY',
     homeKeyMarker = 'NONE',
     navigationRole = 'NONE',
     navigationArrow = 'NONE',
@@ -45,18 +40,15 @@
 </script>
 
 <div
-  class="keycap size-{symbolSize} color-{colorGroup} marker-{homeKeyMarker}"
+  class="keycap size-{symbolSize} marker-{homeKeyMarker}"
   class:CORRECT={pressResult === 'CORRECT'}
   class:ERROR={pressResult === 'ERROR'}
-  class:active={isActive}
-  class:home={isHomeKey}
+  class:home={home}
   class:INVISIBLE={visibility === 'INVISIBLE'}
   class:role-target={navigationRole === 'TARGET'}
   class:role-path={navigationRole === 'PATH'}
   data-finger-id={fingerId}
   data-keycap-id={keyCapId}
-  data-navigation-role={navigationRole}
-  data-navigation-arrow={navigationArrow}
   style:--unit-multiplier={unitMultiplier}
 >
   <span class="keycap-label">{symbol}</span>
@@ -65,7 +57,7 @@
 
   <NavArrow direction={navigationArrow} />
 
-  <!-- Center point anchor used by HandsExt positioning logic -->
+  <!-- Center point anchor used by HandsScene positioning logic -->
   <div class="keycap-center-point"></div>
 </div>
 
@@ -97,19 +89,6 @@
   .size-MD .keycap-label { font-size: 0.8125rem; }
   .size-SM .keycap-label { font-size: 0.6875rem; }
   .size-XS .keycap-label { font-size: 0.5625rem; }
-
-  /* --- Color group --- */
-  .color-SECONDARY {
-    background-color: var(--color-keycap-secondary-bg);
-    color: var(--color-keycap-secondary-fg);
-    border-color: var(--color-keycap-secondary-border);
-  }
-
-  .color-ACCENT {
-    background-color: var(--color-keycap-accent-bg);
-    color: var(--color-keycap-accent-fg);
-    border-color: var(--color-keycap-accent-border);
-  }
 
   /* --- Per-finger color --- */
   .keycap[data-finger-id="L1"],
@@ -171,7 +150,6 @@
     font-weight: 800;
   }
 
-  .keycap.active,
   .keycap:active {
     transform: translateY(1px);
   }
@@ -200,7 +178,7 @@
     visibility: hidden;
   }
 
-  /* JS anchor used by HandsExt positioning logic — не масштабируется намеренно. */
+  /* JS anchor used by HandsScene positioning logic — не масштабируется намеренно. */
   .keycap-center-point {
     position: absolute;
     top: 50%;

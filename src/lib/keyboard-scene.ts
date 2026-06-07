@@ -73,13 +73,12 @@ export function createKeyboardScene(
         unitWidth: widthToUnitWidth(physicalKey.w),
         symbolSize: physicalKey.symbolSize,
         homeKeyMarker: physicalKey.homeKeyMarker,
-        colorGroup: physicalKey.colorGroup,
         type: physicalKey.type,
         rowIndex,
         colIndex,
         symbol: symbol || "...",
         fingerId: fingerKey?.fingerId || "L1",
-        isHomeKey: fingerKey?.isHomeKey,
+        home: fingerKey?.home,
       };
     })
   );
@@ -87,7 +86,7 @@ export function createKeyboardScene(
 
 interface CreateKeyboardSceneForFingerOptions {
   fingerId: FingerId;
-  viewModel: HandsSceneViewModel;
+  handsScene: HandsSceneViewModel;
   fingerLayout: FingerLayout;
   physicalLayout: PhysicalLayout;
 }
@@ -99,11 +98,11 @@ interface CreateKeyboardSceneForFingerOptions {
  */
 export const createKeyboardSceneForFinger = ({
   fingerId,
-  viewModel,
+  handsScene,
   fingerLayout,
   physicalLayout,
 }: CreateKeyboardSceneForFingerOptions): KeyboardSceneViewModel => {
-  const fingerSceneState = viewModel[fingerId];
+  const fingerSceneState = handsScene[fingerId];
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
     fingerSceneState.keyCapStates || {};
 
@@ -123,13 +122,12 @@ export const createKeyboardSceneForFinger = ({
         unitWidth: widthToUnitWidth(physicalKey.w),
         symbolSize: physicalKey.symbolSize,
         homeKeyMarker: physicalKey.homeKeyMarker,
-        colorGroup: physicalKey.colorGroup,
         type: physicalKey.type,
         rowIndex,
         colIndex: 0,
         symbol: keyCapId,
         fingerId,
-        isHomeKey: keyCapId === homeKeyForFinger,
+        home: keyCapId === homeKeyForFinger,
         visibility,
         navigationRole: keyCapState?.navigationRole || "NONE",
         navigationArrow: keyCapState?.navigationArrow || "NONE",

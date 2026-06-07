@@ -52,7 +52,6 @@ const PhysicalKeySchema = z.object({
   type: z.enum(['SYMBOL', 'SYSTEM', 'MODIFIER']),
   homeKeyMarker: z.enum(KEY_CAP_HOME_KEY_MARKERS).optional(),
   symbolSize: z.enum(KEY_CAP_SYMBOL_SIZES).optional(),
-  colorGroup: z.enum(['PRIMARY', 'SECONDARY', 'ACCENT']).optional(),
 });
 
 const SymbolEntrySchema = z.object({
@@ -63,7 +62,7 @@ const SymbolEntrySchema = z.object({
 const FingerEntrySchema = z.object({
   keyCapId: KeyCapIdSchema,
   fingerId: z.enum(FINGER_IDS),
-  isHomeKey: z.boolean().optional(),
+  home: z.boolean().optional(),
 });
 
 // ---------- Парсеры JSONL → массивы с runtime-инвариантами ----------

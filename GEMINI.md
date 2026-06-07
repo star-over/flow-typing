@@ -50,7 +50,7 @@ All primary project commands are centralized in the `Makefile` for simplicity an
 ### Key Architectural Patterns
 
 1.  **ViewModel Pipeline:** The architecture strictly separates business logic from the UI. State is managed by XState machines, and the output of this logic is transformed by `viewModel-builder.ts` into a "dumb" data structure called `HandsSceneViewModel`.
-2.  **"Dumb" UI Components:** Svelte components (e.g., `HandsExt.svelte`) are responsible *only* for rendering the `HandsSceneViewModel`. They contain no business logic, ensuring they are simple, predictable, and easy to test.
+2.  **"Dumb" UI Components:** Svelte components (e.g., `HandsScene.svelte`) are responsible *only* for rendering the `HandsSceneViewModel`. They contain no business logic, ensuring they are simple, predictable, and easy to test.
 3.  **Hierarchical State Management:** A global `app.machine.ts` orchestrates high-level application states (like `menu`, `settings`, `training`), while an invoked `training.machine.ts` handles the complex logic of an individual typing session.
 4.  **Settings Management:** User-facing settings are managed by a custom Svelte writable store (`src/lib/preferences.ts`), which is decoupled from the core training logic and persists to `localStorage`.
 
@@ -70,6 +70,6 @@ All primary project commands are centralized in the `Makefile` for simplicity an
 - `src/lib/`: Contains most of the project's business logic, including utilities for layout management, statistics calculation, pathfinding, preferences, and i18n.
 - `src/components/app/App.svelte`: The root application component that wires together the state machines and the main UI. It handles global keyboard events via `<svelte:window>`.
 - `src/components/app/MainContent.svelte`: Switches between application screens based on `appMachine` state.
-- `src/components/ui/HandsExt.svelte`: The "dumb" Svelte component responsible for visualizing the hands and keyboard based on the ViewModel.
+- `src/components/ui/HandsScene.svelte`: The "dumb" Svelte component responsible for visualizing the hands and keyboard based on the ViewModel.
 - `src/lib/preferences.ts`: The Svelte store for managing user settings with `localStorage` persistence.
 - `Makefile`: Centralized script runner for all common development tasks.

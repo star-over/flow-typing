@@ -61,6 +61,10 @@
   const { Story } = defineMeta({
     title: 'UI/LessonStatsDisplay',
     component: LessonStatsDisplay,
+    argTypes: {
+      stream: { table: { disable: true } },
+      dictionary: { table: { disable: true } },
+    },
     args: {
       stream: goodPerformanceStream,
       dictionary: mockDictionary,

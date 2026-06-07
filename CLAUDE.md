@@ -52,7 +52,7 @@
 
 - `src/routes/+page.svelte` → `src/components/app/App.svelte` — единственная страница; экраны переключаются через `state.matches(...)` в `MainContent.svelte`.
 - `App.svelte` навешивает `onkeydown`/`onkeyup`/`onblur` на `<svelte:window>` и шлёт `KEY_DOWN`/`KEY_UP`/`PAUSE` в `appActor`. `Space` в `training` блокируется (`preventDefault`), чтобы не скроллить.
-- `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsExt.svelte`; `FlowLine` показывает поток символов с курсором.
+- `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
 
 ### Domain language
 

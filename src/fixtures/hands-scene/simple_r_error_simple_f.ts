@@ -1,15 +1,15 @@
 
-import type { HandsExtFixture } from './types';
-export const simple_r_error_simple_f: HandsExtFixture = {
+import type { HandsSceneFixture } from './types';
+export const simple_r_error_simple_f: HandsSceneFixture = {
   input: {
     targetSymbol: "r",
     targetKeyCaps: ["KeyR"],
     attempts: [{ pressedKeyCaps: ["KeyF"], startAt: 1767971157516, endAt: 1767971157516 },]
   },
   expectedOutput: {
-    L1: { fingerState: "INACTIVE" },
+    L1: { navigationRole: "INACTIVE" },
     L2: {
-      fingerState: "TARGET",
+      navigationRole: "TARGET",
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -21,7 +21,7 @@ export const simple_r_error_simple_f: HandsExtFixture = {
         KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
       }
     },
-    L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" }, L5: { fingerState: "INACTIVE" }, LB: { fingerState: "INACTIVE" },
-    R1: { fingerState: "NONE" }, R2: { fingerState: "NONE" }, R3: { fingerState: "NONE" }, R4: { fingerState: "NONE" }, R5: { fingerState: "NONE" }, RB: { fingerState: "NONE" }
+    L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" }, L5: { navigationRole: "INACTIVE" }, LB: { navigationRole: "INACTIVE" },
+    R1: { navigationRole: "NONE" }, R2: { navigationRole: "NONE" }, R3: { navigationRole: "NONE" }, R4: { navigationRole: "NONE" }, R5: { navigationRole: "NONE" }, RB: { navigationRole: "NONE" }
   },
 };

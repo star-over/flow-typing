@@ -10,7 +10,7 @@
   import { getSymbolLayout } from '@/lib/layouts';
 
   import FlowLine from './FlowLine.svelte';
-  import HandsExt from './HandsExt.svelte';
+  import HandsScene from './HandsScene.svelte';
 
   interface Props {
     trainingActor: Actor<typeof trainingMachine>;
@@ -46,7 +46,7 @@
   // getPressResult → 'NONE'.
   const currentSymbol = $derived(stream[currentIndex]);
 
-  const viewModel = $derived(
+  const handsScene = $derived(
     createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
   );
   const pressResult = $derived(getPressResult(currentSymbol));
@@ -63,10 +63,10 @@
     {stream}
     cursorPosition={currentIndex}
     {pressResult}
-    isTyping={!trainingState.matches('lessonComplete')}
+    blink={trainingState.matches('lessonComplete')}
   />
 
-  <HandsExt {viewModel} {fingerLayout} {physicalLayout} {symbolLayout} />
+  <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
 </div>
 
 <style>

@@ -2,7 +2,7 @@
   import type {
     FingerId,
     FingerLayout,
-    FingerState,
+    FingerNavigationRole,
     HandsSceneViewModel,
     PhysicalLayout,
     SymbolLayout,
@@ -29,31 +29,29 @@
     Object.fromEntries(ALL_FINGER_IDS.map((id) => [id, null])) as Record<FingerId, T | null>;
 
   interface Props {
-    viewModel: HandsSceneViewModel;
+    handsScene: HandsSceneViewModel;
     fingerLayout: FingerLayout;
     physicalLayout: PhysicalLayout;
     symbolLayout: SymbolLayout;
-    class?: string;
     centerPointVisibility?: Visibility;
   }
 
   const {
-    viewModel,
+    handsScene,
     fingerLayout,
     physicalLayout,
     symbolLayout,
-    class: className = '',
     centerPointVisibility = 'INVISIBLE',
   }: Props = $props();
 
   // Per-finger derived states for the <Finger> components
-  const fingerStates = $derived(
+  const fingerNavigationRoles = $derived(
     Object.fromEntries(
-      Object.entries(viewModel).map(([fingerId, fingerSceneState]) => [
+      Object.entries(handsScene).map(([fingerId, fingerSceneState]) => [
         fingerId,
-        (fingerSceneState as { fingerState: FingerState }).fingerState,
+        (fingerSceneState as { navigationRole: FingerNavigationRole }).navigationRole,
       ])
-    ) as Record<FingerId, FingerState>
+    ) as Record<FingerId, FingerNavigationRole>
   );
 
   // Refs (keyed by FingerId). All FingerIds are pre-initialised to null so that
@@ -68,14 +66,14 @@
 
   $effect(() => {
     // Reactive reads to retrigger when the scene changes
-    const _vm = viewModel;
+    const _vm = handsScene;
     const _fl = fingerLayout;
 
     FINGER_IDS_FOR_RENDER.forEach((fingerId) => {
       if (clusterTranslations[fingerId]) return;
 
       const homeKeyEntry = _fl.find(
-        (item) => item.fingerId === fingerId && item.isHomeKey
+        (item) => item.fingerId === fingerId && item.home
       );
       if (!homeKeyEntry) return;
 
@@ -101,13 +99,13 @@
   });
 </script>
 
-<div class="hands-ext-root {className}">
+<div class="hands-scene-root">
   <div class="hands-layer" data-center-point-visibility={centerPointVisibility}>
     <svg class="hand-svg" viewBox={HAND_VIEW_BOX} data-hand="left">
       {#each LEFT_HAND_IDS as fingerId (fingerId)}
         <Finger
           {fingerId}
-          state={fingerStates[fingerId]}
+          navigationRole={fingerNavigationRoles[fingerId]}
           bind:centerRef={fingerCenterRefs[fingerId]}
         />
       {/each}
@@ -119,15 +117,15 @@
       {#each RIGHT_HAND_IDS as fingerId (fingerId)}
         <Finger
           {fingerId}
-          state={fingerStates[fingerId]}
+          navigationRole={fingerNavigationRoles[fingerId]}
           bind:centerRef={fingerCenterRefs[fingerId]}
         />
       {/each}
     </svg>
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
-      {#if viewModel[fingerId].fingerState !== 'NONE' && viewModel[fingerId].keyCapStates}
-        {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, viewModel, fingerLayout, physicalLayout })}
+      {#if handsScene[fingerId].navigationRole !== 'NONE' && handsScene[fingerId].keyCapStates}
+        {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
         {@const t = clusterTranslations[fingerId]}
         <div
           bind:this={clusterRefs[fingerId]}
@@ -144,7 +142,7 @@
 </div>
 
 <style>
-  .hands-ext-root {
+  .hands-scene-root {
     position: relative;
     width: 100%;
     height: 100%;

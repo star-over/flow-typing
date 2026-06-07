@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest';
 
 // Import all fixtures
-import { idle } from '@/fixtures/hands-ext/idle';
-import { shift_b } from '@/fixtures/hands-ext/shift_b';
-import { shift_f } from '@/fixtures/hands-ext/shift_f';
-import { shift_o } from '@/fixtures/hands-ext/shift_o';
-import { shift_o_error_simple_o } from '@/fixtures/hands-ext/shift_o_error_simple_o';
-import { shift_t_error_shift_n } from '@/fixtures/hands-ext/shift_t_error_shift_n';
-import { simple_6 } from '@/fixtures/hands-ext/simple_6';
-import { simple_e_error_shift_F } from '@/fixtures/hands-ext/simple_e_error_shift_F';
-import { simple_e_error_simple_d } from '@/fixtures/hands-ext/simple_e_error_simple_d';
-import { simple_e_error_space } from '@/fixtures/hands-ext/simple_e_error_space';
-import { simple_k } from '@/fixtures/hands-ext/simple_k';
-import { simple_k_error_simple_j } from '@/fixtures/hands-ext/simple_k_error_simple_j';
-import { simple_r_error_simple_f } from '@/fixtures/hands-ext/simple_r_error_simple_f';
-import { simple_space } from '@/fixtures/hands-ext/simple_space';
-import { simple_t } from '@/fixtures/hands-ext/simple_t';
+import { idle } from '@/fixtures/hands-scene/idle';
+import { shift_b } from '@/fixtures/hands-scene/shift_b';
+import { shift_f } from '@/fixtures/hands-scene/shift_f';
+import { shift_o } from '@/fixtures/hands-scene/shift_o';
+import { shift_o_error_simple_o } from '@/fixtures/hands-scene/shift_o_error_simple_o';
+import { shift_t_error_shift_n } from '@/fixtures/hands-scene/shift_t_error_shift_n';
+import { simple_6 } from '@/fixtures/hands-scene/simple_6';
+import { simple_e_error_shift_F } from '@/fixtures/hands-scene/simple_e_error_shift_F';
+import { simple_e_error_simple_d } from '@/fixtures/hands-scene/simple_e_error_simple_d';
+import { simple_e_error_space } from '@/fixtures/hands-scene/simple_e_error_space';
+import { simple_k } from '@/fixtures/hands-scene/simple_k';
+import { simple_k_error_simple_j } from '@/fixtures/hands-scene/simple_k_error_simple_j';
+import { simple_r_error_simple_f } from '@/fixtures/hands-scene/simple_r_error_simple_f';
+import { simple_space } from '@/fixtures/hands-scene/simple_space';
+import { simple_t } from '@/fixtures/hands-scene/simple_t';
 
-import { fingerLayout, keyboardGraph, keyCoordinateMap } from '@/fixtures/hands-ext/test-data';
+import { fingerLayout, keyboardGraph, keyCoordinateMap } from '@/fixtures/hands-scene/test-data';
 
 import { createHandsSceneViewModel } from './hands-scene';
 

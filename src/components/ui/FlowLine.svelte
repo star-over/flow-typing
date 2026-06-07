@@ -15,8 +15,7 @@
     pressResult?: KeyCapPressResult;
     cursorType?: FlowLineCursorType;
     cursorMode?: FlowLineCursorMode;
-    isTyping?: boolean;
-    class?: string;
+    blink?: boolean;
   }
 
   const {
@@ -25,8 +24,7 @@
     pressResult = 'NONE',
     cursorType,
     cursorMode = 'HALF',
-    isTyping = false,
-    class: className = '',
+    blink = true,
   }: Props = $props();
 
   const completedCount = 100;
@@ -40,14 +38,14 @@
   const pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));
 </script>
 
-<div class="flow-line {cursorMode} {pressResult} {className}">
+<div class="flow-line {cursorMode} {pressResult}">
   <div class="completed-symbols">
     {#each completedSymbols as symbol, i (startCompleted + i)}
       <RegularSymbol symbol={getSymbolChar(symbol)} symbolType={getSymbolType(symbol)} />
     {/each}
   </div>
 
-  <CursorSymbol {cursorType} {isTyping} symbol={cursorSymbol ? getSymbolChar(cursorSymbol) : ''} />
+  <CursorSymbol {cursorType} {blink} symbol={cursorSymbol ? getSymbolChar(cursorSymbol) : ''} />
 
   <div class="pending-symbols">
     {#each pendingSymbols as symbol, i (cursorPosition + 1 + i)}

@@ -269,7 +269,7 @@ Brief нужно держать **синхронным с `docs/01-philosophy-an
 
 | Зона | Почему |
 |---|---|
-| SVG-геометрия руки (`src/data/finger-paths.ts`, `HandsExt.svelte`, `Finger.svelte`) | Привязана к `FINGER_CENTER_POINTS` — на этих координатах стоят кластеры клавиш. Сломаешь геометрию — сломаешь всю hands-scene. |
+| SVG-геометрия руки (`src/data/finger-paths.ts`, `HandsScene.svelte`, `Finger.svelte`) | Привязана к `FINGER_CENTER_POINTS` — на этих координатах стоят кластеры клавиш. Сломаешь геометрию — сломаешь всю hands-scene. |
 | Контракт ViewModel (`docs/03-ui-viewmodel-contract.md`) | Какие клавиши, в каком состоянии, когда горят — это бизнес-логика, не дизайн. Правило «Полного Кластера» не пересматривается. |
 | Domain-токены (`--color-finger-1..5`, `--color-keycap-group-*`, `--color-keycap-role-target-*`) | Пятипальцевая семантика отражает анатомию руки. Не подменять «одноцветным» решением «потому что чище». |
 | Mono-шрифт для FlowLine и KeyCap label | Требование, не стиль. |
@@ -304,9 +304,9 @@ Brief нужно держать **синхронным с `docs/01-philosophy-an
 Тон: медитативное спокойствие, не геймификация. Близко к Linear, Things,
 Arc Browser. Далеко от Duolingo, Mavis Beacon, casino-эстетики. Никаких
 confetti, badges, streak-эмодзи.
-
+ 
 Не трогать:
-- SVG-геометрию руки (HandsExt, Finger, finger-paths.ts)
+- SVG-геометрию руки (HandsScene, Finger, finger-paths.ts)
 - FlowLine monospace, KeyCap label monospace
 - Анатомическую палитру пальцев (--color-finger-1..5)
 - Правило «Полного Кластера» из docs/03-ui-viewmodel-contract.md

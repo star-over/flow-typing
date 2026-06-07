@@ -25,8 +25,7 @@
           unitWidth={sceneKey.unitWidth}
           symbolSize={sceneKey.symbolSize}
           homeKeyMarker={sceneKey.homeKeyMarker}
-          isHomeKey={sceneKey.isHomeKey}
-          colorGroup={sceneKey.colorGroup}
+          home={sceneKey.home}
           navigationRole={sceneKey.navigationRole}
           navigationArrow={sceneKey.navigationArrow}
         />

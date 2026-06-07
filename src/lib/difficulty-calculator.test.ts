@@ -183,7 +183,7 @@ describe('difficulty-calculator', () => {
       { keyCapId: 'KeyL', x: 11, y: 0, w: 1, label: 'L', type: 'SYMBOL' },
     ];
     const wideFinger: FingerLayout = [
-      { keyCapId: 'KeyA', fingerId: 'L2', isHomeKey: true },
+      { keyCapId: 'KeyA', fingerId: 'L2', home: true },
       { keyCapId: 'KeyL', fingerId: 'L2' }, // c=11 from home at c=0 → far past HORIZONTAL[2]
     ];
     const wideSymbol: SymbolLayout = [

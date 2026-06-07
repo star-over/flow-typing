@@ -83,7 +83,7 @@
 {"symbol":"Д","keyCaps":["KeyL","ShiftLeft"]}
 {"symbol":"Ж","keyCaps":["Semicolon","ShiftLeft"]}
 {"symbol":"Э","keyCaps":["Quote","ShiftLeft"]}
-{"symbol":"Я","keyCaps":["KeyZ","ShiftLeft"]}
+{"symbol":"Я","keyCaps":["KeyZ","ShiftRight"]}
 {"symbol":"Ч","keyCaps":["KeyX","ShiftRight"]}
 {"symbol":"С","keyCaps":["KeyC","ShiftRight"]}
 {"symbol":"М","keyCaps":["KeyV","ShiftRight"]}

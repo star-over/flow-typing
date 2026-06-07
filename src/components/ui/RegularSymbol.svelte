@@ -4,13 +4,12 @@
   interface Props {
     symbol: string;
     symbolType?: FlowLineSymbolType;
-    class?: string;
   }
 
-  const { symbol, symbolType = 'PENDING', class: className = '' }: Props = $props();
+  const { symbol, symbolType = 'PENDING' }: Props = $props();
 </script>
 
-<span class="symbol {symbolType} {className}">
+<span class="symbol {symbolType}">
   {symbol}
 </span>
 

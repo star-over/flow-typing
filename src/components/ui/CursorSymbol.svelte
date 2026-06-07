@@ -4,21 +4,21 @@
   interface Props {
     symbol: string;
     cursorType?: FlowLineCursorType;
-    isTyping?: boolean;
+    blink?: boolean;
   }
 
-  const { symbol, cursorType = 'RECTANGLE', isTyping = true }: Props = $props();
+  const { symbol, cursorType = 'RECTANGLE', blink = false }: Props = $props();
   let visible = $state(true);
   let timer: ReturnType<typeof setInterval>;
 
   $effect(() => {
-    if (isTyping) {
-      visible = true;
-      clearInterval(timer);
-    } else {
+    if (blink) {
       timer = setInterval(() => {
         visible = !visible;
       }, 600);
+    } else {
+      visible = true;
+      clearInterval(timer);
     }
 
     return () => clearInterval(timer);

@@ -1,8 +1,8 @@
 import { createIdleViewModel } from '@/lib/hands-scene';
 
-import type { HandsExtFixture } from './types';
+import type { HandsSceneFixture } from './types';
 
-export const idle: HandsExtFixture = {
+export const idle: HandsSceneFixture = {
   input: undefined,
   expectedOutput: createIdleViewModel(),
 };

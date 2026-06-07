@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { simple_t } from '@/fixtures/hands-ext/simple_t';
-import { fingerLayout, physicalLayout } from '@/fixtures/hands-ext/test-data';
+import { simple_t } from '@/fixtures/hands-scene/simple_t';
+import { fingerLayout, physicalLayout } from '@/fixtures/hands-scene/test-data';
 import type { FingerLayout, PhysicalLayout, SymbolLayout } from '@/interfaces/types';
 
 import { createKeyboardScene, createKeyboardSceneForFinger } from './keyboard-scene';
@@ -20,7 +20,7 @@ describe('createKeyboardScene', () => {
   ];
 
   const mockFingerLayout: FingerLayout = [
-    { keyCapId: 'KeyA', fingerId: 'L1', isHomeKey: true },
+    { keyCapId: 'KeyA', fingerId: 'L1', home: true },
     { keyCapId: 'KeyB', fingerId: 'L2' },
     { keyCapId: 'ShiftLeft', fingerId: 'L5' },
   ];
@@ -79,7 +79,7 @@ describe('createKeyboardScene', () => {
     expect(keyboardScene[0]![0]!.symbol).toBe('c');
   });
 
-  it('should correctly derive fingerId and isHomeKey from fingerLayout', () => {
+  it('should correctly derive fingerId and home from fingerLayout', () => {
     const keyboardScene = createKeyboardScene({
       physicalLayout: mockPhysicalLayout,
       symbolLayout: mockSymbolLayout,
@@ -91,11 +91,11 @@ describe('createKeyboardScene', () => {
     const shiftLeft = keyboardScene[1]![0]!;
 
     expect(keyA.fingerId).toBe('L1');
-    expect(keyA.isHomeKey).toBe(true);
+    expect(keyA.home).toBe(true);
     expect(keyB.fingerId).toBe('L2');
-    expect(keyB.isHomeKey).toBeUndefined();
+    expect(keyB.home).toBeUndefined();
     expect(shiftLeft.fingerId).toBe('L5');
-    expect(shiftLeft.isHomeKey).toBeUndefined();
+    expect(shiftLeft.home).toBeUndefined();
   });
 
   it('should use default fingerId "L1" if fingerLayout entry is missing', () => {
@@ -115,16 +115,16 @@ describe('createKeyboardScene', () => {
 
 describe('createKeyboardSceneForFinger', () => {
   it('should create a contextual layout for a specific finger', () => {
-    const viewModel = simple_t.expectedOutput;
+    const handsScene = simple_t.expectedOutput;
     const targetFinger = 'L2';
 
-    const keyboardScene = createKeyboardSceneForFinger({ fingerId: targetFinger, viewModel, fingerLayout, physicalLayout });
+    const keyboardScene = createKeyboardSceneForFinger({ fingerId: targetFinger, handsScene, fingerLayout, physicalLayout });
 
     const findKey = (keyCapId: string) =>
       keyboardScene.flat().find((k) => k.keyCapId === keyCapId);
 
     const visibleKeys = keyboardScene.flat().filter((k) => k.visibility === 'VISIBLE');
-    const l2Keys = Object.keys(viewModel.L2.keyCapStates!);
+    const l2Keys = Object.keys(handsScene.L2.keyCapStates!);
     expect(visibleKeys.length).toBe(l2Keys.length);
     visibleKeys.forEach((key) => {
       expect(l2Keys).toContain(key.keyCapId);

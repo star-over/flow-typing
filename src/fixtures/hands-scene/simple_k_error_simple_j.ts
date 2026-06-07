@@ -1,6 +1,6 @@
-import type { HandsExtFixture } from './types';
+import type { HandsSceneFixture } from './types';
 
-export const simple_k_error_simple_j: HandsExtFixture = {
+export const simple_k_error_simple_j: HandsSceneFixture = {
   input: {
     targetSymbol: 'k',
     targetKeyCaps: ['KeyK'],
@@ -13,10 +13,10 @@ export const simple_k_error_simple_j: HandsExtFixture = {
     ],
   },
   expectedOutput: {
-    L1: { fingerState: "NONE" }, L2: { fingerState: "NONE" }, L3: { fingerState: "NONE" }, L4: { fingerState: "NONE" }, L5: { fingerState: "NONE" }, LB: { fingerState: "NONE" },
-    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "ERROR" },
+    L1: { navigationRole: "NONE" }, L2: { navigationRole: "NONE" }, L3: { navigationRole: "NONE" }, L4: { navigationRole: "NONE" }, L5: { navigationRole: "NONE" }, LB: { navigationRole: "NONE" },
+    R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "ERROR" },
     R3: {
-      fingerState: "TARGET",
+      navigationRole: "TARGET",
       keyCapStates: {
         Digit8: { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },
         KeyI:   { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },
@@ -24,6 +24,6 @@ export const simple_k_error_simple_j: HandsExtFixture = {
         Comma:  { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" }
       }
     },
-    R4: { fingerState: "INACTIVE" }, R5: { fingerState: "INACTIVE" }, RB: { fingerState: "INACTIVE" },
+    R4: { navigationRole: "INACTIVE" }, R5: { navigationRole: "INACTIVE" }, RB: { navigationRole: "INACTIVE" },
   }
 };

@@ -171,11 +171,11 @@ describe('trainingMachine', () => {
   });
 
   // Регрессионный тест на инвариант, который используется в TrainingScene.svelte:
-  //   isTyping={!trainingState.matches('lessonComplete')}
+  //   blink={trainingState.matches('lessonComplete')}
   // Машина имеет ровно 5 состояний: awaitingInput, processingInput, correctInput,
   // incorrectInput, lessonComplete. До исправления setup() здесь использовалась
   // строка 'running' — литерал, которого в этой машине нет (это state app.machine).
-  // matches('lessonComplete') всегда возвращал false, isTyping был сломан незаметно.
+  // matches('lessonComplete') всегда возвращал false, blink был сломан незаметно.
   // Сейчас .matches('lessonComplete') проверяется по литеральному union типу:
   // любой неверный state name (включая 'running') свалит typecheck.
   it("matches('lessonComplete') = false до последнего символа, true после", () => {

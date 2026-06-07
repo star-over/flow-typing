@@ -24,7 +24,7 @@
  *     current typing symbol and last attempt to determine `activeFingers`,
  *     `errorFingers`, and `activeHands`. It does not modify the ViewModel.
  *
- * 3.  **`applyTargetFingerStates`**: Sets the `TARGET` and `INACTIVE` states
+ * 3.  **`applyTargetNavigationRoles`**: Sets the `TARGET` and `INACTIVE` states
  *     on fingers to show what the user *should* do.
  *
  * 4.  **`buildVisibleClusters`**: For each `TARGET` finger, it makes the
@@ -33,7 +33,7 @@
  * 5.  **`applyNavigationPaths`**: Calculates the optimal path and sets
  *     navigation roles and arrows, completing the "target" view.
  *
- * 6.  **`applyErrorFingerStates`**: Sets the `ERROR` state for any
+ * 6.  **`applyErrorNavigationRoles`**: Sets the `ERROR` state for any
  *     fingers that made an out-of-cluster error.
  *
  * 7.  **`applyKeyPressResults`**: Analyzes the user's last attempt and updates
@@ -48,7 +48,7 @@ import {
   FINGER_IDS,
   type FingerId,
   type FingerLayout,
-  type FingerState,
+  type FingerNavigationRole,
   HAND_SIDES,
   type HandSide,
   type HandsSceneViewModel,
@@ -76,7 +76,7 @@ import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
  * @returns A HandsSceneViewModel with all fingers in 'NONE' state.
  */
 export function createIdleViewModel(): HandsSceneViewModel {
-  const idleState: FingerState = "NONE";
+  const idleState: FingerNavigationRole = "NONE";
   const viewModel: Partial<HandsSceneViewModel> = {};
   const allFingerIds: FingerId[] = [
     ...LEFT_HAND_FINGERS,
@@ -85,7 +85,7 @@ export function createIdleViewModel(): HandsSceneViewModel {
     RIGHT_HAND_BASE,
   ];
   allFingerIds.forEach((id) => {
-    viewModel[id] = { fingerState: idleState };
+    viewModel[id] = { navigationRole: idleState };
   });
   return viewModel as HandsSceneViewModel;
 }
@@ -164,7 +164,7 @@ function determineTypingContext({
 }
 
 // STAGE 2: Apply Target Finger States to ViewModel
-function applyTargetFingerStates({
+function applyTargetNavigationRoles({
   viewModel,
   typingContext,
 }: {
@@ -179,18 +179,18 @@ function applyTargetFingerStates({
 
     if (activeHands.has('LEFT')) {
         allLeftFingers.forEach((fingerId) => {
-            newViewModel[fingerId].fingerState = 'INACTIVE';
+            newViewModel[fingerId].navigationRole = 'INACTIVE';
         });
     }
 
     if (activeHands.has('RIGHT')) {
         allRightFingers.forEach((fingerId) => {
-            newViewModel[fingerId].fingerState = 'INACTIVE';
+            newViewModel[fingerId].navigationRole = 'INACTIVE';
         });
     }
 
     activeFingers.forEach((fingerId) => {
-        newViewModel[fingerId].fingerState = "TARGET";
+        newViewModel[fingerId].navigationRole = "TARGET";
     });
 
     return newViewModel;
@@ -209,7 +209,7 @@ function buildVisibleClusters({
 
   for (const fingerId of FINGER_IDS) {
     const fingerData = newViewModel[fingerId];
-    if (fingerData.fingerState !== "TARGET") continue;
+    if (fingerData.navigationRole !== "TARGET") continue;
 
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
     const keyCluster = getFingerKeys({ fingerId, fingerLayout });
@@ -298,7 +298,7 @@ function applyNavigationPaths({
 
   for (const fingerId of FINGER_IDS) {
     const fingerData = newViewModel[fingerId];
-    if (fingerData.fingerState !== "TARGET" || !fingerData.keyCapStates) continue;
+    if (fingerData.navigationRole !== "TARGET" || !fingerData.keyCapStates) continue;
 
     const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
     const targetKey = targetKeyCaps.find(
@@ -319,7 +319,7 @@ function applyNavigationPaths({
 }
 
 // STAGE 5: Apply error states to fingers
-function applyErrorFingerStates({
+function applyErrorNavigationRoles({
   viewModel,
   typingContext,
 }: {
@@ -331,7 +331,7 @@ function applyErrorFingerStates({
 
   // Apply ERROR state to error fingers (out-of-cluster errors)
   errorFingers.forEach((fingerId) => {
-    newViewModel[fingerId].fingerState = "ERROR";
+    newViewModel[fingerId].navigationRole = "ERROR";
   });
 
   return newViewModel;
@@ -409,7 +409,7 @@ export function createHandsSceneViewModel({
   const typingContext = determineTypingContext({ currentStreamSymbol, fingerLayout });
 
   // Stage 1: Apply TARGET finger states (TARGET, INACTIVE)
-  viewModel = applyTargetFingerStates({ viewModel, typingContext });
+  viewModel = applyTargetNavigationRoles({ viewModel, typingContext });
 
   // Stage 2: Build initial visible clusters for active fingers
   viewModel = buildVisibleClusters({ viewModel, fingerLayout });
@@ -424,7 +424,7 @@ export function createHandsSceneViewModel({
   });
 
   // Stage 4: Apply feedback - incorrect fingers
-  viewModel = applyErrorFingerStates({ viewModel, typingContext });
+  viewModel = applyErrorNavigationRoles({ viewModel, typingContext });
 
   // Stage 5: Apply feedback - key press results
   viewModel = applyKeyPressResults({ viewModel, typingContext });

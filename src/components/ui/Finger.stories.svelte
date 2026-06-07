@@ -4,7 +4,7 @@
   import Finger from './Finger.svelte';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import {
-    FINGER_STATES,
+    FINGER_NAVIGATION_ROLES,
     LEFT_HAND_BASE,
     LEFT_HAND_FINGERS,
     RIGHT_HAND_BASE,
@@ -14,14 +14,15 @@
   const { Story } = defineMeta({
     title: 'UI/Finger',
     component: Finger,
-    args: { fingerId: 'L2', state: 'TARGET' },
+    args: { fingerId: 'L2', navigationRole: 'TARGET' },
     argTypes: {
+      centerRef: { table: { disable: true } },
       fingerId: {
         options: [...LEFT_HAND_FINGERS, ...RIGHT_HAND_FINGERS, LEFT_HAND_BASE, RIGHT_HAND_BASE],
         control: 'inline-radio',
       },
-      state: {
-        options: FINGER_STATES,
+      navigationRole: {
+        options: FINGER_NAVIGATION_ROLES,
         control: 'inline-radio',
       },
     },
@@ -35,12 +36,4 @@
   </svg>
 {/snippet}
 
-<Story name="L1Target" args={{ fingerId: 'L1', state: 'TARGET' }} {template} />
-<Story name="L2Target" args={{ fingerId: 'L2', state: 'TARGET' }} {template} />
-<Story name="L3Target" args={{ fingerId: 'L3', state: 'TARGET' }} {template} />
-<Story name="L4Target" args={{ fingerId: 'L4', state: 'TARGET' }} {template} />
-<Story name="L5Target" args={{ fingerId: 'L5', state: 'TARGET' }} {template} />
-<Story name="LBTarget" args={{ fingerId: 'LB', state: 'TARGET' }} {template} />
-<Story name="L2Inactive" args={{ fingerId: 'L2', state: 'INACTIVE' }} {template} />
-<Story name="L2None" args={{ fingerId: 'L2', state: 'NONE' }} {template} />
-<Story name="L2Error" args={{ fingerId: 'L2', state: 'ERROR' }} {template} />
+<Story name="Default" args={{ fingerId: 'L1', navigationRole: 'NONE' }} {template} />

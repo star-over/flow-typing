@@ -1,6 +1,6 @@
 
-import type { HandsExtFixture } from './types';
-export const shift_t_error_shift_n: HandsExtFixture = {
+import type { HandsSceneFixture } from './types';
+export const shift_t_error_shift_n: HandsSceneFixture = {
   input: {
     targetSymbol: "T",
     targetKeyCaps: ["KeyT", "ShiftRight"],
@@ -9,9 +9,9 @@ export const shift_t_error_shift_n: HandsExtFixture = {
     ]
   },
   expectedOutput: {
-    L1: { fingerState: "INACTIVE" },
+    L1: { navigationRole: "INACTIVE" },
     L2: {
-      fingerState: "TARGET",
+      navigationRole: "TARGET",
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -23,10 +23,10 @@ export const shift_t_error_shift_n: HandsExtFixture = {
         KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
       }
     },
-    L3: { fingerState: "INACTIVE" }, L4: { fingerState: "INACTIVE" }, L5: { fingerState: "ERROR" }, LB: { fingerState: "INACTIVE" },
-    R1: { fingerState: "INACTIVE" }, R2: { fingerState: "ERROR" }, R3: { fingerState: "INACTIVE" }, R4: { fingerState: "INACTIVE" },
+    L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" }, L5: { navigationRole: "ERROR" }, LB: { navigationRole: "INACTIVE" },
+    R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "ERROR" }, R3: { navigationRole: "INACTIVE" }, R4: { navigationRole: "INACTIVE" },
     R5: {
-      fingerState: "TARGET",
+      navigationRole: "TARGET",
       keyCapStates: {
         Digit0: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Minus: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -48,6 +48,6 @@ export const shift_t_error_shift_n: HandsExtFixture = {
         ContextMenu: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
       }
     },
-    RB: { fingerState: "INACTIVE" }
+    RB: { navigationRole: "INACTIVE" }
   },
 };
