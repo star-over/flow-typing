@@ -282,3 +282,14 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* View Transitions API: crossfade при смене темы. Внешнее @media гарантирует,
+ * что reduced-motion пользователи не получат кастомную анимацию вообще,
+ * даже если браузер по какой-то причине запустит transition. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--motion-duration-base);
+    animation-timing-function: var(--motion-ease-standard);
+  }
+}

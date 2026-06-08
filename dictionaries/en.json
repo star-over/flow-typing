@@ -26,6 +26,10 @@
     "text_language_description": "Language of typing exercises.",
     "symbol_layout_label": "Keyboard Layout",
     "symbol_layout_description": "Physical keyboard mapping.",
+    "theme_label": "Theme",
+    "theme_description": "Visual theme of the interface.",
+    "theme_group_light": "Light themes",
+    "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
     "symbol_layout_placeholder": "Select layout",
     "back_button": "Back"
@@ -58,6 +62,11 @@
     "layouts": {
       "qwerty": "QWERTY (English)",
       "йцукен": "ЙЦУКЕН (Русская)"
+    },
+    "themes": {
+      "auto": "Auto (system)",
+      "light": "Light",
+      "dark": "Dark"
     }
   }
 }

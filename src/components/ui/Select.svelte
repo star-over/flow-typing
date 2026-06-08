@@ -13,7 +13,7 @@
 <script lang="ts">
   interface Props {
     value: string;
-    options: Option[] | OptionGroup[];
+    options: (Option | OptionGroup)[];
     onChange: (value: string) => void;
   }
 

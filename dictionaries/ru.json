@@ -26,6 +26,10 @@
     "text_language_description": "Язык текстов для тренировки.",
     "symbol_layout_label": "Раскладка клавиатуры",
     "symbol_layout_description": "Физическое отображение клавиш.",
+    "theme_label": "Тема",
+    "theme_description": "Визуальная тема интерфейса.",
+    "theme_group_light": "Светлые темы",
+    "theme_group_dark": "Тёмные темы",
     "language_placeholder": "Выберите язык",
     "symbol_layout_placeholder": "Выберите раскладку",
     "back_button": "Назад"
@@ -58,6 +62,11 @@
     "layouts": {
       "qwerty": "QWERTY (Английская)",
       "йцукен": "ЙЦУКЕН (Русская)"
+    },
+    "themes": {
+      "auto": "Авто (по системе)",
+      "light": "Светлая",
+      "dark": "Тёмная"
     }
   }
 }

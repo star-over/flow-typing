@@ -50,12 +50,41 @@ export function resolveTheme(setting: ThemeSetting): ThemeId {
   return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
+let pendingTransition: ViewTransition | null = null;
+
 /**
- * Меняет выбранную пользователем тему. Stub-реализация Phase 0:
- * пишет значение в preferences-store — DOM-атрибут обновится через
- * `$effect` в `App.svelte`, mirror-key в localStorage — через subscriber
- * в `preferences.ts`. Phase 1 оборачивает вызов в View Transitions API.
+ * Меняет выбранную пользователем тему.
+ *
+ * В современных браузерах (Chrome ≥111, Safari ≥18, Firefox ≥138) свитч
+ * сопровождается crossfade через View Transitions API. При `prefers-reduced-motion`
+ * или отсутствии VT API применяется мгновенно (instant swap). Concurrent-clicks
+ * не блокируются: если предыдущий transition ещё идёт, новое значение
+ * применяется без анимации — последний выбор побеждает без зависаний.
+ *
+ * Свойство `pendingTransition.finished` resolve-ится либо успешно, либо ошибкой
+ * (skipTransition / browser-error). Обе ветки гасим явно через `.then(fulfilled, rejected)`;
+ * `.finally()` оставил бы unhandled rejection.
  */
 export function setTheme(setting: ThemeSetting): void {
-  preferences.update((current) => ({ ...current, theme: setting }));
+  const apply = () =>
+    preferences.update((current) => ({ ...current, theme: setting }));
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const supportsVT = typeof document.startViewTransition === 'function';
+
+  if (!supportsVT || reducedMotion) {
+    apply();
+    return;
+  }
+
+  if (pendingTransition) {
+    apply();
+    return;
+  }
+
+  pendingTransition = document.startViewTransition(apply);
+  pendingTransition.finished.then(
+    () => { pendingTransition = null; },
+    () => { pendingTransition = null; },
+  );
 }

@@ -2,24 +2,13 @@
   import { preferences, updatePreferences } from '@/lib/preferences';
   import Select from './Select.svelte';
   import type { UserPreferences } from '@/interfaces/user-preferences';
+  import type { Dictionary } from '@/interfaces/types';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
+  import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
 
   interface Props {
     onBack: () => void;
-    dictionary: {
-      user_preferences: {
-        title: string;
-        interface_language_label: string;
-        text_language_label: string;
-        symbol_layout_label: string;
-        back_button: string;
-      };
-      options: {
-        interfaceLanguages: Record<UserPreferences['interfaceLanguage'], string>;
-        textLanguages: Record<UserPreferences['textLanguage'], string>;
-        layouts: Record<UserPreferences['symbolLayoutId'], string>;
-      };
-    };
+    dictionary: Dictionary;
   }
 
   const { onBack, dictionary }: Props = $props();
@@ -42,6 +31,21 @@
         label: dictionary.options.layouts[d.symbolLayoutId],
       }))
   );
+
+  const themeOptions = $derived.by(() => {
+    const lightThemes = THEMES
+      .filter((t) => t.colorScheme === 'light')
+      .map((t) => ({ value: t.id, label: dictionary.options.themes[t.id] }));
+    const darkThemes = THEMES
+      .filter((t) => t.colorScheme === 'dark')
+      .map((t) => ({ value: t.id, label: dictionary.options.themes[t.id] }));
+
+    return [
+      { value: 'auto', label: dictionary.options.themes.auto },
+      { label: dictionary.user_preferences.theme_group_light, options: lightThemes },
+      { label: dictionary.user_preferences.theme_group_dark, options: darkThemes },
+    ];
+  });
 </script>
 
 <div class="preferences-page">
@@ -71,6 +75,15 @@
       value={$preferences.symbolLayoutId}
       options={layoutOptions}
       onChange={(v) => updatePreferences({ symbolLayoutId: v as UserPreferences['symbolLayoutId'] })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.user_preferences.theme_label}</span>
+    <Select
+      value={$preferences.theme}
+      options={themeOptions}
+      onChange={(v) => setTheme(v as ThemeSetting)}
     />
   </label>
 
