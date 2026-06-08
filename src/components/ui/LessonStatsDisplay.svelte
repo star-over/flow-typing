@@ -1,56 +1,47 @@
 <script lang="ts">
-  import type { TypingStream } from '@/interfaces/types';
-  import { calculateLessonStats } from '@/lib/stats-calculator';
+  import type { LessonStats } from '@/lib/stats-calculator';
+  import type { Dictionary } from '@/interfaces/types';
 
   interface Props {
-    stream: TypingStream;
-    dictionary: {
-      stats_card: {
-        title: string;
-        cpm: string;
-        wpm: string;
-        accuracy: string;
-        duration: string;
-        units: {
-          cpm: string;
-          wpm: string;
-          accuracy: string;
-          duration: string;
-        };
-      };
-    };
+    stats: LessonStats;
+    dictionary: Dictionary;
   }
 
-  const { stream, dictionary }: Props = $props();
-
-  const stats = $derived(calculateLessonStats(stream));
-
+  const { stats, dictionary }: Props = $props();
   const stats_card = $derived(dictionary.stats_card);
+
+  // Презентационное округление: CPM/WPM/duration читаемее как целые,
+  // accuracy показываем с одним знаком — у неё дробная часть бывает
+  // информативна (95.5 vs 100).
+  const display = $derived({
+    cpm: Math.round(stats.cpm),
+    wpm: Math.round(stats.wpm),
+    accuracy: stats.accuracy.toFixed(1),
+    duration: Math.round(stats.durationInSeconds),
+  });
 </script>
 
-{#if stream.length > 0 && stream.some((s) => s.attempts.length > 0)}
-  <div class="stats-display">
-    <h2 class="title">{stats_card.title}</h2>
-    <div class="grid">
-      <div class="stat-item">
-        <p class="stat-label">{stats_card.cpm}</p>
-        <p class="stat-value">{stats.cpm}<span class="stat-unit">{stats_card.units.cpm}</span></p>
-      </div>
-      <div class="stat-item">
-        <p class="stat-label">{stats_card.wpm}</p>
-        <p class="stat-value">{stats.wpm}<span class="stat-unit">{stats_card.units.wpm}</span></p>
-      </div>
-      <div class="stat-item">
-        <p class="stat-label">{stats_card.accuracy}</p>
-        <p class="stat-value">{stats.accuracy}<span class="stat-unit">{stats_card.units.accuracy}</span></p>
-      </div>
-      <div class="stat-item">
-        <p class="stat-label">{stats_card.duration}</p>
-        <p class="stat-value">{stats.durationInSeconds}<span class="stat-unit">{stats_card.units.duration}</span></p>
-      </div>
+<div class="stats-display">
+  <h2 class="title">{stats_card.title}</h2>
+  <div class="grid">
+    <div class="stat-item">
+      <p class="stat-label">{stats_card.cpm}</p>
+      <p class="stat-value">{display.cpm}<span class="stat-unit">{stats_card.units.cpm}</span></p>
+    </div>
+    <div class="stat-item">
+      <p class="stat-label">{stats_card.wpm}</p>
+      <p class="stat-value">{display.wpm}<span class="stat-unit">{stats_card.units.wpm}</span></p>
+    </div>
+    <div class="stat-item">
+      <p class="stat-label">{stats_card.accuracy}</p>
+      <p class="stat-value">{display.accuracy}<span class="stat-unit">{stats_card.units.accuracy}</span></p>
+    </div>
+    <div class="stat-item">
+      <p class="stat-label">{stats_card.duration}</p>
+      <p class="stat-value">{display.duration}<span class="stat-unit">{stats_card.units.duration}</span></p>
     </div>
   </div>
-{/if}
+</div>
 
 <style>
   .stats-display {
@@ -88,6 +79,10 @@
     padding: var(--spacing-4);
     background-color: var(--color-bg);
     border-radius: var(--radius-3);
+    /* `min-width: 0` отключает grid-default min-content sizing — без него
+     * stat-item не сжимается ниже ширины своего контента и весь grid
+     * расширяется за пределы родителя при длинных значениях. */
+    min-width: 0;
   }
 
   .stat-label {
