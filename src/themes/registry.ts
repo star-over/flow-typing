@@ -16,7 +16,9 @@ import { preferences } from '@/lib/preferences';
  */
 export const THEMES = [
   { id: 'light', colorScheme: 'light' },
+  { id: 'sepia', colorScheme: 'light' },
   { id: 'dark',  colorScheme: 'dark'  },
+  { id: 'nord',  colorScheme: 'dark'  },
 ] as const;
 
 export type ThemeId = typeof THEMES[number]['id'];
