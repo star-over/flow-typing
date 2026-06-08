@@ -5,7 +5,7 @@
  * При рефакторинге или добавлении новых типов, пожалуйста, сохраняйте
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
-import { number, z } from 'zod';
+import { z } from 'zod';
 import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId

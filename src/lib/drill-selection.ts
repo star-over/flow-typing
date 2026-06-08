@@ -30,5 +30,5 @@ export function filterDrillsBySymbolLayout({
 /** Возвращает случайный drill из массива или null, если массив пуст. */
 export function selectRandomDrill({ drills }: { drills: Drill[] }): Drill | null {
   if (drills.length === 0) return null;
-  return drills[Math.floor(Math.random() * drills.length)]!;
+  return drills[Math.floor(Math.random() * drills.length)] ?? null;
 }

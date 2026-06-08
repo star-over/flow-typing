@@ -36,9 +36,9 @@ function groupByRow(physicalLayout: PhysicalLayout): PhysicalKey[][] {
     row.push(key);
     rows.set(key.y, row);
   }
-  return [...rows.keys()]
-    .sort((a, b) => a - b)
-    .map((y) => rows.get(y)!.sort((a, b) => a.x - b.x));
+  return [...rows.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([, row]) => row.sort((a, b) => a.x - b.x));
 }
 
 /** Конвертирует `w` (число в U) в `KeyCapUnitWidth` для совместимости с `KeyCap.svelte`. */

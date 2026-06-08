@@ -7,6 +7,7 @@ import '../src/app.css';
  * Storybook это инструмент разработчика, не пользователя; дублировать
  * dictionaries излишне.
  */
+// eslint-disable-next-line no-restricted-syntax -- Storybook Decorator signature
 const themeDecorator: Decorator = (story, ctx) => {
   const setting = ctx.globals.theme as string | undefined;
   const resolved =

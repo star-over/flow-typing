@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion --
+   тесты проверяют BCP 47 семантику с TextLanguage-литералами вне union
+   ('en-US', 'en-GB', 'eng'); `as never` — намеренный обход type-check. */
 import { describe, expect, it } from 'vitest';
 import { isDrillCompatibleWithSymbolLayout } from './text-language-utils';
 

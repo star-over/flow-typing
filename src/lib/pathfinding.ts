@@ -8,7 +8,7 @@ import type { PhysicalLayout, PhysicalKey, KeyCapId } from "@/interfaces/types";
 export type AdjacencyList = Map<KeyCapId, KeyCapId[]>;
 
 /** Длина пересечения проекций двух клавиш на ось X (в U). */
-function overlapX(a: PhysicalKey, b: PhysicalKey): number {
+function overlapX({ a, b }: { a: PhysicalKey; b: PhysicalKey }): number {
   return Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
 }
 
@@ -25,19 +25,19 @@ export function createKeyboardGraph(physicalLayout: PhysicalLayout): AdjacencyLi
     const neighbors: KeyCapId[] = [];
 
     // Сосед сверху: y' = y - 1 с максимальным horizontal overlap
-    const above = pickByMaxOverlap(physicalLayout, key, key.y - 1);
+    const above = pickByMaxOverlap({ layout: physicalLayout, key, targetY: key.y - 1 });
     if (above) neighbors.push(above.keyCapId);
 
     // Сосед снизу: y' = y + 1 с максимальным horizontal overlap
-    const below = pickByMaxOverlap(physicalLayout, key, key.y + 1);
+    const below = pickByMaxOverlap({ layout: physicalLayout, key, targetY: key.y + 1 });
     if (below) neighbors.push(below.keyCapId);
 
     // Сосед слева: y' = y, ближайший по правому краю (x' + w' <= x)
-    const left = pickClosestSameRow(physicalLayout, key, 'left');
+    const left = pickClosestSameRow({ layout: physicalLayout, key, direction: 'left' });
     if (left) neighbors.push(left.keyCapId);
 
     // Сосед справа: y' = y, ближайший по левому краю (x' >= x + w)
-    const right = pickClosestSameRow(physicalLayout, key, 'right');
+    const right = pickClosestSameRow({ layout: physicalLayout, key, direction: 'right' });
     if (right) neighbors.push(right.keyCapId);
 
     graph.set(key.keyCapId, neighbors);
@@ -46,16 +46,20 @@ export function createKeyboardGraph(physicalLayout: PhysicalLayout): AdjacencyLi
   return graph;
 }
 
-function pickByMaxOverlap(
-  layout: PhysicalLayout,
-  key: PhysicalKey,
-  targetY: number
-): PhysicalKey | undefined {
+function pickByMaxOverlap({
+  layout,
+  key,
+  targetY,
+}: {
+  layout: PhysicalLayout;
+  key: PhysicalKey;
+  targetY: number;
+}): PhysicalKey | undefined {
   let best: PhysicalKey | undefined;
   let bestOverlap = 0;
   for (const other of layout) {
     if (other.y !== targetY) continue;
-    const ov = overlapX(key, other);
+    const ov = overlapX({ a: key, b: other });
     if (ov > bestOverlap) {
       bestOverlap = ov;
       best = other;
@@ -64,11 +68,15 @@ function pickByMaxOverlap(
   return best;
 }
 
-function pickClosestSameRow(
-  layout: PhysicalLayout,
-  key: PhysicalKey,
-  direction: 'left' | 'right'
-): PhysicalKey | undefined {
+function pickClosestSameRow({
+  layout,
+  key,
+  direction,
+}: {
+  layout: PhysicalLayout;
+  key: PhysicalKey;
+  direction: 'left' | 'right';
+}): PhysicalKey | undefined {
   let best: PhysicalKey | undefined;
   let bestDist = Infinity;
   for (const other of layout) {

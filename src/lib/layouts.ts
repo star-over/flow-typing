@@ -19,7 +19,6 @@ import { KEY_CAP_IDS } from '@/interfaces/key-cap-id';
 import {
   KEY_CAP_HOME_KEY_MARKERS,
   KEY_CAP_SYMBOL_SIZES,
-  TEXT_LANGUAGES,
   SYMBOL_LAYOUT_IDS,
   FINGER_IDS,
 } from '@/interfaces/types';
@@ -67,7 +66,13 @@ const FingerEntrySchema = z.object({
 
 // ---------- Парсеры JSONL → массивы с runtime-инвариантами ----------
 
-function parseJsonl<T>(raw: string, parseLine: (obj: unknown, lineNum: number) => T): T[] {
+function parseJsonl<T>({
+  raw,
+  parseLine,
+}: {
+  raw: string;
+  parseLine: (obj: unknown, lineNum: number) => T;
+}): T[] {
   const lines = raw.split('\n').filter((l) => l.trim().length > 0);
   return lines.map((line, i) => {
     try {
@@ -79,7 +84,7 @@ function parseJsonl<T>(raw: string, parseLine: (obj: unknown, lineNum: number) =
 }
 
 function parsePhysicalLayout(raw: string): PhysicalLayout {
-  const keys = parseJsonl(raw, (obj) => PhysicalKeySchema.parse(obj));
+  const keys = parseJsonl({ raw, parseLine: (obj) => PhysicalKeySchema.parse(obj) });
   // Инвариант: уникальность keyCapId в файле
   const seen = new Set<string>();
   for (const k of keys) {
@@ -92,7 +97,7 @@ function parsePhysicalLayout(raw: string): PhysicalLayout {
 }
 
 function parseSymbolLayout(raw: string): SymbolLayout {
-  const entries = parseJsonl(raw, (obj) => SymbolEntrySchema.parse(obj));
+  const entries = parseJsonl({ raw, parseLine: (obj) => SymbolEntrySchema.parse(obj) });
   // Инвариант: уникальность symbol
   const seen = new Set<string>();
   for (const e of entries) {
@@ -105,7 +110,7 @@ function parseSymbolLayout(raw: string): SymbolLayout {
 }
 
 function parseFingerLayout(raw: string): FingerLayout {
-  const entries = parseJsonl(raw, (obj) => FingerEntrySchema.parse(obj));
+  const entries = parseJsonl({ raw, parseLine: (obj) => FingerEntrySchema.parse(obj) });
   // Инвариант: уникальность keyCapId
   const seen = new Set<string>();
   for (const e of entries) {
