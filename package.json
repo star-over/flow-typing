@@ -8,6 +8,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cspell/dict-ru_ru": "^2.3.2",
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^10.4.2",
     "@storybook/addon-svelte-csf": "^5.1.2",

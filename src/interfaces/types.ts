@@ -132,7 +132,7 @@ export const FLOW_LINE_SYMBOL_TYPES = [
   "CORRECT",    // Был напечатан пользователем корректно с первой попытки
   "CORRECTED",  // Был напечатан пользователем корректно не с первой попытки
   "ERROR",      // Был напечатан пользователем не корректно один раз
-  "ERRORS", // Был напечатан пользвателем не корректно несколько раз
+  "ERRORS", // Был напечатан пользователем не корректно несколько раз
 ] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 

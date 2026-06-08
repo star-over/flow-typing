@@ -7,7 +7,7 @@ import type {
 } from "@/interfaces/types";
 
 /**
- * Символ неразрывного пробеса (non-breaking space).
+ * Символ неразрывного пробела (non-breaking space).
  * @type {string}
  */
 export const nbsp = '\u00A0';
@@ -111,8 +111,8 @@ export function getLabel({
 
 
 /**
- * Строит `Record<KeyCapId, string>` с лейблом для каждой клавиши physicalLayout,
- * чтобы потребители (KeyboardScene и т.п.) рендерили из готовой map'ы вместо
+ * Строит `Record<KeyCapId, string>` с надписью для каждой клавиши physicalLayout,
+ * чтобы потребители (KeyboardScene и т.п.) отрисовывали из готовой map'ы вместо
  * вызова `getLabel` per-клавиша в template'е. Один проход вместо N.
  */
 export function createKeyLabelMap({

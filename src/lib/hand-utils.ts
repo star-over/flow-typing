@@ -23,7 +23,7 @@ export function isLeftHandFinger(fingerId: FingerId): fingerId is typeof LEFT_HA
 
 
 /**
- * Получает все клавиши, назначенные на указанный палец. Т.н. Кластер клавишь.
+ * Получает все клавиши, назначенные на указанный палец. Т.н. Кластер клавиш.
  */
 export function getFingerKeys({
   fingerId,

@@ -27,8 +27,9 @@
 | `make coverage` | `vitest run --coverage` (v8 provider, text-отчёт в консоли) |
 | `make check` | `svelte-kit sync` + `svelte-check` |
 | `make lint` / `make lint-fix` | ESLint |
+| `make spell` | CSpell на коде + витрине + словарях (см. `cspell.json`) |
 | `make storybook` | Storybook на http://localhost:6006 |
-| `make check-all` | lint + check + test + build (перед коммитом) |
+| `make check-all` | lint + check + test + spell + build (перед коммитом) |
 | `make check-dev` | быстрый цикл: eslint --quiet, svelte-check, vitest --dot |
 | `make create-drills` | компиляция и запуск `src/scripts/create-drills.ts` |
 
@@ -75,7 +76,14 @@
 - **Импорты**: единственный алиас — `@/...` (= `src/`), объявлен в `svelte.config.js`. SvelteKit добавляет ещё `$lib` (built-in) автоматически, но проект его не использует.
 - **Параметры функций** (для функций, которые мы объявляем сами): 1 параметр — позиционный (`fn(x)`); 2 и более — одним object literal с деструктуризацией (`fn({ a, b, c })`). Снимает зависимость от порядка аргументов и делает call-site самодокументируемым. Исключение — сигнатуры, которые мы не выбираем: коллбэки HOF (`.map((x, i) => …)`), event handlers, action/guard сигнатуры xstate, методы стандартных классов.
 - **Branch / commit**: ветки `feat/...`, `fix/...`; Conventional Commits.
-- Перед коммитом — `make check-all`.
+- Перед коммитом — `make check-all` (включает `spell`; проверка должна быть **чистой**).
+- **Орфография (CSpell)** — `cspell.json` + словарь `@cspell/dict-ru_ru` + поле `words`. Когда `make spell` падает, разбирать каждое слово в порядке:
+  1. **Опечатка** (`Cвет` с латинской C, `пользвателем`, `клавишь`) → **fix в исходнике**.
+  2. **Калька / транслитерация с понятным русским аналогом** (`лейбл`→`надпись`, `иммутабельна`→`неизменна`, `валидируется`→`проверяется`, `colour`→`color`, `initialised`→`initialized`) → **переписать**, в whitelist не класть.
+  3. **Реальное русское слово, которого нет в словаре** (`Зеркалится`, `Раскомментировать`, `пересборке`, `токенам`, `парсинга`) → **в `cspell.json` → `words`**. Cspell не знает падежей русского, поэтому каждая словоформа отдельно.
+  4. **Доменный термин или внешнее имя без аналога** (`keycap`, `viewmodel`, `FOUC`, `oklch`, `Backquote`, `Instapaper`, `Nord`, `ФЫВА`) → **в whitelist**.
+  - Whitelist держать узким — не плодить кальки и узкоспециализированные жаргонные формы. Каждое добавление — осознанное.
+  - Inline-директивы `cSpell:ignore` оставлять для редких file-locked случаев (например, base64/SVG-фрагмент в одном файле), не для глобальных терминов.
 
 ## Gotchas
 

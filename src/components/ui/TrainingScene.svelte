@@ -52,7 +52,7 @@
   );
   const pressResult = $derived(getPressResult(currentSymbol));
 
-  // Готовый массив EnrichedStreamSymbol — FlowLine рендерит char+type
+  // Готовый массив EnrichedStreamSymbol — FlowLine отрисовывает char+type
   // напрямую, не вызывая getSymbolChar/getSymbolType per-символ в template.
   const enrichedSymbols = $derived(enrichStreamSymbols(stream));
 </script>

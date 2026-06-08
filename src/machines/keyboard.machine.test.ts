@@ -192,7 +192,7 @@ describe("keyboardMachine", () => {
 
   it("should send CHARACTER_INPUT event for multiple modifier keys + text key chord", () => new Promise<void>((resolve) => {
     const actor = createActor(testParentMachine);
-    // step реассайнится внутри subscribe-callback (linter не видит этого через
+    // step переназначается внутри subscribe-callback (linter не видит этого через
     // late-bound closure); оба правила prefer-const ругаются ложно.
     // eslint-disable-next-line prefer-const, svelte/prefer-const
     let step = 0;

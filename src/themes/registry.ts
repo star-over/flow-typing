@@ -3,7 +3,7 @@ import { preferences } from '@/lib/preferences';
 /**
  * Каталог тем FlowTyping.
  *
- * Каждая тема — полный colour snapshot (semantic + domain), задаваемый
+ * Каждая тема — полный color snapshot (semantic + domain), задаваемый
  * отдельным CSS-файлом `src/themes/<id>.css` с селектором `:root[data-theme="<id>"]`.
  * Primitives темами не покрываются (radius/spacing/typography/motion — единые).
  *
@@ -26,7 +26,7 @@ export type ColorScheme = 'light' | 'dark';
 
 /**
  * Значение поля `UserPreferences.theme`. Включает sentinel-значение `'auto'`,
- * которое в рантайме резолвится в конкретный `ThemeId` через
+ * которое в рантайме преобразуется в конкретный `ThemeId` через
  * `prefers-color-scheme` (см. {@link resolveTheme}).
  */
 export type ThemeSetting = ThemeId | 'auto';
@@ -42,7 +42,7 @@ export function isThemeSetting(v: unknown): v is ThemeSetting {
 }
 
 /**
- * Резолвит `ThemeSetting` в конкретную `ThemeId`, активную прямо сейчас.
+ * Преобразует `ThemeSetting` в конкретную `ThemeId`, активную прямо сейчас.
  * Для `'auto'` берёт системное предпочтение через `matchMedia`; в окружениях
  * без `matchMedia` (например, тесты) падает на `'light'`.
  */
@@ -63,7 +63,7 @@ let pendingTransition: ViewTransition | null = null;
  * не блокируются: если предыдущий transition ещё идёт, новое значение
  * применяется без анимации — последний выбор побеждает без зависаний.
  *
- * Свойство `pendingTransition.finished` resolve-ится либо успешно, либо ошибкой
+ * Свойство `pendingTransition.finished` разрешается либо успешно, либо ошибкой
  * (skipTransition / browser-error). Обе ветки гасим явно через `.then(fulfilled, rejected)`;
  * `.finally()` оставил бы unhandled rejection.
  */

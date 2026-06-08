@@ -55,7 +55,7 @@
     ) as Record<FingerId, FingerNavigationRole>
   );
 
-  // Refs (keyed by FingerId). All FingerIds are pre-initialised to null so that
+  // Refs (keyed by FingerId). All FingerIds are pre-initialized to null so that
   // `bind:` on a not-yet-mounted element doesn't trip Svelte's
   // props_invalid_value guard for $bindable props.
   const fingerCenterRefs: Record<FingerId, SVGCircleElement | null> = $state(emptyRefMap<SVGCircleElement>());
@@ -65,7 +65,7 @@
   // cluster snaps into place without flicker when remounted.
   const clusterTranslations: Partial<Record<FingerId, { dx: number; dy: number }>> = $state({});
 
-  // Готовая map лейблов клавиш — KeyboardScene не вызывает getLabel в template,
+  // Готовая map надписей клавиш — KeyboardScene не вызывает getLabel в template,
   // а читает уже посчитанные значения.
   const keyLabels = $derived(createKeyLabelMap({ physicalLayout, symbolLayout }));
 

@@ -38,7 +38,7 @@ export const trainingMachine = setup({
     captureAppearanceTime: assign({
       symbolAppearanceTime: () => Date.now(),
     }),
-    // Используется в correctInput и incorrectInput. Сам addAttempt iммутабелен
+    // Используется в correctInput и incorrectInput. Сам addAttempt неизменяем
     // и защищён от out-of-bounds (возвращает исходный stream без изменений).
     recordAttempt: assign(({ context }, params: { keys: KeyCapId[] }) => ({
       stream: addAttempt({

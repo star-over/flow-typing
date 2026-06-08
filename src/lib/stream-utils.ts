@@ -9,7 +9,7 @@ import { areKeyCapIdArraysEqual, nbsp, sp } from "./symbol-utils";
 
 /**
  * Добавляет новую попытку набора к символу в `TypingStream`.
- * Функция иммутабельна и возвращает новый экземпляр потока.
+ * Функция неизменна и возвращает новый экземпляр потока.
  * @param params - Параметры для добавления попытки.
  * @param params.stream - Исходный `TypingStream`.
  * @param params.cursorPosition - Индекс символа, к которому добавляется попытка.
@@ -94,7 +94,7 @@ export const getSymbolChar = (symbol?: StreamSymbol): string => {
 
 /**
  * Готовая к рендерингу view-model одного символа потока: видимый символ +
- * тип для подсветки. FlowLine рендерит из массива таких объектов, не
+ * тип для подсветки. FlowLine отрисовывает из массива таких объектов, не
  * вызывая getSymbolChar/getSymbolType внутри template.
  */
 export interface EnrichedStreamSymbol {

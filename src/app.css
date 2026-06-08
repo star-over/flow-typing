@@ -20,7 +20,7 @@
  * Палитра — литералы oklch (математическая конверсия исходных hex,
  * совпадает с Tailwind v4 oklch-числами). Комментарии справа от цветовых
  * токенов: исходный hex и имя токена (Tailwind v3) — origin каждого цвета,
- * чтобы было от чего отталкиваться при пересборке визуала.
+ * чтобы было от чего отталкиваться при пересборке визуального облика.
  */
 :root {
   /* Дефолт для JS-off scenario и крошечного окна между paint и inline-script
@@ -128,7 +128,7 @@
    * ============================================================ */
 
   /* --- Finger palette (per FingerId numeric index) ---
-   * Cвет «активного» пальца. Индекс совпадает с FingerId по руке:
+   * Свет «активного» пальца. Индекс совпадает с FingerId по руке:
    * 1=thumb, 2=index, 3=middle, 4=ring, 5=pinky; B=ладонь (LB/RB).
    * Применяется ТОЛЬКО к пальцам с fingerState='TARGET'
    * (см. docs/03-ui-viewmodel-contract.md, §3.3). Цвет — функция
@@ -156,7 +156,7 @@
    * цели. Холодный path-highlight (точка-центр пальца) + тёплый
    * target-marker (overlay активного пальца) = «механический контракт
    * клавиатуры + живая рука». Дуальность сохранять. cursor-border —
-   * амбер-рамка FlowLine, общий каркас «фокус ввода». */
+   * янтарная рамка FlowLine, общий каркас «фокус ввода». */
   --color-path-highlight: oklch(0.62 0.19 260);  /* #3b82f6 blue-500 — finger-center-point fill */
   --color-target-marker : oklch(0.77 0.16 70);   /* #f59e0b amber-500 — Finger.active overlay   */
   --color-cursor-border : oklch(0.84 0.16 84);   /* #fbbf24 amber-400 — FlowLine outer border    */
@@ -285,7 +285,7 @@ body {
 }
 
 /* View Transitions API: crossfade при смене темы. Внешнее @media гарантирует,
- * что reduced-motion пользователи не получат кастомную анимацию вообще,
+ * что reduced-motion пользователи не получат пользовательскую анимацию вообще,
  * даже если браузер по какой-то причине запустит transition. */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root),

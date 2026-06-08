@@ -8,7 +8,7 @@
 SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
-        storybook storybook-build check-all compile-drills create-drills \
+        spell storybook storybook-build check-all compile-drills create-drills \
         normalize-rus-corp reinstall-gemini-cli
 
 all: help
@@ -37,7 +37,8 @@ help:
 	@echo "  make coverage         - vitest run --coverage (text-отчёт в консоли)"
 	@echo "  make lint             - eslint ."
 	@echo "  make lint-fix         - eslint . --fix"
-	@echo "  make check-all        - lint + check + test + build"
+	@echo "  make spell            - cspell на src/dictionaries/static (см. cspell.json)"
+	@echo "  make check-all        - lint + check + test + spell + build"
 	@echo ""
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
 	@echo "  make storybook-build  - storybook static build"
@@ -114,6 +115,12 @@ lint-fix: install
 	@echo "🔧 eslint --fix..."
 	npx eslint . --fix
 
+# CSpell сканирует код + витрину + словари. Документация (docs/, *.md) НЕ в
+# check-all — там много неформального текста, фиксим отдельно по мере правок.
+spell: install
+	@echo "🔤 cspell..."
+	npx cspell --no-progress 'src/**/*.{svelte,ts,css}' 'dictionaries/*.json' 'static/*.html'
+
 check-dev: install
 	npx eslint . --quiet --cache --cache-location node_modules/.cache/eslint/
 	npx svelte-kit sync
@@ -122,7 +129,7 @@ check-dev: install
 	@echo "✅ DEVELOPMENT проверки завершены!"
 
 check-all: install
-	$(MAKE) lint check test build
+	$(MAKE) lint check test spell build
 	@echo "✅ Все проверки завершены!"
 
 
