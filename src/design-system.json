@@ -195,5 +195,9 @@
         "gradient": { "value": "oklch(0.85 0.29 140)" }
       }
     }
+  },
+
+  "themes": {
+    "$description": "Theme catalogue snapshot. Каждая запись — полный colour override поверх base palette (semantic + domain). Phase 0: empty stub; наполняется в Phase 4 (см. plans/2026-06-07-theme-system.md)."
   }
 }

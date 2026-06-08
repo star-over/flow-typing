@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+@import url('./themes/light.css');
+@import url('./themes/dark.css');
 
 /* cSpell:ignore oklch бывш */
 
@@ -20,6 +22,11 @@
  * чтобы было от чего отталкиваться при пересборке визуала.
  */
 :root {
+  /* Дефолт для JS-off scenario и крошечного окна между paint и inline-script
+   * в `src/app.html` (см. план theme-system §0.5). Темы переопределяют через
+   * `:root[data-theme="<id>"] { color-scheme: <...>; }`. */
+  color-scheme: light;
+
   /* ============================================================
    * LAYER 1 · PRIMITIVES — raw values, no semantics
    * ============================================================ */

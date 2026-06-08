@@ -1,0 +1,109 @@
+/* cSpell:ignore oklch */
+
+/*
+ * Template для новой темы. НЕ импортируется в build (имя начинается с `_`).
+ * Contract-тест проверяет, что список токенов здесь совпадает с базой.
+ *
+ * Чтобы создать тему:
+ *   1. Скопировать файл в `src/themes/<id>.css`.
+ *   2. Заменить селектор `:root[data-theme="__TEMPLATE__"]` на свой ID.
+ *   3. Раскомментировать `color-scheme` и заполнить значения.
+ *   4. Добавить запись `{ id, colorScheme }` в `THEMES` в `src/themes/registry.ts`.
+ *   5. Добавить ключ `options.themes.<id>` в `dictionaries/{en,ru}.json` (Phase 1+).
+ *   6. Добавить `@import url('./themes/<id>.css');` в `src/app.css`.
+ */
+:root[data-theme="__TEMPLATE__"] {
+  /* color-scheme: light | dark; */
+
+  /* --- Semantic surfaces --- */
+  --color-bg           : unset;
+  --color-surface      : unset;
+  --color-surface-hover: unset;
+  --color-border       : unset;
+
+  /* --- Semantic text --- */
+  --color-text-primary  : unset;
+  --color-text-secondary: unset;
+  --color-text-muted    : unset;
+
+  /* --- Semantic outcomes --- */
+  --color-success    : unset;
+  --color-success-dim: unset;
+  --color-error      : unset;
+  --color-error-dim  : unset;
+  --color-warning    : unset;
+
+  /* --- Domain · Finger palette --- */
+  --color-finger-1   : unset;
+  --color-finger-2   : unset;
+  --color-finger-3   : unset;
+  --color-finger-4   : unset;
+  --color-finger-5   : unset;
+  --color-finger-base: unset;
+
+  /* --- Domain · Finger state (non-TARGET) --- */
+  --color-finger-inactive: unset;
+  --color-finger-idle    : unset;
+  --color-finger-error   : unset;
+
+  /* --- Domain · Navigation visualization --- */
+  --color-path-highlight: unset;
+  --color-target-marker : unset;
+  --color-cursor-border : unset;
+
+  /* --- Domain · Typing-stream symbol statuses --- */
+  --color-symbol-pending   : unset;
+  --color-symbol-correct   : unset;
+  --color-symbol-corrected : unset;
+  --color-symbol-error     : unset;
+  --color-symbol-errors    : unset;
+  --color-symbol-correct-bg: unset;
+  --color-symbol-error-bg  : unset;
+
+  /* --- Domain · CursorSymbol block --- */
+  --color-cursor-bg: unset;
+  --color-cursor-fg: unset;
+
+  /* --- Domain · KeyCap base --- */
+  --color-keycap-label : unset;
+  --color-keycap-marker: unset;
+
+  /* --- Domain · KeyCap colour groups --- */
+  --color-keycap-group-neutral-bg    : unset;
+  --color-keycap-group-neutral-border: unset;
+  --color-keycap-group-yellow-bg     : unset;
+  --color-keycap-group-yellow-border : unset;
+  --color-keycap-group-sky-bg        : unset;
+  --color-keycap-group-sky-border    : unset;
+  --color-keycap-group-indigo-bg     : unset;
+  --color-keycap-group-indigo-border : unset;
+  --color-keycap-group-purple-bg     : unset;
+  --color-keycap-group-purple-border : unset;
+
+  /* --- Domain · KeyCap secondary --- */
+  --color-keycap-secondary-bg    : unset;
+  --color-keycap-secondary-fg    : unset;
+  --color-keycap-secondary-border: unset;
+
+  /* --- Domain · KeyCap accent --- */
+  --color-keycap-accent-bg    : unset;
+  --color-keycap-accent-fg    : unset;
+  --color-keycap-accent-border: unset;
+
+  /* --- Domain · KeyCap navigation role TARGET --- */
+  --color-keycap-role-target-bg: unset;
+  --color-keycap-role-target-fg: unset;
+
+  /* --- Domain · KeyCap press results --- */
+  --color-keycap-correct-bg    : unset;
+  --color-keycap-correct-fg    : unset;
+  --color-keycap-correct-border: unset;
+  --color-keycap-error-bg      : unset;
+  --color-keycap-error-fg      : unset;
+  --color-keycap-error-border  : unset;
+
+  /* --- Domain · Navigation arrow marker --- */
+  --color-arrow-fill    : unset;
+  --color-arrow-stroke  : unset;
+  --color-arrow-gradient: unset;
+}
