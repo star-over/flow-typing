@@ -5,6 +5,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FlowTyping · Design System</title>
+  <script>
+    // FOUC-free theme bootstrap для витрины. Зеркалит логику src/app.html:
+    // читает flow-typing-theme из localStorage, fallback на matchMedia.
+    // Атрибут data-theme ставится синхронно до парсинга <link rel="stylesheet">.
+    try {
+      var t = localStorage.getItem('flow-typing-theme');
+      if (!t || t === 'auto') {
+        t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (_) {
+      var mq = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
+      document.documentElement.dataset.theme = mq && mq.matches ? 'dark' : 'light';
+    }
+  </script>
   <!-- Same path works via file:// (../src/app.css) and via SvelteKit dev (/src/app.css normalized). -->
   <link rel="stylesheet" href="../src/app.css" />
   <style>
@@ -12,7 +27,9 @@
      * RegularSymbol, CursorSymbol). Source of truth for component styles
      * remains the .svelte files in src/components/ui/. */
 
-    body { padding: var(--spacing-8); display: flex; flex-direction: column; gap: var(--spacing-8); max-width: 1100px; margin: 0 auto; }
+    body { padding: var(--spacing-8); display: flex; flex-direction: column; gap: var(--spacing-8); max-width: 1100px; margin: 0 auto; background-color: var(--color-bg); color: var(--color-text-primary); }
+    .theme-toggle { display: flex; align-items: center; gap: var(--spacing-3); margin-top: var(--spacing-4); }
+    .theme-toggle select { font-family: var(--font-sans); font-size: var(--font-size-sm); padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-3); background-color: var(--color-surface); color: var(--color-text-primary); cursor: pointer; }
     h1 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); }
     h2 { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-2); margin-top: var(--spacing-4); }
     h3 { font-size: var(--font-size-md); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); margin-top: var(--spacing-4); }
@@ -108,7 +125,36 @@
       (see <code>src/design-system.json</code> for the JSON manifest). Token source of
       truth — <code>src/app.css</code>. Domain semantics — <code>docs/03-ui-viewmodel-contract.md</code>.
     </p>
+    <label class="theme-toggle">
+      <span>Theme:</span>
+      <select id="theme-toggle">
+        <option value="auto">Auto (system)</option>
+        <option value="light">Light</option>
+        <option value="sepia">Sepia</option>
+        <option value="dark">Dark</option>
+        <option value="nord">Nord</option>
+      </select>
+    </label>
   </header>
+  <script>
+    // Theme toggle для витрины. Зеркалит mirror-key с приложением, так что
+    // выбор здесь подхватывается src/app.html при следующем визите SPA.
+    (function () {
+      var sel = document.getElementById('theme-toggle');
+      var stored;
+      try { stored = localStorage.getItem('flow-typing-theme'); } catch (_) { stored = null; }
+      sel.value = stored || 'auto';
+      function resolve(value) {
+        if (value !== 'auto') return value;
+        return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      sel.addEventListener('change', function () {
+        var v = sel.value;
+        try { localStorage.setItem('flow-typing-theme', v); } catch (_) {}
+        document.documentElement.dataset.theme = resolve(v);
+      });
+    })();
+  </script>
 
   <!-- ============================================================ -->
   <section>

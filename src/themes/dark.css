@@ -1,0 +1,114 @@
+/* cSpell:ignore oklch */
+
+/*
+ * Dark theme — первый override-snapshot поверх базовой палитры.
+ *
+ * Правила трансформации (из плана 2026-06-07-theme-system.md, Phase 0.3):
+ *   - surfaces: тёмные slate-тона, chroma 0
+ *   - text: invert L
+ *   - outcomes: hue+chroma неизменны, L подкручен для контраста
+ *   - finger palette: L -0.05, chroma -0.02
+ *   - finger state (inactive/idle): инвертирована L под dark surface
+ *   - navigation viz: hue сохранить, L подкрутить под dark
+ *   - symbol statuses: fg светлее (L≈0.7-0.85), bg темнее (L≈0.20-0.30, чуть выше bg)
+ *   - cursor block: invert vs light
+ *   - keycap label/marker: invert L
+ *   - keycap groups: bg = oklch(0.22 chroma hue / 0.7), border = oklch(0.40 chroma hue)
+ *   - keycap secondary/accent/role-target/correct/error: hue сохранить, L пересчитан
+ *   - arrow: hue сохранить, L поднять
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* --- Semantic surfaces --- */
+  --color-bg           : oklch(0.14 0 0);
+  --color-surface      : oklch(0.20 0 0);
+  --color-surface-hover: oklch(0.25 0 0);
+  --color-border       : oklch(0.30 0 0);
+
+  /* --- Semantic text --- */
+  --color-text-primary  : oklch(0.96 0 0);
+  --color-text-secondary: oklch(0.72 0 0);
+  --color-text-muted    : oklch(0.62 0 0);
+
+  /* --- Semantic outcomes --- */
+  --color-success    : oklch(0.76 0.19 150);
+  --color-success-dim: oklch(0.76 0.19 150 / 0.2);
+  --color-error      : oklch(0.70 0.21 25);
+  --color-error-dim  : oklch(0.70 0.21 25 / 0.2);
+  --color-warning    : oklch(0.80 0.16 70);
+
+  /* --- Domain · Finger palette --- */
+  --color-finger-1   : oklch(0.81 0.15 92);
+  --color-finger-2   : oklch(0.71 0.14 56);
+  --color-finger-3   : oklch(0.75 0.16 152);
+  --color-finger-4   : oklch(0.66 0.12 255);
+  --color-finger-5   : oklch(0.67 0.16 306);
+  --color-finger-base: oklch(0.30 0.02 75);
+
+  /* --- Domain · Finger state (non-TARGET) --- */
+  --color-finger-inactive: oklch(0.30 0.02 75);
+  --color-finger-idle    : oklch(0.25 0.02 260);
+  --color-finger-error   : oklch(0.65 0.20 20);
+
+  /* --- Domain · Navigation visualization --- */
+  --color-path-highlight: oklch(0.55 0.19 260);
+  --color-target-marker : oklch(0.72 0.16 70);
+  --color-cursor-border : oklch(0.72 0.16 84);
+
+  /* --- Domain · Typing-stream symbol statuses --- */
+  --color-symbol-pending   : oklch(0.70 0.03 257);
+  --color-symbol-correct   : oklch(0.78 0.11 151);
+  --color-symbol-corrected : oklch(0.75 0.15 10);
+  --color-symbol-error     : oklch(0.78 0.14 76);
+  --color-symbol-errors    : oklch(0.72 0.20 17);
+  --color-symbol-correct-bg: oklch(0.22 0.04 157);
+  --color-symbol-error-bg  : oklch(0.22 0.03 18);
+
+  /* --- Domain · CursorSymbol block --- */
+  --color-cursor-bg: oklch(0.95 0 0);
+  --color-cursor-fg: oklch(0.14 0 0);
+
+  /* --- Domain · KeyCap base --- */
+  --color-keycap-label : oklch(0.78 0.08 241);
+  --color-keycap-marker: oklch(0.85 0.04 266);
+
+  /* --- Domain · KeyCap colour groups --- */
+  --color-keycap-group-neutral-bg    : oklch(0.22 0    0 / 0.7);
+  --color-keycap-group-neutral-border: oklch(0.40 0    0);
+  --color-keycap-group-yellow-bg     : oklch(0.22 0.03 95 / 0.7);
+  --color-keycap-group-yellow-border : oklch(0.40 0.15 90);
+  --color-keycap-group-sky-bg        : oklch(0.22 0.03 235 / 0.7);
+  --color-keycap-group-sky-border    : oklch(0.40 0.10 230);
+  --color-keycap-group-indigo-bg     : oklch(0.22 0.03 275 / 0.7);
+  --color-keycap-group-indigo-border : oklch(0.40 0.10 275);
+  --color-keycap-group-purple-bg     : oklch(0.22 0.03 300 / 0.7);
+  --color-keycap-group-purple-border : oklch(0.40 0.11 300);
+
+  /* --- Domain · KeyCap secondary --- */
+  --color-keycap-secondary-bg    : oklch(0.22 0 0);
+  --color-keycap-secondary-fg    : oklch(0.55 0 68);
+  --color-keycap-secondary-border: oklch(0.35 0 0);
+
+  /* --- Domain · KeyCap accent --- */
+  --color-keycap-accent-bg    : oklch(0.25 0.02 74);
+  --color-keycap-accent-fg    : oklch(0.78 0.16 56);
+  --color-keycap-accent-border: oklch(0.40 0.07 71);
+
+  /* --- Domain · KeyCap navigation role TARGET --- */
+  --color-keycap-role-target-bg: oklch(0.55 0.10 243 / 0.7);
+  --color-keycap-role-target-fg: oklch(0.98 0.01 237);
+
+  /* --- Domain · KeyCap press results --- */
+  --color-keycap-correct-bg    : oklch(0.50 0.11 150 / 0.8);
+  --color-keycap-correct-fg    : oklch(0.98 0.01 180);
+  --color-keycap-correct-border: oklch(0.75 0.19 150);
+  --color-keycap-error-bg      : oklch(0.65 0.20 30 / 0.8);
+  --color-keycap-error-fg      : oklch(0.97 0.0 20);
+  --color-keycap-error-border  : oklch(0.72 0.17 20);
+
+  /* --- Domain · Navigation arrow marker --- */
+  --color-arrow-fill    : oklch(0.75 0.16 150);
+  --color-arrow-stroke  : oklch(0.70 0.14 150);
+  --color-arrow-gradient: oklch(0.90 0.29 140);
+}

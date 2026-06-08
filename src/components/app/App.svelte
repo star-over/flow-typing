@@ -7,6 +7,9 @@
   import { preferences } from '@/lib/preferences';
   import { planExerciseIdSync } from '@/lib/exercise-id-sync';
   import { inState } from '@/lib/state-utils';
+  import { resolveTheme } from '@/themes/registry';
+  import { browser } from '$app/environment';
+  import { on } from 'svelte/events';
 
   import Header from './Header.svelte';
   import MainContent from './MainContent.svelte';
@@ -68,6 +71,26 @@
         goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
         break;
     }
+  });
+
+  // Синхронизация `data-theme` с preferences. Inline-script в `src/app.html`
+  // ставит атрибут до paint; этот effect перетирает его после hydration,
+  // если пользователь сменил тему в Settings.
+  $effect(() => {
+    if (!browser) return;
+    document.documentElement.dataset.theme = resolveTheme($preferences.theme);
+  });
+
+  // Live-обновление при системной смене темы, только в режиме `'auto'`.
+  // `on()` возвращает cleanup — без него listener утекает при переключении
+  // на конкретную тему.
+  $effect(() => {
+    if (!browser) return;
+    if ($preferences.theme !== 'auto') return;
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    return on(mq, 'change', () => {
+      document.documentElement.dataset.theme = resolveTheme('auto');
+    });
   });
 </script>
 

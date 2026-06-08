@@ -14,8 +14,10 @@ import {
   getCompatibleSymbolLayoutsForTextLanguage,
   getDefaultSymbolLayoutForTextLanguage,
 } from '@/lib/layouts';
+import { isThemeSetting, type ThemeSetting } from '@/themes/registry';
 
 const STORAGE_KEY = 'flow-typing-user-preferences';
+const THEME_STORAGE_KEY = 'flow-typing-theme';
 
 function isInterfaceLanguage(v: unknown): v is InterfaceLanguage {
   return typeof v === 'string' && (INTERFACE_LANGUAGES as readonly string[]).includes(v);
@@ -66,7 +68,11 @@ export function normalizePreferences(raw: unknown): UserPreferences {
       ? (stored.shared as UserPreferences['shared'])
       : {};
 
-  return { interfaceLanguage, textLanguage, symbolLayoutId, shared };
+  const theme: ThemeSetting = isThemeSetting(stored.theme)
+    ? stored.theme
+    : DEFAULT_USER_PREFERENCES.theme;
+
+  return { interfaceLanguage, textLanguage, symbolLayoutId, theme, shared };
 }
 
 function safeJsonParse(s: string): unknown {
@@ -85,6 +91,12 @@ function createPreferencesStore() {
 
   store.subscribe((value) => {
     if (browser) localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+  });
+
+  // Mirror-key для FOUC-free bootstrap: inline-script в `src/app.html` читает
+  // именно его до paint. Единственный источник записи — этот subscriber.
+  store.subscribe((value) => {
+    if (browser) localStorage.setItem(THEME_STORAGE_KEY, value.theme);
   });
 
   return {

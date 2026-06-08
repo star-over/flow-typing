@@ -8,6 +8,7 @@ describe('normalizePreferences', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      theme: 'auto',
       shared: {},
     });
   });
@@ -17,6 +18,7 @@ describe('normalizePreferences', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      theme: 'auto',
       shared: {},
     });
   });
@@ -33,9 +35,15 @@ describe('normalizePreferences', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      theme: 'dark',
       shared: { exerciseId: 'x' },
     };
     expect(normalizePreferences(input)).toEqual(input);
+  });
+
+  it('мусор в theme игнорируется и подставляется дефолт', () => {
+    const result = normalizePreferences({ theme: 'neon' });
+    expect(result.theme).toBe('auto');
   });
 
   it('несовместимая пара textLanguage=ru + symbolLayoutId=qwerty → сброс раскладки', () => {

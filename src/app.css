@@ -1,4 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+@import url('./themes/light.css');
+@import url('./themes/sepia.css');
+@import url('./themes/dark.css');
+@import url('./themes/nord.css');
 
 /* cSpell:ignore oklch бывш */
 
@@ -20,6 +24,11 @@
  * чтобы было от чего отталкиваться при пересборке визуала.
  */
 :root {
+  /* Дефолт для JS-off scenario и крошечного окна между paint и inline-script
+   * в `src/app.html` (см. план theme-system §0.5). Темы переопределяют через
+   * `:root[data-theme="<id>"] { color-scheme: <...>; }`. */
+  color-scheme: light;
+
   /* ============================================================
    * LAYER 1 · PRIMITIVES — raw values, no semantics
    * ============================================================ */
@@ -274,4 +283,15 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* View Transitions API: crossfade при смене темы. Внешнее @media гарантирует,
+ * что reduced-motion пользователи не получат кастомную анимацию вообще,
+ * даже если браузер по какой-то причине запустит transition. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--motion-duration-base);
+    animation-timing-function: var(--motion-ease-standard);
+  }
 }
