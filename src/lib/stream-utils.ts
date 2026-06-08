@@ -91,3 +91,25 @@ export const getSymbolChar = (symbol?: StreamSymbol): string => {
   }
   return char === sp ? nbsp : char;
 };
+
+/**
+ * Готовая к рендерингу view-model одного символа потока: видимый символ +
+ * тип для подсветки. FlowLine рендерит из массива таких объектов, не
+ * вызывая getSymbolChar/getSymbolType внутри template.
+ */
+export interface EnrichedStreamSymbol {
+  char: string;
+  type: FlowLineSymbolType;
+}
+
+/**
+ * Превращает `TypingStream` в массив `EnrichedStreamSymbol` для FlowLine.
+ * Одна композиция `getSymbolChar` + `getSymbolType` per-символ; обе
+ * зависимости чистые и покрыты собственными тестами.
+ */
+export function enrichStreamSymbols(stream: TypingStream): EnrichedStreamSymbol[] {
+  return stream.map((symbol) => ({
+    char: getSymbolChar(symbol),
+    type: getSymbolType(symbol),
+  }));
+}

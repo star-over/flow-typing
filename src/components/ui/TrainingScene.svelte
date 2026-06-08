@@ -8,6 +8,7 @@
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
   import { getPressResult } from '@/lib/press-result-utils';
   import { getSymbolLayout } from '@/lib/layouts';
+  import { enrichStreamSymbols } from '@/lib/stream-utils';
 
   import FlowLine from './FlowLine.svelte';
   import HandsScene from './HandsScene.svelte';
@@ -50,6 +51,10 @@
     createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
   );
   const pressResult = $derived(getPressResult(currentSymbol));
+
+  // Готовый массив EnrichedStreamSymbol — FlowLine рендерит char+type
+  // напрямую, не вызывая getSymbolChar/getSymbolType per-символ в template.
+  const enrichedSymbols = $derived(enrichStreamSymbols(stream));
 </script>
 
 <div class="training-scene">
@@ -60,7 +65,7 @@
   </p>
 
   <FlowLine
-    {stream}
+    symbols={enrichedSymbols}
     cursorPosition={currentIndex}
     {pressResult}
     blink={trainingState.matches('lessonComplete')}

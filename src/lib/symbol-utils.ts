@@ -110,6 +110,26 @@ export function getLabel({
 
 
 
+/**
+ * Строит `Record<KeyCapId, string>` с лейблом для каждой клавиши physicalLayout,
+ * чтобы потребители (KeyboardScene и т.п.) рендерили из готовой map'ы вместо
+ * вызова `getLabel` per-клавиша в template'е. Один проход вместо N.
+ */
+export function createKeyLabelMap({
+  physicalLayout,
+  symbolLayout,
+}: {
+  physicalLayout: PhysicalLayout;
+  symbolLayout: SymbolLayout;
+}): Record<KeyCapId, string> {
+  return Object.fromEntries(
+    physicalLayout.map((key) => [
+      key.keyCapId,
+      getLabel({ keyCapId: key.keyCapId, physicalLayout, symbolLayout }),
+    ])
+  ) as Record<KeyCapId, string>;
+}
+
 /** Получает массив `KeyCapId`, необходимых для набора заданного символа. */
 export function getKeyCapIdsForChar({
   char,

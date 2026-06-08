@@ -120,6 +120,7 @@
     {state}
     send={appActor.send.bind(appActor)}
     dictionary={$dictionary}
+    symbolLayoutId={$preferences.symbolLayoutId}
   />
 </div>
 

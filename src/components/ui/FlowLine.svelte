@@ -1,16 +1,15 @@
 <script lang="ts">
   import RegularSymbol from './RegularSymbol.svelte';
   import CursorSymbol from './CursorSymbol.svelte';
-  import { getSymbolChar, getSymbolType } from '@/lib/stream-utils';
+  import type { EnrichedStreamSymbol } from '@/lib/stream-utils';
   import type {
-    TypingStream,
     KeyCapPressResult,
     FlowLineCursorType,
     FlowLineCursorMode,
   } from '@/interfaces/types';
 
   interface Props {
-    stream: TypingStream;
+    symbols: EnrichedStreamSymbol[];
     cursorPosition: number;
     pressResult?: KeyCapPressResult;
     cursorType?: FlowLineCursorType;
@@ -19,7 +18,7 @@
   }
 
   const {
-    stream,
+    symbols,
     cursorPosition,
     pressResult = 'NONE',
     cursorType,
@@ -31,25 +30,25 @@
   const pendingCount = 100;
 
   const startCompleted = $derived(Math.max(0, cursorPosition - completedCount));
-  const completedSymbols = $derived(stream.slice(startCompleted, cursorPosition));
-  // undefined для пустого потока или cursorPosition >= stream.length — guard в JSX ниже.
-  const cursorSymbol = $derived(stream[cursorPosition]);
+  const completedSymbols = $derived(symbols.slice(startCompleted, cursorPosition));
+  // undefined для пустого потока или cursorPosition >= symbols.length — guard в JSX ниже.
+  const cursorSymbol = $derived(symbols[cursorPosition]);
   const endPending = $derived(cursorPosition + 1 + pendingCount);
-  const pendingSymbols = $derived(stream.slice(cursorPosition + 1, endPending));
+  const pendingSymbols = $derived(symbols.slice(cursorPosition + 1, endPending));
 </script>
 
 <div class="flow-line {cursorMode} {pressResult}">
   <div class="completed-symbols">
     {#each completedSymbols as symbol, i (startCompleted + i)}
-      <RegularSymbol symbol={getSymbolChar(symbol)} symbolType={getSymbolType(symbol)} />
+      <RegularSymbol symbol={symbol.char} symbolType={symbol.type} />
     {/each}
   </div>
 
-  <CursorSymbol {cursorType} {blink} symbol={cursorSymbol ? getSymbolChar(cursorSymbol) : ''} />
+  <CursorSymbol {cursorType} {blink} symbol={cursorSymbol?.char ?? ''} />
 
   <div class="pending-symbols">
     {#each pendingSymbols as symbol, i (cursorPosition + 1 + i)}
-      <RegularSymbol symbol={getSymbolChar(symbol)} />
+      <RegularSymbol symbol={symbol.char} />
     {/each}
   </div>
 </div>

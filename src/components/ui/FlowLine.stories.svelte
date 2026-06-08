@@ -1,7 +1,7 @@
 <script module lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import FlowLine from './FlowLine.svelte';
-  import { addAttempt } from '@/lib/stream-utils';
+  import { addAttempt, enrichStreamSymbols } from '@/lib/stream-utils';
   import { createTypingStream } from '@/lib/typing-stream';
   import { getSymbolLayout } from '@/lib/layouts';
 
@@ -52,11 +52,15 @@
     }
   }
 
+  const baseSymbols = enrichStreamSymbols(baseStreamPending);
+  const symbolsWithOneError = enrichStreamSymbols(streamWithOneError);
+  const symbolsWithMultipleErrors = enrichStreamSymbols(streamWithMultipleErrors);
+
   const { Story } = defineMeta({
     title: 'UI/FlowLine',
     component: FlowLine,
     args: {
-      stream: baseStreamPending,
+      symbols: baseSymbols,
       cursorPosition: 0,
       pressResult: 'NONE',
       cursorType: 'RECTANGLE',
@@ -64,7 +68,7 @@
       blink: true,
     },
     argTypes: {
-      stream: { table: { disable: true } },
+      symbols: { table: { disable: true } },
       cursorPosition: { control: { type: 'number', min: 0 } },
       blink: { control: 'boolean' },
       cursorType: { options: FLOW_LINE_CURSOR_TYPES, control: 'inline-radio' },
@@ -76,11 +80,11 @@
 
 <Story name="Default" />
 
-<Story name="WithOneError" args={{ stream: streamWithOneError, cursorPosition: 10 }} />
+<Story name="WithOneError" args={{ symbols: symbolsWithOneError, cursorPosition: 10 }} />
 
-<Story name="WithMultipleErrors" args={{ stream: streamWithMultipleErrors, cursorPosition: 10 }} />
+<Story name="WithMultipleErrors" args={{ symbols: symbolsWithMultipleErrors, cursorPosition: 10 }} />
 
-<Story name="Completed" args={{ stream: streamWithOneError, cursorPosition: 20 }} />
+<Story name="Completed" args={{ symbols: symbolsWithOneError, cursorPosition: 20 }} />
 
 <Story name="CursorCorrect" args={{ pressResult: 'CORRECT' }} />
 

@@ -3,6 +3,7 @@
   import KeyboardScene from './KeyboardScene.svelte';
   import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
   import { createKeyboardScene } from '@/lib/keyboard-scene';
+  import { createKeyLabelMap } from '@/lib/symbol-utils';
 
   const fingerLayoutASDF = getFingerLayout('asdf');
   const physicalLayoutANSI = getPhysicalLayout('ansi');
@@ -21,17 +22,21 @@
     fingerLayout: fingerLayoutASDF,
   });
 
+  const keyLabelsEn = createKeyLabelMap({
+    physicalLayout: physicalLayoutANSI,
+    symbolLayout: symbolLayoutEn,
+  });
+
+  const keyLabelsRu = createKeyLabelMap({
+    physicalLayout: physicalLayoutANSI,
+    symbolLayout: symbolLayoutJcuken,
+  });
+
   const { Story } = defineMeta({
     title: 'UI/KeyboardScene',
     component: KeyboardScene,
-    args: {
-      keyboardScene: keyboardSceneEn,
-      physicalLayout: physicalLayoutANSI,
-      symbolLayout: symbolLayoutEn,
-    },
   });
 </script>
 
-<Story name="WholeKeyboard" />
-
-<Story name="CyrillicKeyboard" args={{ keyboardScene: keyboardSceneRu, symbolLayout: symbolLayoutJcuken }} />
+<Story name="WholeKeyboard"    args={{ keyboardScene: keyboardSceneEn, keyLabels: keyLabelsEn }} />
+<Story name="CyrillicKeyboard" args={{ keyboardScene: keyboardSceneRu, keyLabels: keyLabelsRu }} />

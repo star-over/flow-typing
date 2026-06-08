@@ -1,22 +1,22 @@
 <script lang="ts">
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
-  import type { Dictionary } from '@/interfaces/types';
-  import { symbolLayoutId } from '@/lib/preferences';
+  import type { Dictionary, SymbolLayoutId } from '@/interfaces/types';
 
   interface Props {
     state: StateFrom<typeof appMachine>;
     send: (event: AppEvent) => void;
     dictionary: Dictionary;
+    symbolLayoutId: SymbolLayoutId;
   }
 
-  const { state, send, dictionary }: Props = $props();
+  const { state, send, dictionary, symbolLayoutId }: Props = $props();
 </script>
 
 <footer class="footer">
   <div class="actions">
-    {#if state.can({ type: 'START_TRAINING', symbolLayoutId: $symbolLayoutId })}
-      <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId: $symbolLayoutId })}>
+    {#if state.can({ type: 'START_TRAINING', symbolLayoutId })}
+      <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId })}>
         {dictionary.app.start_training}
       </button>
     {/if}

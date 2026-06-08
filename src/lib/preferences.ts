@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import {
   INTERFACE_LANGUAGES,
@@ -108,7 +108,6 @@ function createPreferencesStore() {
 }
 
 export const preferences = createPreferencesStore();
-export const symbolLayoutId = derived(preferences, ($p) => $p.symbolLayoutId);
 
 export function updatePreferences(partial: Partial<UserPreferences>) {
   preferences.update((current) => ({ ...current, ...partial }));

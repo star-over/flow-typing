@@ -16,6 +16,7 @@
   } from '@/interfaces/types';
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
   import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
+  import { createKeyLabelMap } from '@/lib/symbol-utils';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import Finger from './Finger.svelte';
   import KeyboardScene from './KeyboardScene.svelte';
@@ -63,6 +64,10 @@
   // Computed translations per finger; once set, reused across rerenders so the
   // cluster snaps into place without flicker when remounted.
   const clusterTranslations: Partial<Record<FingerId, { dx: number; dy: number }>> = $state({});
+
+  // Готовая map лейблов клавиш — KeyboardScene не вызывает getLabel в template,
+  // а читает уже посчитанные значения.
+  const keyLabels = $derived(createKeyLabelMap({ physicalLayout, symbolLayout }));
 
   $effect(() => {
     // Reactive reads to retrigger when the scene changes
@@ -134,7 +139,7 @@
           style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
           style:visibility={t ? 'visible' : 'hidden'}
         >
-          <KeyboardScene {keyboardScene} {physicalLayout} {symbolLayout} />
+          <KeyboardScene {keyboardScene} {keyLabels} />
         </div>
       {/if}
     {/each}

@@ -1,15 +1,13 @@
 <script lang="ts">
-  import type { PhysicalLayout, SymbolLayout, KeyboardSceneViewModel } from '@/interfaces/types';
-  import { getLabel } from '@/lib/symbol-utils';
+  import type { KeyboardSceneViewModel, KeyCapId } from '@/interfaces/types';
   import KeyCap from './KeyCap.svelte';
 
   interface Props {
     keyboardScene: KeyboardSceneViewModel;
-    physicalLayout: PhysicalLayout;
-    symbolLayout: SymbolLayout;
+    keyLabels: Record<KeyCapId, string>;
   }
 
-  const { keyboardScene, physicalLayout, symbolLayout }: Props = $props();
+  const { keyboardScene, keyLabels }: Props = $props();
 </script>
 
 <div class="keyboard">
@@ -18,7 +16,7 @@
       {#each row as sceneKey (sceneKey.keyCapId)}
         <KeyCap
           keyCapId={sceneKey.keyCapId}
-          symbol={getLabel({ keyCapId: sceneKey.keyCapId, symbolLayout, physicalLayout })}
+          symbol={keyLabels[sceneKey.keyCapId]}
           pressResult={sceneKey.pressResult ?? 'NONE'}
           visibility={sceneKey.visibility ?? 'VISIBLE'}
           fingerId={sceneKey.fingerId}
