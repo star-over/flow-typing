@@ -46,6 +46,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..');
 const themesDir = resolve(REPO_ROOT, 'src', 'themes');
 const appCssPath = resolve(REPO_ROOT, 'src', 'app.css');
 const appHtmlPath = resolve(REPO_ROOT, 'src', 'app.html');
+const manifestPath = resolve(REPO_ROOT, 'src', 'design-system.json');
 
 const baseTokens = parseRootTokens(appCssPath, ':root');
 const baseColorTokens = Object.fromEntries(
@@ -121,6 +122,48 @@ describe('themes/light.css ↔ base :root parity', () => {
       expect(lightTokens[name], `mismatch on ${name}`).toBe(baseValue);
     }
   });
+});
+
+describe('design-system.json manifest ↔ registry', () => {
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+    themes: Record<string, Record<string, string>>;
+  };
+  const manifestThemeIds = Object.keys(manifest.themes)
+    .filter((k) => !k.startsWith('$'))
+    .sort();
+
+  it('manifest.themes keys equal THEMES ids', () => {
+    expect(manifestThemeIds).toEqual(THEMES.map((t) => t.id).sort());
+  });
+
+  for (const theme of THEMES) {
+    describe(`theme '${theme.id}'`, () => {
+      const entry = manifest.themes[theme.id];
+
+      it('exists in manifest', () => {
+        expect(entry).toBeDefined();
+      });
+
+      it(`declares $colorScheme: ${theme.colorScheme}`, () => {
+        expect(entry?.['$colorScheme']).toBe(theme.colorScheme);
+      });
+
+      it('declares every base --color-* token', () => {
+        if (!entry) return;
+        for (const name of Object.keys(baseColorTokens)) {
+          expect(entry, `theme '${theme.id}' is missing ${name}`).toHaveProperty(name);
+        }
+      });
+
+      it('mirrors values from themes/<id>.css', () => {
+        if (!entry) return;
+        const cssTokens = parseRootTokens(themePath(theme.id), `:root[data-theme="${theme.id}"]`);
+        for (const name of Object.keys(baseColorTokens)) {
+          expect(entry[name], `value drift on ${name}`).toBe(cssTokens[name]);
+        }
+      });
+    });
+  }
 });
 
 describe('app.html inline bootstrap', () => {
