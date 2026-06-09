@@ -9,7 +9,6 @@ describe('normalizeSettings', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       theme: 'auto',
-      shared: {},
     });
   });
 
@@ -19,7 +18,6 @@ describe('normalizeSettings', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       theme: 'auto',
-      shared: {},
     });
   });
 
@@ -36,7 +34,6 @@ describe('normalizeSettings', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       theme: 'dark',
-      shared: { exerciseId: 'x' },
     };
     expect(normalizeSettings(input)).toEqual(input);
   });

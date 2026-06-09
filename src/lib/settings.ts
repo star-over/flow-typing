@@ -66,16 +66,11 @@ export function normalizeSettings(raw: unknown): UserSettings {
       ? candidate
       : getDefaultSymbolLayoutForTextLanguage(textLanguage).symbolLayoutId;
 
-  const shared =
-    typeof stored.shared === 'object' && stored.shared !== null
-      ? (stored.shared as UserSettings['shared'])
-      : {};
-
   const theme: ThemeSetting = isThemeSetting(stored.theme)
     ? stored.theme
     : DEFAULT_USER_SETTINGS.theme;
 
-  return { interfaceLanguage, textLanguage, symbolLayoutId, theme, shared };
+  return { interfaceLanguage, textLanguage, symbolLayoutId, theme };
 }
 
 function safeJsonParse(s: string): unknown {

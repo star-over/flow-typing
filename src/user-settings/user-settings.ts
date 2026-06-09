@@ -5,5 +5,4 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
   theme: 'auto',
-  shared: {},
 };

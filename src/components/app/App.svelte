@@ -5,7 +5,6 @@
 
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
-  import { planExerciseIdSync } from '@/lib/exercise-id-sync';
   import { inState } from '@/lib/state-utils';
   import { resolveTheme } from '@/themes/registry';
   import { browser } from '$app/environment';
@@ -17,9 +16,6 @@
 
   import { onDestroy } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
-  import { page } from '$app/state';
-  import { goto } from '$app/navigation';
-
   let state = $state(appActor.getSnapshot());
   const actorSub = appActor.subscribe((snapshot) => {
     state = snapshot;
@@ -46,32 +42,6 @@
   function handleBlur() {
     appActor.send({ type: 'PAUSE' });
   }
-
-  let hasSyncedFromUrl = false;
-  $effect(() => {
-    const action = planExerciseIdSync({
-      urlId: page.url.searchParams.get('exerciseId'),
-      storeId: $settings.shared.exerciseId ?? null,
-      currentSearch: page.url.search,
-      hasSyncedFromUrl,
-    });
-
-    switch (action.type) {
-      case 'URL_TO_STORE':
-        hasSyncedFromUrl = true;
-        settings.update((p) => ({
-          ...p,
-          shared: { ...p.shared, exerciseId: action.exerciseId },
-        }));
-        break;
-      case 'STORE_TO_URL':
-        // query-only navigation (без смены route): SvelteKit `resolve()` тут
-        // нечего резолвить, потому правило не применимо к этому случаю.
-        // eslint-disable-next-line svelte/no-navigation-without-resolve
-        goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
-        break;
-    }
-  });
 
   // Синхронизация `data-theme` с settings. Inline-script в `src/app.html`
   // ставит атрибут до paint; этот effect перетирает его после hydration,

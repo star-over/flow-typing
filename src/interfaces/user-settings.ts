@@ -19,7 +19,4 @@ export interface UserSettings {
   textLanguage: TextLanguage;
   symbolLayoutId: SymbolLayoutId;
   theme: ThemeSetting;
-  shared: {
-    exerciseId?: string;
-  };
 }
