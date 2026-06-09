@@ -25,7 +25,7 @@
   const { state, send, dictionary, trainingActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённого потока или нет нажатий).
-  // Тогда экран trainingComplete пуст — это допустимое degenerate-состояние,
+  // Тогда экран sessionComplete пуст — это допустимое degenerate-состояние,
   // решение принимает родитель, не сам компонент LessonStatsDisplay.
   const lessonStats = $derived.by(() => {
     const stream = state.context.lastTrainingStream;
@@ -37,7 +37,7 @@
 
 {#if inState({ snapshot: state, value: { training: 'running' } }) && trainingActor}
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
-{:else if inState({ snapshot: state, value: 'trainingComplete' }) && lessonStats}
+{:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
 {:else if inState({ snapshot: state, value: 'settings' })}
   <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} {dictionary} />

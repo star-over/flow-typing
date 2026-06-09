@@ -55,10 +55,10 @@ export const trainingMachine = setup({
     incrementErrors: assign({
       errors: ({ context }) => context.errors + 1,
     }),
-    sendLessonComplete: sendTo(
+    sendSessionComplete: sendTo(
       ({ context }) => context.parentActor,
       ({ context }) => ({
-        type: 'TRAINING.COMPLETE',
+        type: 'SESSION.COMPLETE',
         stream: context.stream,
       }),
     ),
@@ -123,8 +123,11 @@ export const trainingMachine = setup({
       always: 'awaitingInput',
     },
 
+    // Внутреннее имя `lessonComplete` намеренно сохранено: это деталь
+    // реализации training.machine'а (drill завершён). Наружу уходит
+    // `SESSION.COMPLETE` — событие сессионного слоя.
     lessonComplete: {
-      entry: 'sendLessonComplete',
+      entry: 'sendSessionComplete',
     },
   },
 });

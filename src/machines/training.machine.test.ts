@@ -13,7 +13,7 @@ interface TestParentContext {
 }
 type TestParentEvent =
   | { type: 'KEY_PRESS'; keys: KeyCapId[] }
-  | { type: 'TRAINING.COMPLETE'; stream: TypingStream };
+  | { type: 'SESSION.COMPLETE'; stream: TypingStream };
 
 function makeTestParent(
   stream: TypingStream,
@@ -36,7 +36,7 @@ function makeTestParent(
           keys: event.keys,
         })),
       },
-      'TRAINING.COMPLETE': {
+      'SESSION.COMPLETE': {
         actions: assign({ completedStream: ({ event }) => event.stream }),
       },
     },
@@ -149,7 +149,7 @@ describe('trainingMachine', () => {
     expect(child.context.currentIndex).toBe(0);
   });
 
-  it('reaches lessonComplete after last symbol and sends TRAINING.COMPLETE to parent with full stream', () => {
+  it('reaches lessonComplete after last symbol and sends SESSION.COMPLETE to parent with full stream', () => {
     const stream: TypingStream = [
       { targetSymbol: 'a', targetKeyCaps: ['KeyA'], attempts: [] },
       { targetSymbol: 'b', targetKeyCaps: ['KeyB'], attempts: [] },

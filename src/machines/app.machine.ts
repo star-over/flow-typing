@@ -24,7 +24,7 @@ export type AppEvent =
   | { type: 'TO_MENU' }
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
-  | { type: 'TRAINING.COMPLETE'; stream: TypingStream }
+  | { type: 'SESSION.COMPLETE'; stream: TypingStream }
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
   | { type: 'RESET_KEYBOARD' }
@@ -110,7 +110,7 @@ export const appMachine = setup({
         keys: event.keys,
       })),
     },
-    'TRAINING.COMPLETE': {
+    'SESSION.COMPLETE': {
       actions: {
         type: 'storeCompletedStream',
         params: ({ event }) => ({ stream: event.stream }),
@@ -149,8 +149,8 @@ export const appMachine = setup({
         }),
       },
       on: {
-        'TRAINING.COMPLETE': {
-          target: 'trainingComplete',
+        'SESSION.COMPLETE': {
+          target: 'sessionComplete',
           actions: {
             type: 'storeCompletedStream',
             params: ({ event }) => ({ stream: event.stream }),
@@ -185,7 +185,7 @@ export const appMachine = setup({
       on: { TO_MENU: 'menu' },
     },
 
-    trainingComplete: {
+    sessionComplete: {
       on: {
         TO_MENU: { target: 'menu', reenter: true },
         START_TRAINING: {
