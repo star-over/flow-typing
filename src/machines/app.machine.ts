@@ -19,7 +19,6 @@ export interface AppContext {
 
 export type AppEvent =
   | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId }
-  | { type: 'TO_SETTINGS' }
   | { type: 'TO_ALL_STAT' }
   | { type: 'TO_MENU' }
   | { type: 'PAUSE' }
@@ -132,7 +131,6 @@ export const appMachine = setup({
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
         },
-        TO_SETTINGS: 'settings',
         TO_ALL_STAT: 'allStat',
       },
     },
@@ -179,10 +177,6 @@ export const appMachine = setup({
           },
         },
       },
-    },
-
-    settings: {
-      on: { TO_MENU: 'menu' },
     },
 
     sessionComplete: {

@@ -13,15 +13,6 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toBe('menu');
     });
 
-    it('navigates menu → settings → menu', () => {
-      const actor = createActor(appMachine);
-      actor.start();
-      actor.send({ type: 'TO_SETTINGS' });
-      expect(actor.getSnapshot().value).toBe('settings');
-      actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().value).toBe('menu');
-    });
-
     it('navigates menu → allStat → menu', () => {
       const actor = createActor(appMachine);
       actor.start();
