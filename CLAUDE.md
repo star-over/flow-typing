@@ -43,16 +43,18 @@
 
 ### XState-машины
 
-- `appMachine` (`src/machines/app.machine.ts`) — корневая FSM экранов (`menu`, `settings`, `allStat`, `training`, `trainingComplete`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.invalidate()`, чтобы HMR не плодил «двойных» акторов).
+- `appMachine` (`src/machines/app.machine.ts`) — корневая FSM цикла тренировки (`menu`, `training` с substates `running`/`paused`, `sessionComplete`, `trainingStart`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.invalidate()`, чтобы HMR не плодил «двойных» акторов). Навигация между «страницами» (Settings, Stats) — настоящие SvelteKit-роуты, не состояния FSM.
 - `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` форвардит `CHARACTER_INPUT` в `trainingService`.
-- `trainingMachine` — invoked в state `training`. Прогоняет `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts` с таймстемпами, по завершении шлёт `TRAINING.COMPLETE`.
+- `trainingMachine` — invoked в state `training`. Прогоняет `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts` с таймстемпами, по завершении шлёт `SESSION.COMPLETE`. Внутреннее имя финального состояния — `lessonComplete` (деталь реализации drill'а, не leak'ает наружу).
 
-Подписка из Svelte: дочерний актор через `state.children.trainingService`, локальный `$state(snapshot)` + `subscribe()`/`unsubscribe()` в `$effect` — образец в `TrainingScene.svelte`, `App.svelte`.
+Подписка из Svelte: дочерний актор через `state.children.trainingService`, локальный `$state(snapshot)` + `subscribe()`/`unsubscribe()` в `onDestroy` — образец в `TrainingScene.svelte`, `+layout.svelte`, `App.svelte`.
 
 ### UI entry points
 
-- `src/routes/+page.svelte` → `src/components/app/App.svelte` — единственная страница; экраны переключаются через `state.matches(...)` в `MainContent.svelte`.
-- `App.svelte` навешивает `onkeydown`/`onkeyup`/`onblur` на `<svelte:window>` и шлёт `KEY_DOWN`/`KEY_UP`/`PAUSE` в `appActor`. `Space` в `training` блокируется (`preventDefault`), чтобы не скроллить.
+- Три роута: `/` (хост FSM-views), `/settings` (приложение: язык UI + тема), `/stats` (placeholder будущей общей статистики).
+- `src/routes/+layout.svelte` — хостит `appActor`, keyboard listener (`<svelte:window>` onkeydown/up/blur → `KEY_DOWN`/`KEY_UP`/`PAUSE`), theme effects и `Header` (nav-chrome с ссылками на `/settings` и `/stats`). При sibling-навигации layout не размонтируется — FSM состояние переживает навигацию.
+- `src/routes/+page.svelte` → `src/components/app/App.svelte` — содержимое `/`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
+- `Space` в `training` блокируется (`preventDefault`), чтобы не скроллить.
 - `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
 
 ### Domain language
@@ -82,7 +84,6 @@
 - `src/lib/settings.ts` — writable store; грузится из `localStorage['flow-typing-user-preferences']` через `normalizeSettings` поверх `DEFAULT_USER_SETTINGS` (чтобы новые поля корректно догружались у старых пользователей, неизвестные — игнорировались). Любой `update`/`set` сохраняется обратно.
 - Метаданные настроек (тип, дефолты, опции) — `src/user-settings/user-settings.ts`.
 - i18n: `src/lib/i18n.ts` — derived store, словари `dictionaries/{en,ru}.json`.
-- URL ↔ store sync для `?exerciseId=`: в `App.svelte` один `$effect` с one-shot guard'ом `hasSyncedFromUrl` (URL побеждает один раз при init, дальше store пишет в URL через `goto(..., { replaceState: true })`).
 
 ## Conventions
 
