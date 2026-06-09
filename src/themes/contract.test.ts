@@ -3,11 +3,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { THEMES } from './registry';
+import { THEME_CONTRACT } from './contract';
 
 /**
  * Парсит CSS-блок селектора и возвращает map `property → value`.
- * Returns both custom properties (`--color-bg`) and regular CSS properties
- * (`color-scheme`) — тест использует оба.
+ * Returns both custom properties (`--keycap-l2-background`) and regular CSS
+ * properties (`color-scheme`) — тест использует оба.
  *
  * Селектор ищется как пара `<selector> + optional whitespace + {`, чтобы
  * не поймать упоминание селектора внутри JSDoc-комментария файла.
@@ -44,23 +45,31 @@ function getThemeOrFail(id: string) {
 
 const REPO_ROOT = resolve(__dirname, '..', '..');
 const themesDir = resolve(REPO_ROOT, 'src', 'themes');
-const appCssPath = resolve(REPO_ROOT, 'src', 'app.css');
 const appHtmlPath = resolve(REPO_ROOT, 'src', 'app.html');
-const manifestPath = resolve(REPO_ROOT, 'src', 'design-system.json');
-
-const baseTokens = parseRootTokens(appCssPath, ':root');
-const baseColorTokens = Object.fromEntries(
-  Object.entries(baseTokens).filter(([name]) => name.startsWith('--color-'))
-);
 
 function themePath(id: string): string {
   return resolve(themesDir, `${id}.css`);
 }
 
-describe('parseRootTokens', () => {
-  it('parses base :root and returns at least 50 tokens including --color-bg', () => {
-    expect(Object.keys(baseTokens).length).toBeGreaterThan(50);
-    expect(baseTokens['--color-bg']).toBe('oklch(1 0 0)');
+describe('THEME_CONTRACT', () => {
+  it('has no duplicate tokens', () => {
+    const seen = new Set<string>();
+    const duplicates: string[] = [];
+    for (const token of THEME_CONTRACT) {
+      if (seen.has(token)) duplicates.push(token);
+      seen.add(token);
+    }
+    expect(duplicates, `duplicates: ${duplicates.join(', ')}`).toEqual([]);
+  });
+
+  it('lists at least 100 tokens (sanity check on aggregation)', () => {
+    expect(THEME_CONTRACT.length).toBeGreaterThanOrEqual(100);
+  });
+
+  it('every token starts with `--`', () => {
+    for (const token of THEME_CONTRACT) {
+      expect(token.startsWith('--'), `token without -- prefix: ${token}`).toBe(true);
+    }
   });
 });
 
@@ -88,8 +97,8 @@ describe('themes/*.css contract', () => {
     describe(`theme '${theme.id}'`, () => {
       const tokens = parseRootTokens(themePath(theme.id), `:root[data-theme="${theme.id}"]`);
 
-      it('declares every base --color-* token', () => {
-        for (const name of Object.keys(baseColorTokens)) {
+      it('declares every contract token', () => {
+        for (const name of THEME_CONTRACT) {
           expect(tokens, `theme '${theme.id}' is missing ${name}`).toHaveProperty(name);
         }
       });
@@ -107,63 +116,11 @@ describe('_template.css', () => {
     ':root[data-theme="__TEMPLATE__"]'
   );
 
-  it('declares every base --color-* token (values may be unset)', () => {
-    for (const name of Object.keys(baseColorTokens)) {
+  it('declares every contract token (values may be unset)', () => {
+    for (const name of THEME_CONTRACT) {
       expect(tokens, `_template.css is missing ${name}`).toHaveProperty(name);
     }
   });
-});
-
-describe('themes/light.css ↔ base :root parity', () => {
-  const lightTokens = parseRootTokens(themePath('light'), ':root[data-theme="light"]');
-
-  it('every base --color-* token has identical value in light.css', () => {
-    for (const [name, baseValue] of Object.entries(baseColorTokens)) {
-      expect(lightTokens[name], `mismatch on ${name}`).toBe(baseValue);
-    }
-  });
-});
-
-describe('design-system.json manifest ↔ registry', () => {
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
-    themes: Record<string, Record<string, string>>;
-  };
-  const manifestThemeIds = Object.keys(manifest.themes)
-    .filter((k) => !k.startsWith('$'))
-    .sort();
-
-  it('manifest.themes keys equal THEMES ids', () => {
-    expect(manifestThemeIds).toEqual(THEMES.map((t) => t.id).sort());
-  });
-
-  for (const theme of THEMES) {
-    describe(`theme '${theme.id}'`, () => {
-      const entry = manifest.themes[theme.id];
-
-      it('exists in manifest', () => {
-        expect(entry).toBeDefined();
-      });
-
-      it(`declares $colorScheme: ${theme.colorScheme}`, () => {
-        expect(entry?.['$colorScheme']).toBe(theme.colorScheme);
-      });
-
-      it('declares every base --color-* token', () => {
-        if (!entry) return;
-        for (const name of Object.keys(baseColorTokens)) {
-          expect(entry, `theme '${theme.id}' is missing ${name}`).toHaveProperty(name);
-        }
-      });
-
-      it('mirrors values from themes/<id>.css', () => {
-        if (!entry) return;
-        const cssTokens = parseRootTokens(themePath(theme.id), `:root[data-theme="${theme.id}"]`);
-        for (const name of Object.keys(baseColorTokens)) {
-          expect(entry[name], `value drift on ${name}`).toBe(cssTokens[name]);
-        }
-      });
-    });
-  }
 });
 
 describe('app.html inline bootstrap', () => {

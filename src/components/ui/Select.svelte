@@ -48,11 +48,11 @@
 
   .select {
     appearance: none;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: var(--select-background);
+    border: var(--select-border);
     border-radius: var(--radius-3);
     padding: var(--spacing-2) var(--spacing-6) var(--spacing-2) var(--spacing-3);
-    color: var(--color-text-primary);
+    color: var(--select-color);
     font-family: var(--font-sans);
     font-size: 0.875rem;
     cursor: pointer;
@@ -60,7 +60,7 @@
   }
 
   .select:focus {
-    outline: 2px solid var(--color-border);
+    outline: var(--select-focus-outline);
     outline-offset: 2px;
   }
 
@@ -74,7 +74,7 @@
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
-    background-color: var(--color-text-secondary);
+    background: var(--select-arrow-background);
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='12' height='12'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
     mask-repeat: no-repeat;
     mask-position: center;

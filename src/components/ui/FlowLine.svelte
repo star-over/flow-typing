@@ -61,7 +61,7 @@
     width: 100vw;
     font-family: var(--font-mono);
     font-size: 1.875rem;
-    border: 2px solid var(--color-cursor-border);
+    border: var(--flow-line-border);
   }
 
   .completed-symbols {
@@ -91,7 +91,7 @@
   .DINAMIC .pending-symbols { min-width: 50%; }
 
   /* Press result variants */
-  .NONE { background-color: transparent; }
-  .CORRECT { background-color: var(--color-symbol-correct-bg); }
-  .ERROR { background-color: var(--color-symbol-error-bg); }
+  .NONE { background: transparent; }
+  .CORRECT { background: var(--flow-line-correct-background); }
+  .ERROR { background: var(--flow-line-error-background); }
 </style>

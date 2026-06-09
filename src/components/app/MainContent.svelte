@@ -58,12 +58,12 @@
   }
 
   .pause {
-    color: var(--color-text-secondary);
+    color: var(--main-content-pause-color);
   }
 
   .welcome {
     padding: var(--spacing-4);
     text-align: center;
-    color: var(--color-text-secondary);
+    color: var(--main-content-welcome-color);
   }
 </style>

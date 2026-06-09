@@ -39,10 +39,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-bg);
-    border: 1px dashed var(--color-border);
+    background: var(--body-background);
+    border: 1px dashed var(--keycap-color);
     border-radius: var(--radius-2);
-    color: var(--color-keycap-label);
+    color: var(--keycap-color);
     font-family: var(--font-mono);
     font-size: 13px;
     margin: 64px;

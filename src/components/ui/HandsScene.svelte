@@ -182,7 +182,7 @@
   /* Drive the finger-center-point fill via a custom property on the ancestor.
      The <Finger> component reads var(--center-point-fill, transparent). */
   .hands-layer[data-center-point-visibility="VISIBLE"] {
-    --center-point-fill: var(--color-path-highlight);
+    --center-point-fill: var(--hands-center-point-fill);
   }
   .hands-layer[data-center-point-visibility="INVISIBLE"] {
     --center-point-fill: transparent;

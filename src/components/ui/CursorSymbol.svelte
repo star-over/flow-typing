@@ -40,7 +40,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    background-color: var(--color-cursor-bg);
+    background: var(--cursor-symbol-background);
     opacity: 0;
     transition: opacity 0.1s;
   }
@@ -65,7 +65,7 @@
   }
 
   .char {
-    color: var(--color-cursor-fg);
+    color: var(--cursor-symbol-color);
     mix-blend-mode: difference;
   }
 </style>

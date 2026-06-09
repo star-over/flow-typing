@@ -35,21 +35,27 @@
 
 <style>
   .finger {
-    fill: var(--color-finger-idle);
+    fill: var(--finger-idle-fill);
     transition: fill 0.1s ease;
   }
 
-  /* TARGET — colored per finger position */
-  [data-finger-navigation-role="TARGET"][data-finger-num="1"] .finger { fill: var(--color-finger-1); }
-  [data-finger-navigation-role="TARGET"][data-finger-num="2"] .finger { fill: var(--color-finger-2); }
-  [data-finger-navigation-role="TARGET"][data-finger-num="3"] .finger { fill: var(--color-finger-3); }
-  [data-finger-navigation-role="TARGET"][data-finger-num="4"] .finger { fill: var(--color-finger-4); }
-  [data-finger-navigation-role="TARGET"][data-finger-num="5"] .finger { fill: var(--color-finger-5); }
-  [data-finger-navigation-role="TARGET"][data-finger-num="B"] .finger { fill: var(--color-finger-base); }
+  /* TARGET — per-position fill */
+  [data-finger-navigation-role="TARGET"][data-finger-id="L1"] .finger { fill: var(--finger-l1-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="R1"] .finger { fill: var(--finger-r1-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="L2"] .finger { fill: var(--finger-l2-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="R2"] .finger { fill: var(--finger-r2-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="L3"] .finger { fill: var(--finger-l3-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="R3"] .finger { fill: var(--finger-r3-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="L4"] .finger { fill: var(--finger-l4-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="R4"] .finger { fill: var(--finger-r4-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="L5"] .finger { fill: var(--finger-l5-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="R5"] .finger { fill: var(--finger-r5-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="LB"] .finger { fill: var(--finger-lb-fill); }
+  [data-finger-navigation-role="TARGET"][data-finger-id="RB"] .finger { fill: var(--finger-rb-fill); }
 
-  [data-finger-navigation-role="INACTIVE"] .finger { fill: var(--color-finger-inactive); }
-  [data-finger-navigation-role="NONE"] .finger { fill: var(--color-finger-idle); }
-  [data-finger-navigation-role="ERROR"] .finger { fill: var(--color-finger-error); }
+  [data-finger-navigation-role="INACTIVE"] .finger { fill: var(--finger-inactive-fill); }
+  [data-finger-navigation-role="NONE"] .finger { fill: var(--finger-idle-fill); }
+  [data-finger-navigation-role="ERROR"] .finger { fill: var(--finger-error-fill); }
 
   /* Center-point fill is controlled by a custom property on an ancestor
      (HandsScene toggles --center-point-fill based on centerPointVisibility). */

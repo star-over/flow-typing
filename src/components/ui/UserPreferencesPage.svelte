@@ -109,21 +109,21 @@
 
   .label-text {
     font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    color: var(--user-preferences-page-label-color);
   }
 
   .btn {
     margin-top: var(--spacing-4);
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: 1px solid var(--color-border);
-    background-color: var(--color-surface);
-    color: var(--color-text-primary);
+    border: var(--user-preferences-page-btn-border);
+    background: var(--user-preferences-page-btn-background);
+    color: var(--user-preferences-page-btn-color);
     cursor: pointer;
     align-self: flex-start;
   }
 
   .btn:hover {
-    background-color: var(--color-surface-hover);
+    background: var(--user-preferences-page-btn-hover-background);
   }
 </style>

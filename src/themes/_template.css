@@ -106,4 +106,133 @@
   --color-arrow-fill    : unset;
   --color-arrow-stroke  : unset;
   --color-arrow-gradient: unset;
+
+  /* ============================================================
+   * COMPONENT CONTRACT TOKENS — см. light.css для описания.
+   * Эти токены образуют контракт каждой темы (см. src/themes/contract.ts
+   * и `<Component>.contract.ts` рядом с компонентами).
+   * ============================================================ */
+
+  /* Root */
+  --body-background: unset;
+  --body-color     : unset;
+
+  /* KeyCap — base */
+  --keycap-color            : unset;
+  --keycap-marker-background: unset;
+  --keycap-home-ring        : unset;
+  --keycap-path-ring        : unset;
+
+  /* KeyCap — per-position fill/border/color */
+  --keycap-l1-background: unset; --keycap-l1-border: unset; --keycap-l1-color: unset;
+  --keycap-r1-background: unset; --keycap-r1-border: unset; --keycap-r1-color: unset;
+  --keycap-l2-background: unset; --keycap-l2-border: unset; --keycap-l2-color: unset;
+  --keycap-r2-background: unset; --keycap-r2-border: unset; --keycap-r2-color: unset;
+  --keycap-l3-background: unset; --keycap-l3-border: unset; --keycap-l3-color: unset;
+  --keycap-r3-background: unset; --keycap-r3-border: unset; --keycap-r3-color: unset;
+  --keycap-l4-background: unset; --keycap-l4-border: unset; --keycap-l4-color: unset;
+  --keycap-r4-background: unset; --keycap-r4-border: unset; --keycap-r4-color: unset;
+  --keycap-l5-background: unset; --keycap-l5-border: unset; --keycap-l5-color: unset;
+  --keycap-r5-background: unset; --keycap-r5-border: unset; --keycap-r5-color: unset;
+
+  /* KeyCap — per-position target */
+  --keycap-l1-target-background: unset; --keycap-l1-target-color: unset; --keycap-l1-target-ring: unset;
+  --keycap-r1-target-background: unset; --keycap-r1-target-color: unset; --keycap-r1-target-ring: unset;
+  --keycap-l2-target-background: unset; --keycap-l2-target-color: unset; --keycap-l2-target-ring: unset;
+  --keycap-r2-target-background: unset; --keycap-r2-target-color: unset; --keycap-r2-target-ring: unset;
+  --keycap-l3-target-background: unset; --keycap-l3-target-color: unset; --keycap-l3-target-ring: unset;
+  --keycap-r3-target-background: unset; --keycap-r3-target-color: unset; --keycap-r3-target-ring: unset;
+  --keycap-l4-target-background: unset; --keycap-l4-target-color: unset; --keycap-l4-target-ring: unset;
+  --keycap-r4-target-background: unset; --keycap-r4-target-color: unset; --keycap-r4-target-ring: unset;
+  --keycap-l5-target-background: unset; --keycap-l5-target-color: unset; --keycap-l5-target-ring: unset;
+  --keycap-r5-target-background: unset; --keycap-r5-target-color: unset; --keycap-r5-target-ring: unset;
+
+  /* KeyCap — press result */
+  --keycap-correct-background: unset; --keycap-correct-color: unset; --keycap-correct-border: unset;
+  --keycap-error-background  : unset; --keycap-error-color  : unset; --keycap-error-border  : unset;
+
+  /* Finger */
+  --finger-l1-fill: unset; --finger-r1-fill: unset;
+  --finger-l2-fill: unset; --finger-r2-fill: unset;
+  --finger-l3-fill: unset; --finger-r3-fill: unset;
+  --finger-l4-fill: unset; --finger-r4-fill: unset;
+  --finger-l5-fill: unset; --finger-r5-fill: unset;
+  --finger-lb-fill: unset; --finger-rb-fill: unset;
+  --finger-inactive-fill: unset; --finger-idle-fill: unset; --finger-error-fill: unset;
+
+  /* HandsScene */
+  --hands-center-point-fill: unset;
+
+  /* FlowLine */
+  --flow-line-border            : unset;
+  --flow-line-correct-background: unset;
+  --flow-line-error-background  : unset;
+
+  /* CursorSymbol */
+  --cursor-symbol-background: unset;
+  --cursor-symbol-color     : unset;
+
+  /* RegularSymbol */
+  --regular-symbol-pending-color  : unset;
+  --regular-symbol-correct-color  : unset;
+  --regular-symbol-corrected-color: unset;
+  --regular-symbol-error-color    : unset;
+  --regular-symbol-errors-color   : unset;
+
+  /* NavArrow */
+  --nav-arrow-fill          : unset;
+  --nav-arrow-outline       : unset;
+  --nav-arrow-gradient-start: unset;
+
+  /* FooterActions */
+  --footer-actions-btn-background        : unset;
+  --footer-actions-btn-color             : unset;
+  --footer-actions-btn-border            : unset;
+  --footer-actions-btn-hover-background  : unset;
+  --footer-actions-btn-primary-background: unset;
+  --footer-actions-btn-primary-color     : unset;
+  --footer-actions-btn-primary-border    : unset;
+  --footer-actions-btn-success-background: unset;
+  --footer-actions-btn-success-color     : unset;
+  --footer-actions-btn-success-border    : unset;
+  --footer-actions-btn-warning-background: unset;
+  --footer-actions-btn-warning-color     : unset;
+  --footer-actions-btn-warning-border    : unset;
+  --footer-actions-btn-danger-background : unset;
+  --footer-actions-btn-danger-color      : unset;
+  --footer-actions-btn-danger-border     : unset;
+
+  /* Header */
+  --header-title-color     : unset;
+  --header-debug-color     : unset;
+  --header-debug-background: unset;
+
+  /* MainContent */
+  --main-content-pause-color  : unset;
+  --main-content-welcome-color: unset;
+
+  /* TrainingScene */
+  --training-scene-state-code-background: unset;
+
+  /* Select */
+  --select-background      : unset;
+  --select-border          : unset;
+  --select-color           : unset;
+  --select-focus-outline   : unset;
+  --select-arrow-background: unset;
+
+  /* LessonStatsDisplay */
+  --lesson-stats-display-background     : unset;
+  --lesson-stats-display-border         : unset;
+  --lesson-stats-display-item-background: unset;
+  --lesson-stats-display-label-color    : unset;
+  --lesson-stats-display-value-color    : unset;
+  --lesson-stats-display-unit-color     : unset;
+
+  /* UserPreferencesPage */
+  --user-preferences-page-label-color         : unset;
+  --user-preferences-page-btn-background      : unset;
+  --user-preferences-page-btn-color           : unset;
+  --user-preferences-page-btn-border          : unset;
+  --user-preferences-page-btn-hover-background: unset;
 }

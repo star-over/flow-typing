@@ -2,7 +2,7 @@
 
 ## Project
 
-**FlowTyping** — клиентский SPA-тренажёр слепой печати. Ключевая идея — «визуализация движения»: UI рисует путь, который должен проделать палец от домашней позиции до цели и обратно, вместо подсветки целевой клавиши. Подробности — `docs/01-philosophy-and-vision.md`, `docs/05-adaptive-learning-system.md`.
+**FlowTyping** — клиентский SPA-тренажёр слепой печати. Ключевая идея — «визуализация движения»: UI рисует путь, который должен проделать палец от домашней позиции до цели и обратно, вместо подсветки целевой клавиши. Подробности — `docs/01-philosophy-and-vision.md`, `docs/05-adaptive-learning-system.md`, `docs/06-component-contracts-and-themes.md`.
 
 При расхождении кода с любой документацией доверять коду.
 
@@ -12,7 +12,7 @@
 - **TypeScript** strict; типы Svelte — `svelte-check`.
 - **XState v5** — вся бизнес-логика, `src/machines/`.
 - **Vitest** + **Storybook** (`@storybook/sveltekit` + svelte-csf).
-- **CSS без фреймворков**: CSS custom properties в `src/app.css` + scoped `<style>` в каждом компоненте. **Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.**
+- **CSS без фреймворков**: `src/app.css` держит только primitives (typography/radius/spacing/shadow/motion) + body fallback; цвета и декорация компонентов живут в темах через **компонентные контракты** (см. ниже и `docs/06`). **Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.**
 - Персистентность настроек — `localStorage` через кастомный Svelte writable store.
 
 ## Commands
@@ -62,6 +62,20 @@
 - `StreamSymbol` (`{ targetSymbol, targetKeyCaps, attempts }`) — единица `TypingStream`.
 - Три слоя раскладок, у каждого — тип данных + идентификатор: **физическая** `PhysicalLayout` / `PhysicalLayoutId` (геометрия железа, ANSI, инвариант); **символьная** `SymbolLayout` / `SymbolLayoutId` (`'qwerty' \| 'йцукен'`, выбор пользователя в `UserPreferences.symbolLayoutId`); **пальцевая** `FingerLayout` / `FingerLayoutId` (ASDF). Имя слоя — в типе и в каждом поле: никаких `keyboardLayout`-полей с двойным смыслом.
 - `src/interfaces/types.ts` имеет header-комментарий: **JSDoc там — часть документации единого языка, не удалять при рефакторинге.**
+
+### Темы и компонентные контракты
+
+Каждый компонент с темизируемыми элементами имеет рядом `*.contract.ts` — массив имён CSS-токенов, которые компонент использует через `var()`. Имена — это **визуальные роли** (`--keycap-l2-background`, `--footer-actions-btn-success-border`, `--keycap-home-ring`), не цвет; значение каждого токена — **полное** CSS-свойство (`1px solid oklch(…)`, `0 0 0 0.25rem oklch(…)`), не только цвет.
+
+Все 15 контрактов агрегируются в `src/themes/contract.ts → THEME_CONTRACT` (139 токенов). Контракт-тест `src/themes/contract.test.ts` enforce-ит, что каждая тема (`src/themes/<id>.css`) и `_template.css` декларируют каждый токен; значения свободны.
+
+Темы в `src/themes/`:
+- `light` / `sepia` (colorScheme=light), `dark` / `nord` (colorScheme=dark). Каталог — `THEMES` в `src/themes/registry.ts`.
+- Внутри темы свободна структура: ссылки на свою внутреннюю палитру (legacy `--color-*`), формулы `oklch(from var(--key) …)`, литералы — любая смесь.
+- `_template.css` — скелет для новой темы: каждый токен задан как `unset`, нужно только заполнить.
+- Bootstrap синхронный — inline-script в `src/app.html` выставляет `data-theme` до первой отрисовки сцены. View Transitions API даёт crossfade при смене темы (`src/themes/registry.ts → setTheme`).
+
+Полный гид по архитектуре и алгоритм добавления нового компонента — `docs/06-component-contracts-and-themes.md`.
 
 ### Settings и i18n
 

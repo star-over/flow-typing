@@ -111,4 +111,183 @@
   --color-arrow-fill    : oklch(0.75 0.16 150);
   --color-arrow-stroke  : oklch(0.70 0.14 150);
   --color-arrow-gradient: oklch(0.90 0.29 140);
+
+  /* ============================================================
+   * COMPONENT CONTRACT TOKENS — см. light.css для описания.
+   * ============================================================ */
+
+  /* Root (body fallback) */
+  --body-background: var(--color-bg);
+  --body-color     : var(--color-text-primary);
+
+  /* KeyCap — base */
+  --keycap-color            : var(--color-keycap-label);
+  --keycap-marker-background: var(--color-keycap-marker);
+  --keycap-home-ring        : 0 0 0 0.125rem var(--color-keycap-label);
+  --keycap-path-ring        : 0 0 0 0.25rem  var(--color-keycap-label);
+
+  /* KeyCap — per-position fill/border/color */
+  --keycap-l1-background: var(--color-keycap-group-neutral-bg);
+  --keycap-l1-border    : 1px solid var(--color-keycap-group-neutral-border);
+  --keycap-l1-color     : var(--color-keycap-label);
+  --keycap-r1-background: var(--color-keycap-group-neutral-bg);
+  --keycap-r1-border    : 1px solid var(--color-keycap-group-neutral-border);
+  --keycap-r1-color     : var(--color-keycap-label);
+  --keycap-l2-background: var(--color-keycap-group-yellow-bg);
+  --keycap-l2-border    : 1px solid var(--color-keycap-group-yellow-border);
+  --keycap-l2-color     : var(--color-keycap-label);
+  --keycap-r2-background: var(--color-keycap-group-yellow-bg);
+  --keycap-r2-border    : 1px solid var(--color-keycap-group-yellow-border);
+  --keycap-r2-color     : var(--color-keycap-label);
+  --keycap-l3-background: var(--color-keycap-group-sky-bg);
+  --keycap-l3-border    : 1px solid var(--color-keycap-group-sky-border);
+  --keycap-l3-color     : var(--color-keycap-label);
+  --keycap-r3-background: var(--color-keycap-group-sky-bg);
+  --keycap-r3-border    : 1px solid var(--color-keycap-group-sky-border);
+  --keycap-r3-color     : var(--color-keycap-label);
+  --keycap-l4-background: var(--color-keycap-group-indigo-bg);
+  --keycap-l4-border    : 1px solid var(--color-keycap-group-indigo-border);
+  --keycap-l4-color     : var(--color-keycap-label);
+  --keycap-r4-background: var(--color-keycap-group-indigo-bg);
+  --keycap-r4-border    : 1px solid var(--color-keycap-group-indigo-border);
+  --keycap-r4-color     : var(--color-keycap-label);
+  --keycap-l5-background: var(--color-keycap-group-purple-bg);
+  --keycap-l5-border    : 1px solid var(--color-keycap-group-purple-border);
+  --keycap-l5-color     : var(--color-keycap-label);
+  --keycap-r5-background: var(--color-keycap-group-purple-bg);
+  --keycap-r5-border    : 1px solid var(--color-keycap-group-purple-border);
+  --keycap-r5-color     : var(--color-keycap-label);
+
+  /* KeyCap — per-position target */
+  --keycap-l1-target-background: var(--color-keycap-role-target-bg);
+  --keycap-l1-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-l1-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-r1-target-background: var(--color-keycap-role-target-bg);
+  --keycap-r1-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-r1-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-l2-target-background: var(--color-keycap-role-target-bg);
+  --keycap-l2-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-l2-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-r2-target-background: var(--color-keycap-role-target-bg);
+  --keycap-r2-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-r2-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-l3-target-background: var(--color-keycap-role-target-bg);
+  --keycap-l3-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-l3-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-r3-target-background: var(--color-keycap-role-target-bg);
+  --keycap-r3-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-r3-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-l4-target-background: var(--color-keycap-role-target-bg);
+  --keycap-l4-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-l4-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-r4-target-background: var(--color-keycap-role-target-bg);
+  --keycap-r4-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-r4-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-l5-target-background: var(--color-keycap-role-target-bg);
+  --keycap-l5-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-l5-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+  --keycap-r5-target-background: var(--color-keycap-role-target-bg);
+  --keycap-r5-target-color     : var(--color-keycap-role-target-fg);
+  --keycap-r5-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-bg);
+
+  /* KeyCap — press result */
+  --keycap-correct-background: var(--color-keycap-correct-bg);
+  --keycap-correct-color     : var(--color-keycap-correct-fg);
+  --keycap-correct-border    : 1px solid var(--color-keycap-correct-border);
+  --keycap-error-background  : var(--color-keycap-error-bg);
+  --keycap-error-color       : var(--color-keycap-error-fg);
+  --keycap-error-border      : 1px solid var(--color-keycap-error-border);
+
+  /* Finger */
+  --finger-l1-fill: var(--color-finger-1);
+  --finger-r1-fill: var(--color-finger-1);
+  --finger-l2-fill: var(--color-finger-2);
+  --finger-r2-fill: var(--color-finger-2);
+  --finger-l3-fill: var(--color-finger-3);
+  --finger-r3-fill: var(--color-finger-3);
+  --finger-l4-fill: var(--color-finger-4);
+  --finger-r4-fill: var(--color-finger-4);
+  --finger-l5-fill: var(--color-finger-5);
+  --finger-r5-fill: var(--color-finger-5);
+  --finger-lb-fill: var(--color-finger-base);
+  --finger-rb-fill: var(--color-finger-base);
+  --finger-inactive-fill: var(--color-finger-inactive);
+  --finger-idle-fill    : var(--color-finger-idle);
+  --finger-error-fill   : var(--color-finger-error);
+
+  /* HandsScene */
+  --hands-center-point-fill: var(--color-path-highlight);
+
+  /* FlowLine */
+  --flow-line-border            : 2px solid var(--color-cursor-border);
+  --flow-line-correct-background: var(--color-symbol-correct-bg);
+  --flow-line-error-background  : var(--color-symbol-error-bg);
+
+  /* CursorSymbol */
+  --cursor-symbol-background: var(--color-cursor-bg);
+  --cursor-symbol-color     : var(--color-cursor-fg);
+
+  /* RegularSymbol */
+  --regular-symbol-pending-color  : var(--color-symbol-pending);
+  --regular-symbol-correct-color  : var(--color-symbol-correct);
+  --regular-symbol-corrected-color: var(--color-symbol-corrected);
+  --regular-symbol-error-color    : var(--color-symbol-error);
+  --regular-symbol-errors-color   : var(--color-symbol-errors);
+
+  /* NavArrow */
+  --nav-arrow-fill          : var(--color-arrow-fill);
+  --nav-arrow-outline       : var(--color-arrow-stroke);
+  --nav-arrow-gradient-start: var(--color-arrow-gradient);
+
+  /* FooterActions */
+  --footer-actions-btn-background        : var(--color-surface);
+  --footer-actions-btn-color             : var(--color-text-primary);
+  --footer-actions-btn-border            : 1px solid var(--color-border);
+  --footer-actions-btn-hover-background  : var(--color-surface-hover);
+  --footer-actions-btn-primary-background: var(--color-text-primary);
+  --footer-actions-btn-primary-color     : var(--color-bg);
+  --footer-actions-btn-primary-border    : 1px solid var(--color-text-primary);
+  --footer-actions-btn-success-background: var(--color-success);
+  --footer-actions-btn-success-color     : var(--color-bg);
+  --footer-actions-btn-success-border    : 1px solid var(--color-success);
+  --footer-actions-btn-warning-background: var(--color-warning);
+  --footer-actions-btn-warning-color     : var(--color-bg);
+  --footer-actions-btn-warning-border    : 1px solid var(--color-warning);
+  --footer-actions-btn-danger-background : var(--color-error);
+  --footer-actions-btn-danger-color      : var(--color-bg);
+  --footer-actions-btn-danger-border     : 1px solid var(--color-error);
+
+  /* Header */
+  --header-title-color     : var(--color-text-primary);
+  --header-debug-color     : var(--color-text-muted);
+  --header-debug-background: var(--color-surface);
+
+  /* MainContent */
+  --main-content-pause-color  : var(--color-text-secondary);
+  --main-content-welcome-color: var(--color-text-secondary);
+
+  /* TrainingScene */
+  --training-scene-state-code-background: var(--color-surface);
+
+  /* Select */
+  --select-background      : var(--color-surface);
+  --select-border          : 1px solid var(--color-border);
+  --select-color           : var(--color-text-primary);
+  --select-focus-outline   : 2px solid var(--color-border);
+  --select-arrow-background: var(--color-text-secondary);
+
+  /* LessonStatsDisplay */
+  --lesson-stats-display-background     : var(--color-surface);
+  --lesson-stats-display-border         : 1px solid var(--color-border);
+  --lesson-stats-display-item-background: var(--color-bg);
+  --lesson-stats-display-label-color    : var(--color-text-muted);
+  --lesson-stats-display-value-color    : var(--color-text-primary);
+  --lesson-stats-display-unit-color     : var(--color-text-secondary);
+
+  /* UserPreferencesPage */
+  --user-preferences-page-label-color         : var(--color-text-secondary);
+  --user-preferences-page-btn-background      : var(--color-surface);
+  --user-preferences-page-btn-color           : var(--color-text-primary);
+  --user-preferences-page-btn-border          : 1px solid var(--color-border);
+  --user-preferences-page-btn-hover-background: var(--color-surface-hover);
 }

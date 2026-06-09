@@ -48,9 +48,9 @@
     width: 100%;
     max-width: 640px;
     padding: var(--spacing-6);
-    background-color: var(--color-surface);
+    background: var(--lesson-stats-display-background);
     border-radius: var(--radius-4);
-    border: 1px solid var(--color-border);
+    border: var(--lesson-stats-display-border);
   }
 
   .title {
@@ -77,7 +77,7 @@
     align-items: center;
     justify-content: center;
     padding: var(--spacing-4);
-    background-color: var(--color-bg);
+    background: var(--lesson-stats-display-item-background);
     border-radius: var(--radius-3);
     /* `min-width: 0` отключает grid-default min-content sizing — без него
      * stat-item не сжимается ниже ширины своего контента и весь grid
@@ -87,19 +87,19 @@
 
   .stat-label {
     font-size: 0.875rem;
-    color: var(--color-text-muted);
+    color: var(--lesson-stats-display-label-color);
   }
 
   .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--lesson-stats-display-value-color);
   }
 
   .stat-unit {
     font-size: 1rem;
     font-weight: 500;
-    color: var(--color-text-secondary);
+    color: var(--lesson-stats-display-unit-color);
     margin-left: var(--spacing-1);
   }
 </style>

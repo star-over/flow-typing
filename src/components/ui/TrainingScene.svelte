@@ -90,7 +90,7 @@
 
   .state-code {
     font-family: var(--font-mono);
-    background-color: var(--color-surface);
+    background: var(--training-scene-state-code-background);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-2);
   }

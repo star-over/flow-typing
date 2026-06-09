@@ -29,12 +29,12 @@
   .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--header-title-color);
   }
 
   .debug {
     font-size: 0.75rem;
-    color: var(--color-text-muted);
+    color: var(--header-debug-color);
     font-family: var(--font-mono);
   }
 
@@ -43,7 +43,7 @@
   }
 
   .value {
-    background-color: var(--color-surface);
+    background: var(--header-debug-background);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-2);
   }

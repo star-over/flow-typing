@@ -16,7 +16,7 @@
 *   **Язык:** [TypeScript](https://www.typescriptlang.org/) (strict), `svelte-check` для типов
 *   **Библиотека UI:** [Svelte 5 (runes)](https://svelte.dev/)
 *   **Управление состоянием:** [XState v5](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
-*   **Стилизация:** CSS без фреймворков — глобальные CSS custom properties (`src/app.css`) + scoped `<style>` блоки в каждом `.svelte`-компоненте
+*   **Стилизация:** CSS без фреймворков. `src/app.css` — primitives (typography/radius/spacing/shadow/motion) и body fallback; цвета и декорации компонентов выносятся в темы (`src/themes/<id>.css`) через **компонентные контракты** (`*.contract.ts` рядом с компонентом). Подробности — `docs/06-component-contracts-and-themes.md`.
 *   **Тестирование:** [Vitest](https://vitest.dev/)
 *   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)
 *   **Линтинг:** [ESLint](https://eslint.org/)
@@ -79,6 +79,7 @@
 *   [`03-ui-viewmodel-contract.md`](./docs/03-ui-viewmodel-contract.md): Спецификация `ViewModel`, связывающей логику и UI.
 *   [`04-settings-management-system.md`](./docs/04-settings-management-system.md): Архитектура системы управления настройками.
 *   [`05-adaptive-learning-system.md`](./docs/05-adaptive-learning-system.md): Описание адаптивного движка "Dynamic Flow" и используемых метрик.
+*   [`06-component-contracts-and-themes.md`](./docs/06-component-contracts-and-themes.md): Архитектура компонентных контрактов и тем; алгоритм добавления нового компонента.
 
 ## 5. Вклад в проект
 

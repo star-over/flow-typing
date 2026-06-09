@@ -69,7 +69,7 @@
     transform: translateY(-50%) rotate(90deg);
   }
 
-  .fill { fill: var(--color-arrow-fill); }
-  .stroke { fill: var(--color-arrow-stroke); }
-  .gradient-start { stop-color: var(--color-arrow-gradient); }
+  .fill { fill: var(--nav-arrow-fill); }
+  .stroke { fill: var(--nav-arrow-outline); }
+  .gradient-start { stop-color: var(--nav-arrow-gradient-start); }
 </style>
