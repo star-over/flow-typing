@@ -8,7 +8,7 @@ import { NAV_ARROW_CONTRACT } from '@/components/ui/NavArrow.contract';
 import { TRAINING_SCENE_CONTRACT } from '@/components/ui/TrainingScene.contract';
 import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { LESSON_STATS_DISPLAY_CONTRACT } from '@/components/ui/LessonStatsDisplay.contract';
-import { USER_PREFERENCES_PAGE_CONTRACT } from '@/components/ui/UserPreferencesPage.contract';
+import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
 import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract';
 import { HEADER_CONTRACT } from '@/components/app/Header.contract';
 import { MAIN_CONTENT_CONTRACT } from '@/components/app/MainContent.contract';
@@ -42,7 +42,7 @@ export const THEME_CONTRACT = [
   ...TRAINING_SCENE_CONTRACT,
   ...SELECT_CONTRACT,
   ...LESSON_STATS_DISPLAY_CONTRACT,
-  ...USER_PREFERENCES_PAGE_CONTRACT,
+  ...SETTINGS_PAGE_CONTRACT,
 ] as const satisfies readonly `--${string}`[];
 
 export type ThemeContractToken = (typeof THEME_CONTRACT)[number];

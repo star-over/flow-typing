@@ -1,4 +1,4 @@
-import { preferences } from '@/lib/preferences';
+import { settings } from '@/lib/settings';
 
 /**
  * Каталог тем FlowTyping.
@@ -25,7 +25,7 @@ export type ThemeId = typeof THEMES[number]['id'];
 export type ColorScheme = 'light' | 'dark';
 
 /**
- * Значение поля `UserPreferences.theme`. Включает sentinel-значение `'auto'`,
+ * Значение поля `UserSettings.theme`. Включает sentinel-значение `'auto'`,
  * которое в рантайме преобразуется в конкретный `ThemeId` через
  * `prefers-color-scheme` (см. {@link resolveTheme}).
  */
@@ -69,7 +69,7 @@ let pendingTransition: ViewTransition | null = null;
  */
 export function setTheme(setting: ThemeSetting): void {
   const apply = () =>
-    preferences.update((current) => ({ ...current, theme: setting }));
+    settings.update((current) => ({ ...current, theme: setting }));
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const supportsVT = typeof document.startViewTransition === 'function';

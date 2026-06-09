@@ -4,7 +4,7 @@
   import type { Actor } from 'xstate';
 
   import { dictionary } from '@/lib/i18n';
-  import { preferences } from '@/lib/preferences';
+  import { settings } from '@/lib/settings';
   import { planExerciseIdSync } from '@/lib/exercise-id-sync';
   import { inState } from '@/lib/state-utils';
   import { resolveTheme } from '@/themes/registry';
@@ -51,7 +51,7 @@
   $effect(() => {
     const action = planExerciseIdSync({
       urlId: page.url.searchParams.get('exerciseId'),
-      storeId: $preferences.shared.exerciseId ?? null,
+      storeId: $settings.shared.exerciseId ?? null,
       currentSearch: page.url.search,
       hasSyncedFromUrl,
     });
@@ -59,7 +59,7 @@
     switch (action.type) {
       case 'URL_TO_STORE':
         hasSyncedFromUrl = true;
-        preferences.update((p) => ({
+        settings.update((p) => ({
           ...p,
           shared: { ...p.shared, exerciseId: action.exerciseId },
         }));
@@ -73,12 +73,12 @@
     }
   });
 
-  // Синхронизация `data-theme` с preferences. Inline-script в `src/app.html`
+  // Синхронизация `data-theme` с settings. Inline-script в `src/app.html`
   // ставит атрибут до paint; этот effect перетирает его после hydration,
   // если пользователь сменил тему в Settings.
   $effect(() => {
     if (!browser) return;
-    document.documentElement.dataset.theme = resolveTheme($preferences.theme);
+    document.documentElement.dataset.theme = resolveTheme($settings.theme);
   });
 
   // Live-обновление при системной смене темы, только в режиме `'auto'`.
@@ -86,7 +86,7 @@
   // на конкретную тему.
   $effect(() => {
     if (!browser) return;
-    if ($preferences.theme !== 'auto') return;
+    if ($settings.theme !== 'auto') return;
     const mq = matchMedia('(prefers-color-scheme: dark)');
     return on(mq, 'change', () => {
       document.documentElement.dataset.theme = resolveTheme('auto');
@@ -120,7 +120,7 @@
     {state}
     send={appActor.send.bind(appActor)}
     dictionary={$dictionary}
-    symbolLayoutId={$preferences.symbolLayoutId}
+    symbolLayoutId={$settings.symbolLayoutId}
   />
 </div>
 

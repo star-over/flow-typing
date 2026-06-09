@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { preferences, updatePreferences } from '@/lib/preferences';
+  import { settings, updateSettings } from '@/lib/settings';
   import Select from './Select.svelte';
-  import type { UserPreferences } from '@/interfaces/user-preferences';
+  import type { UserSettings } from '@/interfaces/user-settings';
   import type { Dictionary } from '@/interfaces/types';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
@@ -25,7 +25,7 @@
 
   // Опции раскладок зависят от выбранного textLanguage.
   const layoutOptions = $derived(
-    getCompatibleSymbolLayoutsForTextLanguage($preferences.textLanguage)
+    getCompatibleSymbolLayoutsForTextLanguage($settings.textLanguage)
       .map(d => ({
         value: d.symbolLayoutId,
         label: dictionary.options.layouts[d.symbolLayoutId],
@@ -42,53 +42,53 @@
 
     return [
       { value: 'auto', label: dictionary.options.themes.auto },
-      { label: dictionary.user_preferences.theme_group_light, options: lightThemes },
-      { label: dictionary.user_preferences.theme_group_dark, options: darkThemes },
+      { label: dictionary.settings.theme_group_light, options: lightThemes },
+      { label: dictionary.settings.theme_group_dark, options: darkThemes },
     ];
   });
 </script>
 
 <div class="preferences-page">
-  <h2>{dictionary.user_preferences.title}</h2>
+  <h2>{dictionary.settings.title}</h2>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.interface_language_label}</span>
+    <span class="label-text">{dictionary.settings.interface_language_label}</span>
     <Select
-      value={$preferences.interfaceLanguage}
+      value={$settings.interfaceLanguage}
       options={interfaceLanguages}
-      onChange={(v) => updatePreferences({ interfaceLanguage: v as UserPreferences['interfaceLanguage'] })}
+      onChange={(v) => updateSettings({ interfaceLanguage: v as UserSettings['interfaceLanguage'] })}
     />
   </label>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.text_language_label}</span>
+    <span class="label-text">{dictionary.settings.text_language_label}</span>
     <Select
-      value={$preferences.textLanguage}
+      value={$settings.textLanguage}
       options={textLanguages}
-      onChange={(v) => updatePreferences({ textLanguage: v as UserPreferences['textLanguage'] })}
+      onChange={(v) => updateSettings({ textLanguage: v as UserSettings['textLanguage'] })}
     />
   </label>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.symbol_layout_label}</span>
+    <span class="label-text">{dictionary.settings.symbol_layout_label}</span>
     <Select
-      value={$preferences.symbolLayoutId}
+      value={$settings.symbolLayoutId}
       options={layoutOptions}
-      onChange={(v) => updatePreferences({ symbolLayoutId: v as UserPreferences['symbolLayoutId'] })}
+      onChange={(v) => updateSettings({ symbolLayoutId: v as UserSettings['symbolLayoutId'] })}
     />
   </label>
 
   <label class="field">
-    <span class="label-text">{dictionary.user_preferences.theme_label}</span>
+    <span class="label-text">{dictionary.settings.theme_label}</span>
     <Select
-      value={$preferences.theme}
+      value={$settings.theme}
       options={themeOptions}
       onChange={(v) => setTheme(v as ThemeSetting)}
     />
   </label>
 
   <button type="button" class="btn" onclick={onBack}>
-    {dictionary.user_preferences.back_button}
+    {dictionary.settings.back_button}
   </button>
 </div>
 
@@ -109,21 +109,21 @@
 
   .label-text {
     font-size: 0.875rem;
-    color: var(--user-preferences-page-label-color);
+    color: var(--settings-page-label-color);
   }
 
   .btn {
     margin-top: var(--spacing-4);
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--user-preferences-page-btn-border);
-    background: var(--user-preferences-page-btn-background);
-    color: var(--user-preferences-page-btn-color);
+    border: var(--settings-page-btn-border);
+    background: var(--settings-page-btn-background);
+    color: var(--settings-page-btn-color);
     cursor: pointer;
     align-self: flex-start;
   }
 
   .btn:hover {
-    background: var(--user-preferences-page-btn-hover-background);
+    background: var(--settings-page-btn-hover-background);
   }
 </style>

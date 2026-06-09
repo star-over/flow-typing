@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { assign, createActor, createMachine, sendTo, type SnapshotFrom } from 'xstate';
 
 import type { KeyCapId, StreamAttempt, TypingStream } from '@/interfaces/types';
-import type { UserPreferences } from '@/interfaces/user-preferences';
+import type { UserSettings } from '@/interfaces/user-settings';
 
 import { trainingMachine } from './training.machine';
 
@@ -17,7 +17,7 @@ type TestParentEvent =
 
 function makeTestParent(
   stream: TypingStream,
-  symbolLayoutId: UserPreferences['symbolLayoutId'] = 'qwerty'
+  symbolLayoutId: UserSettings['symbolLayoutId'] = 'qwerty'
 ) {
   return createMachine({
     id: 'testParent',

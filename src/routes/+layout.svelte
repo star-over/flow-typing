@@ -1,12 +1,12 @@
 <script lang="ts">
   import '../app.css';
-  import { preferences } from '@/lib/preferences';
+  import { settings } from '@/lib/settings';
 
   const { children } = $props();
 
-  // Sync <html lang> with preferences (runs on mount + subscription)
+  // Sync <html lang> with settings (runs on mount + subscription)
   $effect(() => {
-    const lang = $preferences.interfaceLanguage;
+    const lang = $settings.interfaceLanguage;
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
     }

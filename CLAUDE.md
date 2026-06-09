@@ -60,7 +60,7 @@
 - `KeyCapId` (`src/interfaces/key-cap-id.ts`) — литеральное объединение всех физических клавиш.
 - `FingerId` = `L1..L5 | R1..R5 | LB | RB`: 1 = большой, 5 = мизинец, B = ладонь, L/R = левая/правая рука.
 - `StreamSymbol` (`{ targetSymbol, targetKeyCaps, attempts }`) — единица `TypingStream`.
-- Три слоя раскладок, у каждого — тип данных + идентификатор: **физическая** `PhysicalLayout` / `PhysicalLayoutId` (геометрия железа, ANSI, инвариант); **символьная** `SymbolLayout` / `SymbolLayoutId` (`'qwerty' \| 'йцукен'`, выбор пользователя в `UserPreferences.symbolLayoutId`); **пальцевая** `FingerLayout` / `FingerLayoutId` (ASDF). Имя слоя — в типе и в каждом поле: никаких `keyboardLayout`-полей с двойным смыслом.
+- Три слоя раскладок, у каждого — тип данных + идентификатор: **физическая** `PhysicalLayout` / `PhysicalLayoutId` (геометрия железа, ANSI, инвариант); **символьная** `SymbolLayout` / `SymbolLayoutId` (`'qwerty' \| 'йцукен'`, выбор пользователя в `UserSettings.symbolLayoutId`); **пальцевая** `FingerLayout` / `FingerLayoutId` (ASDF). Имя слоя — в типе и в каждом поле: никаких `keyboardLayout`-полей с двойным смыслом.
 - `src/interfaces/types.ts` имеет header-комментарий: **JSDoc там — часть документации единого языка, не удалять при рефакторинге.**
 
 ### Темы и компонентные контракты
@@ -79,8 +79,8 @@
 
 ### Settings и i18n
 
-- `src/lib/preferences.ts` — writable store; грузится из `localStorage['flow-typing-user-preferences']` через `deepMerge` поверх `DEFAULT_USER_PREFERENCES` (чтобы новые поля корректно догружались у старых пользователей). Любой `update`/`set` сохраняется обратно.
-- Метаданные настроек (тип, дефолты, опции) — `src/user-preferences/user-preferences.ts`.
+- `src/lib/settings.ts` — writable store; грузится из `localStorage['flow-typing-user-preferences']` через `normalizeSettings` поверх `DEFAULT_USER_SETTINGS` (чтобы новые поля корректно догружались у старых пользователей, неизвестные — игнорировались). Любой `update`/`set` сохраняется обратно.
+- Метаданные настроек (тип, дефолты, опции) — `src/user-settings/user-settings.ts`.
 - i18n: `src/lib/i18n.ts` — derived store, словари `dictionaries/{en,ru}.json`.
 - URL ↔ store sync для `?exerciseId=`: в `App.svelte` один `$effect` с one-shot guard'ом `hasSyncedFromUrl` (URL побеждает один раз при init, дальше store пишет в URL через `goto(..., { replaceState: true })`).
 

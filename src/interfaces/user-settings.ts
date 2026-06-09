@@ -6,7 +6,7 @@ import type {
 import type { ThemeSetting } from '@/themes/registry';
 
 /**
- * Структура пользовательских предпочтений.
+ * Структура пользовательских настроек.
  * - `interfaceLanguage` — язык UI (меню, словари).
  * - `textLanguage` — язык упражнений (первичная ось выбора в настройках,
  *   определяет какие drill'ы попадают в тренировку, какие раскладки доступны).
@@ -14,7 +14,7 @@ import type { ThemeSetting } from '@/themes/registry';
  * - `theme` — визуальная тема: либо конкретный `ThemeId`, либо `'auto'` (следует за системным
  *   `prefers-color-scheme`). Зеркалится отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
  */
-export interface UserPreferences {
+export interface UserSettings {
   interfaceLanguage: InterfaceLanguage;
   textLanguage: TextLanguage;
   symbolLayoutId: SymbolLayoutId;

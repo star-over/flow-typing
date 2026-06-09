@@ -18,7 +18,7 @@
     "training_machine_state": "Training Machine State:",
     "welcome": "Welcome to FlowTyping. Select an option to begin."
   },
-  "user_preferences": {
+  "settings": {
     "title": "User Preferences",
     "interface_language_label": "Interface Language",
     "interface_language_description": "Language of the UI (menus, hints).",

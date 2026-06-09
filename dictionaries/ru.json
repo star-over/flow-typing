@@ -18,7 +18,7 @@
     "training_machine_state": "Состояние машины тренировки:",
     "welcome": "Добро пожаловать в FlowTyping. Выберите действие, чтобы начать."
   },
-  "user_preferences": {
+  "settings": {
     "title": "Пользовательские Предпочтения",
     "interface_language_label": "Язык интерфейса",
     "interface_language_description": "Язык меню и подсказок UI.",

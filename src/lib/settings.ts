@@ -8,14 +8,17 @@ import {
   type SymbolLayoutId,
   type TextLanguage,
 } from '@/interfaces/types';
-import type { UserPreferences } from '@/interfaces/user-preferences';
-import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
+import type { UserSettings } from '@/interfaces/user-settings';
+import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
 import {
   getCompatibleSymbolLayoutsForTextLanguage,
   getDefaultSymbolLayoutForTextLanguage,
 } from '@/lib/layouts';
 import { isThemeSetting, type ThemeSetting } from '@/themes/registry';
 
+// localStorage-ключ намеренно сохранён со старым именем `flow-typing-user-preferences`
+// — это публичный контракт с уже существующими пользователями, переименовывать его
+// нельзя без миграции.
 const STORAGE_KEY = 'flow-typing-user-preferences';
 const THEME_STORAGE_KEY = 'flow-typing-theme';
 
@@ -41,16 +44,16 @@ function isSymbolLayoutCompatibleWithTextLanguage({
 }
 
 /**
- * Приводит произвольное содержимое localStorage к валидному UserPreferences,
+ * Приводит произвольное содержимое localStorage к валидному UserSettings,
  * заполняя пропуски по каскаду interfaceLanguage → textLanguage → symbolLayoutId.
  * Legacy ключи (например, старый `language`) игнорируются.
  */
-export function normalizePreferences(raw: unknown): UserPreferences {
+export function normalizeSettings(raw: unknown): UserSettings {
   const stored = (raw ?? {}) as Record<string, unknown>;
 
   const interfaceLanguage = isInterfaceLanguage(stored.interfaceLanguage)
     ? stored.interfaceLanguage
-    : DEFAULT_USER_PREFERENCES.interfaceLanguage;
+    : DEFAULT_USER_SETTINGS.interfaceLanguage;
 
   const textLanguage: TextLanguage = isTextLanguage(stored.textLanguage)
     ? stored.textLanguage
@@ -65,12 +68,12 @@ export function normalizePreferences(raw: unknown): UserPreferences {
 
   const shared =
     typeof stored.shared === 'object' && stored.shared !== null
-      ? (stored.shared as UserPreferences['shared'])
+      ? (stored.shared as UserSettings['shared'])
       : {};
 
   const theme: ThemeSetting = isThemeSetting(stored.theme)
     ? stored.theme
-    : DEFAULT_USER_PREFERENCES.theme;
+    : DEFAULT_USER_SETTINGS.theme;
 
   return { interfaceLanguage, textLanguage, symbolLayoutId, theme, shared };
 }
@@ -79,15 +82,15 @@ function safeJsonParse(s: string): unknown {
   try { return JSON.parse(s); } catch { return null; }
 }
 
-function createPreferencesStore() {
-  const load = (): UserPreferences => {
-    if (!browser) return { ...DEFAULT_USER_PREFERENCES };
+function createSettingsStore() {
+  const load = (): UserSettings => {
+    if (!browser) return { ...DEFAULT_USER_SETTINGS };
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? safeJsonParse(raw) : null;
-    return normalizePreferences(parsed);
+    return normalizeSettings(parsed);
   };
 
-  const store = writable<UserPreferences>(load());
+  const store = writable<UserSettings>(load());
 
   store.subscribe((value) => {
     if (browser) localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
@@ -101,14 +104,14 @@ function createPreferencesStore() {
 
   return {
     subscribe: store.subscribe,
-    update: (fn: (current: UserPreferences) => UserPreferences) =>
-      store.update(current => normalizePreferences(fn(current))),
-    set: (value: UserPreferences) => store.set(normalizePreferences(value)),
+    update: (fn: (current: UserSettings) => UserSettings) =>
+      store.update(current => normalizeSettings(fn(current))),
+    set: (value: UserSettings) => store.set(normalizeSettings(value)),
   };
 }
 
-export const preferences = createPreferencesStore();
+export const settings = createSettingsStore();
 
-export function updatePreferences(partial: Partial<UserPreferences>) {
-  preferences.update((current) => ({ ...current, ...partial }));
+export function updateSettings(partial: Partial<UserSettings>) {
+  settings.update((current) => ({ ...current, ...partial }));
 }
