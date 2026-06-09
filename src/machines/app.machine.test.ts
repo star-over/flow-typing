@@ -13,14 +13,6 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toBe('menu');
     });
 
-    it('navigates menu → allStat → menu', () => {
-      const actor = createActor(appMachine);
-      actor.start();
-      actor.send({ type: 'TO_ALL_STAT' });
-      expect(actor.getSnapshot().value).toBe('allStat');
-      actor.send({ type: 'TO_MENU' });
-      expect(actor.getSnapshot().value).toBe('menu');
-    });
   });
 
   describe('START_TRAINING', () => {
