@@ -13,7 +13,6 @@
 
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
-  import UserPreferencesPage from '@/components/ui/UserPreferencesPage.svelte';
 
   interface Props {
     state: StateFrom<typeof appMachine>;
@@ -22,7 +21,7 @@
     trainingActor: Actor<typeof trainingMachine> | undefined;
   }
 
-  const { state, send, dictionary, trainingActor }: Props = $props();
+  const { state, send: _send, dictionary, trainingActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённого потока или нет нажатий).
   // Тогда экран sessionComplete пуст — это допустимое degenerate-состояние,
@@ -39,8 +38,6 @@
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
-{:else if inState({ snapshot: state, value: 'settings' })}
-  <UserPreferencesPage onBack={() => send({ type: 'TO_MENU' })} {dictionary} />
 {:else if inState({ snapshot: state, value: 'allStat' })}
   <h2 class="screen-title">{dictionary.app.stats_screen_title}</h2>
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}

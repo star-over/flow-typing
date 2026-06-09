@@ -3,7 +3,6 @@
   import Select from './Select.svelte';
   import type { UserSettings } from '@/interfaces/user-settings';
   import type { Dictionary } from '@/interfaces/types';
-  import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
 
   interface Props {
@@ -17,20 +16,6 @@
     { value: 'en' as const, label: dictionary.options.interfaceLanguages.en },
     { value: 'ru' as const, label: dictionary.options.interfaceLanguages.ru },
   ]);
-
-  const textLanguages = $derived([
-    { value: 'en' as const, label: dictionary.options.textLanguages.en },
-    { value: 'ru' as const, label: dictionary.options.textLanguages.ru },
-  ]);
-
-  // Опции раскладок зависят от выбранного textLanguage.
-  const layoutOptions = $derived(
-    getCompatibleSymbolLayoutsForTextLanguage($settings.textLanguage)
-      .map(d => ({
-        value: d.symbolLayoutId,
-        label: dictionary.options.layouts[d.symbolLayoutId],
-      }))
-  );
 
   const themeOptions = $derived.by(() => {
     const lightThemes = THEMES
@@ -48,7 +33,7 @@
   });
 </script>
 
-<div class="preferences-page">
+<div class="settings-page">
   <h2>{dictionary.settings.title}</h2>
 
   <label class="field">
@@ -57,24 +42,6 @@
       value={$settings.interfaceLanguage}
       options={interfaceLanguages}
       onChange={(v) => updateSettings({ interfaceLanguage: v as UserSettings['interfaceLanguage'] })}
-    />
-  </label>
-
-  <label class="field">
-    <span class="label-text">{dictionary.settings.text_language_label}</span>
-    <Select
-      value={$settings.textLanguage}
-      options={textLanguages}
-      onChange={(v) => updateSettings({ textLanguage: v as UserSettings['textLanguage'] })}
-    />
-  </label>
-
-  <label class="field">
-    <span class="label-text">{dictionary.settings.symbol_layout_label}</span>
-    <Select
-      value={$settings.symbolLayoutId}
-      options={layoutOptions}
-      onChange={(v) => updateSettings({ symbolLayoutId: v as UserSettings['symbolLayoutId'] })}
     />
   </label>
 
@@ -93,7 +60,7 @@
 </div>
 
 <style>
-  .preferences-page {
+  .settings-page {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-6);

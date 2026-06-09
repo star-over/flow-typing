@@ -20,16 +20,6 @@
         {dictionary.app.start_training}
       </button>
     {/if}
-    {#if state.can({ type: 'TO_SETTINGS' })}
-      <button type="button" class="btn secondary" onclick={() => send({ type: 'TO_SETTINGS' })}>
-        {dictionary.app.settings}
-      </button>
-    {/if}
-    {#if state.can({ type: 'TO_ALL_STAT' })}
-      <button type="button" class="btn secondary" onclick={() => send({ type: 'TO_ALL_STAT' })}>
-        {dictionary.app.stats}
-      </button>
-    {/if}
     {#if state.can({ type: 'PAUSE' })}
       <button type="button" class="btn warning" onclick={() => send({ type: 'PAUSE' })}>
         {dictionary.app.pause}

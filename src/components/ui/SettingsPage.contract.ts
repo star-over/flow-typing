@@ -8,10 +8,7 @@
  * Кнопка-back имеет собственный набор токенов, отдельный от кнопок
  * FooterActions — у компонента свой контракт.
  *
- * Промежуточное состояние: до завершения рефакторинга экранов компонент
- * всё ещё называется `UserPreferencesPage.svelte` и потребляет токены
- * этого контракта. Файл будет переименован в `SettingsPage.svelte` при
- * переезде настроек на роут `/settings`.
+ * Компонент `SettingsPage.svelte` рендерится на роуте `/settings`.
  */
 export const SETTINGS_PAGE_CONTRACT = [
   '--settings-page-label-color',         // color подписи поля
