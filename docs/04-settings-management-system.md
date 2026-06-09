@@ -1,178 +1,91 @@
 # Глава 4: Система управления настройками
 
-Этот документ описывает архитектуру и реализацию системы управления пользовательскими настройками в рамках **MVP** (Minimum Viable Product).
+Этот документ описывает архитектуру и реализацию системы управления пользовательскими настройками — единый Svelte writable store с `localStorage`-персистентностью и разделение настроек по двум UI-точкам (приложение vs тренажёр).
 
 ## 4.1. Архитектурные принципы
 
-Система настроек для MVP спроектирована с упором на следующие принципы:
-
-1.  **Простота и идиоматичность:** Вместо внедрения сложных кастомных решений (`SettingsManager`, `SettingsStorage`), архитектура полностью полагается на существующий и хорошо знакомый стек технологий проекта:
-    *   **Svelte writable store** для управления состоянием.
-    *   **`localStorage`** для персистентности (хранения) на клиенте.
-    *   **SvelteKit navigation (`$app/navigation`)** для синхронизации части настроек с URL.
-2.  **Минимализм:** В MVP реализованы только критически важные настройки (язык, раскладка) и механизм для обмена упражнениями через URL.
+1. **Простота и идиоматичность:** архитектура полностью полагается на стек проекта — **Svelte writable store** для состояния и **`localStorage`** для персистентности. Никаких кастомных `SettingsManager` / `SettingsStorage`.
+2. **Единый стор, два UI-входа:** все настройки лежат в одном сторе `settings`. Видимо они разделены на две роли — *настройки приложения* и *настройки тренажёра* — и редактируются на разных экранах:
+   - **Приложение** (`/settings` — `SettingsPage.svelte`): `interfaceLanguage`, `theme`. Метаданные UI: «как со мной разговаривает приложение».
+   - **Тренажёр** (`MenuScreen` на `/`): `textLanguage`, `symbolLayoutId`. «Что и на чём тренируем» — pre-flight controls перед стартом сессии.
+3. **Никаких URL-настроек.** Раньше существовала синхронизация `?exerciseId=` с URL для обмена упражнениями. Эта фича удалена — она противоречит философии адаптивного тренажёра (см. `docs/05`), который сам подбирает drill'ы. Все настройки теперь живут только в `localStorage`.
+4. **Минимализм.** В MVP реализованы только критически важные поля: язык интерфейса, язык текста, раскладка, тема. Параметры адаптивности (стратегия выбора, длительность сессии и т.п.) будут добавлены отдельным PR в `/settings` или новый раздел.
 
 ## 4.2. Реализация на базе Svelte Store
 
-Центральным элементом архитектуры является единый **Svelte Writable Store**, который служит единственным источником истины для всех настроек приложения.
+Центральный элемент — единый **Svelte Writable Store** в `src/lib/settings.ts`, единственный источник истины.
 
-### Структура `UserPreferences`
-Состояние стора включает в себя сами настройки и метаданные для их отображения.
+### Структура `UserSettings`
 
 ```typescript
-// Определено в src/interfaces/user-preferences.ts
-export interface UserPreferences {
-  language: 'en' | 'ru';
-  symbolLayoutId: SymbolLayoutId; // 'qwerty' | 'йцукен'
-  // Настройки, предназначенные для обмена через URL
-  shared: {
-    exerciseId?: string;
-  };
+// src/interfaces/user-settings.ts
+export interface UserSettings {
+  interfaceLanguage: InterfaceLanguage;  // язык UI
+  textLanguage: TextLanguage;            // язык упражнений
+  symbolLayoutId: SymbolLayoutId;        // раскладка ('qwerty' | 'йцукен')
+  theme: ThemeSetting;                   // ThemeId | 'auto'
 }
 ```
 
-### Svelte Store (`preferences.ts`)
-
-Стор `preferences` использует стандартный `writable` из `svelte/store` с кастомной обёрткой для автоматизации сохранения и загрузки данных.
-
-**Ключевые особенности реализации:**
-
-1.  **Инициализация из `localStorage`:** При создании стора кастомная функция `load()` автоматически загружает сохраненное состояние из `localStorage` (ключ `flow-typing-user-preferences`) с глубоким слиянием поверх `DEFAULT_USER_PREFERENCES`.
-2.  **Слияние с дефолтами:** Функция `deepMerge` гарантирует, что новые поля настроек, добавленные в свежих версиях приложения, будут корректно инициализированы у пользователей со старой версией сохраненных данных.
-3.  **Атомарные обновления:** Функция `updatePreferences` позволяет безопасно и атомарно обновлять любую часть дерева настроек через `deepMerge`.
-4.  **Автоматическое сохранение:** `store.subscribe` автоматически сохраняет любое изменение состояния обратно в `localStorage`.
-
+Дефолты — отдельный файл `src/user-settings/user-settings.ts`:
 ```typescript
-// src/lib/preferences.ts
-
-import { writable, derived } from 'svelte/store';
-import { browser } from '$app/environment';
-import type { UserPreferences } from '@/interfaces/user-preferences';
-import { DEFAULT_USER_PREFERENCES } from '@/user-preferences/user-preferences';
-import { deepMerge } from '@/lib/utils';
-
-function createPreferencesStore() {
-  const load = (): UserPreferences => {
-    if (!browser) return DEFAULT_USER_PREFERENCES;
-    try {
-      const stored = localStorage.getItem('flow-typing-user-preferences');
-      if (stored) return deepMerge(DEFAULT_USER_PREFERENCES, JSON.parse(stored)) as UserPreferences;
-    } catch { /* ignore parse errors */ }
-    return DEFAULT_USER_PREFERENCES;
-  };
-
-  const store = writable<UserPreferences>(load());
-
-  store.subscribe((value) => {
-    if (browser) {
-      localStorage.setItem('flow-typing-user-preferences', JSON.stringify(value));
-    }
-  });
-
-  return { subscribe: store.subscribe, update: store.update, set: store.set };
-}
-
-export const preferences = createPreferencesStore();
-export const symbolLayoutId = derived(preferences, ($p) => $p.symbolLayoutId);
-
-export function updatePreferences(partial: Partial<UserPreferences>) {
-  preferences.update((current) => deepMerge(current, partial));
-}
-```
-
-### Метаданные настроек
-
-Тип, дефолты и опции для UI-отображения настроек вынесены в `src/user-preferences/user-preferences.ts`:
-
-```typescript
-// src/user-preferences/user-preferences.ts
-
-export const DEFAULT_USER_PREFERENCES: UserPreferences = {
-  language: 'en',
+export const DEFAULT_USER_SETTINGS: UserSettings = {
+  interfaceLanguage: 'en',
+  textLanguage: 'en',
   symbolLayoutId: 'qwerty',
-  shared: {},
+  theme: 'auto',
 };
 ```
 
-## 4.3. Синхронизация с URL
-
-Часть настроек (поле `shared.exerciseId`) синхронизируется с URL для обмена упражнениями. Этот процесс состоит из двух частей, реализованных в `src/components/app/App.svelte` с использованием Svelte runes (`$effect`) и SvelteKit navigation.
-
-### Планировщик синхронизации
-
-Чистая функция `planExerciseIdSync` (в `src/lib/exercise-id-sync.ts`) определяет направление синхронизации без побочных эффектов:
+### Стор `settings`
 
 ```typescript
-// src/lib/exercise-id-sync.ts
+// src/lib/settings.ts (упрощённо)
 
-export function planExerciseIdSync(params: {
-  urlId: string | null;
-  storeId: string | null;
-  currentSearch: string;
-  hasSyncedFromUrl: boolean;
-}): ExerciseIdSyncAction {
-  const { urlId, storeId, currentSearch, hasSyncedFromUrl } = params;
+// localStorage-ключ сохранён со старым именем для back-compat существующих пользователей.
+const STORAGE_KEY = 'flow-typing-user-preferences';
 
-  if (urlId === storeId) return { type: 'NOOP' };
+export const settings = createSettingsStore();
 
-  if (!hasSyncedFromUrl) {
-    return { type: 'URL_TO_STORE', exerciseId: urlId ?? undefined };
-  }
-
-  const newParams = new URLSearchParams(currentSearch);
-  if (storeId) {
-    newParams.set('exerciseId', storeId);
-  } else {
-    newParams.delete('exerciseId');
-  }
-
-  const newQuery = newParams.toString();
-  const currentQuery = currentSearch.replace(/^\?/, '');
-
-  if (newQuery === currentQuery) return { type: 'NOOP' };
-  return { type: 'STORE_TO_URL', newSearch: newQuery };
+export function updateSettings(partial: Partial<UserSettings>) {
+  settings.update((current) => ({ ...current, ...partial }));
 }
 ```
 
-### Чтение из URL при загрузке
+**Ключевые особенности:**
 
-При первой загрузке приложения `$effect` в `App.svelte` проверяет наличие `exerciseId` в URL. Если параметр найден и ещё не было начальной синхронизации, URL побеждает — значение записывается в стор.
+1. **Инициализация из `localStorage`:** `load()` читает `STORAGE_KEY`, парсит JSON и прогоняет через `normalizeSettings`.
+2. **Нормализация (`normalizeSettings`):** валидирует каждое поле, восстанавливает невалидные значения по каскаду `interfaceLanguage → textLanguage → symbolLayoutId` (например, при несовместимой паре «текст ru + раскладка qwerty» — раскладка сбрасывается на дефолтную для ru). Неизвестные поля игнорируются. Это безопасный путь миграции: старые пользователи с полями `shared.exerciseId` или другими legacy-ключами в `localStorage` не падают — поля просто отбрасываются.
+3. **Атомарные обновления:** `updateSettings({ partial })` через `settings.update((c) => ({ ...c, ...partial }))`, далее `normalizeSettings` под капотом.
+4. **Автоматическое сохранение:** `store.subscribe` пишет каждое изменение обратно в `localStorage`.
+5. **FOUC-free bootstrap:** значение `theme` зеркалится в отдельный ключ `'flow-typing-theme'`. Inline-script в `src/app.html` читает его до paint и выставляет `data-theme` атрибут на `<html>`. См. `docs/06` §6.5.
 
-```typescript
-// в App.svelte
+### `localStorage` ключ — публичный контракт
 
-let hasSyncedFromUrl = false;
-$effect(() => {
-  const action = planExerciseIdSync({
-    urlId: page.url.searchParams.get('exerciseId'),
-    storeId: $preferences.shared.exerciseId ?? null,
-    currentSearch: page.url.search,
-    hasSyncedFromUrl,
-  });
+`STORAGE_KEY = 'flow-typing-user-preferences'` намеренно НЕ переименован вместе с типом и стором. Это публичный контракт с уже существующими пользователями. Переименование ключа без миграции означало бы потерю настроек.
 
-  switch (action.type) {
-    case 'URL_TO_STORE':
-      hasSyncedFromUrl = true;
-      preferences.update((p) => ({
-        ...p,
-        shared: { ...p.shared, exerciseId: action.exerciseId },
-      }));
-      break;
-    // ...
-  }
-});
-```
+В коде это прокомментировано на месте константы.
 
-### Запись в URL при изменении
+## 4.3. UI-точки настроек
 
-Тот же `$effect` отслеживает изменения поля `exerciseId` в сторе. После начальной синхронизации стор побеждает — при его изменении URL обновляется через `goto(..., { replaceState: true })` без перезагрузки страницы.
+### `/settings` — настройки приложения
 
-```typescript
-// в App.svelte (внутри того же $effect)
+`SettingsPage.svelte` рендерится на роуте `/settings`. Содержит:
+- **Interface Language** — `interfaceLanguage` (en | ru).
+- **Theme** — `theme` (light / dark / sepia / nord / auto).
 
-case 'STORE_TO_URL':
-  goto(`?${action.newSearch}`, { replaceState: true, noScroll: true });
-  break;
-```
+Сюда же в будущем переедут параметры адаптивности, профиль пользователя и т.п.
 
-Этот подход обеспечивает простую, но надежную систему управления настройками, которая идеально вписывается в существующую архитектуру проекта.
+### Меню (`MenuScreen` на `/`) — настройки тренажёра
+
+`MenuScreen.svelte` рендерится `MainContent`'ом, когда FSM в состоянии `menu`. Содержит:
+- **Язык упражнений** — `textLanguage` (en | ru).
+- **Раскладка** — `symbolLayoutId` (qwerty | йцукен), производное от `textLanguage`.
+- **Start** — запускает тренировку (`appActor.send({ type: 'START_TRAINING', symbolLayoutId })`).
+
+Такое разделение делает «настройки сессии» доступными прямо перед стартом без лишнего хождения по меню.
+
+## 4.4. История
+
+- **MVP-1** (выпилено): структура `UserPreferences` с полем `language` (один язык на UI и упражнения), `?exerciseId=` URL-синхронизация для обмена упражнениями, `deepMerge` поверх дефолтов.
+- **MVP-2** (текущее): отдельные `interfaceLanguage`/`textLanguage` (т.к. UI и материал могут быть на разных языках), `normalizeSettings` вместо `deepMerge` (явная валидация по полям с каскадом), удалена URL-синхронизация, переименование `preferences` → `settings` codebase-wide.

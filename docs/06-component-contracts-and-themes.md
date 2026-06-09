@@ -20,9 +20,9 @@
 
 ```
 src/components/ui/KeyCap.svelte
-src/components/ui/KeyCap.contract.ts          ← 70 токенов
+src/components/ui/KeyCap.contract.ts          ← 30 токенов
 src/components/ui/Finger.svelte
-src/components/ui/Finger.contract.ts          ← 15 токенов
+src/components/ui/Finger.contract.ts          ← 9 токенов
 src/components/app/FooterActions.svelte
 src/components/app/FooterActions.contract.ts  ← 16 токенов
 …

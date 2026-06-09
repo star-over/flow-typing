@@ -51,8 +51,8 @@ All primary project commands are centralized in the `Makefile` for simplicity an
 
 1.  **ViewModel Pipeline:** The architecture strictly separates business logic from the UI. State is managed by XState machines, and the output of this logic is transformed by `viewModel-builder.ts` into a "dumb" data structure called `HandsSceneViewModel`.
 2.  **"Dumb" UI Components:** Svelte components (e.g., `HandsScene.svelte`) are responsible *only* for rendering the `HandsSceneViewModel`. They contain no business logic, ensuring they are simple, predictable, and easy to test.
-3.  **Hierarchical State Management:** A global `app.machine.ts` orchestrates high-level application states (like `menu`, `settings`, `training`), while an invoked `training.machine.ts` handles the complex logic of an individual typing session.
-4.  **Settings Management:** User-facing settings are managed by a custom Svelte writable store (`src/lib/preferences.ts`), which is decoupled from the core training logic and persists to `localStorage`.
+3.  **Hierarchical State Management:** A global `app.machine.ts` models the training cycle (`menu`, `training`, `sessionComplete`), while an invoked `training.machine.ts` handles the complex logic of an individual typing session. Settings and stats live on dedicated SvelteKit routes (`/settings`, `/stats`), not as FSM states.
+4.  **Settings Management:** User-facing settings are managed by a custom Svelte writable store (`src/lib/settings.ts`), which is decoupled from the core training logic and persists to `localStorage`.
 
 ### Naming Conventions
 
@@ -66,10 +66,11 @@ All primary project commands are centralized in the `Makefile` for simplicity an
 
 - `docs/`: **The single source of truth for architecture.** Contains detailed documentation on project philosophy, naming conventions, the ViewModel contract, and the adaptive learning system.
 - `src/machines/`: Contains the core application logic implemented as XState state machines (`app.machine.ts`, `training.machine.ts`, `keyboard.machine.ts`).
-- `src/lib/viewModel-builder.ts`: The crucial file that transforms state machine output into the `HandsSceneViewModel` for the UI.
-- `src/lib/`: Contains most of the project's business logic, including utilities for layout management, statistics calculation, pathfinding, preferences, and i18n.
-- `src/components/app/App.svelte`: The root application component that wires together the state machines and the main UI. It handles global keyboard events via `<svelte:window>`.
-- `src/components/app/MainContent.svelte`: Switches between application screens based on `appMachine` state.
+- `src/lib/hands-scene.ts`: The crucial file that transforms state machine output into the `HandsSceneViewModel` for the UI.
+- `src/lib/`: Contains most of the project's business logic, including utilities for layout management, statistics calculation, pathfinding, settings, and i18n.
+- `src/routes/+layout.svelte`: Hosts the singleton `appActor`, the global keyboard listener (`<svelte:window>` onkeydown/up/blur), theme effects, and the `Header` nav-chrome. Persists across sibling-route navigation so the FSM survives moving between `/`, `/settings`, and `/stats`.
+- `src/components/app/App.svelte`: The content of the `/` route. Renders `MainContent` (FSM-driven view) and `FooterActions` (process controls, hidden on menu).
+- `src/components/app/MainContent.svelte`: Switches between screens (`MenuScreen`, `TrainingScene`, `LessonStatsDisplay`, pause heading) based on `appMachine` state.
 - `src/components/ui/HandsScene.svelte`: The "dumb" Svelte component responsible for visualizing the hands and keyboard based on the ViewModel.
-- `src/lib/preferences.ts`: The Svelte store for managing user settings with `localStorage` persistence.
+- `src/lib/settings.ts`: The Svelte store for managing user settings with `localStorage` persistence.
 - `Makefile`: Centralized script runner for all common development tasks.

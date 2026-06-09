@@ -20,7 +20,7 @@
 *   **Тестирование:** [Vitest](https://vitest.dev/)
 *   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)
 *   **Линтинг:** [ESLint](https://eslint.org/)
-*   **Персистентность настроек:** `localStorage` через кастомный Svelte writable store (`src/lib/preferences.ts`)
+*   **Персистентность настроек:** `localStorage` через кастомный Svelte writable store (`src/lib/settings.ts`)
 
 ## 3. Начало работы
 
