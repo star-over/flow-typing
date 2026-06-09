@@ -15,8 +15,7 @@
     "pause": "Пауза",
     "resume": "Продолжить",
     "training_in_progress": "Идёт тренировка",
-    "training_machine_state": "Состояние машины тренировки:",
-    "welcome": "Добро пожаловать в FlowTyping. Выберите действие, чтобы начать."
+    "training_machine_state": "Состояние машины тренировки:"
   },
   "settings": {
     "title": "Пользовательские Предпочтения",

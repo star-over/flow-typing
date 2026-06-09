@@ -10,7 +10,6 @@
  */
 export const MAIN_CONTENT_CONTRACT = [
   '--main-content-pause-color',   // color заголовка состояния паузы
-  '--main-content-welcome-color', // color приветственного экрана меню
 ] as const satisfies readonly `--${string}`[];
 
 export type MainContentContractToken = (typeof MAIN_CONTENT_CONTRACT)[number];

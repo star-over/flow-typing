@@ -15,8 +15,7 @@
     "pause": "Pause",
     "resume": "Resume",
     "training_in_progress": "Training In Progress",
-    "training_machine_state": "Training Machine State:",
-    "welcome": "Welcome to FlowTyping. Select an option to begin."
+    "training_machine_state": "Training Machine State:"
   },
   "settings": {
     "title": "User Preferences",

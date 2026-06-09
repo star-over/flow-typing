@@ -255,7 +255,6 @@
 
   /* MainContent */
   --main-content-pause-color  : var(--color-text-secondary);
-  --main-content-welcome-color: var(--color-text-secondary);
 
   /* TrainingScene */
   --training-scene-state-code-background: var(--color-surface);
