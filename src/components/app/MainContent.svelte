@@ -13,6 +13,7 @@
 
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
+  import MenuScreen from '@/components/ui/MenuScreen.svelte';
 
   interface Props {
     state: StateFrom<typeof appMachine>;
@@ -21,11 +22,11 @@
     trainingActor: Actor<typeof trainingMachine> | undefined;
   }
 
-  const { state, send: _send, dictionary, trainingActor }: Props = $props();
+  const { state, send, dictionary, trainingActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённого потока или нет нажатий).
-  // Тогда экран sessionComplete пуст — это допустимое degenerate-состояние,
-  // решение принимает родитель, не сам компонент LessonStatsDisplay.
+  // Тогда экран sessionComplete пуст — допустимое degenerate-состояние,
+  // решение принимает родитель, не сам LessonStatsDisplay.
   const lessonStats = $derived.by(() => {
     const stream = state.context.lastTrainingStream;
     if (!stream) return null;
@@ -38,14 +39,13 @@
   <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
-{:else if inState({ snapshot: state, value: 'allStat' })}
-  <h2 class="screen-title">{dictionary.app.stats_screen_title}</h2>
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
-{:else}
-  <div class="welcome">
-    <p>{dictionary.app.welcome}</p>
-  </div>
+{:else if inState({ snapshot: state, value: 'menu' })}
+  <MenuScreen
+    {dictionary}
+    onStart={({ symbolLayoutId }) => send({ type: 'START_TRAINING', symbolLayoutId })}
+  />
 {/if}
 
 <style>
@@ -56,11 +56,5 @@
 
   .pause {
     color: var(--main-content-pause-color);
-  }
-
-  .welcome {
-    padding: var(--spacing-4);
-    text-align: center;
-    color: var(--main-content-welcome-color);
   }
 </style>
