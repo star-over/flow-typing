@@ -9,7 +9,7 @@ SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
-        normalize-rus-corp reinstall-gemini-cli
+        normalize-rus-corp reinstall-gemini-cli convex
 
 all: help
 
@@ -31,6 +31,8 @@ help:
 	@echo "  make dev              - vite dev (http://localhost:5173)"
 	@echo "  make build            - Сборка статического SPA в build/"
 	@echo "  make preview          - Preview production-сборки"
+	@echo ""
+	@echo "  make convex           - npx convex dev (sync с cloud dev deployment + auto-deploy функций)"
 	@echo ""
 	@echo "  make check            - svelte-check (типы Svelte+TS)"
 	@echo "  make test             - vitest run"
@@ -162,3 +164,11 @@ storybook: install
 storybook-build: install
 	@echo "📚 storybook build..."
 	npx storybook build
+
+
+# ==============================================================================
+# CONVEX
+# ==============================================================================
+
+convex:
+	npx convex dev
