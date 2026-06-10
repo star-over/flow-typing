@@ -80,6 +80,36 @@ Backend для синхронизированных данных (auth с Phase 
 - **Запуск dev:** `make convex` в отдельном терминале параллельно с `make dev`.
 - **Диагностика:** маршрут `/dev` + `convex/health.ts` (ping query + tick mutation). Не продуктовый код, удаляется в Phase 3.
 
+**Authentication.** Convex Auth (`@convex-dev/auth`). Конфигурация в `convex/auth.ts`:
+- `createOrUpdateUserHandler` экспортирован отдельно (тестируется в `convex/auth.test.ts`).
+- Правило **«провайдер = аккаунт»**: явно НЕ делаем link-by-email. Один email через GitHub и Google = два разных юзера. См. `docs/plans/auth.md` (Зафиксированные решения).
+- Issuer whitelist: `convex/auth.config.ts`.
+- HTTP routes: `convex/http.ts` (`auth.addHttpRoutes(http)`).
+- Текущий провайдер: GitHub. Google в Phase 4, Yandex/Apple/SberID — Roadmap V2.
+
+**Add new OAuth provider:**
+1. Import из `@auth/core/providers/<name>` в `convex/auth.ts`.
+2. Добавить в `providers` массив `convexAuth(...)`.
+3. Зарегистрировать OAuth app у провайдера; callback URL = `<CONVEX_SITE_URL>/api/auth/callback/<name>` (это backend-side `.convex.site` URL, не frontend `PUBLIC_*`).
+4. `npx convex env set AUTH_<NAME>_ID …` + `npx convex env set AUTH_<NAME>_SECRET …`.
+5. Push: `npx convex dev --once` (или просто watcher подхватит).
+
+**Auth-related env vars** (в Convex env, не в `.env.local`):
+- `SITE_URL` — куда Convex редиректит после auth (Vite origin в dev: `http://localhost:5173`).
+- `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерятся `npx @convex-dev/auth`.
+- `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
+- `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` — credentials GitHub OAuth App.
+
+**Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.
+
+**Тесты — vitest projects split (с Phase 2):**
+- `src/**/*.test.ts` → project `src`, node environment, обычная Svelte+TS-вселенная (auth-store, компоненты, контракты).
+- `convex/**/*.test.ts` → project `convex`, **`edge-runtime` environment**, `convex-test` для unit-тестов функций. Здесь `getAuthUserId`, `createOrUpdateUserHandler`, любая backend-логика, которая трогает `ctx.db`.
+
+`make test` запускает оба проекта одной командой. Vitest префиксит вывод `|src|` / `|convex|`.
+
+**Куда писать тест:** правило простое — *где живёт код, там и тест*. UI/store-логика → `src/`. Backend-функции/callbacks → `convex/`. Cross-cutting интеграционные тесты (Phase 3+) — отдельный вопрос, обсуждать тогда.
+
 ### Темы и компонентные контракты
 
 Каждый компонент с темизируемыми элементами имеет рядом `*.contract.ts` — массив имён CSS-токенов, которые компонент использует через `var()`. Имена — это **визуальные роли** (`--keycap-l2-background`, `--footer-actions-btn-success-border`, `--keycap-home-ring`), не цвет; значение каждого токена — **полное** CSS-свойство (`1px solid oklch(…)`, `0 0 0 0.25rem oklch(…)`), не только цвет.
