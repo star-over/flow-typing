@@ -1,5 +1,8 @@
 <script lang="ts">
   import '../app.css';
+  import { setupConvexAuth } from '@mmailaender/convex-auth-svelte/svelte';
+  import { PUBLIC_CONVEX_URL } from '$env/static/public';
+  import { convex } from '@/lib/convex';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
@@ -11,6 +14,11 @@
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
 
   import Header from '@/components/app/Header.svelte';
+
+  setupConvexAuth({
+    client: convex,
+    convexUrl: PUBLIC_CONVEX_URL,
+  });
 
   const { children } = $props();
 
@@ -57,6 +65,8 @@
       document.documentElement.dataset.theme = resolveTheme('auto');
     });
   });
+
+  if (import.meta.hot) import.meta.hot.invalidate();
 </script>
 
 <svelte:window
