@@ -280,4 +280,13 @@
   --settings-page-btn-color           : var(--color-text-primary);
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
+
+  /* SignInScreen */
+  --sign-in-screen-background            : oklch(89% 0.04 80);
+  --sign-in-screen-title-color           : oklch(30% 0.04 60);
+  --sign-in-screen-disclaimer-color      : oklch(50% 0.04 65);
+  --sign-in-screen-btn-github-background : oklch(32% 0.04 60);
+  --sign-in-screen-btn-github-color      : oklch(95% 0.01 80);
+  --sign-in-screen-btn-github-border     : 1px solid oklch(25% 0.04 60);
+  --sign-in-screen-btn-github-hover-background: oklch(42% 0.05 60);
 }

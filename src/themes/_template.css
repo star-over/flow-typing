@@ -234,4 +234,13 @@
   --settings-page-btn-color           : unset;
   --settings-page-btn-border          : unset;
   --settings-page-btn-hover-background: unset;
+
+  /* SignInScreen */
+  --sign-in-screen-background            : unset;
+  --sign-in-screen-title-color           : unset;
+  --sign-in-screen-disclaimer-color      : unset;
+  --sign-in-screen-btn-github-background : unset;
+  --sign-in-screen-btn-github-color      : unset;
+  --sign-in-screen-btn-github-border     : unset;
+  --sign-in-screen-btn-github-hover-background: unset;
 }

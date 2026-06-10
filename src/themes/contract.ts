@@ -13,6 +13,7 @@ import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract
 import { HEADER_CONTRACT } from '@/components/app/Header.contract';
 import { MAIN_CONTENT_CONTRACT } from '@/components/app/MainContent.contract';
 import { ROOT_CONTRACT } from '@/Root.contract';
+import { SIGN_IN_SCREEN_CONTRACT } from '@/components/auth/SignInScreen.contract';
 
 /**
  * Объединённый список CSS-токенов, которые ОБЯЗАНА декларировать каждая тема
@@ -43,6 +44,7 @@ export const THEME_CONTRACT = [
   ...SELECT_CONTRACT,
   ...LESSON_STATS_DISPLAY_CONTRACT,
   ...SETTINGS_PAGE_CONTRACT,
+  ...SIGN_IN_SCREEN_CONTRACT,
 ] as const satisfies readonly `--${string}`[];
 
 export type ThemeContractToken = (typeof THEME_CONTRACT)[number];
