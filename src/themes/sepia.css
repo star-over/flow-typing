@@ -289,4 +289,14 @@
   --sign-in-screen-btn-github-color      : oklch(95% 0.01 80);
   --sign-in-screen-btn-github-border     : 1px solid oklch(25% 0.04 60);
   --sign-in-screen-btn-github-hover-background: oklch(42% 0.05 60);
+
+  /* UserMenu */
+  --user-menu-loading-color               : oklch(55% 0.04 65);
+  --user-menu-guest-link-color            : oklch(40% 0.08 60);
+  --user-menu-guest-link-hover-color      : oklch(28% 0.1 58);
+  --user-menu-authenticated-name-color    : oklch(28% 0.04 60);
+  --user-menu-dropdown-background         : oklch(92% 0.03 80);
+  --user-menu-dropdown-border             : 1px solid oklch(72% 0.06 75);
+  --user-menu-dropdown-item-color         : oklch(28% 0.04 60);
+  --user-menu-dropdown-item-hover-background: oklch(84% 0.05 78);
 }
