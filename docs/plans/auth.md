@@ -1,0 +1,738 @@
+# Auth — план внедрения Convex Auth
+
+Umbrella-план интеграции аутентификации в FlowTyping. Разбит на фазы; каждая фаза — отдельная ветка, отдельный план, отдельный merge. Фазы независимы по deliverable, но зависят по порядку (нельзя начать Phase 3 без Phase 2).
+
+## Зафиксированные решения
+
+| Решение | Значение | Аргумент |
+| --- | --- | --- |
+| Backend для auth | **Convex Auth** (`@convex-dev/auth`) | бесплатно, юзеры в твоей БД, нет vendor lock-in, поддерживает любые OAuth провайдеры через `@auth/core` (включая Yandex и кастомные — для SberID) |
+| Frontend-режим | **SvelteKit `adapter-static` + SPA-only auth** («гибрид») | соответствует текущей архитектуре, бесплатный хостинг, риски SPA-auth для typing-trainer'а пренебрежимы |
+| Связывание аккаунтов | **Провайдер = аккаунт** (NO link-by-email) | безопасность приоритетнее эргономики; цена — UX-ловушка «один и тот же email через GitHub и Google = два разных юзера», митигируем явной коммуникацией в UI |
+| Scope бэкапа | **Settings + historical session stats** (без сырых attempts) | покрывает 95% задач «cross-device backup», экономно по storage |
+| Гостевой режим | **Поддерживается** | auth разблокирует sync, но не блокирует тренировку (принцип soft-progression) |
+| MVP-провайдеры | **GitHub + Google** | минимально полезный путь, проверка всей обвязки на двух провайдерах |
+| Roadmap-провайдеры | Yandex → Apple → SberID | по возрастанию организационной сложности |
+
+## Архитектурные правила игры
+
+Эти правила соблюдаются во всех фазах. Их нарушение делает миграцию на SSR в будущем дорогой; их соблюдение — делает её правкой 3-4 файлов.
+
+### Правило 1: трёхзначное auth-состояние, никогда двузначное
+
+```ts
+type AuthState =
+  | { status: 'loading' }
+  | { status: 'authenticated'; user: User }
+  | { status: 'guest' }
+```
+
+Каждое место в UI, зависящее от auth, обрабатывает все три ветки. Никаких `if (user) ... else ...`.
+
+### Правило 2: один источник правды — `authStore`
+
+Никакого `localStorage.getItem('convex-token')` врозь по компонентам. Чтение/запись токена — только через `src/lib/auth/auth-store.svelte.ts`. Компоненты подписываются на стор.
+
+### Правило 3: бизнес-функции получают `userId` параметром, не лезут за ним сами
+
+Mutations и queries не зовут `authStore` внутри. Вызывающий компонент решает, откуда взять `userId`, и передаёт его как аргумент.
+
+### Правило 4: никаких `*.server.ts` файлов
+
+`+page.server.ts`, `+layout.server.ts`, `hooks.server.ts` — не создаём, пока проект на `adapter-static`. Эти файлы работают в dev-режиме и ломаются в build — ловушка. Auth-логика только в `*.svelte` и `.svelte.ts`.
+
+## Каркас фазы
+
+Каждая фаза содержит:
+
+- **Цель** — что фаза достигает (одно предложение)
+- **In scope / Out of scope** — явные границы
+- **Ветка** — `feat/...` или `chore/...`
+- **Изменения файлов** — что создаётся / правится
+- **Шаги реализации** — ordered, с привязкой к коду
+- **Стратегия тестов** — что и как тестируем
+- **Done criteria** — testable, проверяемые
+- **Verification** — `make check-all` обязательно, плюс ручная проверка
+- **Merge** — локальный merge ветки в `master` (`git switch master && git merge --no-ff feat/<x>`); push на remote не предполагается планом
+
+---
+
+## Phase 0 — Организационная подготовка
+
+**Не фаза в коде. Чек-лист предусловий перед Phase 1.**
+
+- [ ] Зарегистрироваться на [convex.dev](https://convex.dev) (Google/GitHub-login, бесплатно)
+- [ ] Подтвердить, что dev-машина имеет Node ≥ 18 (требование `@convex-dev/auth`)
+- [ ] Решить: имя проекта в Convex (например `flow-typing-dev`) — будет частью URL deployment'а
+- [ ] Закрепить за собой `master` как merge-target всех фаз (если другая ветка для интеграции — указать её здесь)
+
+**Время:** 10 минут. **Никаких коммитов.**
+
+---
+
+## Phase 1 — Bootstrap Convex (без auth)
+
+**Цель.** Convex встроен в проект как backend; минимальный query/mutation проходит end-to-end в браузере; `make check-all` зелёный.
+
+### Scope
+
+**In:**
+- Установка `convex` пакета
+- Инициализация `convex/` директории через `npx convex dev`
+- Минимальный `convex/schema.ts` с диагностической таблицей `health`
+- Минимальный `convex/health.ts` (query `ping`, mutation `tick`)
+- Singleton-клиент `src/lib/convex.ts`
+- Проверочный вызов из `+layout.svelte` (или dev-only страница) — убедиться, что connection работает
+- Обновление `.env.example`, `Makefile`, `CLAUDE.md`, `cspell.json`
+
+**Out:**
+- Auth (отдельная фаза)
+- Продуктовые таблицы (`userSettings`, `sessions` — отдельные фазы)
+- Любые UI-изменения помимо проверочного вызова
+
+### Ветка
+
+`feat/convex-bootstrap`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| new | `convex/_generated/` | автогенерируется CLI |
+| new | `convex/schema.ts` | `defineSchema({ health: defineTable({ tickedAt: v.number() }) })` |
+| new | `convex/health.ts` | `query ping → "pong"`, `mutation tick → insert tickedAt: Date.now()` |
+| new | `convex.json` | конфиг Convex (минимальный) |
+| new | `src/lib/convex.ts` | `export const convex = new ConvexClient(PUBLIC_CONVEX_URL)` |
+| new | `src/routes/_dev/+page.svelte` | dev-only страница с кнопкой «ping» (удаляется в Phase 3) |
+| modify | `package.json` | добавить `convex` в deps |
+| modify | `.env.example` | `PUBLIC_CONVEX_URL=` placeholder |
+| modify | `.gitignore` | добавить `.env.local`, если ещё не игнорируется |
+| modify | `Makefile` | новый target `make convex` для `npx convex dev` |
+| modify | `CLAUDE.md` | добавить секцию «### Convex backend» внутри `## Architecture` |
+| modify | `cspell.json` | добавить `convex`, `Convex` в whitelist |
+
+### Шаги реализации
+
+1. `npm install convex` (через `make` нет — package-level)
+2. `npx convex dev` → ввести имя проекта → получить deployment URL
+3. CLI создаст `convex/`, `convex.json`, `.env.local`
+4. Перенести `CONVEX_DEPLOYMENT` (если нужен) и `PUBLIC_CONVEX_URL` в `.env.local`; в репо положить `.env.example` с пустыми значениями
+5. Написать `convex/schema.ts` и `convex/health.ts`
+6. Написать `src/lib/convex.ts`
+7. Написать минимальный `src/routes/_dev/+page.svelte` с кнопкой «ping» и выводом результата
+8. Запустить `make dev` + `make convex` в двух терминалах, проверить в браузере
+9. Обновить `CLAUDE.md` (секция про Convex, env vars, как стартовать)
+10. Обновить `cspell.json`
+
+### Стратегия тестов
+
+- **Unit:** не пишем (нет продуктовой логики)
+- **Smoke:** ручная — открыть `/_dev`, нажать ping, увидеть pong; нажать tick, увидеть, что появилась строка в Convex dashboard
+- **CI:** `make check-all` должен оставаться зелёным; добавление Convex не должно ломать существующие тесты
+
+### Done criteria
+
+- [ ] `npx convex dev` стартует без ошибок
+- [ ] В Convex dashboard видна таблица `health`
+- [ ] Из браузера через `/_dev` успешно вызывается `ping` (получаем `"pong"`)
+- [ ] `make check-all` зелёный
+- [ ] `CLAUDE.md` обновлён: новый разработчик может развернуть проект, прочитав инструкции
+- [ ] `.env.example` лежит в репо, `.env.local` — нет
+
+### Verification
+
+```bash
+make check-all   # lint + check + test + spell + build
+make dev         # Vite dev-сервер
+make convex      # Convex dev (отдельный терминал)
+# Открыть http://localhost:5173/_dev, нажать ping
+```
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/convex-bootstrap -m 'feat(convex): bootstrap Convex backend with health-check endpoint'
+git branch -d feat/convex-bootstrap
+```
+
+---
+
+## Phase 2 — Convex Auth backend (без UI)
+
+**Цель.** Convex Auth настроен на бэкенде с GitHub-провайдером и кастомным `createOrUpdateUser` callback'ом (правило «провайдер = аккаунт»). Sign-in работает из консоли разработчика; в `users` появляется строка.
+
+### Scope
+
+**In:**
+- Установка `@convex-dev/auth` и `@auth/core`
+- `convex/auth.config.ts`
+- `convex/auth.ts` с GitHub-провайдером и кастомным `createOrUpdateUser`
+- `convex/http.ts` (регистрация auth-роутов)
+- Расширение `convex/schema.ts` через `...authTables`
+- Минимальный `convex/users.ts` с `viewer()` query
+- Регистрация GitHub OAuth app, прописывание env vars в Convex
+- Документация в `CLAUDE.md`
+
+**Out:**
+- Фронтенд UI (отдельная фаза)
+- Google-провайдер (отдельная фаза)
+- Любая работа с `userSettings` / `sessions`
+
+### Ветка
+
+`feat/convex-auth-backend`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| new | `convex/auth.config.ts` | whitelist Convex как issuer |
+| new | `convex/auth.ts` | `convexAuth({ providers: [GitHub], callbacks: { createOrUpdateUser } })` |
+| new | `convex/http.ts` | `auth.addHttpRoutes(http)` |
+| new | `convex/users.ts` | `viewer` query — возвращает текущего юзера или `null` |
+| modify | `convex/schema.ts` | `defineSchema({ ...authTables, health: ... })` |
+| modify | `package.json` | добавить `@convex-dev/auth`, `@auth/core` |
+| modify | `CLAUDE.md` | секция «### Authentication» с env vars и провайдерами |
+| modify | `cspell.json` | `oauth`, `JWKS`, `JWT`, `OIDC`, и др. |
+
+### Шаги реализации
+
+1. `npm install @convex-dev/auth @auth/core`
+2. Запустить setup-скрипт Convex Auth (генерирует `JWT_PRIVATE_KEY`, `JWKS`): команда указана в docs `@convex-dev/auth`
+3. Зарегистрировать GitHub OAuth app:
+   - GitHub → Settings → Developer settings → OAuth Apps → New
+   - Application name: `FlowTyping (dev)`
+   - Homepage URL: `http://localhost:5173`
+   - Authorization callback URL: `https://<твой-deployment>.convex.site/api/auth/callback/github`
+4. Сохранить Client ID / Secret через CLI:
+   ```bash
+   npx convex env set AUTH_GITHUB_ID Iv1.xxx
+   npx convex env set AUTH_GITHUB_SECRET ghs_xxx
+   npx convex env set SITE_URL http://localhost:5173
+   ```
+5. Написать `convex/auth.config.ts`
+6. Написать `convex/auth.ts` с явным `createOrUpdateUser` (см. ниже)
+7. Расширить `convex/schema.ts` (`...authTables`)
+8. Написать `convex/http.ts`
+9. Написать `convex/users.ts`
+10. Smoke-проверка: через консоль Convex dashboard вызвать `signIn` с GitHub-токеном, увидеть запись в `users`
+11. Обновить `CLAUDE.md`
+
+### Контракт `createOrUpdateUser`
+
+```ts
+// convex/auth.ts
+import GitHub from "@auth/core/providers/github";
+import { convexAuth } from "@convex-dev/auth/server";
+
+export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
+  providers: [GitHub],
+  callbacks: {
+    async createOrUpdateUser(ctx, args) {
+      // existingUserId есть → юзер уже логинился через ЭТОТ ЖЕ провайдер
+      if (args.existingUserId) return args.existingUserId;
+
+      // Новый OAuth-аккаунт → новый user. НЕ ищем по email.
+      return ctx.db.insert("users", {
+        email: args.profile.email,
+        name: args.profile.name,
+        image: args.profile.image,
+      });
+    },
+  },
+});
+```
+
+### Стратегия тестов
+
+- **Unit (Vitest):** тест `createOrUpdateUser` через `convex-test` — два случая:
+  - `existingUserId` передан → возвращается тот же id, новой строки нет
+  - `existingUserId` не передан → создаётся новая строка даже если email уже есть в другой строке
+- **Smoke:** вручную — sign-in через консоль, проверка строки в Convex dashboard
+
+### Done criteria
+
+- [ ] Все env vars прописаны в Convex deployment
+- [ ] Sign-in через GitHub: через Convex dashboard или временный скрипт можно инициировать flow и получить запись в `users`
+- [ ] Unit-тесты `createOrUpdateUser` проходят
+- [ ] `make check-all` зелёный
+- [ ] `CLAUDE.md` содержит инструкцию «как добавить OAuth-провайдера»
+
+### Verification
+
+```bash
+make check-all
+npx convex env list   # сверить, что все ключи на месте
+# Через Convex dashboard или CLI вызвать signIn, проверить users
+```
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/convex-auth-backend -m 'feat(auth): add Convex Auth backend with GitHub provider'
+git branch -d feat/convex-auth-backend
+```
+
+---
+
+## Phase 3 — Auth UI: store + SignIn + UserMenu
+
+**Цель.** Юзер может зайти через GitHub из браузера, увидеть своё имя в Header, выйти. Auth-state управляется единым `authStore` с тремя ветками (loading/authenticated/guest).
+
+### Scope
+
+**In:**
+- `src/lib/auth/auth-store.svelte.ts` — Svelte 5 runes-based store
+- `src/lib/auth/auth-client.ts` — обёртки над `@convex-dev/auth`
+- `src/lib/auth/auth.types.ts` — `AuthState`, `User`
+- `src/components/auth/SignInScreen.svelte`
+- `src/components/auth/UserMenu.svelte`
+- `src/routes/signin/+page.svelte`
+- Обновление `src/routes/+layout.svelte` (bootstrap auth, передача через context)
+- Обновление `src/components/app/Header.svelte` (добавить `<UserMenu />`)
+- Удаление dev-only `src/routes/_dev/+page.svelte`
+
+**Out:**
+- Google-провайдер (Phase 4)
+- Любой sync settings/stats (Phase 5+)
+- Защита роутов (нечего защищать)
+
+### Ветка
+
+`feat/auth-ui`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| new | `src/lib/auth/auth-store.svelte.ts` | runes-store с `$state<AuthState>` |
+| new | `src/lib/auth/auth-client.ts` | `signInWith(provider)`, `signOut()` |
+| new | `src/lib/auth/auth.types.ts` | типы |
+| new | `src/components/auth/SignInScreen.svelte` | UI с кнопкой «Войти через GitHub» + дисклеймер |
+| new | `src/components/auth/UserMenu.svelte` | имя + аватар + кнопка выхода |
+| new | `src/components/auth/SignInScreen.contract.ts` | темизация по проекту (если есть стилизация) |
+| new | `src/components/auth/UserMenu.contract.ts` | то же |
+| new | `src/routes/signin/+page.svelte` | хост `<SignInScreen />` |
+| modify | `src/routes/+layout.svelte` | bootstrap authStore, setContext |
+| modify | `src/components/app/Header.svelte` | добавить `<UserMenu />` в angle |
+| modify | `src/themes/_template.css` + все темы | добавить токены SignIn/UserMenu |
+| modify | `src/themes/contract.ts` | THEME_CONTRACT расширяется новыми токенами |
+| delete | `src/routes/_dev/+page.svelte` | dev-проверка больше не нужна |
+| modify | `cspell.json` | новые слова при необходимости |
+
+### Шаги реализации
+
+1. Написать `auth.types.ts` — `User`, `AuthState`
+2. Написать `auth-client.ts` — тонкие обёртки над `@convex-dev/auth`
+3. Написать `auth-store.svelte.ts` — runes-based class с методами `bootstrap`, `signInWith`, `signOut`
+4. Bootstrap в `+layout.svelte`: при mount создать store, вызвать `bootstrap()`, передать через `setContext('auth', store)`
+5. Написать `SignInScreen.svelte` с дисклеймером про «провайдер = аккаунт»
+6. Написать `UserMenu.svelte` (loading state, signed-in state)
+7. Создать контракты тем для обоих компонентов; добавить токены в `_template.css` и каждую тему
+8. Обновить `THEME_CONTRACT` в `src/themes/contract.ts` (контракт-тест должен оставаться зелёным)
+9. Обновить `Header.svelte`: добавить `<UserMenu />` в angle
+10. Создать роут `/signin` для прямого входа
+11. Удалить `_dev`
+12. Прогнать `make check-all`
+
+### Стратегия тестов
+
+- **Unit (auth-store):**
+  - `bootstrap` со свежим состоянием → переход `loading → guest`
+  - `bootstrap` с валидным токеном в storage → переход `loading → authenticated`
+  - `signInWith` инициирует redirect — мокаем Convex client
+  - `signOut` → переход `authenticated → guest`, токен удалён
+- **Component (Vitest + svelte-testing):**
+  - `SignInScreen` рендерит дисклеймер
+  - `UserMenu` рендерит «loading...» при `status: 'loading'`
+  - `UserMenu` рендерит имя при `status: 'authenticated'`
+  - `UserMenu` рендерит «войти» при `status: 'guest'`
+- **Storybook stories** для `SignInScreen` и `UserMenu` (3 состояния)
+- **Contract test:** `src/themes/contract.test.ts` остаётся зелёным после расширения
+
+### Done criteria
+
+- [ ] Зайти через GitHub в браузере end-to-end (клик → GitHub OAuth → возврат → видно имя в Header)
+- [ ] Выйти через UserMenu — состояние сбрасывается, токен удалён
+- [ ] Reload страницы при залогиненом состоянии — остаёшься залогиненым (нет ререндера «loading → guest → authenticated»)
+- [ ] Unit-тесты `authStore` зелёные
+- [ ] Component-тесты зелёные
+- [ ] Storybook stories отображают корректно все 3 состояния `UserMenu`
+- [ ] Все темы (`light`, `dark`, `sepia`, `nord`) визуально консистентны
+- [ ] `make check-all` зелёный
+
+### Verification
+
+```bash
+make check-all
+make dev
+# Открыть http://localhost:5173, кликнуть «войти», пройти GitHub OAuth, вернуться
+# Reload — состояние должно сохраниться
+# Выйти — состояние сбрасывается
+make storybook
+# Проверить стораборды UserMenu в трёх состояниях
+```
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/auth-ui -m 'feat(auth): add sign-in UI and user menu'
+git branch -d feat/auth-ui
+```
+
+---
+
+## Phase 4 — Google-провайдер
+
+**Цель.** Добавить Google как второй провайдер. Юзер может выбрать GitHub или Google на SignInScreen.
+
+### Scope
+
+**In:**
+- Регистрация Google OAuth Client в Google Cloud Console
+- Добавление `Google` в `convex/auth.ts` providers
+- Кнопка «Войти через Google» в `SignInScreen.svelte`
+- Env vars в Convex
+
+**Out:**
+- Изменения логики `authStore` (она уже provider-agnostic)
+- Account linking (Phase 10+)
+
+### Ветка
+
+`feat/auth-google-provider`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| modify | `convex/auth.ts` | импорт + добавление в providers array |
+| modify | `src/components/auth/SignInScreen.svelte` | вторая кнопка |
+| modify | `src/lib/auth/auth-client.ts` | расширить тип `Provider = 'github' \| 'google'` |
+| modify | `CLAUDE.md` | обновить список провайдеров |
+
+### Шаги реализации
+
+1. Google Cloud Console → New Project → OAuth consent screen (External, Testing mode, добавить себя в test users)
+2. Credentials → OAuth client ID → Web application
+3. Authorized redirect URI: `https://<твой-deployment>.convex.site/api/auth/callback/google`
+4. Получить Client ID / Secret → `npx convex env set AUTH_GOOGLE_ID ...` / `AUTH_GOOGLE_SECRET ...`
+5. Обновить `convex/auth.ts`
+6. Обновить `SignInScreen.svelte` + `auth-client.ts`
+
+### Стратегия тестов
+
+- Smoke-проверка: войти через Google end-to-end
+- **Проверить «провайдер = аккаунт»:**
+  - Войти через GitHub с email `foo@example.com` — запомнить `users._id`
+  - Выйти, войти через Google с тем же `foo@example.com` — должен создаться новый `users._id`
+  - Подтвердить: в таблице `users` две строки с одинаковым email
+
+### Done criteria
+
+- [ ] Кнопка Google работает end-to-end
+- [ ] Проверена изоляция аккаунтов (две разные записи в `users` при одинаковом email)
+- [ ] `make check-all` зелёный
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/auth-google-provider -m 'feat(auth): add Google OAuth provider'
+git branch -d feat/auth-google-provider
+```
+
+---
+
+## Phase 5 — Settings sync
+
+**Цель.** Настройки (язык, тема, layout, и т.д.) синхронизируются между устройствами через Convex для залогиненных юзеров. Гость продолжает работать с localStorage.
+
+### Scope
+
+**In:**
+- Таблица `userSettings` в `convex/schema.ts`
+- `convex/userSettings.ts`: `getMine` query, `upsertMine` mutation
+- Расширение `src/lib/settings.ts`: интеграция с authStore, push при изменении, pull при логине
+- Стратегия last-write-wins по `updatedAt`
+- UI-индикатор «синхронизировано / не синхронизировано» (опционально, MVP — без него)
+
+**Out:**
+- Conflict resolution UI (не нужно для last-write-wins)
+- Merge между двумя offline-устройствами
+- `sessions` (Phase 6)
+
+### Ветка
+
+`feat/settings-sync`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| modify | `convex/schema.ts` | добавить `userSettings` таблицу |
+| new | `convex/userSettings.ts` | `getMine`, `upsertMine` |
+| modify | `src/lib/settings.ts` | hook на authStore: pull при login, push при изменении |
+| modify | `CLAUDE.md` | обновить «Settings и i18n» секцию |
+
+### Шаги реализации
+
+1. Добавить таблицу `userSettings`:
+   ```ts
+   userSettings: defineTable({
+     userId: v.id("users"),
+     symbolLayoutId: v.string(),
+     fingerLayoutId: v.string(),
+     languageId: v.string(),
+     themeId: v.string(),
+     updatedAt: v.number(),
+   }).index("by_user", ["userId"]),
+   ```
+2. Написать `convex/userSettings.ts`:
+   - `getMine`: возвращает строку или null
+   - `upsertMine`: создаёт или обновляет; `userId` берётся из `ctx.auth.getUserIdentity()`
+3. Расширить `src/lib/settings.ts`:
+   - При signIn (subscribe на authStore) вызвать `getMine`
+   - Сравнить `cloud.updatedAt` и `local.updatedAt`
+   - Победитель пишется в store; проигравший — в Convex (если local победил) или localStorage (если cloud победил)
+   - При любом `update`/`set` после signIn — push в Convex параллельно с localStorage
+4. Обновить `CLAUDE.md`
+
+### Стратегия тестов
+
+- **Unit (settings.ts):**
+  - Гость: только localStorage, никаких вызовов Convex
+  - Логин при пустом cloud → push локалки
+  - Логин при cloud новее → перетирает local
+  - Логин при local новее → push, cloud перетирается
+  - Изменение настроек после логина → одновременно localStorage + Convex
+- **Unit (Convex mutations):** `upsertMine` корректно работает для нового юзера и существующего
+
+### Done criteria
+
+- [ ] Меняешь тему на устройстве A → залогинен → захожу на устройстве B (или incognito) под тем же провайдером → видишь ту же тему
+- [ ] Гость продолжает работать без Convex (offline, localStorage only)
+- [ ] Все тесты зелёные
+- [ ] `make check-all` зелёный
+
+### Verification
+
+```bash
+make check-all
+make dev
+# Войти в browser A, сменить тему на dark
+# Открыть incognito (или другой профиль), войти тем же провайдером — тема dark подтянулась
+# Выйти, обновить — последняя локальная сохранена
+```
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/settings-sync -m 'feat(auth): sync user settings to Convex for signed-in users'
+git branch -d feat/settings-sync
+```
+
+---
+
+## Phase 6 — Sessions tracking
+
+**Цель.** Каждая завершённая тренировочная сессия (WPM, accuracy, error count) сохраняется в Convex для залогиненных юзеров.
+
+### Scope
+
+**In:**
+- Таблица `sessions` в `convex/schema.ts`
+- `convex/sessions.ts`: `record` mutation, `listMine` query (для Phase 7)
+- Интеграция с `trainingMachine`: при `SESSION.COMPLETE` если залогинен — отправить агрегат в Convex
+- Подсчёт агрегатов (WPM gross, accuracy %, errorCount, totalSymbols) — pure-функции
+
+**Out:**
+- Сырые attempts (не сохраняем — экономия storage)
+- `/stats` UI (Phase 7)
+- WPM net (требует определения «штраф», отложено)
+
+### Ветка
+
+`feat/sessions-tracking`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| modify | `convex/schema.ts` | добавить `sessions` |
+| new | `convex/sessions.ts` | `record`, `listMine` |
+| new | `src/lib/sessions/aggregate.ts` | pure-функции: attempts → WPM/accuracy/errorCount |
+| new | `src/lib/sessions/aggregate.test.ts` | unit-тесты агрегатора |
+| modify | `src/machines/training.machine.ts` | при `SESSION.COMPLETE` подключение в send pipeline |
+| modify | `src/components/training/TrainingScene.svelte` (или родитель) | подписка на событие и вызов mutation |
+
+### Шаги реализации
+
+1. Добавить таблицу `sessions` (см. schema в обсуждении плана)
+2. Написать pure-агрегатор `aggregate.ts` (attempts + drill metadata → SessionSummary)
+3. Написать unit-тесты агрегатора с заранее заготовленными attempts
+4. Написать `convex/sessions.ts`:
+   - `record`: принимает `SessionSummary`, проверяет identity, вставляет
+   - `listMine`: возвращает последние N сессий
+5. В `trainingMachine` — добавить запись `summary` в snapshot или отдельный output (правило 3: `userId` параметром на уровень выше)
+6. В компоненте (например `TrainingScene` или `App.svelte`): подписка на `state.matches('sessionComplete')`, если `authStore.status === 'authenticated'` — вызов `convex.mutation(api.sessions.record, { ...summary })`
+
+### Стратегия тестов
+
+- **Unit (aggregate.ts):**
+  - Корректный WPM при 60 символов за 60 сек
+  - Accuracy 100% при 0 ошибок
+  - Accuracy 0% при только ошибках
+  - Edge: 0 символов — не делим на ноль
+- **Unit (Convex):** `record` отказывает при `null` identity, `listMine` фильтрует по userId
+
+### Done criteria
+
+- [ ] Завершить сессию залогиненым — в Convex появилась строка с агрегатами
+- [ ] Завершить сессию гостем — никаких ошибок, ничего не сохраняется (или сохраняется в localStorage отдельно — TBD)
+- [ ] Юнит-тесты агрегатора покрывают edge cases
+- [ ] `make check-all` зелёный
+
+### Verification
+
+```bash
+make check-all
+make dev
+# Залогиниться, провести drill до конца
+# Открыть Convex dashboard, проверить таблицу sessions
+```
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/sessions-tracking -m 'feat(auth): persist completed training sessions to Convex'
+git branch -d feat/sessions-tracking
+```
+
+---
+
+## Phase 7 — `/stats` с реальными данными
+
+**Цель.** Страница `/stats` перестаёт быть placeholder'ом. Залогиненый юзер видит свои метрики; гость — call-to-action.
+
+### Scope
+
+**In:**
+- Замена placeholder в `src/routes/stats/+page.svelte`
+- Базовые виджеты: всего сессий, средний WPM, средняя accuracy, последние 10 сессий
+- `getStats` query в `convex/sessions.ts` (агрегат поверх listMine)
+- Состояние «гость» с CTA «войди, чтобы видеть статистику»
+- Состояние «нет данных» («сыграй хотя бы одну сессию»)
+
+**Out:**
+- Графики/чарты (отложено до feedback'а)
+- Сравнение с другими юзерами
+- Фильтрация по drill / layout / период
+
+### Ветка
+
+`feat/stats-real-data`
+
+### Изменения файлов
+
+| Действие | Путь | Что |
+| --- | --- | --- |
+| modify | `convex/sessions.ts` | добавить `getStats` query (агрегаты) |
+| modify | `src/routes/stats/+page.svelte` | вывод по 3 состояниям |
+| new | `src/components/stats/StatsView.svelte` | основной компонент |
+| new | `src/components/stats/StatsView.contract.ts` | темизация |
+| modify | темы | добавить токены StatsView |
+| modify | `src/themes/contract.ts` | `THEME_CONTRACT` |
+
+### Стратегия тестов
+
+- **Unit:** `getStats` агрегат корректен на mocked данных
+- **Component:** `StatsView` рендерит каждое из 3 состояний (guest / empty / data)
+- **Storybook:** stories для всех состояний
+
+### Done criteria
+
+- [ ] Гость видит CTA
+- [ ] Залогинен без сессий — empty state
+- [ ] Залогинен с сессиями — реальные числа
+- [ ] Все темы консистентны
+- [ ] `make check-all` зелёный
+
+### Merge
+
+Локально:
+
+```bash
+git switch master
+git merge --no-ff feat/stats-real-data -m 'feat(stats): show real session stats on /stats page'
+git branch -d feat/stats-real-data
+```
+
+---
+
+## Roadmap V2 (по запросу, не в умbrella)
+
+Эти фазы планируются отдельно, когда появится потребность. Здесь — заголовки и зависимости.
+
+### Phase 8 — Yandex provider
+
+Полностью аналогично Phase 4 (Google). `@auth/core/providers/yandex` существует. Регистрация на oauth.yandex.ru, env vars `AUTH_YANDEX_ID` / `AUTH_YANDEX_SECRET`. Время — 1 день.
+
+### Phase 9 — Apple provider
+
+**Пререкизиты:**
+- Свой production-домен с DNS-контролем (для domain verification)
+- Apple Developer Program ($99/год)
+- Production-deployment Convex (с production `SITE_URL`)
+
+Не делать на dev-окружении — Apple требует верифицированный домен.
+
+### Phase 10 — Account linking V2
+
+Возможность объединить два аккаунта (например, юзер хочет привязать Google к своему GitHub-аккаунту). Требует UI в `/settings`, mutation для слияния `users` строк, миграция связанных `userSettings` / `sessions`. Большая фаза, делать только если поступит запрос от пользователей.
+
+### Phase 11 — SberID
+
+**Пререкизиты:**
+- ИП или ООО (для регистрации в Сбер Developer Portal)
+- Подписание договора
+- Возможно — клиентские TLS-сертификаты
+
+Custom OAuth-провайдер для `@auth/core` пишется руками. Делать только при подтверждённой бизнес-потребности.
+
+---
+
+## Глоссарий
+
+- **Convex deployment** — твой инстанс Convex backend'а. Имеет URL вида `https://<adj-noun-123>.convex.cloud` (для функций) и `https://<adj-noun-123>.convex.site` (для HTTP-routes, включая OAuth callbacks).
+- **IdP (Identity Provider)** — сервис, который выпускает JWT (Identity Token). В нашем случае это сам Convex deployment с раскатанным Convex Auth.
+- **JWT** — подписанный токен с identity. Convex проверяет его подпись и кладёт claims в `ctx.auth`.
+- **MAU** — Monthly Active Users. Метрика billing'а у Clerk/Auth0.
+- **`@convex-dev/auth`** — npm-пакет, реализующий Convex Auth.
+- **`@auth/core`** — npm-пакет с каталогом OAuth-провайдеров (от команды Auth.js / NextAuth).
+- **adapter-static** — текущий SvelteKit-адаптер; собирает SPA без сервера.
+
+## Ссылки
+
+- Convex Auth docs: https://labs.convex.dev/auth
+- `@convex-dev/auth` GitHub: https://github.com/get-convex/convex-auth
+- Convex Auth example: https://github.com/get-convex/convex-auth-example
+- Auth.js providers (=`@auth/core/providers/*`): https://authjs.dev/getting-started/providers
+- `convex-auth-svelte` (community wrapper, опционально): https://github.com/mmailaender/convex-auth-svelte
