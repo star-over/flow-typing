@@ -1,9 +1,6 @@
 import { ConvexClient } from 'convex/browser';
+import { PUBLIC_CONVEX_URL } from '$env/static/public';
+import { api } from '../../convex/_generated/api';
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
-
-if (!CONVEX_URL) {
-  throw new Error('VITE_CONVEX_URL is not defined');
-}
-
-export const convex = new ConvexClient(CONVEX_URL);
+export const convex = new ConvexClient(PUBLIC_CONVEX_URL);
+export { api };
