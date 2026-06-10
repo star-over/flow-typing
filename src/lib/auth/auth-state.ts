@@ -16,7 +16,7 @@ export function computeAuthState({
 }): AuthState {
   if (isLoading) return { status: 'loading' };
   if (!isAuthenticated) return { status: 'guest' };
-  // isAuthenticated, но viewer ещё не подтянулся — держим loading, не показываем «гостя» залогиненному
+  // isAuthenticated, но viewer ещё не подтянулся — держим loading, не показываем «гостя» аутентифицированному пользователю
   if (viewer === null) return { status: 'loading' };
   return { status: 'authenticated', user: viewer };
 }
