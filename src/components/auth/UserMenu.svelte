@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { resolve } from '$app/paths';
   import type { createAuthStore } from '@/lib/auth/auth-store.svelte';
 
   type AuthStore = ReturnType<typeof createAuthStore>;
@@ -13,7 +14,7 @@
 {#if auth.state.status === 'loading'}
   <span class="user-menu user-menu--loading" aria-busy="true">…</span>
 {:else if auth.state.status === 'guest'}
-  <a class="user-menu user-menu--guest-link" href="/signin">Войти</a>
+  <a class="user-menu user-menu--guest-link" href={resolve('/signin')}>Войти</a>
 {:else}
   <details class="user-menu user-menu--authenticated">
     <summary class="user-menu__summary">

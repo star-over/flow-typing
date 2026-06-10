@@ -1,6 +1,7 @@
 <script lang="ts">
   import { dictionary } from '@/lib/i18n';
   import { resolve } from '$app/paths';
+  import UserMenu from '@/components/auth/UserMenu.svelte';
 
   interface Props {
     title: string;
@@ -17,6 +18,7 @@
     <nav class="nav">
       <a class="nav-link" href={resolve('/settings')}>{$dictionary.app.settings}</a>
       <a class="nav-link" href={resolve('/stats')}>{$dictionary.app.stats}</a>
+      <UserMenu />
     </nav>
   </div>
   <div class="debug">

@@ -20,6 +20,12 @@
     convexUrl: PUBLIC_CONVEX_URL,
   });
 
+  import { setContext } from 'svelte';
+  import { createAuthStore } from '@/lib/auth/auth-store.svelte';
+
+  const authStore = createAuthStore();
+  setContext('auth', authStore);
+
   const { children } = $props();
 
   let state = $state(appActor.getSnapshot());
