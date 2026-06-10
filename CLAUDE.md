@@ -22,6 +22,7 @@
 | Команда | Что делает |
 | --- | --- |
 | `make dev` | `vite dev` на http://localhost:5173 |
+| `make convex` | `npx convex dev` — sync с cloud dev deployment + watch-deploy функций |
 | `make build` / `make preview` | сборка SPA в `build/` / preview |
 | `make test` | `vitest run` |
 | `make coverage` | `vitest run --coverage` (v8 provider, text-отчёт в консоли) |
@@ -64,6 +65,20 @@
 - `StreamSymbol` (`{ targetSymbol, targetKeyCaps, attempts }`) — единица `TypingStream`.
 - Три слоя раскладок, у каждого — тип данных + идентификатор: **физическая** `PhysicalLayout` / `PhysicalLayoutId` (геометрия железа, ANSI, инвариант); **символьная** `SymbolLayout` / `SymbolLayoutId` (`'qwerty' \| 'йцукен'`, выбор пользователя в `UserSettings.symbolLayoutId`); **пальцевая** `FingerLayout` / `FingerLayoutId` (ASDF). Имя слоя — в типе и в каждом поле: никаких `keyboardLayout`-полей с двойным смыслом.
 - `src/interfaces/types.ts` имеет header-комментарий: **JSDoc там — часть документации единого языка, не удалять при рефакторинге.**
+
+### Convex backend
+
+Backend для синхронизированных данных (auth с Phase 2, settings sync, sessions). Запускается отдельным процессом параллельно с Vite.
+
+- **Mode:** cloud dev deployment (`CONVEX_DEPLOYMENT=dev:wandering-ocelot-9` в `.env.local`, EU-West-1). Production-deployment — отдельный cloud-deployment позже.
+- **Конфиг:** schema в `convex/schema.ts`. Функции — `convex/<module>.ts`, queries и mutations.
+- **Клиент:** singleton `src/lib/convex.ts` экспортирует `convex` (ConvexClient) и `api` (типизированный ref). Компоненты импортируют `import { convex, api } from '@/lib/convex'`.
+- **Env vars (.env.local, gitignored):**
+  - `CONVEX_DEPLOYMENT` — вход для CLI
+  - `PUBLIC_CONVEX_URL` — URL functions (для клиента)
+  - `PUBLIC_CONVEX_SITE_URL` — URL HTTP-routes (для OAuth callbacks в Phase 2)
+- **Запуск dev:** `make convex` в отдельном терминале параллельно с `make dev`.
+- **Диагностика:** маршрут `/dev` + `convex/health.ts` (ping query + tick mutation). Не продуктовый код, удаляется в Phase 3.
 
 ### Темы и компонентные контракты
 
