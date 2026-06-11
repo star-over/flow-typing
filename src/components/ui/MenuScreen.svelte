@@ -1,9 +1,9 @@
 <!--
   Tech-debt note: MenuScreen намеренно не имеет рядом MenuScreen.contract.ts.
   Компонент пока тонкий и переиспользует существующие токены SettingsPage и
-  FooterActions. Когда он стабилизируется как самостоятельная сущность —
-  выделить собственные `--menu-screen-*` токены и завести контракт на общих
-  условиях. См. docs/06 §6.2 и docs/superpowers/plans/2026-06-09-screen-routing-and-menu-refactor.md (Task 6).
+  FooterActions. Когда он стабилизируется — выделить собственные `--menu-screen-*`
+  токены и завести контракт на общих условиях (docs/06 §6.2).
+  Запись в очереди: docs/backlog.md → «MenuScreen.contract.ts».
 -->
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';

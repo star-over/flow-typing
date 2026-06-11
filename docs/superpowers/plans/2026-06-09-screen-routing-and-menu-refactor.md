@@ -1923,10 +1923,4 @@ Expected: только значение `'flow-typing-user-preferences'` (STORAG
 
 ## Что дальше (не в scope этого PR)
 
-- **`docs/04-settings-management-system.md`** содержит ~25 вхождений `preferences`/`Preferences`. Перечитать док под новую терминологию — отдельный PR.
-- **`docs/06-component-contracts-and-themes.md`** — возможно стоит добавить раздел про tech-debt-исключения (как MenuScreen).
-- **`MenuScreen.contract.ts`** — после кристаллизации компонента.
-- **Session vs drill** — рефакторинг training.machine.
-- **`/stats` реальная реализация** — общая статистика по тренировкам.
-- **Прореживание unused i18n ключей** — `app.loading`, `app.error_title`, описания в `settings.*_description`, `*_placeholder` — пока не использованы.
-- **Keyboard events на `/settings` и `/stats`** — сейчас событий KEY_DOWN/KEY_UP в FSM безвредны (FSM в menu), но если станет нужен фильтр по pathname — добавить в layout.
+Перенесено в [`docs/backlog.md`](../../backlog.md) (раздел «Тех-долг и архитектурные открытые вопросы»). Из исходного списка `docs/04` уже переписан под новую терминологию (закрыто), `/stats` стал частью auth-umbrella (Phase 7, тоже в backlog'е), остальные пять пунктов живут там с обновлёнными «почему отложено» и «driver».
