@@ -1,5 +1,6 @@
 import GitHub from '@auth/core/providers/github';
 import Google from '@auth/core/providers/google';
+import Yandex from '@auth/core/providers/yandex';
 import { convexAuth } from '@convex-dev/auth/server';
 import type { Id } from './_generated/dataModel';
 import type { MutationCtx } from './_generated/server';
@@ -31,7 +32,7 @@ export async function createOrUpdateUserHandler({
 }
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [GitHub, Google],
+  providers: [GitHub, Google, Yandex],
   callbacks: {
     // Передаём в helper только нужные поля, чтобы изолировать тесты от
     // полного callback args shape (`type`, `provider`, `shouldLink` и т.д. — не используем).
