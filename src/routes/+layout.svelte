@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../app.css';
-  import { setupConvexAuth } from '@mmailaender/convex-auth-svelte/svelte';
+  import { setupConvexAuth, useAuth } from '@mmailaender/convex-auth-svelte/svelte';
   import { PUBLIC_CONVEX_URL } from '$env/static/public';
   import { convex } from '@/lib/convex';
   import { appActor } from '@/machines/appActor';
@@ -18,6 +18,19 @@
   setupConvexAuth({
     client: convex,
     convexUrl: PUBLIC_CONVEX_URL,
+  });
+
+  // Work around convex-auth-svelte: wrapper calls client.setAuth(...) only ONCE
+  // at setupConvexAuth. После OAuth callback wrapper'у нужно время на PKCE
+  // exchange — в этот момент fetchAccessToken() возвращает null, convex переходит
+  // в noAuth state и больше не пере-fetch'ит при появлении token'а.
+  // Reactive re-wire — каждый раз когда token меняется, заново отдаём getter
+  // в convex, что триггерит refetch + re-validate всех subscriptions.
+  const auth = useAuth();
+  $effect(() => {
+    if (auth.token) {
+      convex.setAuth(auth.fetchAccessToken);
+    }
   });
 
   import { setContext } from 'svelte';

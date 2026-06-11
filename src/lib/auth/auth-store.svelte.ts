@@ -12,7 +12,10 @@ export function createAuthStore() {
   let viewer = $state<User | null>(null);
 
   $effect(() => {
-    if (!auth.isAuthenticated) {
+    // Re-subscribe при transition isAuthenticated и при rotation token'а.
+    // setAuth re-wiring живёт в +layout.svelte (workaround wrapper-bug); здесь
+    // только зависим от token'а чтобы наша подписка тоже знала про обновление.
+    if (!auth.isAuthenticated || !auth.token) {
       viewer = null;
       return;
     }
