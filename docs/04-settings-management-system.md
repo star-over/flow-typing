@@ -42,8 +42,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 ```typescript
 // src/lib/settings.ts (упрощённо)
 
-// localStorage-ключ сохранён со старым именем для back-compat существующих пользователей.
-const STORAGE_KEY = 'flow-typing-user-preferences';
+const STORAGE_KEY = 'flow-typing-user-settings';
 
 export const settings = createSettingsStore();
 
@@ -59,12 +58,6 @@ export function updateSettings(partial: Partial<UserSettings>) {
 3. **Атомарные обновления:** `updateSettings({ partial })` через `settings.update((c) => ({ ...c, ...partial }))`, далее `normalizeSettings` под капотом.
 4. **Автоматическое сохранение:** `store.subscribe` пишет каждое изменение обратно в `localStorage`.
 5. **FOUC-free bootstrap:** значение `theme` зеркалится в отдельный ключ `'flow-typing-theme'`. Inline-script в `src/app.html` читает его до paint и выставляет `data-theme` атрибут на `<html>`. См. `docs/06` §6.5.
-
-### `localStorage` ключ — публичный контракт
-
-`STORAGE_KEY = 'flow-typing-user-preferences'` намеренно НЕ переименован вместе с типом и стором. Это публичный контракт с уже существующими пользователями. Переименование ключа без миграции означало бы потерю настроек.
-
-В коде это прокомментировано на месте константы.
 
 ## 4.3. UI-точки настроек
 

@@ -2,11 +2,11 @@
   import '../app.css';
   import { setupConvexAuth, useAuth } from '@mmailaender/convex-auth-svelte/svelte';
   import { PUBLIC_CONVEX_URL } from '$env/static/public';
-  import { convex } from '@/lib/convex';
+  import { convex, api } from '@/lib/convex';
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
-  import { settings } from '@/lib/settings';
+  import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';
   import { resolveTheme } from '@/themes/registry';
   import { browser } from '$app/environment';
@@ -36,6 +36,21 @@
 
   const authStore = createAuthStore();
   setContext('auth', authStore);
+
+  // Phase 5: cross-device settings sync для авторизованных юзеров.
+  // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.
+  const cloudSync = attachCloudSync({
+    authStore,
+    pullCloud: () => convex.query(api.userSettings.getMine, {}),
+    pushCloud: (args) => convex.mutation(api.userSettings.upsertMine, args),
+  });
+  $effect(() => {
+    // Явно tracking-ем status field — точное rune-dependency на конкретное reactive значение.
+    // Effect повторно выполняется на каждое изменение status'а; internal guards игнорируют non-transitions.
+    void authStore.state.status;
+    cloudSync.notifyAuthChanged();
+  });
+  onDestroy(() => cloudSync.dispose());
 
   const { children } = $props();
 
