@@ -85,7 +85,7 @@ Backend для синхронизированных данных (auth с Phase 
 - Правило **«провайдер = аккаунт»**: явно НЕ делаем link-by-email. Один email через GitHub и Google = два разных юзера. См. `docs/plans/auth.md` (Зафиксированные решения).
 - Issuer whitelist: `convex/auth.config.ts`.
 - HTTP routes: `convex/http.ts` (`auth.addHttpRoutes(http)`).
-- Текущие провайдеры: GitHub, Google. Yandex/Apple/SberID — Roadmap V2.
+- Текущие провайдеры: GitHub, Google, Yandex. Apple/SberID — Roadmap V2.
 
 **Add new OAuth provider:**
 1. Import из `@auth/core/providers/<name>` в `convex/auth.ts`.
@@ -98,7 +98,7 @@ Backend для синхронизированных данных (auth с Phase 
 - `SITE_URL` — куда Convex редиректит после auth (Vite origin в dev: `http://localhost:5173`).
 - `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерятся `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
-- `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
+- `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_YANDEX_ID`, `AUTH_YANDEX_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
 
 **Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.
 
@@ -122,7 +122,7 @@ Backend для синхронизированных данных (auth с Phase 
 
 Каждый компонент с темизируемыми элементами имеет рядом `*.contract.ts` — массив имён CSS-токенов, которые компонент использует через `var()`. Имена — это **визуальные роли** (`--keycap-l2-background`, `--footer-actions-btn-success-border`, `--keycap-home-ring`), не цвет; значение каждого токена — **полное** CSS-свойство (`1px solid oklch(…)`, `0 0 0 0.25rem oklch(…)`), не только цвет.
 
-Все 17 контрактов агрегируются в `src/themes/contract.ts → THEME_CONTRACT` (111 токенов). Контракт-тест `src/themes/contract.test.ts` enforce-ит, что каждая тема (`src/themes/<id>.css`) и `_template.css` декларируют каждый токен; значения свободны.
+Все 17 контрактов агрегируются в `src/themes/contract.ts → THEME_CONTRACT` (115 токенов). Контракт-тест `src/themes/contract.test.ts` enforce-ит, что каждая тема (`src/themes/<id>.css`) и `_template.css` декларируют каждый токен; значения свободны.
 
 Темы в `src/themes/`:
 - `light` / `sepia` (colorScheme=light), `dark` / `nord` (colorScheme=dark). Каталог — `THEMES` в `src/themes/registry.ts`.
