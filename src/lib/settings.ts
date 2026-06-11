@@ -18,10 +18,7 @@ import { isThemeSetting, type ThemeSetting } from '@/themes/registry';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import { decideSyncOnLogin, settingsToCloudArgs, type CloudSettings } from './settings-sync';
 
-// localStorage-ключ намеренно сохранён со старым именем `flow-typing-user-preferences`
-// — это публичный контракт с уже существующими пользователями, переименовывать его
-// нельзя без миграции.
-const STORAGE_KEY = 'flow-typing-user-preferences';
+const STORAGE_KEY = 'flow-typing-user-settings';
 const THEME_STORAGE_KEY = 'flow-typing-theme';
 
 function isInterfaceLanguage(v: unknown): v is InterfaceLanguage {
