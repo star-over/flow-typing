@@ -134,9 +134,18 @@ Backend для синхронизированных данных (auth с Phase 
 
 ### Settings и i18n
 
-- `src/lib/settings.ts` — writable store; грузится из `localStorage['flow-typing-user-preferences']` через `normalizeSettings` поверх `DEFAULT_USER_SETTINGS` (чтобы новые поля корректно догружались у старых пользователей, неизвестные — игнорировались). Любой `update`/`set` сохраняется обратно.
+- `src/lib/settings.ts` — writable store; грузится из `localStorage['flow-typing-user-settings']` через `normalizeSettings` поверх `DEFAULT_USER_SETTINGS` (чтобы новые поля корректно догружались у старых пользователей, неизвестные — игнорировались). Любой `update`/`set` сохраняется обратно.
 - Метаданные настроек (тип, дефолты, опции) — `src/user-settings/user-settings.ts`.
 - i18n: `src/lib/i18n.ts` — derived store, словари `dictionaries/{en,ru}.json`.
+
+**Cross-device sync (Phase 5).** Для залогиненных юзеров настройки синхронизируются через Convex. Гость — только localStorage, никаких cloud-вызовов.
+
+- **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локалку в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
+- **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без моков (`src/lib/settings-sync.test.ts`).
+- **Orchestrator:** `attachCloudSync(...)` в `src/lib/settings.ts`. Вызывается из `src/routes/+layout.svelte` после `createAuthStore`. Internal guards: `hasSyncedThisSession` (one-shot pull/push per authentication session, защита от token-refresh flicker'а), `pushChain` (serialized push queue для in-order delivery при network reorder), `skipNextSubscribeCallback` (no echo push после pull), `isInitialSubscribe` (no push на init).
+- **Backend:** `convex/userSettings.ts` — `getMine` query (auth-required, `null` при unauth), `upsertMine` mutation (auth-required, `throw 'Not authenticated'` при unauth). Логика в `getMineHandler` / `upsertMineHandler` — testable отдельно от auth-обёртки (паттерн `createOrUpdateUserHandler`). `updatedAt` ставит сервер.
+- **«Провайдер = аккаунт» enforced на этом уровне:** `userSettings` row ссылается на `userId: v.id('users')`. Один email через GitHub vs Google = два юзера = два независимых settings row. By design.
+- **Что НЕ реализовано:** live cross-tab/cross-device push (нужен Convex subscription, не делаем), timestamp-based LWW (нужен `local.updatedAt` хранение, не делаем — «cloud wins» простой и предсказуемый), UI sync-indicator (silent eventually-consistent через console.warn в dev).
 
 ## Conventions
 
