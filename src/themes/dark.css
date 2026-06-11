@@ -302,6 +302,10 @@
   --sign-in-screen-btn-google-color      : oklch(15% 0 0);
   --sign-in-screen-btn-google-border     : 1px solid oklch(70% 0.01 280);
   --sign-in-screen-btn-google-hover-background: oklch(96% 0 0);
+  --sign-in-screen-btn-yandex-background : oklch(95% 0 0);
+  --sign-in-screen-btn-yandex-color      : oklch(15% 0 0);
+  --sign-in-screen-btn-yandex-border     : 1px solid oklch(75% 0 0);
+  --sign-in-screen-btn-yandex-hover-background: oklch(88% 0 0);
 
   /* UserMenu */
   --user-menu-loading-color               : oklch(55% 0 0);
