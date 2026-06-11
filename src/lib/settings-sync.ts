@@ -3,7 +3,7 @@ import type { UserSettings } from '@/interfaces/user-settings';
 /**
  * Shape of userSettings row returned by Convex getMine.
  * Mirror'ит `Doc<'userSettings'>` без runtime-зависимости от convex types
- * (тесты этого модуля бегут в node env без convex codegen).
+ * (тесты этого модуля бегут в node env без convex code-generation).
  */
 export type CloudSettings = {
   interfaceLanguage: string;
@@ -21,7 +21,7 @@ export type SyncOnLoginDecision =
  * Pure decision: при transition authStore → 'authenticated', что делать?
  *
  * Стратегия — «cloud wins при login»:
- * - cloud пуст → push локалку (first sync).
+ * - cloud пуст → push локальные настройки (first sync).
  * - cloud есть → pull cloud (это и есть source of truth).
  *
  * НЕ classic LWW с явным сравнением timestamps. Для одного-активного-юзера
