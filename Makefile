@@ -39,7 +39,7 @@ help:
 	@echo "  make coverage         - vitest run --coverage (text-отчёт в консоли)"
 	@echo "  make lint             - eslint ."
 	@echo "  make lint-fix         - eslint . --fix"
-	@echo "  make spell            - cspell на src/dictionaries/static (см. cspell.json)"
+	@echo "  make spell            - cspell на src + dictionaries + static + **/*.md (см. cspell.json)"
 	@echo "  make check-all        - lint + check + test + spell + build"
 	@echo ""
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
@@ -117,11 +117,16 @@ lint-fix: install
 	@echo "🔧 eslint --fix..."
 	npx eslint . --fix
 
-# CSpell сканирует код + витрину + словари. Документация (docs/, *.md) НЕ в
-# check-all — там много неформального текста, фиксим отдельно по мере правок.
+# CSpell сканирует код + витрину + словари + всю проектную документацию (README,
+# CLAUDE.md, docs/**/*.md). Внешние артефакты (.agents/, .gemini/, convex/README.md
+# auto-gen, tmp/, build/, dist/) выключены через ignorePaths в cspell.json.
 spell: install
 	@echo "🔤 cspell..."
-	npx cspell --no-progress 'src/**/*.{svelte,ts,css}' 'dictionaries/*.json' 'static/*.html'
+	npx cspell --no-progress \
+		'src/**/*.{svelte,ts,css}' \
+		'dictionaries/*.json' \
+		'static/*.html' \
+		'**/*.md'
 
 check-dev: install
 	npx eslint . --quiet --cache --cache-location node_modules/.cache/eslint/

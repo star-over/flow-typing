@@ -4,7 +4,7 @@
 
 **Goal:** Добавить Google как второй OAuth-провайдер. На `/signin` появляется вторая кнопка «Войти через Google». Backend, фронт-кнопка, темы. Сохранить инвариант «провайдер = аккаунт» (отдельные `users`-строки для одного email при входе через два разных провайдера) — этот инвариант защищается существующим `createOrUpdateUserHandler` без правок.
 
-**Architecture:** Минимальная фаза. Бекенд — `import Google from '@auth/core/providers/google'` + добавление в `providers` array. UI — рефактор `handleGithubSignIn` → `handleSignIn(provider)` + вторая кнопка в `SignInScreen.svelte`. Темы — 4 новых токена `--sign-in-screen-btn-google-{background,color,border,hover-background}` × 4 темы + `_template.css`. `authStore` уже provider-agnostic (`signIn(provider: string)`), правки не нужны.
+**Architecture:** Минимальная фаза. Бэкенд — `import Google from '@auth/core/providers/google'` + добавление в `providers` array. UI — рефакторинг `handleGithubSignIn` → `handleSignIn(provider)` + вторая кнопка в `SignInScreen.svelte`. Темы — 4 новых токена `--sign-in-screen-btn-google-{background,color,border,hover-background}` × 4 темы + `_template.css`. `authStore` уже provider-agnostic (`signIn(provider: string)`), правки не нужны.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5 (runes) · Convex Auth (`@convex-dev/auth@~0.0.94`) · `@auth/core@~0.41.2` (Google provider встроен) · `@mmailaender/convex-auth-svelte@~0.1.3` · TypeScript strict.
 
@@ -19,7 +19,7 @@
 - **Frontend:** `SignInScreen.svelte` — единственная кнопка GitHub, уже имеет `signingIn` с `finally`-reset под Google popup-flow
 - **Auth store:** `createAuthStore()` экспортирует `signIn(provider: string)` — без правок переиспользуется для Google
 - **Layout:** `src/routes/+layout.svelte` — reactive `$effect` re-wires `convex.setAuth(auth.fetchAccessToken)` при изменении `auth.token` (ищи блок с комментарием «Work around convex-auth-svelte: wrapper calls client.setAuth(...) only ONCE»). **Это защищает и Google flow тоже** (race на post-OAuth PKCE exchange не provider-specific).
-- **Storybook:** `StorybookAuthFrame.svelte` — wrapper для stories с моком `'auth'` context'а. `signIn: (_provider: string) => Promise.resolve()` уже принимает любой провайдер.
+- **Storybook:** `StorybookAuthFrame.svelte` — wrapper для stories с заглушкой `'auth'` context'а. `signIn: (_provider: string) => Promise.resolve()` уже принимает любой провайдер.
 - **Themes:** 4 темы (`light/dark/sepia/nord`) + `_template.css` декларируют 7 SignInScreen-токенов (`--sign-in-screen-{background,title-color,disclaimer-color,btn-github-{background,color,border,hover-background}}`).
 - **THEME_CONTRACT** (`src/themes/contract.ts:32-50`) агрегирует 17 component-контрактов; `SIGN_IN_SCREEN_CONTRACT` — один из них.
 - **CLAUDE.md** содержит «Текущий провайдер: GitHub. Google в Phase 4, …» — Phase 4 переписывает это.
@@ -226,7 +226,7 @@ Convex functions ready! (XXXms)
 
 Что значат разные сигналы:
 - Просто «functions ready» (с любым timing'ом) — успех, двигайся дальше.
-- Строки с `warning` / `warn` / `[WARN]` — обычно деприкейшены, не блокер. Игнорь.
+- Строки с `warning` / `warn` / `[WARN]` — обычно устаревания, не препятствие. Игнорируй.
 - Строки с `error` / `Error` / `Failed` / `Type 'Google' is not assignable` — **стоп**. Конфликт версий `@auth/core` или import-typo. Разбирайся (проверь буквы в `from '@auth/core/providers/google'` — нижний регистр), затем перезапусти watcher.
 - Watcher молчит после save'а — `Ctrl+C` и `make convex` заново, иногда watcher теряет file-watch на macOS после некоторого времени.
 
@@ -248,7 +248,7 @@ git add convex/auth.ts
 git commit -m "feat(auth): add Google OAuth provider to Convex Auth backend"
 ```
 
-`convex/_generated/` отслеживается в git (см. `git ls-files convex/_generated/`). Convex watcher регенерирует эти файлы при правке `convex/*.ts`; обычно для добавления одного провайдера regen не нужен (тип-сигнатуры не меняются), но если `git status` показывает diff — это нормально, закоммить с основной правкой.
+`convex/_generated/` отслеживается в git (см. `git ls-files convex/_generated/`). Convex watcher регенерирует эти файлы при правке `convex/*.ts`; обычно для добавления одного провайдера regen не нужен (тип-сигнатуры не меняются), но если `git status` показывает diff — это нормально, закоммитить с основной правкой.
 
 ---
 
@@ -364,7 +364,7 @@ cat src/components/auth/SignInScreen.svelte
   </button>
 ```
 
-`signingIn` — общий флаг для обеих кнопок (одновременно нажать всё равно нельзя — `disabled` дизейблит обе). `'Перенаправление…'` оставляем дженерик-текст для обеих.
+`signingIn` — общий флаг для обеих кнопок (одновременно нажать всё равно нельзя — `disabled` отключает обе). `'Перенаправление…'` оставляем обобщённый тип-текст для обеих.
 
 - [ ] **Step 2.3: Добавить стили для `.sign-in-screen__btn-google`**
 
@@ -430,7 +430,7 @@ git add src/components/auth/SignInScreen.svelte
 git commit -m "feat(auth-ui): refactor SignInScreen handler to accept provider arg, add Google button"
 ```
 
-> **Не разрывай работу здесь.** Этот commit намеренно оставляет компонент в промежуточном состоянии — Google-кнопка ссылается на CSS-переменные, которых в темах нет, поэтому в браузере выглядит «голой» (browser fallback на `unset` / inherited). Task 3 закрывает эту дыру. Если бранч bisect'нется на этом коммите — будет visual regression на `/signin`. Task 2 + Task 3 — атомарная пара; **не оставляй ветку на ночь между ними**.
+> **Не разрывай работу здесь.** Этот commit намеренно оставляет компонент в промежуточном состоянии — Google-кнопка ссылается на CSS-переменные, которых в темах нет, поэтому в браузере выглядит «голой» (browser fallback на `unset` / inherited). Task 3 закрывает эту дыру. Если ветка bisect'нется на этом коммите — будет visual regression на `/signin`. Task 2 + Task 3 — атомарная пара; **не оставляй ветку на ночь между ними**.
 
 ---
 
@@ -536,7 +536,7 @@ make test 2>&1 | tail -15
   --sign-in-screen-btn-google-hover-background: oklch(95% 0 0);
 ```
 
-**Палитра:** Google-кнопка инверсная к GitHub (GitHub в light = тёмная заливка; Google = светлая с тонким бордером). Это типовое расположение «contained vs outlined» — позволяет визуально различить два провайдера, не вводя bright brand colors.
+**Палитра:** Google-кнопка инверсная к GitHub (GitHub в light = тёмная заливка; Google = светлая с тонким рамкой). Это типовое расположение «contained vs outlined» — позволяет визуально различить два провайдера, не вводя bright brand colors.
 
 - [ ] **Step 3.5: Заполнить `dark.css`**
 
@@ -549,7 +549,7 @@ make test 2>&1 | tail -15
   --sign-in-screen-btn-google-hover-background: oklch(35% 0.01 280);
 ```
 
-**Палитра:** в dark GitHub — почти white заливка (как «contained light»); Google — outlined-стилем (тёмный bg + светлая бордер) для разделения визуальной иерархии.
+**Палитра:** в dark GitHub — почти white заливка (как «contained light»); Google — outlined-стилем (тёмный bg + светлая рамка) для разделения визуальной иерархии.
 
 - [ ] **Step 3.6: Заполнить `sepia.css`**
 
@@ -562,7 +562,7 @@ make test 2>&1 | tail -15
   --sign-in-screen-btn-google-hover-background: oklch(85% 0.04 70);
 ```
 
-**Палитра:** sepia использует тёплые тоны; GitHub — глубокий тёмный (`32% 0.04 60`), Google — outlined-style на светлом sepia (`92% 0.03 70`) с бордером в средней тёплой ноте.
+**Палитра:** sepia использует тёплые тоны; GitHub — глубокий тёмный (`32% 0.04 60`), Google — outlined-style на светлом sepia (`92% 0.03 70`) с рамкой в средней тёплой ноте.
 
 - [ ] **Step 3.7: Заполнить `nord.css`**
 
@@ -591,7 +591,7 @@ make test 2>&1 | tail -10
 make check-all 2>&1 | tail -10
 ```
 
-Zero errors всеми инструментами (lint + check + test + spell + build). Если spell падает — скорее всего не упадёт (новых слов нет, только CSS-токены с известными корнями `google/background/color/border/hover`), но если упадёт — проверь конкретное слово против гайдлайна в CLAUDE.md (опечатка → fix, калька → переписать, нормальный термин → whitelist).
+Zero errors всеми инструментами (lint + check + test + spell + build). Если spell падает — скорее всего не упадёт (новых слов нет, только CSS-токены с известными корнями `google/background/color/border/hover`), но если упадёт — проверь конкретное слово против руководства в CLAUDE.md (опечатка → fix, калька → переписать, нормальный термин → whitelist).
 
 - [ ] **Step 3.10: Commit**
 
@@ -627,7 +627,7 @@ make storybook
 - Заголовок «Войти в FlowTyping»
 - Кнопка «Войти через GitHub» (стиль как в Phase 3)
 - Кнопка «Войти через Google» (новая)
-- Дисклеймер
+- Оговорка
 
 - [ ] **Step 4.3: Переключать темы через Storybook toolbar**
 
@@ -671,7 +671,7 @@ make dev
 
 Vite на `http://localhost:5173`.
 
-> **Watcher liveness не влияет на OAuth callback.** Google редиректит на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 1 и сейчас — `make check` и `make dev` работают на закешированном `_generated/`, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — рестартни watcher.
+> **Watcher liveness не влияет на OAuth callback.** Google перенаправляет на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 1 и сейчас — `make check` и `make dev` работают на закэшированном `_generated/`, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — перезапусти watcher.
 
 - [ ] **Step 5.2: Cold start — clear localStorage**
 
@@ -684,14 +684,14 @@ Vite на `http://localhost:5173`.
 > **Про flow:** Convex Auth + `@auth/core/providers/google` использует **redirect-flow** (не popup) — тот же путь что GitHub в Phase 3. Текущая вкладка уходит на `accounts.google.com`, после авторизации возвращается на `localhost:5173`. Комментарий в `SignInScreen.svelte` про «popup-flow (Google)» в `finally`-блоке — defensive forward-compatibility (если когда-нибудь wrapper переключится), не описание текущего поведения.
 
 1. Открой `http://localhost:5173/signin`
-2. Должен быть SignInScreen с двумя кнопками + дисклеймер
+2. Должен быть SignInScreen с двумя кнопками + оговорка
 3. Клик «Войти через Google»
-4. Браузер редиректит на `accounts.google.com/o/oauth2/v2/auth?...` (current tab — не popup)
+4. Браузер перенаправляет на `accounts.google.com/o/oauth2/v2/auth?...` (current tab — не popup)
 5. Google показывает «Sign in to FlowTyping (dev)» — выбери свой Google-аккаунт (тот, который добавил в Test Users в Pre-flight). **Если несколько Google аккаунтов** — выбирай whitelisted, иначе Google вернёт `access_denied`.
 6. Google warning «This app isn't verified» (потому что OAuth app в Testing mode) → Advanced → «Go to FlowTyping (dev) (unsafe)» (если интерфейс Google на русском: «Дополнительные настройки» → «Перейти на сайт FlowTyping (dev) (небезопасно)»). Это OK для dev, в production пройдёт verification
 7. «FlowTyping (dev) wants access to your name, email, language preference» → Continue. **Если ты уже даровал согласие этому OAuth Client'у раньше** (второй заход после прерывания) — Google пропускает Шаги 6-7 автоматически. Это нормально.
-8. Google редиректит на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google?code=...`
-9. Convex обрабатывает callback → `createOrUpdateUserHandler` создаёт user → редиректит на `SITE_URL=http://localhost:5173/`
+8. Google перенаправляет на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google?code=...`
+9. Convex обрабатывает callback → `createOrUpdateUserHandler` создаёт user → перенаправляет на `SITE_URL=http://localhost:5173/`
 10. Фронт грузится, `setupConvexAuth` + reactive `setAuth` (layout) восстанавливают session
 11. Header показывает `<UserMenu>` с твоим Google-именем
 
@@ -851,6 +851,7 @@ git diff master..feat/auth-google-provider --stat
 
 Ожидаемо: **4 коммита** (Task 1, 2, 3, 6). Task 4 — без коммита по умолчанию; Task 5 — без коммита (verification). Если ты делал в Task 4 tune-commit на oklch-значения — получится 5.
 
+<!-- cSpell:ignore GOCSPX -->
 **Secret-leak guard** — критическая последняя проверка перед merge. Pre-flight включал работу с Google OAuth Client Secret; если он случайно (через комментарий, debug-print, `.env.local`) попал в git — нужно остановиться:
 
 ```bash
@@ -939,7 +940,7 @@ git branch -d feat/auth-google-provider
 **До merge** — `git switch master && git branch -D feat/auth-google-provider`. Удалит ветку. `AUTH_GOOGLE_ID/SECRET` в Convex env можешь почистить: `npx convex env remove AUTH_GOOGLE_ID && npx convex env remove AUTH_GOOGLE_SECRET`.
 
 **После merge, если post-merge `make check-all` сломался** — `git reset --hard ORIG_HEAD` сразу. Состояние master возвращается в `4fa23ce`. Side effects:
-- Cloud Convex deployment — Google provider **остаётся live на backend'е** (env vars + deployed `auth.ts` с `[GitHub, Google]`). Frontend rollback'нулся, поэтому `signIn('google')` никто не вызовет, но эндпоинт `/api/auth/callback/google` всё ещё принимает coded redirect от Google. Практически безвредно (нужно знать URL + перехватить Google auth code), но не литерально zero-state.
+- Cloud Convex deployment — Google provider **остаётся live на backend'е** (env vars + deployed `auth.ts` с `[GitHub, Google]`). Frontend rollback'нулся, поэтому `signIn('google')` никто не вызовет, но endpoint `/api/auth/callback/google` всё ещё принимает coded redirect от Google. Практически безвредно (нужно знать URL + перехватить Google auth code), но не литерально zero-state.
   - **Рекомендуемая чистка после rollback'а:** дополнительным коммитом на master вернуть `convex/auth.ts` к `providers: [GitHub]` (revert одной строки в Task 1). Watcher (`make convex`) ДОЛЖЕН быть запущен — он пушит изменение в cloud. Если watcher не запущен — `npx convex dev --once` за один раз. После пуша `/api/auth/callback/google` начнёт возвращать ошибку «Unknown provider».
   - Optional: удалить env vars (`npx convex env remove AUTH_GOOGLE_ID && npx convex env remove AUTH_GOOGLE_SECRET`). Не критично — `auth.ts` без Google в providers их игнорирует.
 - Google Cloud OAuth Client — оставь зарегистрированным; не вредит, пригодится при повторной попытке.
@@ -984,11 +985,11 @@ Phase 4 трогает cloud dev deployment один раз — это **add-onl
    - Имена CSS-токенов идентичны во всех правках (`--sign-in-screen-btn-google-{background|color|border|hover-background}`) — без drift'а.
 
 4. **Известные риски:**
-   - Reactive `setAuth` fix в layout — закрывает race; если кто-то его удалит при бамп wrapper'а — Google login покажет «UserMenu loading forever» баг. Step 5.6 ловит.
+   - Reactive `setAuth` fix в layout — закрывает race; если кто-то его удалит при повышение версии wrapper'а — Google login покажет «UserMenu loading forever» баг. Step 5.6 ловит.
    - Theme `oklch`-значения для Google — субъективны. Task 4 (Storybook visual review) — buffer для подгонки.
-   - Google OAuth «unverified app» warning в Step 5.3 — нормально для Testing mode; не блокер. В production-deployment Phase нужно verify app в Google Cloud Console (отдельная задача, не в этом плане).
-   - **Cspell**: маловероятно, что новые слова появятся (Google/google не русское). Если упадёт — следуй CLAUDE.md гайдлайну: опечатка → fix, калька → переписать, нормальный термин → whitelist.
-   - **Cspell `GOCSPX` / `GOCSPX-` — НЕ добавлять в whitelist.** Если spell-чек падает на этих токенах — это **сработавший guard**, не bug: секрет попал в код/комментарий/MD. Fix — удали секрет (и ротируй Reset secret в Google Cloud Console), не глуши `cspell.json`. Step 6.5 grep — второй слой защиты на случай если spell случайно skipped.
+   - Google OAuth «unverified app» warning в Step 5.3 — нормально для Testing mode; не препятствие. В production-deployment Phase нужно verify app в Google Cloud Console (отдельная задача, не в этом плане).
+   - **Cspell**: маловероятно, что новые слова появятся (Google/google не русское). Если упадёт — следуй CLAUDE.md руководству: опечатка → fix, калька → переписать, нормальный термин → whitelist.
+   - **Cspell `GOCSPX` / `GOCSPX-` — НЕ добавлять в whitelist.** Если spell-чек падает на этих токенах — это **сработавший guard**, не bug: секрет попал в код/комментарий/MD. Fix — удали секрет (и обновляй Reset secret в Google Cloud Console), не глуши `cspell.json`. Step 6.5 grep — второй слой защиты на случай если spell случайно skipped.
 
 5. **Что НЕ в плане (явно):**
    - Иконки/логотипы провайдеров — нет.

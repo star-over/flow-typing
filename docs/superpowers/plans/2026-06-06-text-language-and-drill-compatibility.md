@@ -4,7 +4,7 @@
 
 **Goal:** Гарантировать, что пользователь получает только те drill'ы, символы которых физически набираются на выбранной им раскладке, через явную связку «язык текста ↔ раскладка» с иерархией BCP 47.
 
-**Architecture:** Вводится тип `TextLanguage` (BCP 47), отдельный от `InterfaceLanguage`. В `Drill` появляется поле `textLanguage`. В реестре раскладок каждая запись (`SymbolLayoutDescriptor`) хранит свой родной `textLanguage` и список языков, для которых она — выбор по умолчанию. Фильтр drill'ов идёт от языка раскладки (раскладка — ключевое физическое ограничение). Все валидируемые инварианты — Zod-схемы (`refine`/`superRefine`), используются и в проде на старте, и в тестах.
+**Architecture:** Вводится тип `TextLanguage` (BCP 47), отдельный от `InterfaceLanguage`. В `Drill` появляется поле `textLanguage`. В реестре раскладок каждая запись (`SymbolLayoutDescriptor`) хранит свой родной `textLanguage` и список языков, для которых она — выбор по умолчанию. Фильтр drill'ов идёт от языка раскладки (раскладка — ключевое физическое ограничение). Все валидируемые инварианты — Zod-схемы (`refine`/`superRefine`), используются и в production на старте, и в тестах.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5 (runes), TypeScript strict, XState v5, Vitest, Zod, JSONL для корпуса (через Vite `?raw` импорт).
 
@@ -286,7 +286,7 @@ describe('DrillSchema', () => {
 - [ ] **Step 2: Запустить тест — должен упасть**
 
 Run: `npx vitest run src/interfaces/drill-data.types.test.ts`
-Expected: FAIL (валидный ru drill сейчас будет валиден без textLanguage, тест «без textLanguage не парсится» упадёт; рефайны отсутствуют).
+Expected: FAIL (валидный ru drill сейчас будет валиден без textLanguage, тест «без textLanguage не парсится» упадёт; уточнения отсутствуют).
 
 - [ ] **Step 3: Расширить `DrillSchema`**
 
@@ -340,11 +340,11 @@ Expected: PASS (6 тестов).
 Run: `npx vitest run src/data/drills/drills.test.ts`
 Expected: FAIL (drills в `drills.json` не содержат `textLanguage` — это будет починено в Task 6).
 
-Это ожидаемо. Не коммитим, пока не дойдём до Task 6, чтобы не оставлять красный билд.
+Это ожидаемо. Не коммитим, пока не дойдём до Task 6, чтобы не оставлять красную сборку.
 
 - [ ] **Step 6: Commit (атомарный с Task 6)**
 
-**Не коммитим в одиночку.** Задача оставляется готовой к слиянию с Task 6 в одном коммите (схема и миграция данных должны попасть в один коммит, иначе билд красный между ними).
+**Не коммитим в одиночку.** Задача оставляется готовой к слиянию с Task 6 в одном коммите (схема и миграция данных должны попасть в один коммит, иначе сборка красная между ними).
 
 Пометить эту задачу как «pending squash with Task 6» в чат-логе.
 
@@ -707,7 +707,7 @@ function extractWords(t: string): string[] {
     .filter(w => w.length > 0);
 }
 
-function analyse(text: string) {
+function analyze(text: string) {
   const chars = text.toLowerCase().match(/[a-z]/g) ?? [];
   const uniqueChars = [...new Set(chars)].sort();
   const uniqueSymbols = [...new Set(text.split(''))].sort();
@@ -744,7 +744,7 @@ const lines: string[] = [];
 for (const text of ENGLISH_SENTENCES) {
   const id = sha1(text);
   if (existingIds.has(id)) continue;
-  lines.push(JSON.stringify({ id, text, textLanguage: 'en', ...analyse(text) }));
+  lines.push(JSON.stringify({ id, text, textLanguage: 'en', ...analyze(text) }));
 }
 
 if (lines.length > 0) {
@@ -1218,7 +1218,7 @@ Expected: FAIL (UserPreferencesPage.svelte, lib/i18n.ts, lib/preferences.ts, +la
 
 - [ ] **Step 4: НЕ коммитить отдельно**
 
-Эта задача оставляется готовой к слиянию с Task 11 (preferences.ts) в одном коммите, чтобы избежать промежуточного красного билда.
+Эта задача оставляется готовой к слиянию с Task 11 (preferences.ts) в одном коммите, чтобы избежать промежуточно красной сборки.
 
 ---
 
@@ -1424,7 +1424,7 @@ Expected: PASS (7 тестов).
 
 - [ ] **Step 5: НЕ коммитить отдельно**
 
-Билд всё ещё красный (другие файлы используют `$p.language`). Сольём в общий коммит после Task 14.
+Сборка всё ещё красная (другие файлы используют `$p.language`). Сольём в общий коммит после Task 14.
 
 ---
 
@@ -1884,7 +1884,7 @@ async function main() {
 main().catch(e => { console.error(e); process.exit(1); });
 ```
 
-(Старая логика читала `tmp/ru/input-sentences.txt`. После рефактора путь `tmp/input-sentences.txt` — единый, язык определяется автоматически. Если на проекте есть Makefile-цель `create-drills`, она продолжает работать, потому что входной путь учтён.)
+(Старая логика читала `tmp/ru/input-sentences.txt`. После рефакторинга путь `tmp/input-sentences.txt` — единый, язык определяется автоматически. Если на проекте есть Makefile-цель `create-drills`, она продолжает работать, потому что входной путь учтён.)
 
 - [ ] **Step 2: Прогнать tsc (не нужно прогонять сам скрипт, ему нужен tmp-файл)**
 
@@ -1905,7 +1905,7 @@ git commit -m "chore(scripts): rewrite create-drills for JSONL append + auto-det
 **Files:**
 - Optionally delete: `scripts/migrate-drills-to-jsonl.ts`, `scripts/seed-english-drills.ts`
 
-Миграционные скрипты больше не нужны (drills.jsonl уже в репо в правильном формате). Можно либо удалить, либо оставить как историческое свидетельство.
+Миграционные скрипты больше не нужны (drills.jsonl уже в репозиторий в правильном формате). Можно либо удалить, либо оставить как историческое свидетельство.
 
 - [ ] **Step 1: Финальный прогон всего**
 
@@ -1972,13 +1972,13 @@ git commit -m "chore: remove one-shot migration scripts"
 - §9 (сводка файлов) → согласовано с разделом «File Structure» этого плана.
 - §10 (долгосрочное видение) — это контекст, не задача.
 
-**Гэп:** §7.2 в спеке предполагает расширение типа `SettingMetadata.options` функцией. В плане я этого **не делаю** — `UserPreferencesPage.svelte` напрямую дёргает `getCompatibleSymbolLayoutsForTextLanguage`. Причина: текущий UI настроек не использует реестр метаданных для рендера. Решение зафиксировано в Task 13 и в этом self-review.
+**Гэп:** §7.2 в спецификации предполагает расширение типа `SettingMetadata.options` функцией. В плане я этого **не делаю** — `UserPreferencesPage.svelte` напрямую дёргает `getCompatibleSymbolLayoutsForTextLanguage`. Причина: текущий UI настроек не использует реестр метаданных для рендера. Решение зафиксировано в Task 13 и в этом self-review.
 
 ### 2. Placeholder scan
 
 Прошёл по плану — никаких «TBD», «TODO», «adjust as needed». Все шаги содержат полный код.
 
-Единственное «опционально» — Task 16 step 3 (удаление миграционных скриптов): это про политику репозитория, не блокирует фичу.
+Единственное «опционально» — Task 16 step 3 (удаление миграционных скриптов): это про политику репозитория, не блокирует функцию.
 
 ### 3. Type consistency
 
@@ -1998,8 +1998,8 @@ git commit -m "chore: remove one-shot migration scripts"
 
 Plan complete and saved to `docs/superpowers/plans/2026-06-06-text-language-and-drill-compatibility.md`. Two execution options:
 
-**1. Subagent-Driven (recommended)** — диспатч свежего сабагента на каждую задачу, ревью между задачами, быстрая итерация.
+**1. Subagent-Driven (recommended)** — отправка свежего подагента на каждую задачу, ревью между задачами, быстрая итерация.
 
-**2. Inline Execution** — выполнить задачи в этой сессии через `executing-plans`, батчами с чекпоинтами для ревью.
+**2. Inline Execution** — выполнить задачи в этой сессии через `executing-plans`, пакетами с чекпоинтами для ревью.
 
 Какой подход берём?

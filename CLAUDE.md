@@ -8,7 +8,7 @@
 
 ## Stack
 
-- **SvelteKit 2 + Svelte 5 (runes)** + Vite, статический билд через `@sveltejs/adapter-static` (SPA, `fallback: index.html`).
+- **SvelteKit 2 + Svelte 5 (runes)** + Vite, статическая сборка через `@sveltejs/adapter-static` (SPA, `fallback: index.html`).
 - **TypeScript** strict; типы Svelte — `svelte-check`.
 - **XState v5** — вся бизнес-логика, `src/machines/`.
 - **Vitest** + **Storybook** (`@storybook/sveltekit` + svelte-csf).
@@ -45,7 +45,7 @@
 ### XState-машины
 
 - `appMachine` (`src/machines/app.machine.ts`) — корневая FSM цикла тренировки (`menu`, `training` с substates `running`/`paused`, `sessionComplete`, `trainingStart`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.invalidate()`, чтобы HMR не плодил «двойных» акторов). Навигация между «страницами» (Settings, Stats) — настоящие SvelteKit-роуты, не состояния FSM.
-- `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` форвардит `CHARACTER_INPUT` в `trainingService`.
+- `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` пересылает `CHARACTER_INPUT` в `trainingService`.
 - `trainingMachine` — invoked в state `training`. Прогоняет `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts` с таймстемпами, по завершении шлёт `SESSION.COMPLETE`. Внутреннее имя финального состояния — `lessonComplete` (деталь реализации drill'а, не leak'ает наружу).
 
 Подписка из Svelte: дочерний актор через `state.children.trainingService`, локальный `$state(snapshot)` + `subscribe()`/`unsubscribe()` в `onDestroy` — образец в `TrainingScene.svelte`, `+layout.svelte`, `App.svelte`.
@@ -53,9 +53,9 @@
 ### UI entry points
 
 - Три роута: `/` (хост FSM-views), `/settings` (приложение: язык UI + тема), `/stats` (placeholder будущей общей статистики).
-- `src/routes/+layout.svelte` — хостит `appActor`, keyboard listener (`<svelte:window>` onkeydown/up/blur → `KEY_DOWN`/`KEY_UP`/`PAUSE`), theme effects и `Header` (nav-chrome с ссылками на `/settings` и `/stats`). При sibling-навигации layout не размонтируется — FSM состояние переживает навигацию.
+- `src/routes/+layout.svelte` — размещает `appActor`, keyboard listener (`<svelte:window>` onkeydown/up/blur → `KEY_DOWN`/`KEY_UP`/`PAUSE`), theme effects и `Header` (nav-chrome с ссылками на `/settings` и `/stats`). При sibling-навигации layout не размонтируется — FSM состояние переживает навигацию.
 - `src/routes/+page.svelte` → `src/components/app/App.svelte` — содержимое `/`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
-- `Space` в `training` блокируется (`preventDefault`), чтобы не скроллить.
+- `Space` в `training` блокируется (`preventDefault`), чтобы не прокручивать.
 - `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
 
 ### Domain language
@@ -95,8 +95,8 @@ Backend для синхронизированных данных (auth с Phase 
 5. Push: `npx convex dev --once` (или просто watcher подхватит).
 
 **Auth-related env vars** (в Convex env, не в `.env.local`):
-- `SITE_URL` — куда Convex редиректит после auth (Vite origin в dev: `http://localhost:5173`).
-- `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерятся `npx @convex-dev/auth`.
+- `SITE_URL` — куда Convex перенаправляет после auth (Vite origin в dev: `http://localhost:5173`).
+- `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерируются `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_YANDEX_ID`, `AUTH_YANDEX_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
 
@@ -140,8 +140,8 @@ Backend для синхронизированных данных (auth с Phase 
 
 **Cross-device sync (Phase 5).** Для залогиненных юзеров настройки синхронизируются через Convex. Гость — только localStorage, никаких cloud-вызовов.
 
-- **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локалку в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
-- **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без моков (`src/lib/settings-sync.test.ts`).
+- **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локальную копию в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
+- **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без заглушек (`src/lib/settings-sync.test.ts`).
 - **Orchestrator:** `attachCloudSync(...)` в `src/lib/settings.ts`. Вызывается из `src/routes/+layout.svelte` после `createAuthStore`. Internal guards: `hasSyncedThisSession` (one-shot pull/push per authentication session, защита от token-refresh flicker'а), `pushChain` (serialized push queue для in-order delivery при network reorder), `skipNextSubscribeCallback` (no echo push после pull), `isInitialSubscribe` (no push на init).
 - **Backend:** `convex/userSettings.ts` — `getMine` query (auth-required, `null` при unauth), `upsertMine` mutation (auth-required, `throw 'Not authenticated'` при unauth). Логика в `getMineHandler` / `upsertMineHandler` — testable отдельно от auth-обёртки (паттерн `createOrUpdateUserHandler`). `updatedAt` ставит сервер.
 - **«Провайдер = аккаунт» enforced на этом уровне:** `userSettings` row ссылается на `userId: v.id('users')`. Один email через GitHub vs Google = два юзера = два независимых settings row. By design.
@@ -150,20 +150,25 @@ Backend для синхронизированных данных (auth с Phase 
 ## Conventions
 
 - **Naming** (`docs/02-naming-conventions.md`): `PascalCase` для типов; union- и object-типы — в единственном числе (`KeyCapPressResult`, `StreamSymbol`, не `...Results`). Никаких аббревиатур (`KbdLayout`, `StrSym`) — только полные имена.
-- **Импорты**: единственный алиас — `@/...` (= `src/`), объявлен в `svelte.config.js`. SvelteKit добавляет ещё `$lib` (built-in) автоматически, но проект его не использует.
+- **Импорты**: единственный псевдоним — `@/...` (= `src/`), объявлен в `svelte.config.js`. SvelteKit добавляет ещё `$lib` (built-in) автоматически, но проект его не использует.
 - **Параметры функций** (для функций, которые мы объявляем сами): 1 параметр — позиционный (`fn(x)`); 2 и более — одним object literal с деструктуризацией (`fn({ a, b, c })`). Снимает зависимость от порядка аргументов и делает call-site самодокументируемым. Исключение — сигнатуры, которые мы не выбираем: коллбэки HOF (`.map((x, i) => …)`), event handlers, action/guard сигнатуры xstate, методы стандартных классов.
 - **Branch / commit**: ветки `feat/...`, `fix/...`; Conventional Commits.
 - Перед коммитом — `make check-all` (включает `spell`; проверка должна быть **чистой**).
-- **Орфография (CSpell)** — `cspell.json` + словарь `@cspell/dict-ru_ru` + поле `words`. Когда `make spell` падает, разбирать каждое слово в порядке:
+- **Орфография (CSpell) — workflow.** Во время работы над кодом и доками **не отвлекайся** на правописание: пиши как пишется. Spell-чек — отдельный шаг **перед коммитом**: `make check-all` включает `make spell` и должен быть зелёным. Если падает — `/fix-spell` делегирует разбор на дешёвую модель (Haiku) по правилам ниже.
+
+- **Орфография (CSpell) — правила.** `cspell.json` + словарь `@cspell/dict-ru_ru` + поле `words`. Когда `make spell` падает, каждое незнакомое слово разбирается строго по порядку:
+  <!-- cSpell:ignore Cвет пользвателем клавишь лейбл иммутабельна валидируется colour initialised фича бранч синкает эндпоинт митигируем онбординга техдомене бекенд -->
   1. **Опечатка** (`Cвет` с латинской C, `пользвателем`, `клавишь`) → **fix в исходнике**.
-  2. **Калька / транслитерация с понятным русским аналогом** (`лейбл`→`надпись`, `иммутабельна`→`неизменна`, `валидируется`→`проверяется`, `colour`→`color`, `initialised`→`initialized`) → **переписать**, в whitelist не класть.
-  3. **Реальное русское слово, которого нет в словаре** (`Зеркалится`, `Раскомментировать`, `пересборке`, `токенам`, `парсинга`) → **в `cspell.json` → `words`**. Cspell не знает падежей русского, поэтому каждая словоформа отдельно.
+  2. **Калька / транслитерация с понятным русским аналогом** (`лейбл`→`надпись`, `иммутабельна`→`неизменна`, `валидируется`→`проверяется`, `colour`→`color`, `initialised`→`initialized`, `фича`→`функция`, `бранч`→`ветка`, `синкает`→`синхронизирует`, `эндпоинт`→`endpoint`) → **переписать**, в whitelist **не класть**. Сложные/благозвучные аналоги тоже считаются (`митигируем`→`смягчаем`, `онбординга`→`адаптации`).
+  3. **Реальное русское слово, которого нет в словаре** (`Зеркалится`, `Раскомментировать`, `пересборке`, `токенам`, `парсинга`) → **в `cspell.json` → `words`**. Cspell не знает падежей русского, каждая словоформа отдельно.
   4. **Доменный термин или внешнее имя без аналога** (`keycap`, `viewmodel`, `FOUC`, `oklch`, `Backquote`, `Instapaper`, `Nord`, `ФЫВА`) → **в whitelist**.
-  - Whitelist держать узким — не плодить кальки и узкоспециализированные жаргонные формы. Каждое добавление — осознанное.
-  - Inline-директивы `cSpell:ignore` оставлять для редких file-locked случаев (например, base64/SVG-фрагмент в одном файле), не для глобальных терминов.
+
+- **Whitelist держать узким — жёстко.** Каждое новое слово в `words` должно проходить тест: «нет ли распространённого русского аналога? нет ли устоявшегося термина в этом техдомене? нет ли уже похожей формы того же слова?». При любом «да» — **не добавлять**, переписать. Дубликаты форм одного слова (`бекенд` vs `бэкенд`) **запрещены** — оставляется одна каноническая (для бэкенда — через `э`). При сомнении дефолт — переписать в источнике, не добавлять в whitelist.
+
+- **Inline-директивы `cSpell:ignore`** — только для редких file-locked случаев (base64/SVG-фрагмент, ASCII-диаграмма с искусственно сокращёнными именами, guard-grep по префиксу секрета вроде `GOCSPX`), не для глобальных терминов.
 
 ## Gotchas
 
 - **HMR и XState:** `appActor` создаётся на уровне модуля. `import.meta.hot.invalidate()` форсит full reload вместо HMR. Если при правке `appActor.ts` / `app.machine.ts` видите «двойные» события — это full-reload, состояние тренировки теряется (by design, snapshot-restore не реализован).
-- **`stream` иммутабелен по ссылке:** `trainingMachine` делает `[...stream]` + замену символа. UI-производные через `$derived` пересчитываются автоматически.
+- **`stream` неизменен по ссылке:** `trainingMachine` делает `[...stream]` + замену символа. UI-производные через `$derived` пересчитываются автоматически.
 - **`Space` vs `SpaceLeft`/`SpaceRight`:** физическая `Space` отдельно whitelist'нута как text key в `keyboardMachine.isTextKeyGuard`, потому что клавиатурная сцена (`KeyboardSceneViewModel`) делит пробел на две клавиши.

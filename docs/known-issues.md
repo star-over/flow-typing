@@ -71,7 +71,7 @@ startNewTrainingStream: assign((_, params: { symbolLayoutId: SymbolLayoutId }) =
 ### Возможные подходы (черновик, не финал)
 
 - **A.** Заглушить `console.warn` в `createTypingStream`. Скрывает реальный баг — не годится.
-- **B.** Сделать `defaultDrillTexts` мапой по `symbolLayoutId`: `{ qwerty: [...en], йцукен: [...ru] }`. В `app.machine` выбирать из правильной ветки.
+- **B.** Сделать `defaultDrillTexts` словарём по `symbolLayoutId`: `{ qwerty: [...en], йцукен: [...ru] }`. В `app.machine` выбирать из правильной ветки.
 - **C.** Хранить пары `{ text, symbolLayoutId }` и фильтровать. Симметрично будущей структуре БД — у `DrillSchema` уже есть `unique_chars` / `unique_symbols`, по которым можно определить совместимость с раскладкой.
 
 ### Почему откладываем

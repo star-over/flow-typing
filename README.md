@@ -12,14 +12,14 @@
 
 ## 2. Технологический стек
 
-*   **Фреймворк:** [SvelteKit 2](https://svelte.dev/docs/kit) (SPA-режим, статический билд через `@sveltejs/adapter-static`)
+*   **Фреймворк:** [SvelteKit 2](https://svelte.dev/docs/kit) (SPA-режим, статическая сборка через `@sveltejs/adapter-static`)
 *   **Язык:** [TypeScript](https://www.typescriptlang.org/) (strict), `svelte-check` для типов
 *   **Библиотека UI:** [Svelte 5 (runes)](https://svelte.dev/)
 *   **Управление состоянием:** [XState v5](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
 *   **Стилизация:** CSS без фреймворков. `src/app.css` — primitives (typography/radius/spacing/shadow/motion) и body fallback; цвета и декорации компонентов выносятся в темы (`src/themes/<id>.css`) через **компонентные контракты** (`*.contract.ts` рядом с компонентом). Подробности — `docs/06-component-contracts-and-themes.md`.
 *   **Тестирование:** [Vitest](https://vitest.dev/)
 *   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)
-*   **Линтинг:** [ESLint](https://eslint.org/)
+*   **Проверка линтером:** [ESLint](https://eslint.org/)
 *   **Персистентность настроек:** `localStorage` через кастомный Svelte writable store (`src/lib/settings.ts`)
 
 ## 3. Начало работы
@@ -57,7 +57,7 @@
     make test
     ```
 
-*   **Создать сборку для продакшена:**
+*   **Создать сборку для production'а:**
     ```bash
     make build
     ```
@@ -85,6 +85,6 @@
 
 Для поддержания порядка рекомендуется придерживаться следующих практик:
 
-*   **Ветвление:** Используйте отдельные ветки для каждой новой фичи или исправления (`feat/...`, `fix/...`).
+*   **Ветвление:** Используйте отдельные ветки для каждой новой функции или исправления (`feat/...`, `fix/...`).
 *   **Сообщения коммитов:** Следуйте конвенции [Conventional Commits](https://www.conventionalcommits.org/) для ясности истории изменений.
 *   **Локальные проверки:** Перед созданием коммита всегда запускайте `make check-all` для обеспечения качества кода.

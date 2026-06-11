@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Разделить навигацию (роуты) и бизнес-процесс (FSM): `/stats` и `/settings` — настоящие SvelteKit-роуты, FSM моделирует только цикл тренировки `menu → training → sessionComplete`. Контролы языка и раскладки переезжают из настроек в меню как pre-flight, превью drill'а нет (тотальный lazy). `?exerciseId=` удаляется полностью. Терминология `preferences` зачищается в пользу `settings` codebase-wide.
+**Goal:** Разделить навигацию (роуты) и бизнес-процесс (FSM): `/stats` и `/settings` — настоящие SvelteKit-роуты, FSM моделирует только цикл тренировки `menu → training → sessionComplete`. Элементы управления языка и раскладки переезжают из настроек в меню как pre-flight, превью drill'а нет (тотальный lazy). `?exerciseId=` удаляется полностью. Терминология `preferences` зачищается в пользу `settings` codebase-wide.
 
-**Architecture:** `appActor` (singleton) и keyboard listener поднимаются в `+layout.svelte`, переживая навигацию между роутами. Header — nav-chrome (всегда виден, содержит ссылки на `/settings` и `/stats`). Footer — process-controls (виден только во время training/sessionComplete). `/` хостит FSM-views (`MenuScreen` → `TrainingScene` → `LessonStatsDisplay`). `/settings` и `/stats` — отдельные страницы.
+**Architecture:** `appActor` (singleton) и keyboard listener поднимаются в `+layout.svelte`, переживая навигацию между роутами. Header — nav-chrome (всегда виден, содержит ссылки на `/settings` и `/stats`). Footer — process-controls (виден только во время training/sessionComplete). `/` размещает FSM-views (`MenuScreen` → `TrainingScene` → `LessonStatsDisplay`). `/settings` и `/stats` — отдельные страницы.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5 (runes), XState v5, Vitest, TypeScript strict, CSS via per-component contracts.
 
@@ -40,7 +40,7 @@
 - `src/components/app/MainContent.svelte` — добавлена ветка `MenuScreen`, удалены `settings`, `allStat`, `welcome`
 - `src/components/app/FooterActions.svelte` — process-only, скрывается на `menu`
 - `src/components/app/MainContent.contract.ts` — удалён `--main-content-welcome-color`
-- `src/routes/+layout.svelte` — хостит `appActor`, keyboard listener, Header, theme effects
+- `src/routes/+layout.svelte` — размещает `appActor`, keyboard listener, Header, theme effects
 - `src/themes/registry.ts` — `preferences` → `settings`
 - `src/themes/contract.ts` — переименован импорт
 - 5 файлов тем (`_template.css`, `light.css`, `dark.css`, `sepia.css`, `nord.css`) — `--user-preferences-page-*` → `--settings-page-*`, удалён `--main-content-welcome-color`
@@ -493,7 +493,7 @@ import type { UserSettings } from '@/interfaces/user-settings';
 
 - [ ] **Step 13: Обновить `src/components/app/App.svelte`**
 
-Минимальный фикс компиляции — этот файл также будет полностью переписан в Task 3, мы лишь не даём ему сломать билд между Task 0 и Task 3.
+Минимальный фикс компиляции — этот файл также будет полностью переписан в Task 3, мы лишь не даём ему сломать сборку между Task 0 и Task 3.
 
 Заменить импорт:
 ```ts
@@ -546,7 +546,7 @@ symbolLayoutId: UserSettings['symbolLayoutId'] = 'qwerty'
 ... `UserSettings.symbolLayoutId` ...
 ```
 
-- [ ] **Step 18: Грепнуть остатки**
+- [ ] **Step 18: Прогрепать остатки**
 
 ```bash
 grep -rn "UserPreferences\|user_preferences\|user-preferences-page\|@/lib/preferences\|DEFAULT_USER_PREFERENCES\|normalizePreferences\|updatePreferences\|USER_PREFERENCES_PAGE_CONTRACT" src/ dictionaries/ CLAUDE.md
@@ -913,7 +913,7 @@ EOF
 - [ ] **Step 3: Визуальная проверка + чек + commit**
 
 ```bash
-make dev   # проверить менюшку/тренировку/sessionComplete
+make dev   # проверить меню/тренировку/sessionComplete
 make check-all
 git add -A
 git commit -m "$(cat <<'EOF'
@@ -1269,7 +1269,7 @@ Expected: пусто.
 {/if}
 ```
 
-Если в этом же файле есть CSS-правило `.btn.secondary` (грепнуть `secondary` в FooterActions.svelte) — удалить его. На текущем коммите этого правила нет.
+Если в этом же файле есть CSS-правило `.btn.secondary` (прогрепать `secondary` в FooterActions.svelte) — удалить его. На текущем коммите этого правила нет.
 
 - [ ] **Step 6: Визуальная проверка**
 
@@ -1837,7 +1837,7 @@ make check-all
 ```
 Expected: PASS, 0 ESLint warnings, 0 spell errors, build чистый.
 
-- [ ] **Step 2: Грепы для контроля наследия**
+- [ ] **Step 2: grep-вызовы для контроля наследия**
 
 ```bash
 grep -rn "UserPreferences\|user_preferences\|user-preferences-page\|@/lib/preferences\|@/user-preferences\|DEFAULT_USER_PREFERENCES\|normalizePreferences\|updatePreferences\|USER_PREFERENCES_PAGE_CONTRACT\|UserPreferencesPage\|exerciseId\|planExerciseIdSync\|trainingComplete\|TRAINING\\.COMPLETE\|main-content-welcome-color\|app\\.welcome\|lesson_complete" src/ dictionaries/

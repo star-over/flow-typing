@@ -20,7 +20,7 @@
 - **`src/lib/convex.ts`** — singleton `ConvexClient` + re-export `api` + startup guard. **Не wired в auth flow** — Phase 3 это делает.
 - **CLAUDE.md** содержит auth-секцию (Phase 2 Task 7), но без UI-частей.
 - **vitest projects split:** `src` (node) + `convex` (edge-runtime). Phase 3 тесты живут в `src/`.
-- **15 темо-контрактов** уже в проекте (`src/themes/contract.ts → THEME_CONTRACT`); Phase 3 добавляет ещё 2 (SignInScreen + UserMenu).
+- **15 тематических контрактов** уже в проекте (`src/themes/contract.ts → THEME_CONTRACT`); Phase 3 добавляет ещё 2 (SignInScreen + UserMenu).
 
 ## Phase 3 deliverables
 
@@ -38,7 +38,7 @@
 - `src/routes/signin/+page.svelte` — хост `<SignInScreen />`
 - `src/components/app/Header.svelte` — `<UserMenu />` в angle
 - `src/themes/contract.ts` — `THEME_CONTRACT` расширен auth-токенами
-- `src/themes/_template.css` + `light.css`/`dark.css`/`sepia.css`/`nord.css` — auth-токены задекларированы (значения свободные)
+- `src/themes/_template.css` + `light.css`/`dark.css`/`sepia.css`/`nord.css` — auth-токены объявлены (значения свободные)
 - `package.json` — добавлен `@mmailaender/convex-auth-svelte`
 - Удалено: `src/routes/dev/+page.svelte`
 - **Browser smoke E2E** — Step 7.3: реальный sign-in через GitHub, юзер в `users`, имя в Header.
@@ -130,7 +130,7 @@ src/
 # Pin wrapper (community, pre-1.0, breaking changes likely on minor bumps).
 # convex-svelte — required peer dep of the wrapper. Pin тоже обязателен —
 # npm latest = 0.13.0, которая НЕ удовлетворяет wrapper's peer ^0.0.12 (semver: 
-# 0.x.y treats ^ как patch-pin). Без явного пина npm install грабнёт 0.13.0 → runtime API mismatch.
+# 0.x.y treats ^ как patch-pin). Без явного пина npm install зацепит 0.13.0 → runtime API mismatch.
 npm install @mmailaender/convex-auth-svelte@~0.1.3 convex-svelte@~0.0.12
 ```
 
@@ -220,7 +220,7 @@ setupConvexAuth({
 make check && make build
 ```
 
-Zero errors. Build prophylactic — wrapper тянет deps, проверяем что Vite их корректно бандлит.
+Zero errors. Build prophylactic — wrapper тянет deps, проверяем что Vite их корректно собирает.
 
 - [ ] **Step 2.4: Commit**
 
@@ -425,7 +425,7 @@ git commit -m "feat(auth-ui): add auth-store with 3-state AuthState contract and
 - Modify: `src/themes/_template.css`
 - Modify: `src/themes/light.css`, `src/themes/dark.css`, `src/themes/sepia.css`, `src/themes/nord.css`
 
-**Цель:** компонент с кнопкой «Войти через GitHub» + дисклеймер про «провайдер = аккаунт». Без передачи user-state снаружи — компонент читает `authStore` через `getContext<AuthStore>('auth')` (тот же pattern, что UserMenu) и зовёт `authStore.signIn('github')`. Единообразный context-read через оба компонента упрощает Storybook'у mock'инг через `MockAuthHost`.
+**Цель:** компонент с кнопкой «Войти через GitHub» + оговорка про «провайдер = аккаунт». Без передачи user-state снаружи — компонент читает `authStore` через `getContext<AuthStore>('auth')` (тот же pattern, что UserMenu) и зовёт `authStore.signIn('github')`. Единообразный context-read через оба компонента упрощает Storybook'у mock'инг через `MockAuthHost`.
 
 **Дизайн.** Минималистичный экран:
 ```
@@ -468,7 +468,7 @@ export type SignInScreenToken = (typeof SIGN_IN_SCREEN_CONTRACT)[number];
 
   type AuthStore = ReturnType<typeof createAuthStore>;
   // Читаем 'auth' context (поставленный в +layout.svelte через setContext).
-  // Это позволяет Storybook'у инжектить mock через MockAuthHost — без context'а
+  // Это позволяет Storybook'у внедрять mock через MockAuthHost — без context'а
   // wrapper'а от @mmailaender/convex-auth-svelte. Тот же pattern, что UserMenu.
   const auth = getContext<AuthStore>('auth');
   let error: string | null = $state(null);
@@ -560,7 +560,7 @@ export type SignInScreenToken = (typeof SIGN_IN_SCREEN_CONTRACT)[number];
 </style>
 ```
 
-`error` color — литерал (red), не темизуется. Это error-only, edge-case.
+`error` color — литерал (red), не темизируется. Это error-only, edge-case.
 
 - [ ] **Step 4.3: Создать `SignInScreen.stories.svelte`**
 
@@ -623,7 +623,7 @@ export type SignInScreenToken = (typeof SIGN_IN_SCREEN_CONTRACT)[number];
 
 Для `dark.css`/`sepia.css`/`nord.css` — подобрать значения, соответствующие палитре темы. Конкретные оттенки на усмотрение implementer'а; главное, контракт-тест должен пройти.
 
-> **Палитра-зависимость.** Пример использует `var(--color-surface)`/`var(--color-text-*)` — это **внутренние палеточные** токены темы (legacy `--color-*`), не из `THEME_CONTRACT`. Перед использованием в новой теме — `grep` тему на эти имена; если нет — либо завести в палеточном блоке темы, либо использовать литерал `oklch(...)`. Без этого `var(--color-...)` резолвнется к пустоте → невидимый цвет.
+> **Палитра-зависимость.** Пример использует `var(--color-surface)`/`var(--color-text-*)` — это **внутренние палитровые** токены темы (legacy `--color-*`), не из `THEME_CONTRACT`. Перед использованием в новой теме — `grep` тему на эти имена; если нет — либо завести в палитровом блоке темы, либо использовать литерал `oklch(...)`. Без этого `var(--color-...)` резолвнется к пустоте → невидимый цвет.
 
 - [ ] **Step 4.6: Расширить `THEME_CONTRACT`**
 
@@ -928,7 +928,7 @@ git commit -m "feat(auth-ui): add UserMenu component (loading/guest/authenticate
 **Цель:** связать готовые компоненты с UI. После Task 6:
 - В layout создаётся `authStore` через `createAuthStore()` + кладётся в context как `'auth'`
 - `<UserMenu />` появляется в Header
-- Маршрут `/signin` хостит `<SignInScreen />`
+- Маршрут `/signin` размещает `<SignInScreen />`
 
 - [ ] **Step 6.1: В `+layout.svelte` создать и проставить authStore**
 
@@ -1012,18 +1012,18 @@ Vite на `http://localhost:5173`.
 
 - [ ] **Step 7.2: Открыть в браузере `/signin`**
 
-`http://localhost:5173/signin` должно показать SignInScreen с кнопкой «Войти через GitHub» и дисклеймером.
+`http://localhost:5173/signin` должно показать SignInScreen с кнопкой «Войти через GitHub» и оговоркой.
 
 - [ ] **Step 7.3: Нажать «Войти через GitHub» и пройти OAuth flow**
 
 Цепочка:
 1. Клик → `convex-auth-svelte` вызывает `signIn` action на Convex backend
 2. Action создаёт verifier, кладёт state в cookie/localStorage
-3. Браузер редиректит на `github.com/login/oauth/authorize?...`
+3. Браузер перенаправляет на `github.com/login/oauth/authorize?...`
 4. GitHub: «Authorize FlowTyping (dev)» → жмёшь Authorize
-5. GitHub редиректит на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github?code=...`
+5. GitHub перенаправляет на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github?code=...`
 6. Convex обрабатывает callback, **создаёт user через `createOrUpdateUserHandler`**
-7. Convex редиректит обратно на `SITE_URL=http://localhost:5173/`
+7. Convex перенаправляет обратно на `SITE_URL=http://localhost:5173/`
 8. Vite-фронт грузится; `setupConvexAuth` восстанавливает session из cookie/localStorage
 9. `useAuth()` → `isAuthenticated=true`
 10. `convex.onUpdate(api.users.viewer)` → возвращает свежесозданного user'а
@@ -1040,17 +1040,17 @@ npx convex dashboard
 
 - [ ] **Step 7.5: Multi-tab smoke (опционально, но полезно)**
 
-Пока всё ещё залогинен (`auth.signOut()` ещё не вызывалась), открыть `/` во второй вкладке. Вторая вкладка должна показать `<UserMenu>` залогиненым (auth state восстановлен из localStorage). Оставить вкладку открытой — продолжим в Step 7.6.
+Пока всё ещё залогинен (`auth.signOut()` ещё не вызывалась), открыть `/` во второй вкладке. Вторая вкладка должна показать `<UserMenu>` залогиненным (auth state восстановлен из localStorage). Оставить вкладку открытой — продолжим в Step 7.6.
 
 - [ ] **Step 7.6: Verify sign-out (single tab + cross-tab effect)**
 
 В первой вкладке — клик на своё имя → dropdown → «Выйти». Состояние должно перейти `authenticated → loading → guest`. В Header первой вкладки появится «Войти».
 
-Во второй вкладке (из Step 7.5) состояние **может** не флипнуться сразу — зависит от того, слушает ли wrapper `storage` event. Проверь: после reload вторая вкладка показывает `guest`. **Не блокер** для merge — типовое UX-ограничение localStorage-flow без cross-tab broadcasts.
+Во второй вкладке (из Step 7.5) состояние **может** не переключиться сразу — зависит от того, слушает ли wrapper `storage` event. Проверь: после reload вторая вкладка показывает `guest`. **Не препятствие** для merge — типовое UX-ограничение localStorage-flow без cross-tab broadcasts.
 
 - [ ] **Step 7.7: Hard-reload и verify persistence**
 
-`Cmd+Shift+R` (или равноценный). Страница перезагрузится. Поскольку мы вышли в Step 7.6 — должна снова показать «Войти». Если не вышел перед reload — должен остаться залогиненым (token в localStorage).
+`Cmd+Shift+R` (или равноценный). Страница перезагрузится. Поскольку мы вышли в Step 7.6 — должна снова показать «Войти». Если не вышел перед reload — должен остаться залогиненным (token в localStorage).
 
 - [ ] **Step 7.8: Если smoke fails — diagnose**
 
@@ -1071,7 +1071,7 @@ npx convex dashboard
 git status --porcelain    # должно быть пусто (никаких локальных правок)
 ```
 
-Записать в локальный заметник:
+Записать в локальный локальные заметки:
 - Smoke прошёл / не прошёл, на каком шаге упало.
 - Тестовый юзер в `users` таблице (можешь почистить через dashboard или оставить как seed).
 
@@ -1186,7 +1186,7 @@ git branch -d feat/auth-ui
 - [ ] `make check-all` зелёный (lint + check + test + spell + build)
 - [ ] Все 6 новых unit-тестов проходят (`computeAuthState` state derivation)
 - [ ] Storybook отображает 3 состояния `UserMenu` + дефолтное состояние `SignInScreen` (визуально, локально)
-- [ ] Все 4 темы задекларировали SignInScreen + UserMenu токены (contract-тест зелёный)
+- [ ] Все 4 темы объявили SignInScreen + UserMenu токены (contract-тест зелёный)
 - [ ] Browser smoke (Step 7.3) прошёл: реальный GitHub sign-in → юзер в `users` → имя в Header → sign-out возвращает в `guest`
 - [ ] `/dev` страница удалена (директория тоже)
 - [ ] CLAUDE.md содержит Auth UI секцию
@@ -1208,7 +1208,7 @@ git branch -d feat/auth-ui
 - **Архитектурное правило 4** (нет `*.server.ts`) — Phase 3 не нарушила. SSR не используется. Phase 4 не должна нарушать тоже.
 - **Phase 4 точки расширения** (фиксируем явно):
   - `convex/auth.ts` — `providers: [GitHub, Google]`, без других изменений в callback'е.
-  - `SignInScreen.svelte` — рефактор `handleGithubSignIn` → `handleSignIn(provider: 'github' | 'google')`. Кнопка GitHub становится одной из двух.
+  - `SignInScreen.svelte` — рефакторинг `handleGithubSignIn` → `handleSignIn(provider: 'github' | 'google')`. Кнопка GitHub становится одной из двух.
   - `SignInScreen.contract.ts` — добавится 4 новых токена `--sign-in-screen-btn-google-*`. По 1 строке в каждой из 4 тем = 16 деклараций.
   - Объём Phase 4: ~1 backend файл + 1 svelte + 1 contract + 5 css = меньше Phase 3.
 
@@ -1218,7 +1218,7 @@ git branch -d feat/auth-ui
 
 1. **Spec coverage vs umbrella Phase 3:**
    - `auth-store.svelte.ts` ✓ Task 3
-   - `auth-client.ts` — **умысленно не делаем** (отдельный файл): прямой `useAuth()` в компонентах + тонкая обёртка в `auth-store.svelte.ts` достаточны для нашего сценария. Если когда-нибудь понадобится — добавится.
+   - `auth-client.ts` — **умышленно не делаем** (отдельный файл): прямой `useAuth()` в компонентах + тонкая обёртка в `auth-store.svelte.ts` достаточны для нашего сценария. Если когда-нибудь понадобится — добавится.
    - `auth.types.ts` ✓ Task 1
    - `SignInScreen.svelte` ✓ Task 4
    - `UserMenu.svelte` ✓ Task 5
@@ -1239,6 +1239,6 @@ git branch -d feat/auth-ui
    - `getContext<AuthStore>('auth')` — соответствует `setContext('auth', authStore)` в layout.
 
 4. **Известные риски:**
-   - `@mmailaender/convex-auth-svelte` — community-maintained. Если API сломается на major bump — фиксить руками или пиннуть. Сейчас не пиннуем (`^` default).
+   - `@mmailaender/convex-auth-svelte` — community-maintained. Если API сломается на major bump — фиксить руками или закрепить. Сейчас не закрепляем (`^` default).
    - `auth-store.svelte.ts` runes внутри `.ts` файла — поддерживается через `.svelte.ts` extension. Edge cases (test runner runes support) обойдены split'ом — `computeAuthState` живёт в `auth-state.ts` без runes; тесты вообще не загружают runes-файл.
    - Browser smoke в Step 7.3 — единственный шаг, который зависит от внешних факторов (GitHub OAuth, network). Если flow упадёт по сети — диагноз через `npx convex logs`.

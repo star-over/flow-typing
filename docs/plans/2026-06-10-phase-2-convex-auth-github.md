@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Convex Auth backend настроен на cloud dev deployment с GitHub OAuth-провайдером и кастомным `createOrUpdateUser` callback'ом (правило «провайдер = аккаунт»). Sign-in работает end-to-end. Юзеры записываются в `users` таблицу. Тесты на `createOrUpdateUser`. **Без UI** — UI в Phase 3.
+**Goal:** Convex Auth backend настроен на cloud dev deployment с GitHub OAuth-провайдером и собственным `createOrUpdateUser` callback'ом (правило «провайдер = аккаунт»). Sign-in работает end-to-end. Юзеры записываются в `users` таблицу. Тесты на `createOrUpdateUser`. **Без UI** — UI в Phase 3.
 
 **Architecture:** Cloud dev Convex (`dev:wandering-ocelot-9`, EU-West-1) + `@convex-dev/auth` для backend-side OAuth flow. `@auth/core/providers/github` — GitHub-провайдер. Кастомный `createOrUpdateUserHandler` экспортируется отдельно, чтобы быть тестируемым через `convex-test`. Никакой link-by-email (явно): каждый OAuth account = отдельная запись в `users`.
 
@@ -39,7 +39,7 @@
 
 - **«Провайдер = аккаунт»** — отсутствие link-by-email. `createOrUpdateUser` явно перебивает дефолт.
 - **MVP-провайдер:** только GitHub. Google — Phase 4. Никаких others.
-- **Без UI** — sign-in вызывается из `/dev` страницы временно для smoke; продакшен UI в Phase 3.
+- **Без UI** — sign-in вызывается из `/dev` страницы временно для smoke; production UI в Phase 3.
 - **Cloud dev deployment** — HTTPS из коробки, нет local-mode caveats.
 
 ## File Structure
@@ -96,7 +96,7 @@ CLAUDE.md                              # MODIFY: extend ### Convex backend secti
   - **Application name:** `FlowTyping (dev)`
   - **Homepage URL:** `http://localhost:5173`
   - **Authorization callback URL:** `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github` ← точное совпадение, HTTPS
-  - Сохранить **Client ID** и **Client Secret** в заметник (понадобятся в Task 6)
+  - Сохранить **Client ID** и **Client Secret** в локальные заметки (понадобятся в Task 6)
   - **Можно сделать сейчас или непосредственно перед Task 6.**
 
 ---
@@ -126,7 +126,7 @@ npm install -D convex-test@~0.0.53 @edge-runtime/vm@~5.0.0
 
 - [ ] **Step 1.2: Перевести vitest на projects pattern**
 
-`convex-test` требует `environment: 'edge-runtime'` + `server.deps.inline: ['convex-test']`. Существующие src-тесты (250 шт.) живут в node-окружении — глобальная смена environment их сломает. Решение: **vitest projects** — два изолированных скоупа.
+`convex-test` требует `environment: 'edge-runtime'` + `server.deps.inline: ['convex-test']`. Существующие src-тесты (250 шт.) живут в node-окружении — глобальная смена environment их сломает. Решение: **vitest projects** — два изолированных области.
 
 Открыть `vitest.config.ts`. Заменить **полностью содержимое `test:` блока**:
 
@@ -202,7 +202,7 @@ git commit -m "chore(auth): install @convex-dev/auth, @auth/core, convex-test, @
 1. Просит ввести `SITE_URL` → отвечаем `http://localhost:5173`
 2. Генерирует RS256-ключи через `jose` → пушит `JWT_PRIVATE_KEY` + `JWKS` в Convex env
 3. Проверяет `convex/tsconfig.json` (наш случай — no-op, уже `Bundler` + `skipLibCheck`)
-4. Скаффолдит `convex/auth.config.ts`, `convex/auth.ts`, `convex/http.ts`
+4. Генерирует каркас `convex/auth.config.ts`, `convex/auth.ts`, `convex/http.ts`
 
 - [ ] **Step 2.1: Запустить setup**
 
@@ -218,7 +218,7 @@ npx @convex-dev/auth
 1. `Site URL?` → ввести `http://localhost:5173`
 2. Подтверждение записи в `.env.local` или Convex env → **Yes**
 3. Подтверждение модификации `convex/tsconfig.json` → **Yes** (в нашем случае будет no-op, файл уже корректен)
-4. Подтверждение скаффолда `convex/auth.{config.ts,ts}` и `convex/http.ts` → **Yes**
+4. Подтверждение каркаса `convex/auth.{config.ts,ts}` и `convex/http.ts` → **Yes**
 
 Если запросит `CONVEX_DEPLOYMENT` selection — выбрать существующий `wandering-ocelot-9`.
 
@@ -570,7 +570,7 @@ git commit -m "feat(auth): add users.viewer query returning current user or null
 - Modify (temporary, reverted within this task): `convex/health.ts` (envCheck query)
 - Convex env: `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`
 
-**Цель:** end-to-end проверка: установлены креды, можно реально залогиниться через GitHub в браузере, юзер записывается в `users` таблицу. Заодно verify, что `process.env.CONVEX_SITE_URL` доступен внутри функций (Phase 1 нашёл, что переменная не видна в `npx convex env list`).
+**Цель:** end-to-end проверка: установлены учётные данные, можно реально залогиниться через GitHub в браузере, юзер записывается в `users` таблицу. Заодно verify, что `process.env.CONVEX_SITE_URL` доступен внутри функций (Phase 1 нашёл, что переменная не видна в `npx convex env list`).
 
 **No `/dev` page modifications.** Convex Auth обрабатывает sign-in через HTTP-routes (`<site_url>/api/auth/signin/<provider>`), а не через client action. Smoke делается прямым переходом в браузере — не нужно править фронт.
 
@@ -657,11 +657,11 @@ https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/signin/github
 (Можно даже без запущенного `make dev` — Convex route serve'ит напрямую.)
 
 Ожидаемая цепочка:
-1. Convex редиректит на `github.com/login/oauth/authorize?client_id=...&redirect_uri=https%3A%2F%2Fwandering-ocelot-9.eu-west-1.convex.site%2Fapi%2Fauth%2Fcallback%2Fgithub&...`
+1. Convex перенаправляет на `github.com/login/oauth/authorize?client_id=...&redirect_uri=https%3A%2F%2Fwandering-ocelot-9.eu-west-1.convex.site%2Fapi%2Fauth%2Fcallback%2Fgithub&...`
 2. GitHub показывает «Authorize FlowTyping (dev)» (если первый раз) → жмёшь Authorize.
-3. GitHub редиректит обратно на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github?code=...&state=...`
+3. GitHub перенаправляет обратно на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github?code=...&state=...`
 4. Convex обрабатывает callback, создаёт user через `createOrUpdateUserHandler`, выпускает JWT.
-5. Convex редиректит браузер на `SITE_URL` (`http://localhost:5173/`). Поскольку Vite dev может быть не запущен — браузер просто покажет ERR_CONNECTION_REFUSED. **Это OK для smoke** — нам важна запись в `users`, не финальный UI.
+5. Convex перенаправляет браузер на `SITE_URL` (`http://localhost:5173/`). Поскольку Vite dev может быть не запущен — браузер просто покажет ERR_CONNECTION_REFUSED. **Это OK для smoke** — нам важна запись в `users`, не финальный UI.
 
 Verify через dashboard:
 ```bash
@@ -676,7 +676,7 @@ npx convex dashboard
 | `redirect_uri_mismatch` на GitHub | Callback URL в OAuth App config не совпадает посимвольно. Типовые причины: (1) trailing slash, (2) `http` vs `https`, (3) regex/case mismatch, (4) `wandering-ocelot-9.convex.site` без region prefix `eu-west-1` | В GitHub OAuth App settings → Authorization callback URL должен быть **точно** `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/github` — байт-в-байт |
 | Юзер появился в `users` с `email: undefined` | `@auth/core/providers/github` авто-fetch'ит `/user/emails`, когда `profile.email` пуст (private). Если email всё равно `undefined` — у GitHub-аккаунта вообще нет верифицированных email-адресов, либо OAuth scope `user:email` отвалился | Verify через `npx convex logs` — посмотреть, что GitHub реально вернул в `/user/emails`; в GitHub Settings → Emails добавить и верифицировать email |
 | Convex 500 после callback'а | Ошибка в `createOrUpdateUserHandler` или в env vars | `npx convex logs` за последние пару минут — стек ошибки |
-| GitHub callback 404 на Convex | `auth.addHttpRoutes(http)` не работает — http.ts не задеплоен | `npx convex dev --once` и проверить `convex/_generated/api.d.ts` на упоминания auth-routes |
+| GitHub callback 404 на Convex | `auth.addHttpRoutes(http)` не работает — http.ts не развёрнут | `npx convex dev --once` и проверить `convex/_generated/api.d.ts` на упоминания auth-routes |
 | Прошло 60 секунд, нет редиректа с Convex на GitHub | DNS/network проблема, либо `CONVEX_SITE_URL` не set | Step 6.2 check выше; `curl -I https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/signin/github` должен дать 30x |
 | После dashboard в `users` пусто | Транзакция rollback'нулась (схема mismatch или throw в callback) | `npx convex logs` |
 
@@ -692,7 +692,7 @@ git diff convex/health.ts  # пусто
 
 Если непусто — вернуть `convex/health.ts` к исходному состоянию (Step 6.2 «File должен вернуться к виду»). После — `make check` зелёный, ничего не commit'ить.
 
-Записать в **локальный заметник** (не в репо):
+Записать в **локальный локальные заметки** (не в репозиторий):
 - `AUTH_GITHUB_ID=Iv1.xxx`, `AUTH_GITHUB_SECRET=ghs_xxx` — для production-deployment в будущем (там нужны другие credentials).
 - Smoke прошёл / не прошёл (юзер появился в `users`?).
 - Результат `CONVEX_SITE_URL` runtime check (auto-set cloud / set руками).
@@ -727,8 +727,8 @@ git diff convex/health.ts  # пусто
 5. Push: `npx convex dev --once` (или просто watcher подхватит).
 
 **Auth-related env vars** (в Convex env, не в `.env.local`):
-- `SITE_URL` — куда Convex редиректит после auth (Vite origin в dev: `http://localhost:5173`).
-- `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерятся `npx @convex-dev/auth`.
+- `SITE_URL` — куда Convex перенаправляет после auth (Vite origin в dev: `http://localhost:5173`).
+- `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерируются `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` — credentials GitHub OAuth App.
 
@@ -862,7 +862,7 @@ git branch -d feat/convex-auth-github
 
 После завершения Phase 2 у тебя в локальной заметке должно быть:
 
-- **GitHub OAuth credentials** для dev (Client ID, Secret) — в заметнике, не в репо.
+- **GitHub OAuth credentials** для dev (Client ID, Secret) — в локальных заметках, не в репозиторий.
 - **Cloud deployment URLs** — те же, что в Phase 1: `wandering-ocelot-9.eu-west-1.convex.{cloud,site}`.
 - **`CONVEX_SITE_URL` поведение:** auto-set cloud / set руками (зафиксировано из Step 6.2 smoke).
 - **Тестовые юзеры в `users` table** — Phase 3 UI будет показывать их name/email; можно почистить или оставить как seed.
@@ -897,11 +897,11 @@ git branch -d feat/convex-auth-github
 
 3. **Type consistency:**
    - `createOrUpdateUserHandler` имя — то же в Step 4.1 (test import), Step 4.3 (implementation), Step 7.1 (CLAUDE.md ссылка).
-   - `Id<'users'>` — последовательно через все таски.
+   - `Id<'users'>` — последовательно через все задачи.
    - `viewer` query name — Task 5 + Task 7 CLAUDE.md.
    - `MutationCtx` (= `GenericMutationCtx<DataModel>` структурно) — Step 4.3 implementation + test ctx через `t.run` — совместимы.
 
-4. **Известные неточности (несовершенство, не блокер):**
+4. **Известные неточности (несовершенство, не препятствие):**
    - Точное поведение `npx convex env list` для `CONVEX_SITE_URL` — Phase 1 показал, что переменная НЕ показывается в env list; Step 6.2 это проверяет эмпирически через runtime в Convex функции.
    - Exact prompt order команды `npx @convex-dev/auth` — может варьироваться по версии; план перечисляет 4 типовых prompt'а с заметкой «порядок может варьироваться».
    - `convexAuth` callback type — `@convex-dev/auth` ждёт `GenericMutationCtx<AnyDataModel>`; наш narrow helper принимает `GenericMutationCtx<DataModel>` и обёрнут в лямбду, которая структурно совместима. Если TS всё-таки ругается — Step 4.3 советует «Go to Definition» через IDE.

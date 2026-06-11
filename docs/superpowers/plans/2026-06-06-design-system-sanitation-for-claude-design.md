@@ -117,7 +117,7 @@
 - `--color-finger-*` — что такое FingerId, когда применяется
 - `--color-keycap-group-*` — почему пять цветовых групп, как они сопоставлены с пальцами
 - `--color-keycap-role-target-*` — что такое navigation role, когда активируется
-- `--color-keycap-correct/error-*` — лайфцикл press result
+- `--color-keycap-correct/error-*` — жизненный цикл press result
 - `--color-path-highlight`, `--color-target-marker`, `--color-cursor-*` — что такое «navigation visualization»
 - `--color-symbol-*` — статусы TypingStream
 

@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Настройки пользователя (interfaceLanguage, textLanguage, symbolLayoutId, theme) синхронизируются между устройствами через Convex для залогиненных юзеров. Гость продолжает работать с localStorage без cloud-вызовов. Стратегия: **«cloud wins при логине»** — если в cloud есть row, она перетирает локалку; если cloud пуст, локалка push'ится туда. После логина каждый локальный update пушится в cloud fire-and-forget (silent eventually-consistent при offline).
+**Goal:** Настройки пользователя (interfaceLanguage, textLanguage, symbolLayoutId, theme) синхронизируются между устройствами через Convex для залогиненных юзеров. Гость продолжает работать с localStorage без cloud-вызовов. Стратегия: **«cloud wins при логине»** — если в cloud есть row, она перетирает локальную копию; если cloud пуст, локальная копия push'ится туда. После логина каждый локальный update пушится в cloud fire-and-forget (silent eventually-consistent при offline).
 
 **Architecture:** Три слоя:
 1. **Backend** (`convex/schema.ts` + `convex/userSettings.ts`) — таблица `userSettings` с index `by_user`; `getMine` query (auth-required), `upsertMine` mutation (auth-required, insert-or-patch по `userId`). Логика вынесена в testable handlers (`getMineHandler` / `upsertMineHandler`) по паттерну Phase 2 `createOrUpdateUserHandler`. `updatedAt` ставит сам Convex (`Date.now()` на сервере).
-2. **Pure pipeline** (`src/lib/settings-sync.ts`) — pure-функции `decideSyncOnLogin` и `cloudRowToSettings`. Никаких side-effects, тестируются без моков.
+2. **Pure pipeline** (`src/lib/settings-sync.ts`) — pure-функции `decideSyncOnLogin` и `cloudRowToSettings`. Никаких side-effects, тестируются без заглушек.
 3. **Orchestrator** (`attachCloudSync` в `src/lib/settings.ts` + вызов из `src/routes/+layout.svelte`) — слушает `authStore.state`, при transition в `'authenticated'` делает pull/push decision; subscribe'ится на settings updates и пушит в cloud. Skip-first-call защищает от push'а на init. Тестируется browser-smoke'ом.
 
 **Tech Stack:** Convex (`convex@~1.20`) + `@convex-dev/auth` + `convex-test` (edge-runtime project) · SvelteKit 2 + Svelte 5 (runes) · TypeScript strict · vitest projects split (`src` node / `convex` edge-runtime).
@@ -43,7 +43,7 @@
 - **`updatedAt` — server-gen.** Convex mutation сам ставит `Date.now()`. Клиент не передаёт его в args и не использует для LWW-решений. Аргумент: проще и надёжнее. Цена: offline edits во второй сессии того же юзера могут проиграть pull'у (теряются), но это narrow edge case для одного активного юзера за раз. Подтверждено user'ом.
 - **Без UI-индикатора sync-состояния.** Silent eventually-consistent. Если push fail (offline) — следующее изменение его повторит; при следующем pull cloud перетрёт. UI добавим позже, если придёт реальный запрос. Подтверждено user'ом.
 - **«Cloud wins при login».** При логине: cloud пуст → push local (first sync); cloud есть → pull cloud (overwrite local). Это **не** classic LWW (без явного `cloud.updatedAt` vs `local.updatedAt` сравнения) — простой и предсказуемый rule. Альтернатива (timestamp-based LWW) требовала бы хранить `local.updatedAt` в localStorage и обновлять его при каждом локальном edit — сложнее и не даёт реального value для одного-активного-юзера паттерна. Если потом понадобится — добавится в Phase 5.1.
-- **Push-on-update — fire-and-forget без debounce.** Каждый `settings.update`/`set` → один `upsertMine` вызов. User меняет настройки нечасто (1-2 раза за сессию); debounce пока не нужен. Если push fail (network) — silent catch, следующий update перешлёт. При offline → online настройки догонятся со следующим изменением или с pull при следующем mount.
+- **Push-on-update — fire-and-forget без debounce.** Каждый `settings.update`/`set` → один `upsertMine` вызов. User меняет настройки нечасто (1-2 раза за сессию); debounce пока не нужен. Если push fail (network) — silent catch, следующий update перешлёт. При offline → online настройки подтянутся со следующим изменением или с pull при следующем mount.
 - **Логика handler'ов — testable, auth-check — в обёртке.** Pattern Phase 2: `getMineHandler({ ctx, userId })` / `upsertMineHandler({ ctx, userId, settings })` принимают уже резолвленный `userId: Id<'users'>` → тестируются напрямую через `t.run(ctx)`. Query/mutation обёртка делает `getAuthUserId(ctx)`, query возвращает `null` при unauth, mutation throws. Это критично — `getAuthUserId` отсутствие в mutation = cross-user write backdoor (та же дыра что Phase 4 review поймал на dev-mutation).
 - **Sync синхронизирует все 4 поля UserSettings.** `interfaceLanguage`, `textLanguage`, `symbolLayoutId`, `theme`. Сейчас это весь shape; других device-local-only полей нет. Если в будущем добавится device-only поле (e.g. `lastDrillId`) — оно живёт ВНЕ `UserSettings`, в отдельном storage.
 - **Хранение `theme: 'auto'` в cloud.** Cloud получает буквальное значение `theme` из store, включая `'auto'`. Кросс-устройство — если на A была `'auto'`, на B после pull тоже `'auto'` (= системная тема на B). Это разумно: `'auto'` — пользовательское предпочтение, не значение.
@@ -51,7 +51,7 @@
 - **Не используем `Storage` event для cross-tab sync.** Если две вкладки одного браузера — каждая делает свой pull/push отдельно. Может быть transient inconsistency, разрешается следующим mutation. Cross-tab `'storage'` event — вне scope Phase 5.
 - **Field shape таблицы `userSettings` следует текущему `UserSettings` (4 поля: `interfaceLanguage`, `textLanguage`, `symbolLayoutId`, `theme`), а НЕ устаревшему umbrella-наброску (`languageId`, `themeId`, `fingerLayoutId`).** Umbrella `docs/plans/auth.md:510-516` написан до Phase 3 финального shape'а `UserSettings` (Phase 3 переименовал поля). Источник правды — `src/interfaces/user-settings.ts`. План синхронизирует ровно тот shape, что есть в store; добавление полей в Phase 6+ — отдельная schema-migration с явным планом.
 - **Push сериализация (per-tab in-order).** `attachCloudSync` поддерживает `pushChain` Promise — каждый новый push цепляется через `.then`, что гарантирует, что push'и одной вкладки отправляются и обрабатываются Convex'ом в порядке user-actions. Без этой защиты network-reorder двух последовательных `upsertMine` мог бы дать «cloud видит первое значение последним» (toggle dark → light → dark в cloud вместо light). Цена — небольшая задержка при rapid sequential edits; user-flow это не нагружает.
-- **Single-session sync guard.** Pull/push при login-sync делается **один раз за authentication session** — флаг `hasSyncedThisSession`. Token-refresh flicker (`authenticated → loading → authenticated` без logout) НЕ триггерит повторный pull, что защищает pending local edit'ы от перетирания. Logout (`'guest'`) сбрасывает флаг; при следующем login снова one-shot sync. Failure пути (pull throws, push throws в `else`-ветке) сбрасывают флаг → следующий state-tick повторит попытку.
+- **Single-session sync guard.** Pull/push при login-sync делается **один раз за authentication session** — флаг `hasSyncedThisSession`. Token-refresh flicker (`authenticated → loading → authenticated` без logout) НЕ запускает повторный pull, что защищает pending local edit'ы от перетирания. Logout (`'guest'`) сбрасывает флаг; при следующем login снова one-shot sync. Failure пути (pull throws, push throws в `else`-ветке) сбрасывают флаг → следующий state-tick повторит попытку.
 
 ## File Structure
 
@@ -74,9 +74,9 @@ CLAUDE.md                          # MODIFY: update Settings и i18n section
 ```
 
 **Untouched (с обоснованиями):**
-- `convex/auth.ts`, `convex/auth.test.ts`, `convex/auth.config.ts`, `convex/http.ts` — auth-backend, ortogonal к settings sync.
+- `convex/auth.ts`, `convex/auth.test.ts`, `convex/auth.config.ts`, `convex/http.ts` — auth-backend, orthogonal к settings sync.
 - `convex/users.ts` — `viewer` query orthogonal.
-- `src/interfaces/user-settings.ts` — `UserSettings` type без изменений (sync синкает существующий shape).
+- `src/interfaces/user-settings.ts` — `UserSettings` type без изменений (sync синхронизирует существующий shape).
 - `src/user-settings/user-settings.ts` — `DEFAULT_USER_SETTINGS` без изменений.
 - `src/lib/auth/*` — auth-store API уже даёт reactive `state`; никаких правок.
 - `src/themes/*` — Phase 5 не UI-фаза, контрактов не добавляет.
@@ -190,7 +190,7 @@ export default defineSchema({
 - `v.string()` для всех 4 полей (а не `v.union(v.literal('en'), v.literal('ru'))`): Convex schema не должна знать про domain-литералы — это leaky abstraction (любое расширение `InterfaceLanguage` потребует schema migration + waiting period). Нормализация делается на клиенте через `normalizeSettings` при pull. Цена: невалидное значение в cloud не вызывает schema error → клиент нормализует к дефолту. Это правильное поведение для forward-compat.
 - `v.id('users')` для `userId` — type-safe ref. Convex enforced check, что вставляемый id реально из таблицы `users`.
 - `by_user` index — для O(1) lookup в `getMineHandler` (`.withIndex('by_user', q => q.eq('userId', userId)).unique()`).
-- `updatedAt: v.number()` — миллисекунды Unix epoch. Сейчас не читается клиентом, но дёшево хранить; useful для дебага и future LWW upgrade.
+- `updatedAt: v.number()` — миллисекунды Unix epoch. Сейчас не читается клиентом, но дёшево хранить; useful для отладки и future LWW upgrade.
 
 - [ ] **Step 1.3: Verify watcher подхватил миграцию**
 
@@ -209,7 +209,7 @@ Convex functions ready! (XXXms)
 npx convex dashboard
 ```
 
-В таблицах должна появиться `userSettings` (0 rows). Это glance-check, не блокер: schema push уже зафиксирован watcher'ом в Step 1.3.
+В таблицах должна появиться `userSettings` (0 rows). Это glance-check, не препятствие: schema push уже зафиксирован watcher'ом в Step 1.3.
 
 - [ ] **Step 1.5: `make check`**
 
@@ -627,7 +627,7 @@ git commit -m "feat(settings): add userSettings getMine/upsertMine with auth gua
 - New: `src/lib/settings-sync.ts`
 - New: `src/lib/settings-sync.test.ts`
 
-**Цель:** изолировать decision-логику синхронизации в pure-функции, тестировать без моков. Orchestrator (`attachCloudSync`) в Task 4 будет использовать эти pure-функции.
+**Цель:** изолировать decision-логику синхронизации в pure-функции, тестировать без заглушек. Orchestrator (`attachCloudSync`) в Task 4 будет использовать эти pure-функции.
 
 После Task 3 есть:
 - `decideSyncOnLogin({ cloudRow, localSettings })` — возвращает `{ action: 'pull' | 'push', settings }`
@@ -788,8 +788,8 @@ export type SyncOnLoginDecision =
  * Pure decision: при transition authStore → 'authenticated', что делать?
  *
  * Стратегия — «cloud wins при login»:
- * - cloud пуст (юзер не синкался ни на одном устройстве) → push локалку (first sync).
- * - cloud есть (где-то уже синкнулись) → pull cloud (это и есть source of truth).
+ * - cloud пуст (юзер не синхронизировался ни на одном устройстве) → push локальную копию (first sync).
+ * - cloud есть (где-то уже синхронизировались) → pull cloud (это и есть source of truth).
  *
  * Это НЕ classic LWW с явным сравнением timestamps. Аргумент: для одного-активного-юзера
  * паттерна (один человек, переключается между устройствами) cloud == последнее
@@ -893,9 +893,9 @@ git commit -m "feat(settings): add pure sync-decision pipeline (decideSyncOnLogi
 - Modify: `src/lib/settings.ts`
 - Modify: `src/routes/+layout.svelte`
 
-**Цель:** соединить authStore + settings store + Convex client. Orchestrator: при transition → `'authenticated'` вызывает pull/push согласно `decideSyncOnLogin`; при каждом локальном update во время `'authenticated'` пушит в cloud fire-and-forget. Тесты — browser smoke в Task 5 (orchestrator integration-level, unit-моки добавляют complexity без proportional value).
+**Цель:** соединить authStore + settings store + Convex client. Orchestrator: при transition → `'authenticated'` вызывает pull/push согласно `decideSyncOnLogin`; при каждом локальном update во время `'authenticated'` пушит в cloud fire-and-forget. Тесты — browser smoke в Task 5 (orchestrator integration-level, unit-заглушки добавляют complexity без proportional value).
 
-> **Почему не unit-tests на attachCloudSync:** функция оркестрирует 3 живых subsystems (authStore reactive, settings store, convex client). Unit-test потребовал бы mock'ать всё — overhead, не отражающий реального flow. Browser smoke в Task 5 покрывает actual поведение end-to-end. Если в будущем появится bug в orchestrator — добавится regression test с моками тогда.
+> **Почему не unit-tests на attachCloudSync:** функция оркестрирует 3 живых subsystems (authStore reactive, settings store, convex client). Unit-test потребовал бы mock'ать всё — overhead, не отражающий реального flow. Browser smoke в Task 5 покрывает actual поведение end-to-end. Если в будущем появится bug в orchestrator — добавится regression test с заглушками тогда.
 
 - [ ] **Step 4.1: Прочитать текущий `src/lib/settings.ts`**
 
@@ -930,7 +930,7 @@ import { decideSyncOnLogin, settingsToCloudArgs, type CloudSettings } from './se
  *   исключительно в localStorage (текущее Phase 4 поведение).
  * - **Single-session sync.** Pull/push при login-sync делается один раз за
  *   authentication session (флаг `hasSyncedThisSession`). Token-refresh flicker
- *   (`authenticated → loading → authenticated` без logout) НЕ триггерит повторный
+ *   (`authenticated → loading → authenticated` без logout) НЕ запускает повторный
  *   pull, что защищает pending local edit от перетирания.
  * - **In-order push.** Все push'и идут через `pushChain` Promise — Convex видит
  *   их в порядке user-actions даже если network reorder'ит requests.
@@ -987,7 +987,7 @@ export function attachCloudSync({
     // снова даст one-shot sync.
     if (status === 'guest') {
       hasSyncedThisSession = false;
-      // Defence-in-depth: cancel pushChain. Если pending push не успел отправиться
+      // Defense-in-depth: cancel pushChain. Если pending push не успел отправиться
       // до logout, он будет отправлен под expired token (Convex 401 → catch eats).
       // Безопасно, но шумно в console; cancel явно избегает.
       pushChain = Promise.resolve();
@@ -1038,10 +1038,10 @@ export function attachCloudSync({
 - `hasSyncedThisSession` flag — defends против edge case'а C1 (token-refresh flicker), который Round 1 edge-cases agent поймал. Logout (`'guest'`) сбрасывает; следующий login снова даст one-shot sync. Failure сбрасывает → retry.
 - `pushChain` через `.catch(() => {}).then(...)` — last-write-wins per device без race на network reorder. Cost: rapid sequential edits задерживаются на длительность previous push'а. Acceptable для типичного user pattern (settings меняются нечасто).
 - `enqueuePush` helper — единая точка enqueue (login-sync push + subscribe-push используют один chain).
-- `skipNextSubscribeCallback` — после pull мы делаем `settings.set(decision.settings)`, который триггерит наш же `settings.subscribe` callback. Без skip-flag мы бы пушили pulled-значение обратно в cloud (idempotent, но лишний round-trip).
+- `skipNextSubscribeCallback` — после pull мы делаем `settings.set(decision.settings)`, который запускает наш же `settings.subscribe` callback. Без skip-flag мы бы пушили pulled-значение обратно в cloud (idempotent, но лишний round-trip).
 - `isInitialSubscribe` — первая `settings.subscribe` callback вызывается immediately с текущим значением; это init, не user-driven update.
 - `currentSettingsSnapshot` через одноразовый subscribe + unsubscribe — стандартный Svelte pattern для one-shot read store'а без сохранения подписки.
-- `import.meta.env.DEV` — Vite-specific глобал, false в production build. Console-warn'ы только в dev.
+- `import.meta.env.DEV` — Vite-specific глобальная переменная, false в production build. Console-warn'ы только в dev.
 
 - [ ] **Step 4.3: Wire `attachCloudSync` в `src/routes/+layout.svelte`**
 
@@ -1292,8 +1292,8 @@ grep -n "### Settings и i18n" CLAUDE.md
 
 **Cross-device sync (Phase 5).** Для залогиненных юзеров настройки синхронизируются через Convex. Гость — только localStorage, никаких cloud-вызовов.
 
-- **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локалку в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
-- **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без моков (`src/lib/settings-sync.test.ts`).
+- **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локальную копию в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
+- **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без заглушек (`src/lib/settings-sync.test.ts`).
 - **Orchestrator:** `attachCloudSync(...)` в `src/lib/settings.ts`. Вызывается из `src/routes/+layout.svelte` после `createAuthStore`. Internal guards: `hasSyncedThisSession` (one-shot pull/push per authentication session, защита от token-refresh flicker'а), `pushChain` (serialized push queue для in-order delivery при network reorder), `skipNextSubscribeCallback` (no echo push после pull), `isInitialSubscribe` (no push на init).
 - **Backend:** `convex/userSettings.ts` — `getMine` query (auth-required, `null` при unauth), `upsertMine` mutation (auth-required, `throw 'Not authenticated'` при unauth). Логика в `getMineHandler` / `upsertMineHandler` — testable отдельно от auth-обёртки (паттерн `createOrUpdateUserHandler`). `updatedAt` ставит сервер.
 - **«Провайдер = аккаунт» enforced на этом уровне:** `userSettings` row ссылается на `userId: v.id('users')`. Один email через GitHub vs Google = два юзера = два независимых settings row. By design.
@@ -1332,8 +1332,9 @@ git diff master..feat/settings-sync --stat
 
 Ожидаемо: **5 коммитов** (Task 1, 2, 3, 4, 6). Task 5 — без коммита (verification).
 
-**Secret-leak guard.** Phase 5 не работает с новыми OAuth secrets, но повторяем grep — defence-in-depth:
+**Secret-leak guard.** Phase 5 не работает с новыми OAuth secrets, но повторяем grep — defense-in-depth:
 
+<!-- cSpell:ignore GOCSPX -->
 ```bash
 git log -p master..feat/settings-sync | \
   grep -iE 'GOCSPX[-_]|AUTH_(GITHUB|GOOGLE)_SECRET\s*[=: ]|JWT_PRIVATE_KEY' || echo "clean (content scan)"
@@ -1372,7 +1373,7 @@ Phase 5 of docs/plans/auth.md. Cross-device sync для UserSettings
   notifyAuthChanged for pull-decision; internal guards против echo-push
   после pull и init-push до auth).
 - src/routes/+layout.svelte: wire attachCloudSync после createAuthStore;
-  $effect триггерит notifyAuthChanged на auth-state changes.
+  $effect запускает notifyAuthChanged на auth-state changes.
 - CLAUDE.md: Settings и i18n секция расширена под Phase 5 sync
   поведение и компоненты.
 
@@ -1446,7 +1447,7 @@ Phase 5 трогает cloud dev deployment один раз — это **add-onl
    - Таблица `userSettings` ✓ Task 1
    - `getMine` query, `upsertMine` mutation ✓ Task 2
    - `src/lib/settings.ts` интеграция с authStore: pull при login, push при изменении ✓ Task 4
-   - LWW по `updatedAt` — **изменено** на «cloud wins при login», подтверждено user'ом (Зафиксированные решения). Server-gen `updatedAt` остаётся для дебага/future LWW upgrade. Расхождение задокументировано в «Зафиксированные решения».
+   - LWW по `updatedAt` — **изменено** на «cloud wins при login», подтверждено user'ом (Зафиксированные решения). Server-gen `updatedAt` остаётся для отладки/future LWW upgrade. Расхождение задокументировано в «Зафиксированные решения».
    - UI-индикатор синхронизации — **out of scope**, подтверждено user'ом
    - Гость работает offline ✓ Task 5 verification
 
@@ -1469,7 +1470,7 @@ Phase 5 трогает cloud dev deployment один раз — это **add-onl
    - **Offline на login (retry semantics):** `pullCloud`/`pushCloud` throws в login-sync → catch ставит `hasSyncedThisSession = false` + console.warn в dev. **Retry НЕ автоматический в той же session** — `$effect` (`void authStore.state.status`) пересчитывается только когда `status` действительно меняется, а после failure status остаётся `'authenticated'`. Retry-trigger ы:
      - **Mount/refresh:** свежий `hasSyncedThisSession=false` → новый login-sync attempt. Покрывает оба сценария (push-fail / pull-fail).
      - **Auth-transition (logout → login):** аналогично — fresh session, fresh attempt.
-     - **Локальный edit settings — ТОЛЬКО push-retry, НЕ pull-recovery.** Subscribe-callback срабатывает на user-change → `enqueuePush` с локальным snapshot'ом. Это спасает сценарий «cloud был пуст и push fail» (push повторяется), но **НЕ спасает сценарий «cloud row есть, pull fail»**: локальный edit отправляется как push, и если он успевает дойти до cloud row до next refresh — он промоутит local-over-cloud (de-facto обход «cloud wins» правила). Acceptable trade-off: user-modified локальное значение становится новым cloud canonical; alternative (block pushes до successful pull) усложняет logic без proportional value.
+     - **Локальный edit settings — ТОЛЬКО push-retry, НЕ pull-recovery.** Subscribe-callback срабатывает на user-change → `enqueuePush` с локальным snapshot'ом. Это спасает сценарий «cloud был пуст и push fail» (push повторяется), но **НЕ спасает сценарий «cloud row есть, pull fail»**: локальный edit отправляется как push, и если он успевает дойти до cloud row до next refresh — он продвигает local-over-cloud (de-facto обход «cloud wins» правила). Acceptable trade-off: user-modified локальное значение становится новым cloud canonical; alternative (block pushes до successful pull) усложняет logic без proportional value.
    - Не "persistent failure mode" в практическом смысле (любой refresh повторяет sync); но in-session auto-retry без user-action отсутствует. setTimeout-based retry откладывается до запроса.
    - **Гонка: user меняет setting в тот момент, когда login-sync pull'ит cloud:** очень маловероятно (login-sync завершается за ~100ms). Если случится: settings.set из pull перетрёт user change. User-side issue, out of scope mitigation.
    - **Schema field drift между cloud row и UserSettings:** см. «Зафиксированные решения». Если cloud содержит лишнее или невалидное поле, текущий клиент игнорирует/нормализует, push'ит обратно clean snapshot. Cloud row обновляется через `ctx.db.patch` (shallow merge) — поля, не упомянутые в args, сохраняются как есть (backward-compat для future-added полей).
@@ -1483,5 +1484,5 @@ Phase 5 трогает cloud dev deployment один раз — это **add-onl
    - Debounce push на спам-update'ы — не делаем; settings меняются нечасто.
    - Settings reset при logout — не делаем; last-pulled settings остаются (предсказуемое поведение).
    - Cross-tab sync через `'storage'` event — не делаем; вне scope.
-   - Migration старых guest-настроек в cloud на первом login — это и есть «push first sync» в `decideSyncOnLogin` (cloud null → push local). Не отдельная фича.
+   - Migration старых guest-настроек в cloud на первом login — это и есть «push first sync» в `decideSyncOnLogin` (cloud null → push local). Не отдельная функция.
    - Push на origin — задача пользователя (memory `feedback_no_ahead_count.md`), план её не делает.

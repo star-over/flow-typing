@@ -51,6 +51,7 @@ storybook-static
 .storybook-temp/
 
 .gemini/
+.claude/settings.local.json
 gha-creds-*.json
 
 # git worktrees
