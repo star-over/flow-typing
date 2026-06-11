@@ -3,6 +3,7 @@
   import { setupConvexAuth, useAuth } from '@mmailaender/convex-auth-svelte/svelte';
   import { PUBLIC_CONVEX_URL } from '$env/static/public';
   import { convex } from '@/lib/convex';
+  import { createAuthStore } from '@/lib/auth/auth-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
@@ -10,7 +11,7 @@
   import { resolveTheme } from '@/themes/registry';
   import { browser } from '$app/environment';
   import { on } from 'svelte/events';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, setContext } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
 
   import Header from '@/components/app/Header.svelte';
@@ -32,9 +33,6 @@
       convex.setAuth(auth.fetchAccessToken);
     }
   });
-
-  import { setContext } from 'svelte';
-  import { createAuthStore } from '@/lib/auth/auth-store.svelte';
 
   const authStore = createAuthStore();
   setContext('auth', authStore);

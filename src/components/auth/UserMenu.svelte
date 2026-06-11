@@ -1,9 +1,8 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import { resolve } from '$app/paths';
-  import type { createAuthStore } from '@/lib/auth/auth-store.svelte';
+  import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
-  type AuthStore = ReturnType<typeof createAuthStore>;
   const auth = getContext<AuthStore>('auth');
 
   async function handleSignOut() {
