@@ -2,19 +2,21 @@
   import { getContext } from 'svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
+  type OAuthProviderId = 'github' | 'google';
+
   const auth = getContext<AuthStore>('auth');
   let error: string | null = $state(null);
   let signingIn: boolean = $state(false);
 
-  async function handleGithubSignIn() {
+  async function handleSignIn(provider: OAuthProviderId) {
     error = null;
     signingIn = true;
     try {
-      await auth.signIn('github');
+      await auth.signIn(provider);
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
     } finally {
-      // Reset even on success path: для OAuth providers с popup-flow (Google в Phase 4)
+      // Reset even on success path: для OAuth providers с popup-flow (Google)
       // promise resolves без redirect'а — без finally кнопка зависнет в "Перенаправление…".
       // Для GitHub redirect-flow это безопасный no-op (страница уже размонтирована).
       signingIn = false;
@@ -29,9 +31,18 @@
     type="button"
     class="sign-in-screen__btn-github"
     disabled={signingIn}
-    onclick={handleGithubSignIn}
+    onclick={() => handleSignIn('github')}
   >
     {signingIn ? 'Перенаправление…' : 'Войти через GitHub'}
+  </button>
+
+  <button
+    type="button"
+    class="sign-in-screen__btn-google"
+    disabled={signingIn}
+    onclick={() => handleSignIn('google')}
+  >
+    {signingIn ? 'Перенаправление…' : 'Войти через Google'}
   </button>
 
   <p class="sign-in-screen__disclaimer">
@@ -84,6 +95,25 @@
   }
 
   .sign-in-screen__btn-github:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .sign-in-screen__btn-google {
+    background: var(--sign-in-screen-btn-google-background);
+    color: var(--sign-in-screen-btn-google-color);
+    border: var(--sign-in-screen-btn-google-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm, 0.25rem);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .sign-in-screen__btn-google:hover {
+    background: var(--sign-in-screen-btn-google-hover-background);
+  }
+
+  .sign-in-screen__btn-google:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
