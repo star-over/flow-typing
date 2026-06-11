@@ -12,9 +12,12 @@ Umbrella-план интеграции аутентификации в FlowTypin
 | Phase 3 — Auth UI: store + SignIn + UserMenu | ✅ done | merge `60c92de` + follow-up `4fa23ce` (post-merge minor findings) |
 | Phase 4 — Google-провайдер | ✅ done | merge `0f3b3ee` |
 | Phase 5 — Settings sync | ✅ done | merge `11fb2ca` |
-| Phase 6 — Sessions tracking | ⏸ deferred | Не делаем в текущем цикле. Будет, если появится запрос на /stats |
-| Phase 7 — `/stats` с реальными данными | ⏸ deferred | Зависит от Phase 6 |
-| Phase 8-11 (Roadmap V2) | pending | По запросу |
+| Phase 8 — Yandex-провайдер | ✅ done | merge `4d4cb58` |
+| Phase 6 — Sessions tracking | 📋 backlog | `docs/backlog.md` |
+| Phase 7 — `/stats` с реальными данными | 📋 backlog | `docs/backlog.md` (driver = Phase 6) |
+| Phase 9 — Apple-провайдер | 📋 backlog | `docs/backlog.md` (driver = Apple Developer enrollment) |
+| Phase 10 — Account linking V2 | 📋 backlog | `docs/backlog.md` (driver = user request) |
+| Phase 11 — SberID | 📋 backlog | `docs/backlog.md` (driver = бизнес-need + ИП/ООО) |
 
 **Convex deployment mode:** **cloud dev** (`dev:wandering-ocelot-9`, EU-West-1). Выбран ради HTTPS (нужно для Apple OAuth в Phase 9) и production-equivalence. Free tier покрывает.
 
