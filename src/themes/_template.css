@@ -247,6 +247,10 @@
   --sign-in-screen-btn-google-color      : unset;
   --sign-in-screen-btn-google-border     : unset;
   --sign-in-screen-btn-google-hover-background: unset;
+  --sign-in-screen-btn-yandex-background : unset;
+  --sign-in-screen-btn-yandex-color      : unset;
+  --sign-in-screen-btn-yandex-border     : unset;
+  --sign-in-screen-btn-yandex-hover-background: unset;
 
   /* UserMenu */
   --user-menu-loading-color               : unset;
