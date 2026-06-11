@@ -1,8 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
-
-  type OAuthProviderId = 'github' | 'google';
+  import type { OAuthProviderId } from '@/lib/auth/auth.types';
 
   const auth = getContext<AuthStore>('auth');
   let error: string | null = $state(null);
@@ -43,6 +42,15 @@
     onclick={() => handleSignIn('google')}
   >
     {signingIn ? 'Перенаправление…' : 'Войти через Google'}
+  </button>
+
+  <button
+    type="button"
+    class="sign-in-screen__btn-yandex"
+    disabled={signingIn}
+    onclick={() => handleSignIn('yandex')}
+  >
+    {signingIn ? 'Перенаправление…' : 'Войти через Yandex'}
   </button>
 
   <p class="sign-in-screen__disclaimer">
@@ -114,6 +122,25 @@
   }
 
   .sign-in-screen__btn-google:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .sign-in-screen__btn-yandex {
+    background: var(--sign-in-screen-btn-yandex-background);
+    color: var(--sign-in-screen-btn-yandex-color);
+    border: var(--sign-in-screen-btn-yandex-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm, 0.25rem);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .sign-in-screen__btn-yandex:hover {
+    background: var(--sign-in-screen-btn-yandex-hover-background);
+  }
+
+  .sign-in-screen__btn-yandex:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
