@@ -1,8 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
-  import type { createAuthStore } from '@/lib/auth/auth-store.svelte';
+  import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
-  type AuthStore = ReturnType<typeof createAuthStore>;
   const auth = getContext<AuthStore>('auth');
   let error: string | null = $state(null);
   let signingIn: boolean = $state(false);
@@ -14,6 +13,10 @@
       await auth.signIn('github');
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
+    } finally {
+      // Reset even on success path: для OAuth providers с popup-flow (Google в Phase 4)
+      // promise resolves без redirect'а — без finally кнопка зависнет в "Перенаправление…".
+      // Для GitHub redirect-flow это безопасный no-op (страница уже размонтирована).
       signingIn = false;
     }
   }
@@ -43,11 +46,11 @@
 <style>
   .sign-in-screen {
     background: var(--sign-in-screen-background);
-    padding: var(--spacing-xl, 2rem);
+    padding: var(--spacing-8);
     border-radius: var(--radius-md, 0.5rem);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md, 1rem);
+    gap: var(--spacing-4);
     align-items: center;
     max-width: 22rem;
     margin: 4rem auto;
@@ -86,7 +89,7 @@
   }
 
   .sign-in-screen__error {
-    color: oklch(60% 0.2 25);
+    color: var(--color-error);
     font-size: 0.875rem;
   }
 </style>

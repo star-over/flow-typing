@@ -41,3 +41,5 @@ export function createAuthStore() {
     signOut: () => auth.signOut(),
   };
 }
+
+export type AuthStore = ReturnType<typeof createAuthStore>;

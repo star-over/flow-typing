@@ -10,10 +10,7 @@
       return state;
     },
     signIn: (_provider: string) => Promise.resolve(),
-    signOut: () => {
-      console.log('mock signOut');
-      return Promise.resolve();
-    },
+    signOut: () => Promise.resolve(),
   });
 </script>
 
