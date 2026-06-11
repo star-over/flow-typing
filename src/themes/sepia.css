@@ -289,10 +289,10 @@
   --sign-in-screen-btn-github-color      : oklch(95% 0.01 80);
   --sign-in-screen-btn-github-border     : 1px solid oklch(25% 0.04 60);
   --sign-in-screen-btn-github-hover-background: oklch(42% 0.05 60);
-  --sign-in-screen-btn-google-background : oklch(92% 0.03 70);
-  --sign-in-screen-btn-google-color      : oklch(32% 0.04 60);
-  --sign-in-screen-btn-google-border     : 1px solid oklch(60% 0.05 65);
-  --sign-in-screen-btn-google-hover-background: oklch(85% 0.04 70);
+  --sign-in-screen-btn-google-background : oklch(32% 0.04 60);
+  --sign-in-screen-btn-google-color      : oklch(95% 0.01 80);
+  --sign-in-screen-btn-google-border     : 1px solid oklch(25% 0.04 60);
+  --sign-in-screen-btn-google-hover-background: oklch(42% 0.05 60);
 
   /* UserMenu */
   --user-menu-loading-color               : oklch(55% 0.04 65);
