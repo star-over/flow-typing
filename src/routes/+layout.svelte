@@ -25,7 +25,7 @@
   // exchange — в этот момент fetchAccessToken() возвращает null, convex переходит
   // в noAuth state и больше не пере-fetch'ит при появлении token'а.
   // Reactive re-wire — каждый раз когда token меняется, заново отдаём getter
-  // в convex, что триггерит refetch + re-validate всех subscriptions.
+  // в convex, что запускает refetch + re-validate всех subscriptions.
   const auth = useAuth();
   $effect(() => {
     if (auth.token) {

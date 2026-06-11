@@ -78,7 +78,7 @@ Backend для синхронизированных данных (auth с Phase 
   - `PUBLIC_CONVEX_URL` — URL functions (для клиента)
   - `PUBLIC_CONVEX_SITE_URL` — URL HTTP-routes (для OAuth callbacks в Phase 2)
 - **Запуск dev:** `make convex` в отдельном терминале параллельно с `make dev`.
-- **Диагностика:** маршрут `/dev` + `convex/health.ts` (ping query + tick mutation). Не продуктовый код, удаляется в Phase 3.
+- **Диагностика:** в Phase 1/2 была `/dev` страница (`health:ping/tick`); удалена в Phase 3, реальный sign-in теперь главный smoke entry point.
 
 **Authentication.** Convex Auth (`@convex-dev/auth`). Конфигурация в `convex/auth.ts`:
 - `createOrUpdateUserHandler` экспортирован отдельно (тестируется в `convex/auth.test.ts`).
@@ -101,6 +101,14 @@ Backend для синхронизированных данных (auth с Phase 
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` — credentials GitHub OAuth App.
 
 **Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.
+
+**Auth UI (Phase 3).** Клиентский flow строится на `@mmailaender/convex-auth-svelte` (community wrapper над `@convex-dev/auth`):
+- `src/routes/+layout.svelte` — `setupConvexAuth({ client: convex, convexUrl: PUBLIC_CONVEX_URL })` + создаёт `authStore` через `createAuthStore()`, ставит в context `'auth'`.
+- `src/lib/auth/auth-store.svelte.ts` — wrapper над `useAuth()` + `api.users.viewer` query. Сводит 3-state `AuthState`: `{ status: 'loading' | 'authenticated' | 'guest' }`. Loading удерживается до получения user-документа.
+- `src/components/auth/SignInScreen.svelte` — экран входа на маршруте `/signin`.
+- `src/components/auth/UserMenu.svelte` — компактный UI текущего юзера в Header (loading/guest/authenticated состояния).
+- Контракт-токены: `SIGN_IN_SCREEN_CONTRACT` + `USER_MENU_CONTRACT` агрегированы в `THEME_CONTRACT`.
+- Тесты: `auth-state.test.ts` покрывает `computeAuthState` pure-функцию (state derivation). Компоненты — Storybook stories.
 
 **Тесты — vitest projects split (с Phase 2):**
 - `src/**/*.test.ts` → project `src`, node environment, обычная Svelte+TS-вселенная (auth-store, компоненты, контракты).
