@@ -12,6 +12,7 @@
     "Instapaper",
     "Jcuken",
     "keycap",
+    "mmailaender",
     "nord",
     "oklch",
     "pathfinding",
@@ -78,7 +79,8 @@
     "SITE_URL",
     "applicationID",
     "addHttpRoutes",
-    "jwks"
+    "jwks",
+    "PKCE"
   ],
   "ignoreRegExpList": [
     "@xstate-layout\\s+[A-Za-z0-9+/=_-]+",

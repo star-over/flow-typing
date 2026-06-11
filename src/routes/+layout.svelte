@@ -1,5 +1,8 @@
 <script lang="ts">
   import '../app.css';
+  import { setupConvexAuth, useAuth } from '@mmailaender/convex-auth-svelte/svelte';
+  import { PUBLIC_CONVEX_URL } from '$env/static/public';
+  import { convex } from '@/lib/convex';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
@@ -11,6 +14,30 @@
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
 
   import Header from '@/components/app/Header.svelte';
+
+  setupConvexAuth({
+    client: convex,
+    convexUrl: PUBLIC_CONVEX_URL,
+  });
+
+  // Work around convex-auth-svelte: wrapper calls client.setAuth(...) only ONCE
+  // at setupConvexAuth. После OAuth callback wrapper'у нужно время на PKCE
+  // exchange — в этот момент fetchAccessToken() возвращает null, convex переходит
+  // в noAuth state и больше не пере-fetch'ит при появлении token'а.
+  // Reactive re-wire — каждый раз когда token меняется, заново отдаём getter
+  // в convex, что запускает refetch + re-validate всех subscriptions.
+  const auth = useAuth();
+  $effect(() => {
+    if (auth.token) {
+      convex.setAuth(auth.fetchAccessToken);
+    }
+  });
+
+  import { setContext } from 'svelte';
+  import { createAuthStore } from '@/lib/auth/auth-store.svelte';
+
+  const authStore = createAuthStore();
+  setContext('auth', authStore);
 
   const { children } = $props();
 
@@ -57,6 +84,8 @@
       document.documentElement.dataset.theme = resolveTheme('auto');
     });
   });
+
+  if (import.meta.hot) import.meta.hot.invalidate();
 </script>
 
 <svelte:window

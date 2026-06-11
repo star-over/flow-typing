@@ -290,4 +290,23 @@
   --settings-page-btn-color           : var(--color-text-primary);
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
+
+  /* SignInScreen */
+  --sign-in-screen-background            : oklch(96% 0.005 280);
+  --sign-in-screen-title-color           : oklch(20% 0 0);
+  --sign-in-screen-disclaimer-color      : oklch(40% 0 0);
+  --sign-in-screen-btn-github-background : oklch(20% 0.02 280);
+  --sign-in-screen-btn-github-color      : oklch(98% 0 0);
+  --sign-in-screen-btn-github-border     : 1px solid oklch(15% 0.02 280);
+  --sign-in-screen-btn-github-hover-background: oklch(30% 0.03 280);
+
+  /* UserMenu */
+  --user-menu-loading-color               : oklch(60% 0 0);
+  --user-menu-guest-link-color            : oklch(40% 0.05 280);
+  --user-menu-guest-link-hover-color      : oklch(30% 0.1 280);
+  --user-menu-authenticated-name-color    : oklch(25% 0 0);
+  --user-menu-dropdown-background         : oklch(98% 0 0);
+  --user-menu-dropdown-border             : 1px solid oklch(85% 0 0);
+  --user-menu-dropdown-item-color         : oklch(25% 0 0);
+  --user-menu-dropdown-item-hover-background: oklch(94% 0.005 280);
 }

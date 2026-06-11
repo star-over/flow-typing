@@ -234,4 +234,23 @@
   --settings-page-btn-color           : unset;
   --settings-page-btn-border          : unset;
   --settings-page-btn-hover-background: unset;
+
+  /* SignInScreen */
+  --sign-in-screen-background            : unset;
+  --sign-in-screen-title-color           : unset;
+  --sign-in-screen-disclaimer-color      : unset;
+  --sign-in-screen-btn-github-background : unset;
+  --sign-in-screen-btn-github-color      : unset;
+  --sign-in-screen-btn-github-border     : unset;
+  --sign-in-screen-btn-github-hover-background: unset;
+
+  /* UserMenu */
+  --user-menu-loading-color               : unset;
+  --user-menu-guest-link-color            : unset;
+  --user-menu-guest-link-hover-color      : unset;
+  --user-menu-authenticated-name-color    : unset;
+  --user-menu-dropdown-background         : unset;
+  --user-menu-dropdown-border             : unset;
+  --user-menu-dropdown-item-color         : unset;
+  --user-menu-dropdown-item-hover-background: unset;
 }
