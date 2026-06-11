@@ -8,9 +8,13 @@ Umbrella-план интеграции аутентификации в FlowTypin
 | --- | --- | --- |
 | Phase 0 — Организационная подготовка | ✅ done | Convex cloud аккаунт зарегистрирован; проект `flow-typiing` (опечатка в имени — не блокер) |
 | Phase 1 — Bootstrap Convex | ✅ done | merge `2b0380b` + follow-up `c86803c` (startup guard) |
-| Phase 2 — Convex Auth backend | ⏳ next | |
-| Phase 3-7 | pending | |
-| Phase 8-11 (Roadmap V2) | pending | |
+| Phase 2 — Convex Auth backend | ✅ done | merge `f3436e8` |
+| Phase 3 — Auth UI: store + SignIn + UserMenu | ✅ done | merge `60c92de` + follow-up `4fa23ce` (post-merge minor findings) |
+| Phase 4 — Google-провайдер | ✅ done | merge `0f3b3ee` |
+| Phase 5 — Settings sync | ✅ done | merge `11fb2ca` |
+| Phase 6 — Sessions tracking | ⏸ deferred | Не делаем в текущем цикле. Будет, если появится запрос на /stats |
+| Phase 7 — `/stats` с реальными данными | ⏸ deferred | Зависит от Phase 6 |
+| Phase 8-11 (Roadmap V2) | pending | По запросу |
 
 **Convex deployment mode:** **cloud dev** (`dev:wandering-ocelot-9`, EU-West-1). Выбран ради HTTPS (нужно для Apple OAuth в Phase 9) и production-equivalence. Free tier покрывает.
 
