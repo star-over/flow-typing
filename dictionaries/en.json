@@ -29,6 +29,8 @@
     "text_language_description": "Language of typing exercises.",
     "symbol_layout_label": "Keyboard Layout",
     "symbol_layout_description": "Physical keyboard mapping.",
+    "finger_layout_label": "Finger Layout",
+    "finger_layout_description": "Hand placement scheme (which finger presses each key).",
     "theme_label": "Theme",
     "theme_description": "Visual theme of the interface.",
     "theme_group_light": "Light themes",
@@ -65,6 +67,10 @@
     "layouts": {
       "qwerty": "QWERTY (English)",
       "йцукен": "ЙЦУКЕН (Русская)"
+    },
+    "fingerLayouts": {
+      "asdf": "ASDF (standard)",
+      "sdfv": "SDFV (shifted)"
     },
     "themes": {
       "auto": "Auto (system)",

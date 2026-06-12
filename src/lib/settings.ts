@@ -1,9 +1,11 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import {
+  FINGER_LAYOUT_IDS,
   INTERFACE_LANGUAGES,
   SYMBOL_LAYOUT_IDS,
   TEXT_LANGUAGES,
+  type FingerLayoutId,
   type InterfaceLanguage,
   type SymbolLayoutId,
   type TextLanguage,
@@ -29,6 +31,9 @@ function isTextLanguage(v: unknown): v is TextLanguage {
 }
 function isSymbolLayoutId(v: unknown): v is SymbolLayoutId {
   return typeof v === 'string' && (SYMBOL_LAYOUT_IDS as readonly string[]).includes(v);
+}
+function isFingerLayoutId(v: unknown): v is FingerLayoutId {
+  return typeof v === 'string' && (FINGER_LAYOUT_IDS as readonly string[]).includes(v);
 }
 
 function isSymbolLayoutCompatibleWithTextLanguage({
@@ -65,11 +70,16 @@ export function normalizeSettings(raw: unknown): UserSettings {
       ? candidate
       : getDefaultSymbolLayoutForTextLanguage(textLanguage).symbolLayoutId;
 
+  // fingerLayoutId независим от языкового каскада — простой fallback на дефолт.
+  const fingerLayoutId: FingerLayoutId = isFingerLayoutId(stored.fingerLayoutId)
+    ? stored.fingerLayoutId
+    : DEFAULT_USER_SETTINGS.fingerLayoutId;
+
   const theme: ThemeSetting = isThemeSetting(stored.theme)
     ? stored.theme
     : DEFAULT_USER_SETTINGS.theme;
 
-  return { interfaceLanguage, textLanguage, symbolLayoutId, theme };
+  return { interfaceLanguage, textLanguage, symbolLayoutId, fingerLayoutId, theme };
 }
 
 function safeJsonParse(s: string): unknown {

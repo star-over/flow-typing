@@ -11,6 +11,7 @@ const validSettings = {
   interfaceLanguage: 'en',
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
+  fingerLayoutId: 'asdf',
   theme: 'auto',
 };
 

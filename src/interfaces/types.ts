@@ -212,7 +212,8 @@ export type FingerLayout = {
 }[];
 
 /** Идентификатор пальцевого макета (схема постановки рук). */
-export type FingerLayoutId = 'asdf';
+export const FINGER_LAYOUT_IDS = ['asdf', 'sdfv'] as const;
+export type FingerLayoutId = typeof FINGER_LAYOUT_IDS[number];
 
 /**
  * Символьный макет (слой краски).

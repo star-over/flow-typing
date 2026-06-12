@@ -8,7 +8,12 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
   import Select from './Select.svelte';
-  import type { Dictionary, SymbolLayoutId, TextLanguage } from '@/interfaces/types';
+  import type {
+    Dictionary,
+    FingerLayoutId,
+    SymbolLayoutId,
+    TextLanguage,
+  } from '@/interfaces/types';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
 
   interface Props {
@@ -30,6 +35,11 @@
         label: dictionary.options.layouts[d.symbolLayoutId],
       }))
   );
+
+  const fingerLayouts = $derived([
+    { value: 'asdf' as const, label: dictionary.options.fingerLayouts.asdf },
+    { value: 'sdfv' as const, label: dictionary.options.fingerLayouts.sdfv },
+  ]);
 </script>
 
 <div class="menu-screen">
@@ -48,6 +58,15 @@
       value={$settings.symbolLayoutId}
       options={layoutOptions}
       onChange={(v) => updateSettings({ symbolLayoutId: v as SymbolLayoutId })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.settings.finger_layout_label}</span>
+    <Select
+      value={$settings.fingerLayoutId}
+      options={fingerLayouts}
+      onChange={(v) => updateSettings({ fingerLayoutId: v as FingerLayoutId })}
     />
   </label>
 

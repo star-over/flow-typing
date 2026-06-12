@@ -37,6 +37,7 @@ import physicalAnsiRaw from '@/data/layouts/physical-layout-ansi.jsonl?raw';
 import symbolQwertyRaw from '@/data/layouts/symbol-layout-qwerty.jsonl?raw';
 import symbolJcukenRaw from '@/data/layouts/symbol-layout-jcuken.jsonl?raw';
 import fingerAsdfRaw from '@/data/layouts/finger-layout-asdf.jsonl?raw';
+import fingerSdfvRaw from '@/data/layouts/finger-layout-sdfv.jsonl?raw';
 
 // ---------- Zod-схемы для записей JSONL ----------
 
@@ -142,6 +143,7 @@ const PHYSICAL_LAYOUTS: ReadonlyMap<PhysicalLayoutId, PhysicalLayout> = new Map(
 
 const FINGER_LAYOUTS: ReadonlyMap<FingerLayoutId, FingerLayout> = new Map([
   ['asdf', parseFingerLayout(fingerAsdfRaw)],
+  ['sdfv', parseFingerLayout(fingerSdfvRaw)],
 ]);
 
 const SYMBOL_LAYOUTS: ReadonlyMap<SymbolLayoutId, SymbolLayoutDescriptor> = new Map(

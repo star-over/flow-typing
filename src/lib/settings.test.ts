@@ -8,6 +8,7 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
       theme: 'auto',
     });
   });
@@ -17,6 +18,7 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
       theme: 'auto',
     });
   });
@@ -33,6 +35,7 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
       theme: 'dark',
     };
     expect(normalizeSettings(input)).toEqual(input);
@@ -41,6 +44,12 @@ describe('normalizeSettings', () => {
   it('мусор в theme игнорируется и подставляется дефолт', () => {
     const result = normalizeSettings({ theme: 'neon' });
     expect(result.theme).toBe('auto');
+  });
+
+  it('валидный fingerLayoutId сохраняется, мусор → дефолт asdf', () => {
+    expect(normalizeSettings({ fingerLayoutId: 'sdfv' }).fingerLayoutId).toBe('sdfv');
+    expect(normalizeSettings({ fingerLayoutId: 'dvorak' }).fingerLayoutId).toBe('asdf');
+    expect(normalizeSettings({}).fingerLayoutId).toBe('asdf');
   });
 
   it('несовместимая пара textLanguage=ru + symbolLayoutId=qwerty → сброс раскладки', () => {

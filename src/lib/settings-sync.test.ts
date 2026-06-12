@@ -11,6 +11,7 @@ const validLocal: UserSettings = {
   interfaceLanguage: 'en',
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
+  fingerLayoutId: 'asdf',
   theme: 'auto',
 };
 
@@ -18,6 +19,7 @@ const validCloud: CloudSettings = {
   interfaceLanguage: 'ru',
   textLanguage: 'ru',
   symbolLayoutId: 'йцукен',
+  fingerLayoutId: 'sdfv',
   theme: 'dark',
   updatedAt: 1000,
 };
@@ -36,6 +38,7 @@ describe('decideSyncOnLogin', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
       theme: 'dark',
     });
   });
@@ -45,6 +48,7 @@ describe('decideSyncOnLogin', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
       theme: 'dark',
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
@@ -60,6 +64,7 @@ describe('cloudRowToSettings', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
       theme: 'dark',
     });
   });
@@ -67,6 +72,7 @@ describe('cloudRowToSettings', () => {
   test('strips _id / updatedAt / userId — только settings fields', () => {
     const result = cloudRowToSettings(validCloud);
     expect(Object.keys(result).sort()).toEqual([
+      'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',
@@ -94,13 +100,15 @@ describe('settingsToCloudArgs', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
       theme: 'auto',
     });
   });
 
-  test('does not include extra fields beyond 4 settings', () => {
+  test('does not include extra fields beyond settings', () => {
     const args = settingsToCloudArgs(validLocal);
     expect(Object.keys(args).sort()).toEqual([
+      'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',

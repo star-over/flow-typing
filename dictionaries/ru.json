@@ -29,6 +29,8 @@
     "text_language_description": "Язык текстов для тренировки.",
     "symbol_layout_label": "Раскладка клавиатуры",
     "symbol_layout_description": "Физическое отображение клавиш.",
+    "finger_layout_label": "Постановка рук",
+    "finger_layout_description": "Схема постановки пальцев (каким пальцем нажимать каждую клавишу).",
     "theme_label": "Тема",
     "theme_description": "Визуальная тема интерфейса.",
     "theme_group_light": "Светлые темы",
@@ -65,6 +67,10 @@
     "layouts": {
       "qwerty": "QWERTY (Английская)",
       "йцукен": "ЙЦУКЕН (Русская)"
+    },
+    "fingerLayouts": {
+      "asdf": "ASDF (стандарт)",
+      "sdfv": "SDFV (смещённая)"
     },
     "themes": {
       "auto": "Авто (по системе)",
