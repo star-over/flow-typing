@@ -1,5 +1,9 @@
 {
   "title": "Welcome to FlowTyping",
+  "landing": {
+    "hero_title": "Welcome to FlowTyping",
+    "tagline": "A touch-typing trainer that visualizes finger motion."
+  },
   "app": {
     "title": "FlowTyping",
     "app_state": "App State",

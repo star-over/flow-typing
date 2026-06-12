@@ -1,5 +1,9 @@
 {
   "title": "Добро пожаловать в FlowTyping",
+  "landing": {
+    "hero_title": "Добро пожаловать в FlowTyping",
+    "tagline": "Тренажёр слепой печати с визуализацией движения пальцев."
+  },
   "app": {
     "title": "FlowTyping",
     "app_state": "Состояние приложения",

@@ -52,9 +52,10 @@
 
 ### UI entry points
 
-- Три роута: `/` (хост FSM-views), `/settings` (приложение: язык UI + тема), `/stats` (placeholder будущей общей статистики).
+- Четыре роута: `/` (лендинг-placeholder с CTA на `/train`), `/train` (хост FSM-views — `MenuScreen` / тренировка / `sessionComplete`), `/settings` (приложение: язык UI + тема), `/stats` (placeholder будущей общей статистики). Плюс `/signin` для auth UI.
 - `src/routes/+layout.svelte` — размещает `appActor`, keyboard listener (`<svelte:window>` onkeydown/up/blur → `KEY_DOWN`/`KEY_UP`/`PAUSE`), theme effects и `Header` (nav-chrome с ссылками на `/settings` и `/stats`). При sibling-навигации layout не размонтируется — FSM состояние переживает навигацию.
-- `src/routes/+page.svelte` → `src/components/app/App.svelte` — содержимое `/`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
+- `src/routes/+page.svelte` — лендинг с CTA «Начать тренировку» (`href="/train"`). Inline-placeholder, контракт темы не выделен (tech-debt note inline; запись в `docs/backlog.md`).
+- `src/routes/train/+page.svelte` → `src/components/app/App.svelte` — содержимое `/train`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
 - `Space` в `training` блокируется (`preventDefault`), чтобы не прокручивать.
 - `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
 
