@@ -2,6 +2,7 @@
   import { dictionary } from '@/lib/i18n';
   import { resolve } from '$app/paths';
   import UserMenu from '@/components/auth/UserMenu.svelte';
+  import Wordmark from '@/components/ui/Wordmark.svelte';
 
   interface Props {
     title: string;
@@ -14,7 +15,7 @@
 
 <header class="header">
   <div class="top">
-    <h1 class="title">{title}</h1>
+    <a class="brand" href={resolve('/')} aria-label={title}><Wordmark /></a>
     <nav class="nav">
       <a class="nav-link" href={resolve('/settings')}>{$dictionary.app.settings}</a>
       <a class="nav-link" href={resolve('/stats')}>{$dictionary.app.stats}</a>
@@ -45,10 +46,10 @@
     width: 100%;
   }
 
-  .title {
+  .brand {
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--header-title-color);
+    text-decoration: none;
+    line-height: 1;
   }
 
   .nav {

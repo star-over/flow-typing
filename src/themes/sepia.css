@@ -307,4 +307,11 @@
   --user-menu-dropdown-border             : 1px solid oklch(72% 0.06 75);
   --user-menu-dropdown-item-color         : oklch(28% 0.04 60);
   --user-menu-dropdown-item-hover-background: oklch(84% 0.05 78);
+
+  /* Wordmark (логотип) */
+  --wordmark-ink             : var(--color-text-primary);
+  --wordmark-caret-background: var(--color-target-marker);
+  --wordmark-caret-color     : oklch(0.26 0.02 60); /* тёмный на янтаре во всех темах */
+  --wordmark-bar-background  : var(--color-path-highlight);
+  --wordmark-pending-opacity : 0.38;
 }

@@ -261,4 +261,11 @@
   --user-menu-dropdown-border             : unset;
   --user-menu-dropdown-item-color         : unset;
   --user-menu-dropdown-item-hover-background: unset;
+
+  /* Wordmark (логотип) */
+  --wordmark-ink             : unset;
+  --wordmark-caret-background: unset;
+  --wordmark-caret-color     : unset;
+  --wordmark-bar-background  : unset;
+  --wordmark-pending-opacity : unset;
 }
