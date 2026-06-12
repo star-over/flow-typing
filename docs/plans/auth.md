@@ -18,6 +18,7 @@ Umbrella-план интеграции аутентификации в FlowTypin
 | Phase 9 — Apple-провайдер | 📋 backlog | `docs/backlog.md` (driver = Apple Developer enrollment) |
 | Phase 10 — Account linking V2 | 📋 backlog | `docs/backlog.md` (driver = user request) |
 | Phase 11 — SberID | 📋 backlog | `docs/backlog.md` (driver = бизнес-need + ИП/ООО) |
+| Phase 12 — Telegram | 📋 backlog | `docs/backlog.md` (driver = бизнес-need в Telegram-аудитории; не OAuth, custom HMAC flow) |
 
 **Convex deployment mode:** **cloud dev** (`dev:wandering-ocelot-9`, EU-West-1). Выбран ради HTTPS (нужно для Apple OAuth в Phase 9) и production-equivalence. Free tier покрывает.
 
@@ -578,9 +579,11 @@ git branch -d feat/settings-sync
 
 ---
 
-## Roadmap V2 (по запросу, не в umbrella) — Phase 9 (Apple), Phase 10 (Account linking V2), Phase 11 (SberID)
+## Roadmap V2 (по запросу, не в umbrella) — Phase 9 (Apple), Phase 10 (Account linking V2), Phase 11 (SberID), Phase 12 (Telegram)
 
-Все три фазы отложены под внешний driver (Apple Developer enrollment, явный user request, юр./орг. подготовка к SberID). Подробности — в [`docs/backlog.md`](../backlog.md).
+Все четыре фазы отложены под внешний driver (Apple Developer enrollment, явный user request, юр./орг. подготовка к SberID, бизнес-need в Telegram-аудитории). Подробности — в [`docs/backlog.md`](../backlog.md).
+
+Phase 12 (Telegram) уникальна тем, что **не OAuth 2.0** — Telegram Login Widget использует custom HMAC-flow и не лежит в каталоге `@auth/core/providers/*`. Перед стартом — отдельная research-задача Phase 12.0 на выбор подхода (Credentials provider vs custom OAuth vs raw Convex HTTP-route).
 
 Phase 8 (Yandex) тоже изначально жила в этом разделе; merged `4d4cb58`, см. строку статуса выше.
 

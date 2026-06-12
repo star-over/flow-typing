@@ -81,6 +81,7 @@
     "addHttpRoutes",
     "jwks",
     "PKCE",
+    "HMAC",
     "WCAG",
     "Sber",
     "Duolingo",
