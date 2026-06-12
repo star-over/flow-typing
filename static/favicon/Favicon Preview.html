@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FlowTyping · Favicon · F в край</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: #f0eee9; font-family: 'Geist', system-ui, sans-serif;
+  color: oklch(0.26 0.02 60); padding: 40px;
+}
+.sheet { display: flex; flex-direction: column; gap: 28px; max-width: 680px; }
+h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+h1 span { color: oklch(0.55 0.02 60); font-weight: 500; }
+.row { display: flex; gap: 14px; }
+.strip {
+  flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 24px;
+  padding: 22px 26px; border-radius: 10px;
+}
+.strip--light { background: oklch(0.97 0.008 75); border: 1px solid oklch(0.5 0.02 60 / 0.16); }
+.strip--dark { background: oklch(0.16 0.012 60); }
+.cell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cell figcaption {
+  font-family: 'Geist Mono', monospace; font-size: 10px;
+  letter-spacing: 0.12em; color: oklch(0.55 0.02 60); text-align: center;
+}
+/* dark-strip copies of the glyph: light ink, как сделает сама svg в тёмной теме */
+.glyph-dark { filter: invert(0.88) hue-rotate(180deg); }
+.files {
+  display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px;
+  font-family: 'Geist Mono', monospace; font-size: 12.5px;
+  padding: 18px 22px; border-radius: 10px;
+  background: oklch(0.97 0.008 75); border: 1px solid oklch(0.5 0.02 60 / 0.16);
+}
+.files .dim { color: oklch(0.55 0.02 60); }
+.note {
+  font-size: 13.5px; line-height: 1.6; color: oklch(0.45 0.02 60);
+  padding: 14px 18px; border-radius: 10px;
+  background: oklch(0.97 0.008 75); border: 1px solid oklch(0.5 0.02 60 / 0.16);
+}
+pre {
+  font-family: 'Geist Mono', monospace; font-size: 12px; line-height: 1.7;
+  background: oklch(0.16 0.012 60); color: oklch(0.93 0.012 80);
+  padding: 18px 22px; border-radius: 10px; overflow-x: auto;
+}
+pre .c { color: oklch(0.62 0.19 260); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>Favicon v2 <span>· F в край, прозрачный фон</span></h1>
+
+  <div class="row">
+    <div class="strip strip--light">
+      <figure class="cell"><img src="favicon.svg" width="64" height="64" alt="" /><figcaption>svg · 64</figcaption></figure>
+      <figure class="cell"><img src="favicon-32.png" width="32" height="32" alt="" /><figcaption>png · 32</figcaption></figure>
+      <figure class="cell"><img src="favicon-16.png" width="16" height="16" alt="" /><figcaption>png · 16</figcaption></figure>
+    </div>
+    <div class="strip strip--dark">
+      <figure class="cell"><img class="glyph-dark" src="favicon.svg" width="64" height="64" alt="" /><figcaption>svg в тёмной теме*</figcaption></figure>
+      <figure class="cell"><img src="favicon-180.png" width="64" height="64" style="border-radius: 14px;" alt="" /><figcaption>apple-touch · 180</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="note">
+    * svg-фавиконка адаптивная: в светлой теме браузера буква чернильная, в тёмной —
+    автоматически светлеет (prefers-color-scheme внутри svg). PNG-фолбэки — чернильные,
+    для светлых вкладок. Apple-touch остаётся на плотном блоке — iOS заливает прозрачность чёрным.
+  </div>
+
+  <div class="files">
+    <span>favicon.svg</span><span class="dim">основной · адаптивный, F в край, прозрачный фон</span>
+    <span>favicon-32.png</span><span class="dim">фолбэк для старых браузеров</span>
+    <span>favicon-16.png</span><span class="dim">фолбэк, минимальный размер</span>
+    <span>favicon-180.png</span><span class="dim">apple-touch-icon · блок Ф1, без прозрачности</span>
+  </div>
+
+  <pre><span class="c">&lt;!-- в &lt;head&gt; --&gt;</span>
+&lt;link rel="icon" type="image/svg+xml" href="/favicon.svg" /&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" /&gt;
+&lt;link rel="apple-touch-icon" href="/favicon-180.png" /&gt;</pre>
+</div>
+</body>
+</html>
