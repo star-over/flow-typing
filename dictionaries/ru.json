@@ -6,7 +6,6 @@
   },
   "app": {
     "title": "FlowTyping",
-    "app_state": "Состояние приложения",
     "loading": "Загрузка...",
     "start_training": "Начать тренировку",
     "settings": "Настройки",

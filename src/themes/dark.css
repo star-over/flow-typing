@@ -259,8 +259,7 @@
 
   /* Header */
   --header-title-color     : var(--color-text-primary);
-  --header-debug-color     : var(--color-text-muted);
-  --header-debug-background: var(--color-surface);
+  --header-nav-link-hover-background: var(--color-surface);
 
   /* MainContent */
   --main-content-pause-color  : var(--color-text-secondary);

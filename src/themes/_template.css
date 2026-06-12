@@ -204,8 +204,7 @@
 
   /* Header */
   --header-title-color     : unset;
-  --header-debug-color     : unset;
-  --header-debug-background: unset;
+  --header-nav-link-hover-background: unset;
 
   /* MainContent */
   --main-content-pause-color  : unset;

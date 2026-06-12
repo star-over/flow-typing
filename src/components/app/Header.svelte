@@ -6,11 +6,9 @@
 
   interface Props {
     title: string;
-    appStateLabel: string;
-    appStateValue: string;
   }
 
-  const { title, appStateLabel, appStateValue }: Props = $props();
+  const { title }: Props = $props();
 </script>
 
 <header class="header">
@@ -21,10 +19,6 @@
       <a class="nav-link" href={resolve('/stats')}>{$dictionary.app.stats}</a>
       <UserMenu />
     </nav>
-  </div>
-  <div class="debug">
-    <span class="label">{appStateLabel}:</span>
-    <code class="value">{appStateValue}</code>
   </div>
 </header>
 
@@ -66,22 +60,6 @@
   }
 
   .nav-link:hover {
-    background: var(--header-debug-background);
-  }
-
-  .debug {
-    font-size: 0.75rem;
-    color: var(--header-debug-color);
-    font-family: var(--font-mono);
-  }
-
-  .label {
-    margin-right: var(--spacing-1);
-  }
-
-  .value {
-    background: var(--header-debug-background);
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-2);
+    background: var(--header-nav-link-hover-background);
   }
 </style>
