@@ -250,8 +250,7 @@
 
   /* Header */
   --header-title-color     : var(--color-text-primary);
-  --header-debug-color     : var(--color-text-muted);
-  --header-debug-background: var(--color-surface);
+  --header-nav-link-hover-background: var(--color-surface);
 
   /* MainContent */
   --main-content-pause-color  : var(--color-text-secondary);
@@ -315,4 +314,11 @@
   --avatar-background                      : oklch(80% 0.06 75);
   --avatar-color                          : oklch(32% 0.08 60);
   --avatar-border                         : 1px solid oklch(70% 0.06 75);
+
+  /* Wordmark (логотип) */
+  --wordmark-ink             : var(--color-text-primary);
+  --wordmark-caret-background: var(--color-target-marker);
+  --wordmark-caret-color     : oklch(0.26 0.02 60); /* тёмный на янтаре во всех темах */
+  --wordmark-bar-background  : var(--color-path-highlight);
+  --wordmark-pending-opacity : 0.38;
 }

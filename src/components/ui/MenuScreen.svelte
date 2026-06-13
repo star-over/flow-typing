@@ -8,7 +8,14 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
   import Select from './Select.svelte';
-  import type { Dictionary, SymbolLayoutId, TextLanguage } from '@/interfaces/types';
+  import type {
+    Dictionary,
+    FingerLayoutId,
+    FlowLineCursorMode,
+    FlowLineCursorType,
+    SymbolLayoutId,
+    TextLanguage,
+  } from '@/interfaces/types';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
 
   interface Props {
@@ -30,6 +37,24 @@
         label: dictionary.options.layouts[d.symbolLayoutId],
       }))
   );
+
+  const fingerLayouts = $derived([
+    { value: 'asdf' as const, label: dictionary.options.fingerLayouts.asdf },
+    { value: 'sdfv' as const, label: dictionary.options.fingerLayouts.sdfv },
+  ]);
+
+  const cursorTypes = $derived([
+    { value: 'RECTANGLE' as const, label: dictionary.options.cursorTypes.RECTANGLE },
+    { value: 'UNDERSCORE' as const, label: dictionary.options.cursorTypes.UNDERSCORE },
+    { value: 'VERTICAL' as const, label: dictionary.options.cursorTypes.VERTICAL },
+  ]);
+
+  const cursorModes = $derived([
+    { value: 'HALF' as const, label: dictionary.options.cursorModes.HALF },
+    { value: 'THIRD' as const, label: dictionary.options.cursorModes.THIRD },
+    { value: 'QUARTER' as const, label: dictionary.options.cursorModes.QUARTER },
+    { value: 'DINAMIC' as const, label: dictionary.options.cursorModes.DINAMIC },
+  ]);
 </script>
 
 <div class="menu-screen">
@@ -48,6 +73,33 @@
       value={$settings.symbolLayoutId}
       options={layoutOptions}
       onChange={(v) => updateSettings({ symbolLayoutId: v as SymbolLayoutId })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.settings.finger_layout_label}</span>
+    <Select
+      value={$settings.fingerLayoutId}
+      options={fingerLayouts}
+      onChange={(v) => updateSettings({ fingerLayoutId: v as FingerLayoutId })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.settings.cursor_type_label}</span>
+    <Select
+      value={$settings.cursorType}
+      options={cursorTypes}
+      onChange={(v) => updateSettings({ cursorType: v as FlowLineCursorType })}
+    />
+  </label>
+
+  <label class="field">
+    <span class="label-text">{dictionary.settings.cursor_mode_label}</span>
+    <Select
+      value={$settings.cursorMode}
+      options={cursorModes}
+      onChange={(v) => updateSettings({ cursorMode: v as FlowLineCursorMode })}
     />
   </label>
 

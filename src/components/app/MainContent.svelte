@@ -4,8 +4,9 @@
   import type { trainingMachine } from '@/machines/training.machine';
   import type { Dictionary } from '@/interfaces/types';
   import { getFingerLayout, getPhysicalLayout } from '@/lib/layouts';
+  import { settings } from '@/lib/settings';
 
-  const fingerLayoutASDF = getFingerLayout('asdf');
+  const fingerLayout = $derived(getFingerLayout($settings.fingerLayoutId));
   const physicalLayoutANSI = getPhysicalLayout('ansi');
 
   import { inState } from '@/lib/state-utils';
@@ -36,7 +37,7 @@
 </script>
 
 {#if inState({ snapshot: state, value: { training: 'running' } }) && trainingActor}
-  <TrainingScene {trainingActor} fingerLayout={fingerLayoutASDF} physicalLayout={physicalLayoutANSI} {dictionary} />
+  <TrainingScene {trainingActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} {dictionary} />
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}

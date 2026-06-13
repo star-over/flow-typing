@@ -16,6 +16,7 @@ import { MAIN_CONTENT_CONTRACT } from '@/components/app/MainContent.contract';
 import { ROOT_CONTRACT } from '@/Root.contract';
 import { SIGN_IN_SCREEN_CONTRACT } from '@/components/auth/SignInScreen.contract';
 import { USER_MENU_CONTRACT } from '@/components/auth/UserMenu.contract';
+import { WORDMARK_CONTRACT } from '@/components/ui/Wordmark.contract';
 
 /**
  * Объединённый список CSS-токенов, которые ОБЯЗАНА декларировать каждая тема
@@ -49,6 +50,7 @@ export const THEME_CONTRACT = [
   ...SIGN_IN_SCREEN_CONTRACT,
   ...USER_MENU_CONTRACT,
   ...AVATAR_CONTRACT,
+  ...WORDMARK_CONTRACT,
 ] as const satisfies readonly `--${string}`[];
 
 export type ThemeContractToken = (typeof THEME_CONTRACT)[number];

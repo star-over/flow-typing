@@ -204,8 +204,7 @@
 
   /* Header */
   --header-title-color     : unset;
-  --header-debug-color     : unset;
-  --header-debug-background: unset;
+  --header-nav-link-hover-background: unset;
 
   /* MainContent */
   --main-content-pause-color  : unset;
@@ -269,4 +268,11 @@
   --avatar-background                      : unset;
   --avatar-color                          : unset;
   --avatar-border                         : unset;
+
+  /* Wordmark (логотип) */
+  --wordmark-ink             : unset;
+  --wordmark-caret-background: unset;
+  --wordmark-caret-color     : unset;
+  --wordmark-bar-background  : unset;
+  --wordmark-pending-opacity : unset;
 }

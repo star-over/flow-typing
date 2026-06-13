@@ -33,6 +33,9 @@ export async function upsertMineHandler({
     interfaceLanguage: string;
     textLanguage: string;
     symbolLayoutId: string;
+    fingerLayoutId: string;
+    cursorType: string;
+    cursorMode: string;
     theme: string;
     displayName: string;
   };
@@ -71,6 +74,9 @@ export const upsertMine = mutation({
     interfaceLanguage: v.string(),
     textLanguage: v.string(),
     symbolLayoutId: v.string(),
+    fingerLayoutId: v.string(),
+    cursorType: v.string(),
+    cursorMode: v.string(),
     theme: v.string(),
     displayName: v.string(),
   },

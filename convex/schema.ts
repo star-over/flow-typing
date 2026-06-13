@@ -15,6 +15,12 @@ export default defineSchema({
     interfaceLanguage: v.string(),
     textLanguage: v.string(),
     symbolLayoutId: v.string(),
+    // Optional для обратной совместимости с row'ами, созданными до добавления
+    // полей. Новые upsert'ы всегда пишут значение; на чтении отсутствие
+    // догоняется дефолтом через normalizeSettings (клиент).
+    fingerLayoutId: v.optional(v.string()),
+    cursorType: v.optional(v.string()),
+    cursorMode: v.optional(v.string()),
     theme: v.string(),
     // Optional: строки, записанные до появления поля, его не имеют (back-compat).
     displayName: v.optional(v.string()),

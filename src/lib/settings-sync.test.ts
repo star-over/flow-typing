@@ -11,6 +11,9 @@ const validLocal: UserSettings = {
   interfaceLanguage: 'en',
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
+  fingerLayoutId: 'asdf',
+  cursorType: 'RECTANGLE',
+  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
 };
@@ -19,6 +22,9 @@ const validCloud: CloudSettings = {
   interfaceLanguage: 'ru',
   textLanguage: 'ru',
   symbolLayoutId: 'йцукен',
+  fingerLayoutId: 'sdfv',
+  cursorType: 'VERTICAL',
+  cursorMode: 'THIRD',
   theme: 'dark',
   updatedAt: 1000,
 };
@@ -37,6 +43,9 @@ describe('decideSyncOnLogin', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
     });
@@ -47,6 +56,9 @@ describe('decideSyncOnLogin', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
     };
@@ -63,6 +75,9 @@ describe('cloudRowToSettings', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
     });
@@ -71,7 +86,10 @@ describe('cloudRowToSettings', () => {
   test('strips _id / updatedAt / userId — только settings fields', () => {
     const result = cloudRowToSettings(validCloud);
     expect(Object.keys(result).sort()).toEqual([
+      'cursorMode',
+      'cursorType',
       'displayName',
+      'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',
@@ -104,15 +122,21 @@ describe('settingsToCloudArgs', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
+      cursorType: 'RECTANGLE',
+      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
     });
   });
 
-  test('does not include extra fields beyond the 5 settings', () => {
+  test('does not include extra fields beyond the known settings', () => {
     const args = settingsToCloudArgs(validLocal);
     expect(Object.keys(args).sort()).toEqual([
+      'cursorMode',
+      'cursorType',
       'displayName',
+      'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',

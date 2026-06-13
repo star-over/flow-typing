@@ -6,6 +6,7 @@
   import { createKeyLabelMap } from '@/lib/symbol-utils';
 
   const fingerLayoutASDF = getFingerLayout('asdf');
+  const fingerLayoutSDFV = getFingerLayout('sdfv');
   const physicalLayoutANSI = getPhysicalLayout('ansi');
   const symbolLayoutEn = getSymbolLayout('qwerty');
   const symbolLayoutJcuken = getSymbolLayout('йцукен');
@@ -20,6 +21,13 @@
     physicalLayout: physicalLayoutANSI,
     symbolLayout: symbolLayoutJcuken,
     fingerLayout: fingerLayoutASDF,
+  });
+
+  // SDFV: указательные «дома» на нижнем ряду (V/N), три пальца сдвинуты к центру.
+  const keyboardSceneSdfv = createKeyboardScene({
+    physicalLayout: physicalLayoutANSI,
+    symbolLayout: symbolLayoutEn,
+    fingerLayout: fingerLayoutSDFV,
   });
 
   const keyLabelsEn = createKeyLabelMap({
@@ -40,3 +48,4 @@
 
 <Story name="WholeKeyboard"    args={{ keyboardScene: keyboardSceneEn, keyLabels: keyLabelsEn }} />
 <Story name="CyrillicKeyboard" args={{ keyboardScene: keyboardSceneRu, keyLabels: keyLabelsRu }} />
+<Story name="SdfvFingerLayout" args={{ keyboardScene: keyboardSceneSdfv, keyLabels: keyLabelsEn }} />

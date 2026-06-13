@@ -11,6 +11,9 @@ const validSettings = {
   interfaceLanguage: 'en',
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
+  fingerLayoutId: 'asdf',
+  cursorType: 'RECTANGLE',
+  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
 };

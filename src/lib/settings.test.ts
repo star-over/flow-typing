@@ -8,6 +8,9 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
+      cursorType: 'RECTANGLE',
+      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
     });
@@ -18,6 +21,9 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'en',
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
+      fingerLayoutId: 'asdf',
+      cursorType: 'RECTANGLE',
+      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
     });
@@ -35,6 +41,9 @@ describe('normalizeSettings', () => {
       interfaceLanguage: 'ru',
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
+      fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: 'Custom Name',
     };
@@ -54,6 +63,24 @@ describe('normalizeSettings', () => {
   it('мусор в theme игнорируется и подставляется дефолт', () => {
     const result = normalizeSettings({ theme: 'neon' });
     expect(result.theme).toBe('auto');
+  });
+
+  it('валидный fingerLayoutId сохраняется, мусор → дефолт asdf', () => {
+    expect(normalizeSettings({ fingerLayoutId: 'sdfv' }).fingerLayoutId).toBe('sdfv');
+    expect(normalizeSettings({ fingerLayoutId: 'dvorak' }).fingerLayoutId).toBe('asdf');
+    expect(normalizeSettings({}).fingerLayoutId).toBe('asdf');
+  });
+
+  it('валидный cursorType сохраняется, мусор → дефолт RECTANGLE', () => {
+    expect(normalizeSettings({ cursorType: 'VERTICAL' }).cursorType).toBe('VERTICAL');
+    expect(normalizeSettings({ cursorType: 'blink' }).cursorType).toBe('RECTANGLE');
+    expect(normalizeSettings({}).cursorType).toBe('RECTANGLE');
+  });
+
+  it('валидный cursorMode сохраняется, мусор → дефолт HALF', () => {
+    expect(normalizeSettings({ cursorMode: 'QUARTER' }).cursorMode).toBe('QUARTER');
+    expect(normalizeSettings({ cursorMode: 'FULL' }).cursorMode).toBe('HALF');
+    expect(normalizeSettings({}).cursorMode).toBe('HALF');
   });
 
   it('несовместимая пара textLanguage=ru + symbolLayoutId=qwerty → сброс раскладки', () => {

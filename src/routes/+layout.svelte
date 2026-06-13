@@ -108,11 +108,7 @@
 />
 
 <div class="app-container">
-  <Header
-    title={$dictionary.app.title}
-    appStateLabel={$dictionary.app.app_state}
-    appStateValue={JSON.stringify(state.value)}
-  />
+  <Header title={$dictionary.app.title} />
 
   <main class="main">
     {@render children()}

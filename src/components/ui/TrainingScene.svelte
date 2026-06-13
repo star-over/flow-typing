@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, PhysicalLayout } from '@/interfaces/types';
+  import type { Dictionary, FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -17,20 +17,40 @@
     trainingActor: Actor<typeof trainingMachine>;
     fingerLayout: FingerLayout;
     physicalLayout: PhysicalLayout;
+    cursorType: FlowLineCursorType;
+    cursorMode: FlowLineCursorMode;
     dictionary: Dictionary;
   }
 
-  const { trainingActor, fingerLayout, physicalLayout, dictionary }: Props = $props();
+  const { trainingActor, fingerLayout, physicalLayout, cursorType, cursorMode, dictionary }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
 
+  // Курсор мигает только в простое. Каждое нажатие (= эмиссия trainingActor,
+  // машина меняет состояние лишь на KEY_PRESS) гасит мигание и перезапускает
+  // таймер; через IDLE_BLINK_DELAY_MS без нового нажатия мигание включается.
+  const IDLE_BLINK_DELAY_MS = 600;
+  let cursorBlink = $state(false);
+  let idleTimer: ReturnType<typeof setTimeout>;
+
+  function bumpIdleTimer() {
+    cursorBlink = false;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { cursorBlink = true; }, IDLE_BLINK_DELAY_MS);
+  }
+
   $effect(() => {
     trainingState = trainingActor.getSnapshot();
+    bumpIdleTimer();
     const sub = trainingActor.subscribe((s) => {
       trainingState = s;
+      bumpIdleTimer();
     });
-    return () => sub.unsubscribe();
+    return () => {
+      sub.unsubscribe();
+      clearTimeout(idleTimer);
+    };
   });
 
   const stream = $derived(trainingState.context.stream);
@@ -68,7 +88,9 @@
     symbols={enrichedSymbols}
     cursorPosition={currentIndex}
     {pressResult}
-    blink={trainingState.matches('lessonComplete')}
+    {cursorType}
+    {cursorMode}
+    blink={cursorBlink}
   />
 
   <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
