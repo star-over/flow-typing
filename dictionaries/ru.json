@@ -30,6 +30,10 @@
     "symbol_layout_description": "Физическое отображение клавиш.",
     "finger_layout_label": "Постановка рук",
     "finger_layout_description": "Схема постановки пальцев (каким пальцем нажимать каждую клавишу).",
+    "cursor_type_label": "Вид курсора",
+    "cursor_type_description": "Форма курсора в строке набора.",
+    "cursor_mode_label": "Положение курсора",
+    "cursor_mode_description": "Где стоит курсор в строке (пропорция набранное/предстоящее).",
     "theme_label": "Тема",
     "theme_description": "Визуальная тема интерфейса.",
     "theme_group_light": "Светлые темы",
@@ -70,6 +74,17 @@
     "fingerLayouts": {
       "asdf": "ASDF (стандарт)",
       "sdfv": "SDFV (смещённая)"
+    },
+    "cursorTypes": {
+      "RECTANGLE": "Блок",
+      "UNDERSCORE": "Подчёркивание",
+      "VERTICAL": "Вертикальная черта"
+    },
+    "cursorModes": {
+      "HALF": "Центр (1/2)",
+      "THIRD": "Треть (1/3)",
+      "QUARTER": "Четверть (1/4)",
+      "DINAMIC": "Динамический"
     },
     "themes": {
       "auto": "Авто (по системе)",

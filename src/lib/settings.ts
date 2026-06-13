@@ -2,10 +2,14 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import {
   FINGER_LAYOUT_IDS,
+  FLOW_LINE_CURSOR_MODES,
+  FLOW_LINE_CURSOR_TYPES,
   INTERFACE_LANGUAGES,
   SYMBOL_LAYOUT_IDS,
   TEXT_LANGUAGES,
   type FingerLayoutId,
+  type FlowLineCursorMode,
+  type FlowLineCursorType,
   type InterfaceLanguage,
   type SymbolLayoutId,
   type TextLanguage,
@@ -34,6 +38,12 @@ function isSymbolLayoutId(v: unknown): v is SymbolLayoutId {
 }
 function isFingerLayoutId(v: unknown): v is FingerLayoutId {
   return typeof v === 'string' && (FINGER_LAYOUT_IDS as readonly string[]).includes(v);
+}
+function isCursorType(v: unknown): v is FlowLineCursorType {
+  return typeof v === 'string' && (FLOW_LINE_CURSOR_TYPES as readonly string[]).includes(v);
+}
+function isCursorMode(v: unknown): v is FlowLineCursorMode {
+  return typeof v === 'string' && (FLOW_LINE_CURSOR_MODES as readonly string[]).includes(v);
 }
 
 function isSymbolLayoutCompatibleWithTextLanguage({
@@ -75,11 +85,27 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.fingerLayoutId
     : DEFAULT_USER_SETTINGS.fingerLayoutId;
 
+  const cursorType: FlowLineCursorType = isCursorType(stored.cursorType)
+    ? stored.cursorType
+    : DEFAULT_USER_SETTINGS.cursorType;
+
+  const cursorMode: FlowLineCursorMode = isCursorMode(stored.cursorMode)
+    ? stored.cursorMode
+    : DEFAULT_USER_SETTINGS.cursorMode;
+
   const theme: ThemeSetting = isThemeSetting(stored.theme)
     ? stored.theme
     : DEFAULT_USER_SETTINGS.theme;
 
-  return { interfaceLanguage, textLanguage, symbolLayoutId, fingerLayoutId, theme };
+  return {
+    interfaceLanguage,
+    textLanguage,
+    symbolLayoutId,
+    fingerLayoutId,
+    cursorType,
+    cursorMode,
+    theme,
+  };
 }
 
 function safeJsonParse(s: string): unknown {

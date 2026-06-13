@@ -16,9 +16,11 @@ export default defineSchema({
     textLanguage: v.string(),
     symbolLayoutId: v.string(),
     // Optional для обратной совместимости с row'ами, созданными до добавления
-    // пальцевой раскладки. Новые upsert'ы всегда пишут значение; на чтении
-    // отсутствие догоняется дефолтом через normalizeSettings (клиент).
+    // полей. Новые upsert'ы всегда пишут значение; на чтении отсутствие
+    // догоняется дефолтом через normalizeSettings (клиент).
     fingerLayoutId: v.optional(v.string()),
+    cursorType: v.optional(v.string()),
+    cursorMode: v.optional(v.string()),
     theme: v.string(),
     updatedAt: v.number(),
   }).index('by_user', ['userId']),

@@ -12,6 +12,8 @@ const validLocal: UserSettings = {
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
   fingerLayoutId: 'asdf',
+  cursorType: 'RECTANGLE',
+  cursorMode: 'HALF',
   theme: 'auto',
 };
 
@@ -20,6 +22,8 @@ const validCloud: CloudSettings = {
   textLanguage: 'ru',
   symbolLayoutId: 'йцукен',
   fingerLayoutId: 'sdfv',
+  cursorType: 'VERTICAL',
+  cursorMode: 'THIRD',
   theme: 'dark',
   updatedAt: 1000,
 };
@@ -39,6 +43,8 @@ describe('decideSyncOnLogin', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
     });
   });
@@ -49,6 +55,8 @@ describe('decideSyncOnLogin', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
@@ -65,6 +73,8 @@ describe('cloudRowToSettings', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
+      cursorType: 'VERTICAL',
+      cursorMode: 'THIRD',
       theme: 'dark',
     });
   });
@@ -72,6 +82,8 @@ describe('cloudRowToSettings', () => {
   test('strips _id / updatedAt / userId — только settings fields', () => {
     const result = cloudRowToSettings(validCloud);
     expect(Object.keys(result).sort()).toEqual([
+      'cursorMode',
+      'cursorType',
       'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',
@@ -101,6 +113,8 @@ describe('settingsToCloudArgs', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       fingerLayoutId: 'asdf',
+      cursorType: 'RECTANGLE',
+      cursorMode: 'HALF',
       theme: 'auto',
     });
   });
@@ -108,6 +122,8 @@ describe('settingsToCloudArgs', () => {
   test('does not include extra fields beyond settings', () => {
     const args = settingsToCloudArgs(validLocal);
     expect(Object.keys(args).sort()).toEqual([
+      'cursorMode',
+      'cursorType',
       'fingerLayoutId',
       'interfaceLanguage',
       'symbolLayoutId',

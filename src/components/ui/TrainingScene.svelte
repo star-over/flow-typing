@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, PhysicalLayout } from '@/interfaces/types';
+  import type { Dictionary, FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -17,10 +17,12 @@
     trainingActor: Actor<typeof trainingMachine>;
     fingerLayout: FingerLayout;
     physicalLayout: PhysicalLayout;
+    cursorType: FlowLineCursorType;
+    cursorMode: FlowLineCursorMode;
     dictionary: Dictionary;
   }
 
-  const { trainingActor, fingerLayout, physicalLayout, dictionary }: Props = $props();
+  const { trainingActor, fingerLayout, physicalLayout, cursorType, cursorMode, dictionary }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
@@ -68,6 +70,8 @@
     symbols={enrichedSymbols}
     cursorPosition={currentIndex}
     {pressResult}
+    {cursorType}
+    {cursorMode}
     blink={trainingState.matches('lessonComplete')}
   />
 

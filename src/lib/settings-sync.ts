@@ -9,9 +9,11 @@ export type CloudSettings = {
   interfaceLanguage: string;
   textLanguage: string;
   symbolLayoutId: string;
-  // Optional: row'ы, созданные до добавления пальцевой раскладки, его не имеют.
-  // На входе в store отсутствие догоняется normalizeSettings (→ дефолт asdf).
+  // Optional: row'ы, созданные до добавления полей, их не имеют.
+  // На входе в store отсутствие догоняется normalizeSettings (→ дефолты).
   fingerLayoutId?: string;
+  cursorType?: string;
+  cursorMode?: string;
   theme: string;
   updatedAt: number;
 };
@@ -61,6 +63,8 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     textLanguage: cloud.textLanguage,
     symbolLayoutId: cloud.symbolLayoutId,
     fingerLayoutId: cloud.fingerLayoutId,
+    cursorType: cloud.cursorType,
+    cursorMode: cloud.cursorMode,
     theme: cloud.theme,
   } as UserSettings;
 }
@@ -75,6 +79,8 @@ export function settingsToCloudArgs(settings: UserSettings): {
   textLanguage: string;
   symbolLayoutId: string;
   fingerLayoutId: string;
+  cursorType: string;
+  cursorMode: string;
   theme: string;
 } {
   return {
@@ -82,6 +88,8 @@ export function settingsToCloudArgs(settings: UserSettings): {
     textLanguage: settings.textLanguage,
     symbolLayoutId: settings.symbolLayoutId,
     fingerLayoutId: settings.fingerLayoutId,
+    cursorType: settings.cursorType,
+    cursorMode: settings.cursorMode,
     theme: settings.theme,
   };
 }

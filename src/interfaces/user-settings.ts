@@ -1,5 +1,7 @@
 import type {
   FingerLayoutId,
+  FlowLineCursorMode,
+  FlowLineCursorType,
   InterfaceLanguage,
   SymbolLayoutId,
   TextLanguage,
@@ -14,6 +16,10 @@ import type { ThemeSetting } from '@/themes/registry';
  * - `symbolLayoutId` — выбранная пользователем раскладка (производное от textLanguage).
  * - `fingerLayoutId` — схема постановки рук (какой палец нажимает каждую клавишу).
  *   Не зависит от языка/раскладки; дефолт — `asdf` (стандартный home-ряд).
+ * - `cursorType` — форма курсора в FlowLine (RECTANGLE / UNDERSCORE / VERTICAL);
+ *   дефолт — `RECTANGLE`.
+ * - `cursorMode` — положение курсора в строке FlowLine, т.е. пропорция
+ *   набранное/предстоящее (HALF / THIRD / QUARTER / DINAMIC); дефолт — `HALF`.
  * - `theme` — визуальная тема: либо конкретный `ThemeId`, либо `'auto'` (следует за системным
  *   `prefers-color-scheme`). Зеркалится отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
  */
@@ -22,5 +28,7 @@ export interface UserSettings {
   textLanguage: TextLanguage;
   symbolLayoutId: SymbolLayoutId;
   fingerLayoutId: FingerLayoutId;
+  cursorType: FlowLineCursorType;
+  cursorMode: FlowLineCursorMode;
   theme: ThemeSetting;
 }
