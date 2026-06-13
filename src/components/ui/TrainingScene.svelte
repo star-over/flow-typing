@@ -27,12 +27,30 @@
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
 
+  // Курсор мигает только в простое. Каждое нажатие (= эмиссия trainingActor,
+  // машина меняет состояние лишь на KEY_PRESS) гасит мигание и перезапускает
+  // таймер; через IDLE_BLINK_DELAY_MS без нового нажатия мигание включается.
+  const IDLE_BLINK_DELAY_MS = 600;
+  let cursorBlink = $state(false);
+  let idleTimer: ReturnType<typeof setTimeout>;
+
+  function bumpIdleTimer() {
+    cursorBlink = false;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { cursorBlink = true; }, IDLE_BLINK_DELAY_MS);
+  }
+
   $effect(() => {
     trainingState = trainingActor.getSnapshot();
+    bumpIdleTimer();
     const sub = trainingActor.subscribe((s) => {
       trainingState = s;
+      bumpIdleTimer();
     });
-    return () => sub.unsubscribe();
+    return () => {
+      sub.unsubscribe();
+      clearTimeout(idleTimer);
+    };
   });
 
   const stream = $derived(trainingState.context.stream);
@@ -72,7 +90,7 @@
     {pressResult}
     {cursorType}
     {cursorMode}
-    blink={trainingState.matches('lessonComplete')}
+    blink={cursorBlink}
   />
 
   <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
