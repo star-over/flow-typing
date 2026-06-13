@@ -203,8 +203,7 @@
   --footer-actions-btn-danger-border     : unset;
 
   /* Header */
-  --header-title-color     : unset;
-  --header-nav-link-hover-background: unset;
+  --header-border          : unset;
 
   /* MainContent */
   --main-content-pause-color  : unset;

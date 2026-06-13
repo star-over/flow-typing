@@ -258,8 +258,7 @@
   --footer-actions-btn-danger-border     : 1px solid var(--color-error);
 
   /* Header */
-  --header-title-color     : var(--color-text-primary);
-  --header-nav-link-hover-background: var(--color-surface);
+  --header-border          : 1px solid var(--color-border);
 
   /* MainContent */
   --main-content-pause-color  : var(--color-text-secondary);

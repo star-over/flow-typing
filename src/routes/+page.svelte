@@ -54,4 +54,9 @@
   .cta:hover {
     background: var(--footer-actions-btn-success-hover-background);
   }
+
+  .cta:focus-visible {
+    outline: 2px solid var(--footer-actions-btn-success-background);
+    outline-offset: 3px;
+  }
 </style>
