@@ -34,6 +34,7 @@ export async function upsertMineHandler({
     textLanguage: string;
     symbolLayoutId: string;
     theme: string;
+    displayName: string;
   };
 }): Promise<Id<'userSettings'>> {
   const existing = await ctx.db
@@ -71,6 +72,7 @@ export const upsertMine = mutation({
     textLanguage: v.string(),
     symbolLayoutId: v.string(),
     theme: v.string(),
+    displayName: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

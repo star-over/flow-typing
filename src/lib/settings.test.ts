@@ -9,6 +9,7 @@ describe('normalizeSettings', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       theme: 'auto',
+      displayName: '',
     });
   });
 
@@ -18,6 +19,7 @@ describe('normalizeSettings', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       theme: 'auto',
+      displayName: '',
     });
   });
 
@@ -34,8 +36,19 @@ describe('normalizeSettings', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       theme: 'dark',
+      displayName: 'Custom Name',
     };
     expect(normalizeSettings(input)).toEqual(input);
+  });
+
+  it('displayName: любая строка проходит как есть', () => {
+    expect(normalizeSettings({ displayName: 'Алиса' }).displayName).toBe('Алиса');
+    expect(normalizeSettings({ displayName: '' }).displayName).toBe('');
+  });
+
+  it('displayName: не-строка → пустая строка по умолчанию', () => {
+    expect(normalizeSettings({ displayName: 42 }).displayName).toBe('');
+    expect(normalizeSettings({}).displayName).toBe('');
   });
 
   it('мусор в theme игнорируется и подставляется дефолт', () => {

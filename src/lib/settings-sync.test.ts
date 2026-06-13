@@ -12,6 +12,7 @@ const validLocal: UserSettings = {
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
   theme: 'auto',
+  displayName: '',
 };
 
 const validCloud: CloudSettings = {
@@ -37,6 +38,7 @@ describe('decideSyncOnLogin', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       theme: 'dark',
+      displayName: '',
     });
   });
 
@@ -46,6 +48,7 @@ describe('decideSyncOnLogin', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       theme: 'dark',
+      displayName: '',
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
     expect(decision.action).toBe('pull');
@@ -61,17 +64,24 @@ describe('cloudRowToSettings', () => {
       textLanguage: 'ru',
       symbolLayoutId: 'йцукен',
       theme: 'dark',
+      displayName: '',
     });
   });
 
   test('strips _id / updatedAt / userId — только settings fields', () => {
     const result = cloudRowToSettings(validCloud);
     expect(Object.keys(result).sort()).toEqual([
+      'displayName',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',
       'theme',
     ]);
+  });
+
+  test('displayName: present → проходит; absent (legacy row) → дефолт пустая строка', () => {
+    expect(cloudRowToSettings({ ...validCloud, displayName: 'Алиса' }).displayName).toBe('Алиса');
+    expect(cloudRowToSettings(validCloud).displayName).toBe('');
   });
 
   test('does NOT normalize invalid values — это работа settings.set / normalizeSettings', () => {
@@ -95,12 +105,14 @@ describe('settingsToCloudArgs', () => {
       textLanguage: 'en',
       symbolLayoutId: 'qwerty',
       theme: 'auto',
+      displayName: '',
     });
   });
 
-  test('does not include extra fields beyond 4 settings', () => {
+  test('does not include extra fields beyond the 5 settings', () => {
     const args = settingsToCloudArgs(validLocal);
     expect(Object.keys(args).sort()).toEqual([
+      'displayName',
       'interfaceLanguage',
       'symbolLayoutId',
       'textLanguage',

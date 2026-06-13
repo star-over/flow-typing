@@ -1,9 +1,18 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import { resolve } from '$app/paths';
+  import Avatar from '@/components/ui/Avatar.svelte';
+  import { settings } from '@/lib/settings';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
   const auth = getContext<AuthStore>('auth');
+
+  // Override из настроек поверх оригинала провайдера; пустой override → имя провайдера.
+  const displayName = $derived.by(() => {
+    if (auth.state.status !== 'authenticated') return '';
+    const user = auth.state.user;
+    return $settings.displayName.trim() || user.name || user.email || 'User';
+  });
 
   async function handleSignOut() {
     await auth.signOut();
@@ -17,7 +26,13 @@
 {:else}
   <details class="user-menu user-menu--authenticated">
     <summary class="user-menu__summary">
-      {auth.state.user.name ?? auth.state.user.email ?? 'User'}
+      <Avatar
+        src={auth.state.user.image}
+        name={displayName}
+        email={auth.state.user.email}
+        size="1.75rem"
+      />
+      <span class="user-menu__name">{displayName}</span>
     </summary>
     <div class="user-menu__dropdown">
       <button type="button" class="user-menu__item" onclick={handleSignOut}>
@@ -46,6 +61,9 @@
   }
 
   .user-menu__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     color: var(--user-menu-authenticated-name-color);
     cursor: pointer;
     list-style: none;

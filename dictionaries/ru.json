@@ -23,6 +23,9 @@
   },
   "settings": {
     "title": "Пользовательские Предпочтения",
+    "display_name_label": "Отображаемое имя",
+    "display_name_description": "Показывается рядом с аватаром. Оставьте пустым, чтобы использовать имя от провайдера.",
+    "display_name_placeholder": "Ваше имя",
     "interface_language_label": "Язык интерфейса",
     "interface_language_description": "Язык меню и подсказок UI.",
     "text_language_label": "Язык упражнений",

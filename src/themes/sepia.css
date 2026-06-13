@@ -276,6 +276,9 @@
 
   /* SettingsPage */
   --settings-page-label-color         : var(--color-text-secondary);
+  --settings-page-input-background    : var(--color-surface);
+  --settings-page-input-color         : var(--color-text-primary);
+  --settings-page-input-border        : 1px solid var(--color-border);
   --settings-page-btn-background      : var(--color-surface);
   --settings-page-btn-color           : var(--color-text-primary);
   --settings-page-btn-border          : 1px solid var(--color-border);
@@ -307,4 +310,9 @@
   --user-menu-dropdown-border             : 1px solid oklch(72% 0.06 75);
   --user-menu-dropdown-item-color         : oklch(28% 0.04 60);
   --user-menu-dropdown-item-hover-background: oklch(84% 0.05 78);
+
+  /* Avatar */
+  --avatar-background                      : oklch(80% 0.06 75);
+  --avatar-color                          : oklch(32% 0.08 60);
+  --avatar-border                         : 1px solid oklch(70% 0.06 75);
 }

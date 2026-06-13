@@ -23,6 +23,9 @@
   },
   "settings": {
     "title": "User Preferences",
+    "display_name_label": "Display Name",
+    "display_name_description": "Shown next to your avatar. Leave empty to use the name from your provider.",
+    "display_name_placeholder": "Your name",
     "interface_language_label": "Interface Language",
     "interface_language_description": "Language of the UI (menus, hints).",
     "text_language_label": "Text Language",

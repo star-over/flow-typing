@@ -12,6 +12,9 @@
  */
 export const SETTINGS_PAGE_CONTRACT = [
   '--settings-page-label-color',         // color подписи поля
+  '--settings-page-input-background',    // background текстового поля (display name)
+  '--settings-page-input-color',         // color текста в текстовом поле
+  '--settings-page-input-border',        // border текстового поля
   '--settings-page-btn-background',      // background кнопки back
   '--settings-page-btn-color',           // color текста кнопки back
   '--settings-page-btn-border',          // border кнопки back

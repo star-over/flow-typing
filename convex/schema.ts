@@ -16,6 +16,8 @@ export default defineSchema({
     textLanguage: v.string(),
     symbolLayoutId: v.string(),
     theme: v.string(),
+    // Optional: строки, записанные до появления поля, его не имеют (back-compat).
+    displayName: v.optional(v.string()),
     updatedAt: v.number(),
   }).index('by_user', ['userId']),
 });

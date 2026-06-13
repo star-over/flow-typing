@@ -69,7 +69,12 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.theme
     : DEFAULT_USER_SETTINGS.theme;
 
-  return { interfaceLanguage, textLanguage, symbolLayoutId, theme };
+  // Свободная строка — любое имя валидно; не-строка → дефолт (пустая строка).
+  const displayName = typeof stored.displayName === 'string'
+    ? stored.displayName
+    : DEFAULT_USER_SETTINGS.displayName;
+
+  return { interfaceLanguage, textLanguage, symbolLayoutId, theme, displayName };
 }
 
 function safeJsonParse(s: string): unknown {

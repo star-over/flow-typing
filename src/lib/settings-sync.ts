@@ -10,6 +10,8 @@ export type CloudSettings = {
   textLanguage: string;
   symbolLayoutId: string;
   theme: string;
+  // Optional на чтение: строки, записанные до появления поля, его не имеют.
+  displayName?: string;
   updatedAt: number;
 };
 
@@ -58,6 +60,7 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     textLanguage: cloud.textLanguage,
     symbolLayoutId: cloud.symbolLayoutId,
     theme: cloud.theme,
+    displayName: cloud.displayName ?? '',
   } as UserSettings;
 }
 
@@ -71,11 +74,13 @@ export function settingsToCloudArgs(settings: UserSettings): {
   textLanguage: string;
   symbolLayoutId: string;
   theme: string;
+  displayName: string;
 } {
   return {
     interfaceLanguage: settings.interfaceLanguage,
     textLanguage: settings.textLanguage,
     symbolLayoutId: settings.symbolLayoutId,
     theme: settings.theme,
+    displayName: settings.displayName,
   };
 }

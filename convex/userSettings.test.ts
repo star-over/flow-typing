@@ -12,6 +12,7 @@ const validSettings = {
   textLanguage: 'en',
   symbolLayoutId: 'qwerty',
   theme: 'auto',
+  displayName: '',
 };
 
 describe('getMineHandler', () => {
@@ -95,6 +96,19 @@ describe('upsertMineHandler', () => {
       await upsertMineHandler({ ctx, userId, settings: { ...validSettings, theme: 'dark' } });
       const secondRow = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       expect(secondRow!.updatedAt).toBeGreaterThan(firstUpdatedAt);
+    });
+  });
+
+  test('persists displayName through insert and patch', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, displayName: 'Алиса' } });
+      const inserted = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(inserted?.displayName).toBe('Алиса');
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, displayName: '' } });
+      const patched = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(patched?.displayName).toBe('');
     });
   });
 

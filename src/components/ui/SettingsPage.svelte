@@ -8,9 +8,14 @@
   interface Props {
     onBack: () => void;
     dictionary: Dictionary;
+    /**
+     * Оригинальное имя текущего юзера от провайдера (`users.name ?? email`).
+     * `null` — гость: поле «отображаемое имя» не показываем (аватара у гостя нет).
+     */
+    accountName?: string | null;
   }
 
-  const { onBack, dictionary }: Props = $props();
+  const { onBack, dictionary, accountName = null }: Props = $props();
 
   const interfaceLanguages = $derived([
     { value: 'en' as const, label: dictionary.options.interfaceLanguages.en },
@@ -35,6 +40,20 @@
 
 <div class="settings-page">
   <h2>{dictionary.settings.title}</h2>
+
+  {#if accountName !== null}
+    <label class="field">
+      <span class="label-text">{dictionary.settings.display_name_label}</span>
+      <input
+        class="text-input"
+        type="text"
+        value={$settings.displayName}
+        placeholder={accountName || dictionary.settings.display_name_placeholder}
+        oninput={(e) => updateSettings({ displayName: e.currentTarget.value })}
+      />
+      <span class="hint">{dictionary.settings.display_name_description}</span>
+    </label>
+  {/if}
 
   <label class="field">
     <span class="label-text">{dictionary.settings.interface_language_label}</span>
@@ -76,6 +95,25 @@
 
   .label-text {
     font-size: 0.875rem;
+    color: var(--settings-page-label-color);
+  }
+
+  .text-input {
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-3);
+    border: var(--settings-page-input-border);
+    background: var(--settings-page-input-background);
+    color: var(--settings-page-input-color);
+    font: inherit;
+  }
+
+  .text-input::placeholder {
+    color: var(--settings-page-input-color);
+    opacity: 0.5;
+  }
+
+  .hint {
+    font-size: 0.75rem;
     color: var(--settings-page-label-color);
   }
 

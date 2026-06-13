@@ -230,6 +230,9 @@
 
   /* SettingsPage */
   --settings-page-label-color         : unset;
+  --settings-page-input-background    : unset;
+  --settings-page-input-color         : unset;
+  --settings-page-input-border        : unset;
   --settings-page-btn-background      : unset;
   --settings-page-btn-color           : unset;
   --settings-page-btn-border          : unset;
@@ -261,4 +264,9 @@
   --user-menu-dropdown-border             : unset;
   --user-menu-dropdown-item-color         : unset;
   --user-menu-dropdown-item-hover-background: unset;
+
+  /* Avatar */
+  --avatar-background                      : unset;
+  --avatar-color                          : unset;
+  --avatar-border                         : unset;
 }
