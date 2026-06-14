@@ -321,4 +321,10 @@
   --wordmark-caret-color     : oklch(0.26 0.02 60); /* тёмный на янтаре во всех темах */
   --wordmark-bar-background  : var(--color-path-highlight);
   --wordmark-pending-opacity : 0.38;
+
+  /* Landing */
+  --landing-cta-background       : var(--color-target-marker);
+  --landing-cta-color            : oklch(0.26 0.02 60);
+  --landing-cta-border           : 1px solid transparent;
+  --landing-cta-hover-background : oklch(0.66 0.09 50);
 }

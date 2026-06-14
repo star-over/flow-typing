@@ -10,6 +10,7 @@ import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
 import { LESSON_STATS_DISPLAY_CONTRACT } from '@/components/ui/LessonStatsDisplay.contract';
 import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
+import { LANDING_CONTRACT } from '@/components/landing/LandingScreen.contract';
 import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract';
 import { HEADER_CONTRACT } from '@/components/app/Header.contract';
 import { MAIN_CONTENT_CONTRACT } from '@/components/app/MainContent.contract';
@@ -51,6 +52,7 @@ export const THEME_CONTRACT = [
   ...USER_MENU_CONTRACT,
   ...AVATAR_CONTRACT,
   ...WORDMARK_CONTRACT,
+  ...LANDING_CONTRACT,
 ] as const satisfies readonly `--${string}`[];
 
 export type ThemeContractToken = (typeof THEME_CONTRACT)[number];

@@ -274,4 +274,10 @@
   --wordmark-caret-color     : unset;
   --wordmark-bar-background  : unset;
   --wordmark-pending-opacity : unset;
+
+  /* Landing */
+  --landing-cta-background       : unset;
+  --landing-cta-color            : unset;
+  --landing-cta-border           : unset;
+  --landing-cta-hover-background : unset;
 }
