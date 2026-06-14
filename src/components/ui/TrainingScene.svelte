@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout } from '@/interfaces/types';
+  import type { FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -19,10 +19,9 @@
     physicalLayout: PhysicalLayout;
     cursorType: FlowLineCursorType;
     cursorMode: FlowLineCursorMode;
-    dictionary: Dictionary;
   }
 
-  const { trainingActor, fingerLayout, physicalLayout, cursorType, cursorMode, dictionary }: Props = $props();
+  const { trainingActor, fingerLayout, physicalLayout, cursorType, cursorMode }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let trainingState = $state(trainingActor.getSnapshot());
@@ -78,12 +77,6 @@
 </script>
 
 <div class="training-scene">
-  <h2 class="title">{dictionary.app.training_in_progress}</h2>
-  <p>
-    {dictionary.app.training_machine_state}
-    <code class="state-code">{trainingState.value.toString()}</code>
-  </p>
-
   <FlowLine
     symbols={enrichedSymbols}
     cursorPosition={currentIndex}
@@ -103,17 +96,5 @@
     align-items: center;
     gap: var(--spacing-6);
     width: 100%;
-  }
-
-  .title {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .state-code {
-    font-family: var(--font-mono);
-    background: var(--training-scene-state-code-background);
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-2);
   }
 </style>

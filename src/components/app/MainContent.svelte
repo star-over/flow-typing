@@ -37,7 +37,7 @@
 </script>
 
 {#if inState({ snapshot: state, value: { training: 'running' } }) && trainingActor}
-  <TrainingScene {trainingActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} {dictionary} />
+  <TrainingScene {trainingActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} />
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}

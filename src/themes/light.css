@@ -264,9 +264,6 @@
   /* MainContent */
   --main-content-pause-color  : var(--color-text-secondary);
 
-  /* TrainingScene */
-  --training-scene-state-code-background: var(--color-surface);
-
   /* Select */
   --select-background      : var(--color-surface);
   --select-border          : 1px solid var(--color-border);
