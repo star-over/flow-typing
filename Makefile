@@ -9,7 +9,7 @@ SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
-        normalize-rus-corp reinstall-gemini-cli convex
+        build-corpus import-corpus reinstall-gemini-cli convex
 
 all: help
 
@@ -46,7 +46,8 @@ help:
 	@echo "  make storybook-build  - storybook static build"
 	@echo ""
 	@echo "  make create-drills    - Сгенерировать данные упражнений"
-	@echo "  make normalize-rus-corp - Нормализовать русский корпус"
+	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
+	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl в Convex (replace)"
 	@echo "------------------------------------------------------------------"
 
 
@@ -152,10 +153,19 @@ create-drills: compile-drills
 	@echo "📝 Генерация данных упражнений..."
 	node dist/src/scripts/create-drills.js
 
-normalize-rus-corp:
-	@echo "⚙️  Компиляция и запуск скрипта нормализации..."
-	npx tsc --project tsconfig.scripts.json
-	node dist/src/scripts/normalize-file.js
+# Auto-Flow: конвейер корпуса (Node нативно запускает .ts, без tsc/dist).
+# LAYOUT/INPUT/OUTPUT переопределяемы: make build-corpus LAYOUT=qwerty INPUT=...
+LAYOUT ?= йцукен
+INPUT ?= auto-flow/data/ru_corp.txt
+OUTPUT ?= auto-flow/data/drills.jsonl
+
+build-corpus:
+	@echo "🏗️  Сборка корпуса из $(INPUT) под раскладку $(LAYOUT)..."
+	node auto-flow/scripts/build-corpus.ts --layout "$(LAYOUT)" --input "$(INPUT)" --output "$(OUTPUT)"
+
+import-corpus:
+	@echo "☁️  Заливка $(OUTPUT) в таблицу drills (replace)..."
+	npx convex import --table drills --replace --yes "$(OUTPUT)"
 
 
 # ==============================================================================

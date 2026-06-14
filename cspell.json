@@ -260,6 +260,7 @@
     ".agents/",
     ".gemini/",
     "tmp/",
+    "auto-flow/data/",
     "dist/",
     "coverage/",
     "convex/README.md",

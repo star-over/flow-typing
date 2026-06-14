@@ -22,12 +22,19 @@ export default defineConfig({
           server: { deps: { inline: ['convex-test'] } },
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'auto-flow',
+          include: ['auto-flow/**/*.test.ts'],
+        },
+      },
     ],
     coverage: {
       provider: 'v8',
       reporter: ['text'],
-      include: ['src/**/*.{ts,svelte}', 'convex/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/fixtures/**', 'src/scripts/**', 'convex/_generated/**', 'convex/**/*.test.ts'],
+      include: ['src/**/*.{ts,svelte}', 'convex/**/*.ts', 'auto-flow/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/fixtures/**', 'src/scripts/**', 'convex/_generated/**', 'convex/**/*.test.ts', 'auto-flow/**/*.test.ts', 'auto-flow/scripts/**'],
     },
   },
 });

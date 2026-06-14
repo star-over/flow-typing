@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "allowJs": true,
     "checkJs": true,
     "isolatedModules": true,
@@ -18,6 +19,7 @@
   },
   "include": [
     "src/**/*",
+    "auto-flow/**/*",
     "tests/**/*",
     "dictionaries/**/*",
     ".svelte-kit/ambient.d.ts",

@@ -118,7 +118,7 @@ export default [
     },
   },
   {
-    files: ['*.config.*', 'vite.config.ts', 'svelte.config.js', '*.js', 'scripts/**/*.js', 'scripts/**/*.ts'],
+    files: ['*.config.*', 'vite.config.ts', 'svelte.config.js', '*.js', 'scripts/**/*.js', 'scripts/**/*.ts', 'auto-flow/scripts/**/*.ts'],
     languageOptions: {
       globals: {
         ...globals.node,

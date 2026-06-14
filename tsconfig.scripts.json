@@ -5,7 +5,9 @@
     "moduleResolution": "NodeNext",
     "outDir": "./dist", // Output scripts to a 'dist' folder in the root
     "isolatedModules": false, // Allow non-module files for scripts if needed
-    "noEmit": false // We want to emit JS files for scripts
+    "noEmit": false, // We want to emit JS files for scripts
+    "allowImportingTsExtensions": false // несовместимо с noEmit:false; auto-flow-скрипты бегут через node напрямую, не через этот конфиг
+
   },
   "include": [
     "src/scripts/**/*.ts", // Only include script files

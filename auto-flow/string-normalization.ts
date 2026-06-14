@@ -82,6 +82,48 @@ export const normalizeApostrophes: NormalizationRule = {
   },
 };
 
+/**
+ * \u041f\u0440\u0438\u0432\u043e\u0434\u0438\u0442 \u0441\u0442\u0440\u043e\u043a\u0443 \u043a \u043a\u0430\u043d\u043e\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0439 \u0444\u043e\u0440\u043c\u0435 Unicode (NFC): \u0441\u043e\u0441\u0442\u0430\u0432\u043d\u044b\u0435 \u00ab\u0435 + \u25cc\u0301\u00bb \u0438 \u0442.\u043f.
+ * \u0441\u043e\u0431\u0438\u0440\u0430\u044e\u0442\u0441\u044f \u0432 \u043e\u0434\u0438\u043d \u043a\u043e\u0434\u043f\u043e\u0438\u043d\u0442. \u0414\u043e\u043b\u0436\u043d\u043e \u0438\u0434\u0442\u0438 \u043f\u0435\u0440\u0432\u044b\u043c.
+ */
+export const normalizeUnicodeForm: NormalizationRule = {
+  name: 'Normalize Unicode (NFC)',
+  apply: (text: string): string => text.normalize('NFC'),
+};
+
+/**
+ * \u0420\u0430\u0441\u043a\u043e\u0434\u0438\u0440\u0443\u0435\u0442 \u0431\u0430\u0437\u043e\u0432\u044b\u0435 HTML/XML-\u0441\u0443\u0449\u043d\u043e\u0441\u0442\u0438 (\u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a \u2014 XML-\u043a\u043e\u0440\u043f\u0443\u0441).
+ * `&amp;` \u2014 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u043c, \u0447\u0442\u043e\u0431\u044b \u043d\u0435 \u0431\u044b\u043b\u043e \u0434\u0432\u043e\u0439\u043d\u043e\u0433\u043e \u0440\u0430\u0441\u043a\u043e\u0434\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f (`&amp;quot;`).
+ */
+export const decodeHtmlEntities: NormalizationRule = {
+  name: 'Decode HTML Entities',
+  apply: (text: string): string =>
+    text
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&'),
+};
+
+/**
+ * \u0423\u0434\u0430\u043b\u044f\u0435\u0442 \u043d\u0435\u0432\u0438\u0434\u0438\u043c\u044b\u0435 \u0441\u0438\u043c\u0432\u043e\u043b\u044b: \u043d\u0443\u043b\u0435\u0432\u0430\u044f \u0448\u0438\u0440\u0438\u043d\u0430 (U+200B\u2013200D, U+FEFF) \u0438
+ * \u043c\u044f\u0433\u043a\u0438\u0439 \u043f\u0435\u0440\u0435\u043d\u043e\u0441 (U+00AD).
+ */
+export const stripZeroWidth: NormalizationRule = {
+  name: 'Strip Zero-Width',
+  apply: (text: string): string => text.replace(/[\u200b-\u200d\ufeff\u00ad]/g, ''),
+};
+
+/**
+ * \u041f\u0440\u0435\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u0442\u0430\u0431\u044b \u0438 \u043f\u0435\u0440\u0435\u0432\u043e\u0434\u044b \u0441\u0442\u0440\u043e\u043a \u0432 \u043e\u0431\u044b\u0447\u043d\u044b\u0439 \u043f\u0440\u043e\u0431\u0435\u043b (\u0441\u0445\u043b\u043e\u043f\u044b\u0432\u0430\u043d\u0438\u0435 \u2014 \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u043c
+ * \u043f\u0440\u0430\u0432\u0438\u043b\u043e\u043c normalizeSpaces \u043d\u0438\u0436\u0435).
+ */
+export const normalizeTabsAndNewlines: NormalizationRule = {
+  name: 'Normalize Tabs and Newlines',
+  apply: (text: string): string => text.replace(/[\t\n\r\f\v]/g, ' '),
+};
+
 
 /**
  * Normalizes a string using a predefined set of rules.
@@ -96,7 +138,11 @@ export function normalizeString({
   customRules?: NormalizationRule[];
 }): string {
   const defaultRules: NormalizationRule[] = [
+    normalizeUnicodeForm, // канонический вид Unicode — раньше всех
+    decodeHtmlEntities, // &quot; → " (до нормализации кавычек)
+    stripZeroWidth, // убрать невидимые символы
     normalizeNonBreakingSpaces, // Process non-breaking spaces first to ensure consistent space handling
+    normalizeTabsAndNewlines, // табы/переводы строк → пробел (до схлопывания)
     replaceFancyQuotes,
     normalizeDashes,
     normalizeEllipsis,
