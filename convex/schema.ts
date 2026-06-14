@@ -36,6 +36,7 @@ export default defineSchema({
     avgWordLength: v.number(), // средняя длина слова — та же ручка
     maxWordLength: v.number(), // максимальная длина слова — потолок ручки
     bigrams: v.array(v.string()), // уникальные пары букв — ранжирование по слабым парам (этап «Фокус»)
-    symbolFrequency: v.record(v.string(), v.number()), // частотность символов — плотность для фокус-ранжирования
+    // частотность символов — массивом: ключи-символы не-ASCII, Convex запрещает их в именах полей
+    symbolFrequency: v.array(v.object({ symbol: v.string(), count: v.number() })),
   }),
 });

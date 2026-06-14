@@ -74,7 +74,10 @@ describe('computeMeta', () => {
     expect(meta.avgWordLength).toBe(4);
     expect(meta.maxWordLength).toBe(4);
     expect(meta.bigrams).toEqual(['дя', 'яд']);
-    expect(meta.symbolFrequency).toEqual({ д: 2, я: 2 });
+    expect(meta.symbolFrequency).toEqual([
+      { symbol: 'д', count: 2 },
+      { symbol: 'я', count: 2 },
+    ]);
   });
   it('пары букв не пересекают пробел; средняя длина округлена', () => {
     const meta = computeMeta('мама мыла');

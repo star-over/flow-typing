@@ -3,7 +3,7 @@
  * `text`). Спасено из старого `drill-utils` без триграмм, SHA-1-id и
  * дублирующего «алфавитного» среза частот. Чистая функция текста.
  */
-import type { DrillRecord } from './types.ts';
+import type { DrillRecord, SymbolCount } from './types.ts';
 
 export type DrillMeta = Omit<DrillRecord, 'text'>;
 
@@ -26,10 +26,10 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function symbolFrequency(chars: string[]): Record<string, number> {
-  const frequency: Record<string, number> = {};
-  for (const char of chars) frequency[char] = (frequency[char] ?? 0) + 1;
-  return frequency;
+function symbolFrequency(chars: string[]): SymbolCount[] {
+  const counts = new Map<string, number>();
+  for (const char of chars) counts.set(char, (counts.get(char) ?? 0) + 1);
+  return [...counts].map(([symbol, count]) => ({ symbol, count }));
 }
 
 /** Уникальные соседние пары букв (оба символа — буквы), в нижнем регистре. */
