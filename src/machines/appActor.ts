@@ -12,6 +12,16 @@ const actor = createActor(appMachine);
 actor.start();
 export const appActor = actor;
 
+// Dev-only: перехват завершённых drill'ов в локальный набор данных печати
+// (офлайн-анализ «чисел» + golden-fixtures для будущей summarize). Динамический
+// импорт под условием DEV → отдельный chunk, в прод-сборку не входит. Проверка
+// window — против SSR в dev. appActor — forever-singleton, отписка не нужна.
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  void import('@/lib/dev/typing-capture').then(({ attachTypingCapture }) => {
+    attachTypingCapture(appActor);
+  });
+}
+
 if (import.meta.hot) {
   import.meta.hot.invalidate('appActor is a module-scope singleton — full reload required');
 }
