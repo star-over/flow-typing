@@ -4,9 +4,6 @@ import { authTables } from '@convex-dev/auth/server';
 
 export default defineSchema({
   ...authTables,
-  health: defineTable({
-    tickedAt: v.number(),
-  }),
   // Per-user UI settings. Source of truth для cross-device sync.
   // Connected to users via userId; одна row на юзера (enforced upsertMine).
   // updatedAt — server-gen, ставится сервером при каждом upsert.
@@ -26,4 +23,19 @@ export default defineSchema({
     displayName: v.optional(v.string()),
     updatedAt: v.number(),
   }).index('by_user', ['userId']),
+  // Корпус упражнений. Вся мета — чистая функция текста и нейтральна к
+  // раскладке; считается конвейером корпуса при наполнении. Совместимость с
+  // конкретной раскладкой и доступность по размеру набора букв — в
+  // drillSelectionIndex, не здесь. Индексов нет: фильтрация идёт через
+  // drillSelectionIndex, тождество строки даёт _id.
+  drills: defineTable({
+    text: v.string(), // что печатает пользователь
+    length: v.number(), // число символов для печати — бюджет порции (символы ÷ скорость)
+    uniqueSymbols: v.array(v.string()), // уникальные символы — членство «символы ⊆ раскладка» + индекс доступности
+    wordCount: v.number(), // число слов — ручка «целевая длина слова»
+    avgWordLength: v.number(), // средняя длина слова — та же ручка
+    maxWordLength: v.number(), // максимальная длина слова — потолок ручки
+    bigrams: v.array(v.string()), // уникальные пары букв — ранжирование по слабым парам (этап «Фокус»)
+    symbolFrequency: v.record(v.string(), v.number()), // частотность символов — плотность для фокус-ранжирования
+  }),
 });
