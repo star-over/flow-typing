@@ -9,7 +9,7 @@ SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
-        build-corpus import-corpus rebuild-selection-index \
+        corpus-process build-corpus import-corpus rebuild-selection-index \
         reinstall-gemini-cli convex
 
 all: help
@@ -47,6 +47,7 @@ help:
 	@echo "  make storybook-build  - storybook static build"
 	@echo ""
 	@echo "  make create-drills    - Сгенерировать данные упражнений"
+	@echo "  make corpus-process   - Auto-Flow: весь цикл — сборка + заливка + пересчёт таблицы отбора"
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
 	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
@@ -160,6 +161,11 @@ create-drills: compile-drills
 LAYOUT ?= йцукен
 INPUT ?= auto-flow/data/ru_corp.txt
 OUTPUT ?= auto-flow/data/drills.jsonl
+
+# Весь цикл одной командой: сборка корпуса → заливка → пересчёт таблицы отбора.
+corpus-process:
+	@$(MAKE) build-corpus LAYOUT=$(LAYOUT) INPUT=$(INPUT) OUTPUT=$(OUTPUT)
+	@$(MAKE) import-corpus LAYOUT=$(LAYOUT) OUTPUT=$(OUTPUT)
 
 build-corpus:
 	@echo "🏗️  Сборка корпуса из $(INPUT) под раскладку $(LAYOUT)..."
