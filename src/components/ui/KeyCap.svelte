@@ -205,19 +205,31 @@
     box-shadow: var(--keycap-r5-target-ring);
   }
 
+  /* `border-color: transparent` снимает тонкий border кластера
+     (`--keycap-{pos}-border`) из-под target-ring: правило (0,2,0) объявлено
+     ниже per-position-заливки (тоже (0,2,0)) и перебивает её border. Ширину
+     не трогаем — клетка не меняет размер, border лишь становится невидимым. */
   .keycap.role-target {
+    border-color: transparent;
     font-weight: 900;
   }
 
-  /* --- Press result (takes precedence over navigation role) --- */
-  .keycap.CORRECT {
+  /* --- Press result (заливка перекрывает navigation role; ring цели остаётся) ---
+     Класс продублирован (`.CORRECT.CORRECT`) намеренно: поднимает specificity
+     до (0,3,0), чтобы перебить per-position-target
+     `.keycap[data-finger-id="…"].role-target` (тоже 0,3,0) по заливке / цвету /
+     границе — result объявлен ниже по исходнику и выигрывает.
+     `box-shadow` здесь НЕ трогаем: target-ring (та же (0,3,0), объявлен выше)
+     переживает result и рисуется поверх заливки. Так клавиша-цель в момент
+     нажатия показывает оба состояния разом: цвет результата + кольцо цели. */
+  .keycap.CORRECT.CORRECT {
     background: var(--keycap-correct-background);
     color: var(--keycap-correct-color);
     border: var(--keycap-correct-border);
     font-weight: 800;
   }
 
-  .keycap.ERROR {
+  .keycap.ERROR.ERROR {
     background: var(--keycap-error-background);
     color: var(--keycap-error-color);
     border: var(--keycap-error-border);
