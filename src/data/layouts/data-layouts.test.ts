@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import physicalAnsiRaw from './physical-layout-ansi.jsonl?raw';
-import symbolQwertyRaw from './symbol-layout-qwerty.jsonl?raw';
-import symbolJcukenRaw from './symbol-layout-jcuken.jsonl?raw';
-import fingerAsdfRaw from './finger-layout-asdf.jsonl?raw';
+import physicalAnsi from './physical-layout-ansi.json';
+import symbolQwerty from './symbol-layout-qwerty.json';
+import symbolJcuken from './symbol-layout-jcuken.json';
+import fingerAsdf from './finger-layout-asdf.json';
 
 import { KEY_CAP_IDS } from '@/interfaces/key-cap-id';
 import { FINGER_IDS, KEY_CAP_HOME_KEY_MARKERS, KEY_CAP_SYMBOL_SIZES } from '@/interfaces/types';
@@ -33,56 +33,49 @@ const FingerEntrySchema = z.object({
   home: z.boolean().optional(),
 });
 
-function parseJsonl<T>(raw: string, schema: z.ZodType<T>): T[] {
-  const lines = raw.split('\n').filter((l) => l.trim().length > 0);
-  return lines.map((line, i) => {
-    try {
-      return schema.parse(JSON.parse(line));
-    } catch (e) {
-      throw new Error(`Invalid line ${i + 1}: ${(e as Error).message}`, { cause: e });
-    }
-  });
+function parseLayout<T>(data: unknown, schema: z.ZodType<T>): T[] {
+  return z.array(schema).parse(data);
 }
 
-describe('physical-layout-ansi.jsonl', () => {
+describe('physical-layout-ansi.json', () => {
   it('весь файл успешно парсится через PhysicalKeySchema', () => {
-    expect(() => parseJsonl(physicalAnsiRaw, PhysicalKeySchema)).not.toThrow();
+    expect(() => parseLayout(physicalAnsi, PhysicalKeySchema)).not.toThrow();
   });
 
   it('keyCapId уникален в файле', () => {
-    const keys = parseJsonl(physicalAnsiRaw, PhysicalKeySchema);
+    const keys = parseLayout(physicalAnsi, PhysicalKeySchema);
     const ids = new Set(keys.map((k) => k.keyCapId));
     expect(ids.size).toBe(keys.length);
   });
 
   it('файл содержит как минимум одну запись', () => {
-    expect(parseJsonl(physicalAnsiRaw, PhysicalKeySchema).length).toBeGreaterThan(0);
+    expect(parseLayout(physicalAnsi, PhysicalKeySchema).length).toBeGreaterThan(0);
   });
 });
 
-describe('symbol-layout-qwerty.jsonl и symbol-layout-jcuken.jsonl', () => {
+describe('symbol-layout-qwerty.json и symbol-layout-jcuken.json', () => {
   it('qwerty: весь файл парсится, symbol уникален', () => {
-    const entries = parseJsonl(symbolQwertyRaw, SymbolEntrySchema);
+    const entries = parseLayout(symbolQwerty, SymbolEntrySchema);
     expect(entries.length).toBeGreaterThan(0);
     const symbols = new Set(entries.map((e) => e.symbol));
     expect(symbols.size).toBe(entries.length);
   });
 
   it('йцукен: весь файл парсится, symbol уникален', () => {
-    const entries = parseJsonl(symbolJcukenRaw, SymbolEntrySchema);
+    const entries = parseLayout(symbolJcuken, SymbolEntrySchema);
     expect(entries.length).toBeGreaterThan(0);
     const symbols = new Set(entries.map((e) => e.symbol));
     expect(symbols.size).toBe(entries.length);
   });
 });
 
-describe('finger-layout-asdf.jsonl', () => {
+describe('finger-layout-asdf.json', () => {
   it('весь файл парсится через FingerEntrySchema', () => {
-    expect(() => parseJsonl(fingerAsdfRaw, FingerEntrySchema)).not.toThrow();
+    expect(() => parseLayout(fingerAsdf, FingerEntrySchema)).not.toThrow();
   });
 
   it('keyCapId уникален в файле', () => {
-    const entries = parseJsonl(fingerAsdfRaw, FingerEntrySchema);
+    const entries = parseLayout(fingerAsdf, FingerEntrySchema);
     const ids = new Set(entries.map((e) => e.keyCapId));
     expect(ids.size).toBe(entries.length);
   });

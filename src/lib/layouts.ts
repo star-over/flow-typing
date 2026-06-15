@@ -2,11 +2,11 @@
  * Единая точка входа для всех слоёв раскладок.
  *
  * Источники истины:
- * - `src/data/layouts/physical-layout-*.jsonl`
- * - `src/data/layouts/symbol-layout-*.jsonl`
- * - `src/data/layouts/finger-layout-*.jsonl`
+ * - `src/data/layouts/physical-layout-*.json`
+ * - `src/data/layouts/symbol-layout-*.json`
+ * - `src/data/layouts/finger-layout-*.json`
  *
- * Файлы грузятся на старте модуля через Vite `?raw`, проверяются Zod-схемами,
+ * Файлы импортируются как JSON, проверяются Zod-схемами,
  * собираются в три module-level Map'а. Каждая раскладка — атомарная единица:
  * имя файла = id, поле `id` в записях не дублируется.
  *
@@ -33,13 +33,13 @@ import type {
   TextLanguage,
 } from '@/interfaces/types';
 
-import physicalAnsiRaw from '@/data/layouts/physical-layout-ansi.jsonl?raw';
-import symbolQwertyRaw from '@/data/layouts/symbol-layout-qwerty.jsonl?raw';
-import symbolJcukenRaw from '@/data/layouts/symbol-layout-jcuken.jsonl?raw';
-import fingerAsdfRaw from '@/data/layouts/finger-layout-asdf.jsonl?raw';
-import fingerSdfvRaw from '@/data/layouts/finger-layout-sdfv.jsonl?raw';
+import physicalAnsi from '@/data/layouts/physical-layout-ansi.json';
+import symbolQwerty from '@/data/layouts/symbol-layout-qwerty.json';
+import symbolJcuken from '@/data/layouts/symbol-layout-jcuken.json';
+import fingerAsdf from '@/data/layouts/finger-layout-asdf.json';
+import fingerSdfv from '@/data/layouts/finger-layout-sdfv.json';
 
-// ---------- Zod-схемы для записей JSONL ----------
+// ---------- Zod-схемы для записей раскладок ----------
 
 const KeyCapIdSchema = z.enum(KEY_CAP_IDS);
 
@@ -65,28 +65,11 @@ const FingerEntrySchema = z.object({
   home: z.boolean().optional(),
 });
 
-// ---------- Парсеры JSONL → массивы с runtime-инвариантами ----------
+// ---------- Парсеры массивов с runtime-инвариантами ----------
 
-function parseJsonl<T>({
-  raw,
-  parseLine,
-}: {
-  raw: string;
-  parseLine: (obj: unknown, lineNum: number) => T;
-}): T[] {
-  const lines = raw.split('\n').filter((l) => l.trim().length > 0);
-  return lines.map((line, i) => {
-    try {
-      return parseLine(JSON.parse(line), i + 1);
-    } catch (e) {
-      throw new Error(`Invalid JSONL at line ${i + 1}: ${(e as Error).message}`, { cause: e });
-    }
-  });
-}
-
-function parsePhysicalLayout(raw: string): PhysicalLayout {
-  const keys = parseJsonl({ raw, parseLine: (obj) => PhysicalKeySchema.parse(obj) });
-  // Инвариант: уникальность keyCapId в файле
+function parsePhysicalLayout(data: unknown): PhysicalLayout {
+  const keys = z.array(PhysicalKeySchema).parse(data);
+  // Инвариант: уникальность keyCapId
   const seen = new Set<string>();
   for (const k of keys) {
     if (seen.has(k.keyCapId)) {
@@ -97,8 +80,8 @@ function parsePhysicalLayout(raw: string): PhysicalLayout {
   return keys;
 }
 
-function parseSymbolLayout(raw: string): SymbolLayout {
-  const entries = parseJsonl({ raw, parseLine: (obj) => SymbolEntrySchema.parse(obj) });
+function parseSymbolLayout(data: unknown): SymbolLayout {
+  const entries = z.array(SymbolEntrySchema).parse(data);
   // Инвариант: уникальность symbol
   const seen = new Set<string>();
   for (const e of entries) {
@@ -110,8 +93,8 @@ function parseSymbolLayout(raw: string): SymbolLayout {
   return entries;
 }
 
-function parseFingerLayout(raw: string): FingerLayout {
-  const entries = parseJsonl({ raw, parseLine: (obj) => FingerEntrySchema.parse(obj) });
+function parseFingerLayout(data: unknown): FingerLayout {
+  const entries = z.array(FingerEntrySchema).parse(data);
   // Инвариант: уникальность keyCapId
   const seen = new Set<string>();
   for (const e of entries) {
@@ -138,23 +121,23 @@ const SYMBOL_LAYOUT_META: Record<SymbolLayoutId, SymbolLayoutMeta> = {
 // ---------- Module-level registries (загружаются на старте) ----------
 
 const PHYSICAL_LAYOUTS: ReadonlyMap<PhysicalLayoutId, PhysicalLayout> = new Map([
-  ['ansi', parsePhysicalLayout(physicalAnsiRaw)],
+  ['ansi', parsePhysicalLayout(physicalAnsi)],
 ]);
 
 const FINGER_LAYOUTS: ReadonlyMap<FingerLayoutId, FingerLayout> = new Map([
-  ['asdf', parseFingerLayout(fingerAsdfRaw)],
-  ['sdfv', parseFingerLayout(fingerSdfvRaw)],
+  ['asdf', parseFingerLayout(fingerAsdf)],
+  ['sdfv', parseFingerLayout(fingerSdfv)],
 ]);
 
 const SYMBOL_LAYOUTS: ReadonlyMap<SymbolLayoutId, SymbolLayoutDescriptor> = new Map(
   SYMBOL_LAYOUT_IDS.map((id) => {
-    const raw = id === 'qwerty' ? symbolQwertyRaw : symbolJcukenRaw;
+    const data = id === 'qwerty' ? symbolQwerty : symbolJcuken;
     const meta = SYMBOL_LAYOUT_META[id];
     const descriptor: SymbolLayoutDescriptor = {
       symbolLayoutId: id,
       textLanguage: meta.textLanguage,
       isDefaultForTextLanguages: meta.isDefaultForTextLanguages,
-      symbolLayout: parseSymbolLayout(raw),
+      symbolLayout: parseSymbolLayout(data),
     };
     return [id, descriptor] as const;
   })
