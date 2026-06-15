@@ -158,9 +158,9 @@ create-drills: compile-drills
 	node dist/src/scripts/create-drills.js
 
 # Auto-Flow: конвейер корпуса (Node нативно запускает .ts, без tsc/dist).
-# LAYOUT/INPUT/OUTPUT переопределяемы: make build-corpus LAYOUT=qwerty INPUT=...
+# INPUT — каталог со всеми *.txt (или один файл). LAYOUT/INPUT/OUTPUT переопределяемы.
 LAYOUT ?= йцукен
-INPUT ?= auto-flow/data/ru_corp.txt
+INPUT ?= auto-flow/data
 OUTPUT ?= auto-flow/data/drills.jsonl
 
 # Весь цикл одной командой: сборка корпуса → заливка → пересчёт таблицы отбора.

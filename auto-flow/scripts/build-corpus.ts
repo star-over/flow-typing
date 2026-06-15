@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 /**
- * @file Скрипт-оболочка конвейера корпуса. Читает текстовый источник (одно
- * предложение на строку), гонит через чистый конвейер `buildDrills`, пишет
- * выгрузку `drills.jsonl` и печатает статистику + дыры покрытия раскладки.
+ * @file Скрипт-оболочка конвейера корпуса. Читает источник (файл .txt или
+ * каталог со всеми *.txt; строка = предложение/слово), гонит через чистый
+ * конвейер `buildDrills`, пишет выгрузку `drills.jsonl` и печатает статистику +
+ * дыры покрытия раскладки.
  *
  * Запуск (Node ≥ 22, нативный TS — без tsc/dist): `make build-corpus` или
- *   node auto-flow/scripts/build-corpus.ts --input <txt> --layout <id>
- * Заливка в Convex — отдельным шагом `make import-corpus` (convex import).
+ *   node auto-flow/scripts/build-corpus.ts --input <txt|dir> --layout <id>
+ * Заливка в Convex — `make import-corpus` (convex import + пересчёт индекса).
  *
  * Раскладка — параметр: набор её символов читается из
- * `src/data/layouts/symbol-layout-<file>.jsonl` (данные приложения, читаем по
- * пути). Относительные импорты с расширением `.ts` — требование Node-ESM.
+ * `src/data/layouts/symbol-layout-<id>.json` (данные приложения). Относительные
+ * импорты с расширением `.ts` — требование Node-ESM.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildDrills, DEFAULT_BUILD_OPTIONS } from '../corpus/pipeline.ts';
 import { loadSymbolLayout } from '../symbol-layout.ts';
@@ -33,23 +34,35 @@ function parseArgs(argv: string[]): Record<string, string> {
   return args;
 }
 
-function num(value: string | undefined, fallback: number): number {
+function num({ value, fallback }: { value: string | undefined; fallback: number }): number {
   return value === undefined ? fallback : Number(value);
+}
+
+/** Читает источник: файл .txt или каталог (все *.txt по алфавиту, объединённые). */
+function readTexts(inputPath: string): string[] {
+  const abs = join(process.cwd(), inputPath);
+  if (statSync(abs).isDirectory()) {
+    return readdirSync(abs)
+      .filter((name) => name.endsWith('.txt'))
+      .sort()
+      .flatMap((name) => readFileSync(join(abs, name), 'utf-8').split('\n'));
+  }
+  return readFileSync(abs, 'utf-8').split('\n');
 }
 
 function main(): void {
   const args = parseArgs(process.argv.slice(2));
   const layout = args.layout ?? 'йцукен';
-  const input = args.input ?? 'auto-flow/data/ru_corp.txt';
+  const input = args.input ?? 'auto-flow/data';
   const output = args.output ?? 'auto-flow/data/drills.jsonl';
 
   const symbolSet = new Set(loadSymbolLayout(layout).map((entry) => entry.symbol));
-  const texts = readFileSync(join(process.cwd(), input), 'utf-8').split('\n');
+  const texts = readTexts(input);
 
   const options = {
-    minLength: num(args['min-length'], DEFAULT_BUILD_OPTIONS.minLength),
-    maxLength: num(args['max-length'], DEFAULT_BUILD_OPTIONS.maxLength),
-    minLetterRatio: num(args['min-letter-ratio'], DEFAULT_BUILD_OPTIONS.minLetterRatio),
+    minLength: num({ value: args['min-length'], fallback: DEFAULT_BUILD_OPTIONS.minLength }),
+    maxLength: num({ value: args['max-length'], fallback: DEFAULT_BUILD_OPTIONS.maxLength }),
+    minLetterRatio: num({ value: args['min-letter-ratio'], fallback: DEFAULT_BUILD_OPTIONS.minLetterRatio }),
   };
 
   const { drills, coverage, stats } = buildDrills({ texts, symbolSet, options });
