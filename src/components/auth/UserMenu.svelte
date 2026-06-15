@@ -43,7 +43,11 @@
 </script>
 
 {#if auth.state.status === 'loading'}
-  <span class="user-menu user-menu--loading" aria-busy="true">…</span>
+  <span class="user-menu user-menu--loading" aria-busy="true">
+    <span class="user-menu__skeleton user-menu__skeleton-avatar"></span>
+    <span class="user-menu__skeleton user-menu__skeleton-name"></span>
+    <span class="sr-only">Загрузка…</span>
+  </span>
 {:else if auth.state.status === 'guest'}
   <a class="user-menu user-menu--guest-link" href={resolve('/signin')}>Войти</a>
 {:else}
@@ -73,8 +77,44 @@
 {/if}
 
 <style>
+  /* Loading: скелетон в форме итогового summary (аватар-кружок + полоса-имя),
+     чтобы переход loading → authenticated не сдвигал раскладку. Заливка блоков —
+     токен темы, мягкость даёт opacity: статичный fallback + пульсация только
+     при разрешённой анимации (reduced-motion видит ровный приглушённый блок). */
   .user-menu--loading {
-    color: var(--user-menu-loading-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .user-menu__skeleton {
+    background: var(--user-menu-loading-color);
+    opacity: 0.3;
+  }
+
+  .user-menu__skeleton-avatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .user-menu__skeleton-name {
+    width: 5rem;
+    height: 0.85rem;
+    border-radius: var(--radius-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .user-menu__skeleton {
+      animation: user-menu-skeleton-pulse 1.4s var(--motion-ease-standard) infinite;
+    }
+  }
+
+  @keyframes user-menu-skeleton-pulse {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 0.15; }
   }
 
   .user-menu--guest-link {
