@@ -58,54 +58,66 @@
 </script>
 
 <div class="menu-screen">
-  <label class="field">
-    <span class="label-text">{dictionary.settings.text_language_label}</span>
-    <Select
-      value={$settings.textLanguage}
-      options={textLanguages}
-      onChange={(v) => updateSettings({ textLanguage: v as TextLanguage })}
-    />
-  </label>
+  <div class="setup-list">
+    <label class="field">
+      <span class="label-text">{dictionary.settings.text_language_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.textLanguage}
+          options={textLanguages}
+          onChange={(v) => updateSettings({ textLanguage: v as TextLanguage })}
+        />
+      </span>
+    </label>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.symbol_layout_label}</span>
-    <Select
-      value={$settings.symbolLayoutId}
-      options={layoutOptions}
-      onChange={(v) => updateSettings({ symbolLayoutId: v as SymbolLayoutId })}
-    />
-  </label>
+    <label class="field">
+      <span class="label-text">{dictionary.settings.symbol_layout_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.symbolLayoutId}
+          options={layoutOptions}
+          onChange={(v) => updateSettings({ symbolLayoutId: v as SymbolLayoutId })}
+        />
+      </span>
+    </label>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.finger_layout_label}</span>
-    <Select
-      value={$settings.fingerLayoutId}
-      options={fingerLayouts}
-      onChange={(v) => updateSettings({ fingerLayoutId: v as FingerLayoutId })}
-    />
-  </label>
+    <label class="field">
+      <span class="label-text">{dictionary.settings.finger_layout_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.fingerLayoutId}
+          options={fingerLayouts}
+          onChange={(v) => updateSettings({ fingerLayoutId: v as FingerLayoutId })}
+        />
+      </span>
+    </label>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.cursor_type_label}</span>
-    <Select
-      value={$settings.cursorType}
-      options={cursorTypes}
-      onChange={(v) => updateSettings({ cursorType: v as FlowLineCursorType })}
-    />
-  </label>
+    <label class="field">
+      <span class="label-text">{dictionary.settings.cursor_type_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.cursorType}
+          options={cursorTypes}
+          onChange={(v) => updateSettings({ cursorType: v as FlowLineCursorType })}
+        />
+      </span>
+    </label>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.cursor_mode_label}</span>
-    <Select
-      value={$settings.cursorMode}
-      options={cursorModes}
-      onChange={(v) => updateSettings({ cursorMode: v as FlowLineCursorMode })}
-    />
-  </label>
+    <label class="field">
+      <span class="label-text">{dictionary.settings.cursor_mode_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.cursorMode}
+          options={cursorModes}
+          onChange={(v) => updateSettings({ cursorMode: v as FlowLineCursorMode })}
+        />
+      </span>
+    </label>
+  </div>
 
   <button
     type="button"
-    class="btn primary"
+    class="start-btn"
     onclick={() => onStart({ symbolLayoutId: $settings.symbolLayoutId })}
   >
     {dictionary.app.start_training}
@@ -117,35 +129,66 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-6);
-    max-width: 400px;
     width: 100%;
+    max-width: 23rem;
+  }
+
+  /* Компактный список «подпись слева — список справа»: тонкие строки.
+     Подпись — фиксированная колонка, список сразу за ней одинаковой
+     скромной ширины → подписи и списки выровнены в две колонки, шевроны
+     в одну линию, зазор между подписью и списком постоянный. */
+  .setup-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
   }
 
   .field {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
+    align-items: center;
+    gap: var(--spacing-4);
   }
 
   .label-text {
-    font-size: 0.875rem;
+    width: 9.5rem;
+    flex-shrink: 0;
+    font-size: 0.8125rem;
     color: var(--settings-page-label-color);
   }
 
-  .btn {
-    padding: var(--spacing-2) var(--spacing-4);
+  .field__control {
+    width: 12.5rem;
+    flex-shrink: 0;
+  }
+
+  .start-btn {
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
     border-radius: var(--radius-3);
     border: var(--footer-actions-btn-primary-border);
     background: var(--footer-actions-btn-primary-background);
     color: var(--footer-actions-btn-primary-color);
     font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 0.9375rem;
+    font-weight: 600;
     cursor: pointer;
-    align-self: stretch;
   }
 
-  .btn:hover {
+  .start-btn:hover {
     opacity: 0.9;
+  }
+
+  /* Узкие экраны — подпись над списком, обе на всю ширину. */
+  @media (max-width: 26rem) {
+    .field {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--spacing-2);
+    }
+
+    .label-text,
+    .field__control {
+      width: 100%;
+    }
   }
 </style>
