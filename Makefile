@@ -9,7 +9,8 @@ SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
-        build-corpus import-corpus reinstall-gemini-cli convex
+        build-corpus import-corpus rebuild-selection-index \
+        reinstall-gemini-cli convex
 
 all: help
 
@@ -47,7 +48,8 @@ help:
 	@echo ""
 	@echo "  make create-drills    - Сгенерировать данные упражнений"
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
-	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl в Convex (replace)"
+	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
+	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
 	@echo "------------------------------------------------------------------"
 
 
@@ -164,8 +166,16 @@ build-corpus:
 	node auto-flow/scripts/build-corpus.ts --layout "$(LAYOUT)" --input "$(INPUT)" --output "$(OUTPUT)"
 
 import-corpus:
-	@echo "☁️  Заливка $(OUTPUT) в таблицу drills (replace)..."
+	@echo "☁️  Заливка $(OUTPUT) в drills (replace) + пересчёт таблицы отбора..."
 	npx convex import --table drills --replace --yes "$(OUTPUT)"
+	@$(MAKE) rebuild-selection-index LAYOUT=$(LAYOUT)
+
+# Auto-Flow: таблица отбора считается на сервере (drills не уезжают из Convex).
+# Серверный rebuild берёт раскладку (src/data/layouts/*.json) + KeyLadder
+# напрямую, листает drills постранично и пишет drillSelectionIndex.
+rebuild-selection-index:
+	@echo "☁️  Пересборка drillSelectionIndex на сервере ($(LAYOUT))..."
+	npx convex run selectionIndex:rebuild '{"symbolLayoutId":"$(LAYOUT)"}'
 
 
 # ==============================================================================

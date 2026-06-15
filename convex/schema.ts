@@ -39,4 +39,13 @@ export default defineSchema({
     // частотность символов — массивом: ключи-символы не-ASCII, Convex запрещает их в именах полей
     symbolFrequency: v.array(v.object({ symbol: v.string(), count: v.number() })),
   }),
+  // Таблица отбора (производная, per Layout Context): на каждый (drill × раскладка)
+  // — stepLevel = макс. шаг KeyLadder среди клавиш drill'а. drill доступен ⟺
+  // stepLevel < openedSteps (ADR 0001). Пересчитывается при смене KeyLadder;
+  // заполняется офлайн-скриптом из auto-flow.
+  drillSelectionIndex: defineTable({
+    drillId: v.id('drills'),
+    symbolLayoutId: v.string(),
+    stepLevel: v.number(),
+  }).index('by_layout_and_step', ['symbolLayoutId', 'stepLevel']),
 });

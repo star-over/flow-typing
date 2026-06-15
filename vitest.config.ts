@@ -29,12 +29,19 @@ export default defineConfig({
           include: ['auto-flow/**/*.test.ts'],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'shared',
+          include: ['shared/**/*.test.ts'],
+        },
+      },
     ],
     coverage: {
       provider: 'v8',
       reporter: ['text'],
-      include: ['src/**/*.{ts,svelte}', 'convex/**/*.ts', 'auto-flow/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/fixtures/**', 'src/scripts/**', 'convex/_generated/**', 'convex/**/*.test.ts', 'auto-flow/**/*.test.ts', 'auto-flow/scripts/**'],
+      include: ['src/**/*.{ts,svelte}', 'convex/**/*.ts', 'auto-flow/**/*.ts', 'shared/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/fixtures/**', 'src/scripts/**', 'convex/_generated/**', 'convex/**/*.test.ts', 'auto-flow/**/*.test.ts', 'auto-flow/scripts/**', 'shared/**/*.test.ts'],
     },
   },
 });

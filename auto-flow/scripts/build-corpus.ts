@@ -15,12 +15,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildDrills, DEFAULT_BUILD_OPTIONS } from '../corpus/pipeline.ts';
-
-/** symbolLayoutId → имя файла раскладки в src/data/layouts. */
-const LAYOUT_FILE: Record<string, string> = {
-  'йцукен': 'symbol-layout-jcuken.jsonl',
-  qwerty: 'symbol-layout-qwerty.jsonl',
-};
+import { loadSymbolLayout } from '../symbol-layout.ts';
 
 function parseArgs(argv: string[]): Record<string, string> {
   const args: Record<string, string> = {};
@@ -38,15 +33,6 @@ function parseArgs(argv: string[]): Record<string, string> {
   return args;
 }
 
-function loadSymbolSet(layoutFile: string): Set<string> {
-  const raw = readFileSync(join(process.cwd(), 'src/data/layouts', layoutFile), 'utf-8');
-  const symbols = raw
-    .split('\n')
-    .filter((line) => line.trim().length > 0)
-    .map((line) => (JSON.parse(line) as { symbol: string }).symbol);
-  return new Set(symbols);
-}
-
 function num(value: string | undefined, fallback: number): number {
   return value === undefined ? fallback : Number(value);
 }
@@ -57,13 +43,7 @@ function main(): void {
   const input = args.input ?? 'auto-flow/data/ru_corp.txt';
   const output = args.output ?? 'auto-flow/data/drills.jsonl';
 
-  const layoutFile = LAYOUT_FILE[layout];
-  if (!layoutFile) {
-    console.error(`Неизвестная раскладка: ${layout}. Доступны: ${Object.keys(LAYOUT_FILE).join(', ')}`);
-    process.exit(1);
-  }
-
-  const symbolSet = loadSymbolSet(layoutFile);
+  const symbolSet = new Set(loadSymbolLayout(layout).map((entry) => entry.symbol));
   const texts = readFileSync(join(process.cwd(), input), 'utf-8').split('\n');
 
   const options = {
