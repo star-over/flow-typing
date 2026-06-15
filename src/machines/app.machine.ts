@@ -102,12 +102,6 @@ export const appMachine = setup({
     RESET_KEYBOARD: {
       actions: sendTo('keyboardService', { type: 'RESET' }),
     },
-    'KEYBOARD.CHARACTER_INPUT': {
-      actions: sendTo('trainingService', ({ event }) => ({
-        type: 'KEY_PRESS',
-        keys: event.keys,
-      })),
-    },
     'SESSION.COMPLETE': {
       actions: {
         type: 'storeCompletedStream',
@@ -145,6 +139,16 @@ export const appMachine = setup({
         }),
       },
       on: {
+        // Forward typing input to trainingService ТОЛЬКО внутри training —
+        // здесь живёт invoked-ребёнок. На корневом уровне это падало:
+        // в menu/sessionComplete ребёнка нет, и sendTo мёртвому актору роняет
+        // root-актор в error (фриз всех переходов). См. app.machine.test.ts.
+        'KEYBOARD.CHARACTER_INPUT': {
+          actions: sendTo('trainingService', ({ event }) => ({
+            type: 'KEY_PRESS',
+            keys: event.keys,
+          })),
+        },
         'SESSION.COMPLETE': {
           target: 'sessionComplete',
           actions: {

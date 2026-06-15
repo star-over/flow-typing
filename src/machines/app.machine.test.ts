@@ -153,6 +153,20 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toBe('sessionComplete');
     });
 
+    it('a stray CHARACTER_INPUT does not freeze the machine; Enter still restarts', () => {
+      const actor = arriveInSessionComplete('йцукен');
+
+      // Pressing a text key on the completion screen emits CHARACTER_INPUT.
+      // trainingService is gone here — forwarding it must not crash the actor.
+      actor.send({ type: 'KEYBOARD.CHARACTER_INPUT', keys: ['KeyA'] });
+      expect(actor.getSnapshot().status).toBe('active');
+      expect(actor.getSnapshot().value).toBe('sessionComplete');
+
+      // The actor must still process navigation afterwards.
+      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
+    });
+
     it('TO_MENU returns to menu', () => {
       const actor = arriveInSessionComplete();
 
