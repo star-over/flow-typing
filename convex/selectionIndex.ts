@@ -8,7 +8,7 @@
  * Запуск: `npx convex run selectionIndex:rebuild '{"symbolLayoutId":"йцукен"}'`
  * (см. `make rebuild-selection-index`).
  */
-import { internalAction, internalMutation, internalQuery } from './_generated/server';
+import { internalAction, internalMutation, internalQuery, query } from './_generated/server';
 import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
@@ -25,6 +25,34 @@ interface SymbolEntry {
 const LAYOUTS: Record<string, { symbolLayout: SymbolEntry[]; keyLadder: typeof jcukenKeyLadder }> = {
   'йцукен': { symbolLayout: symbolLayoutJcuken as SymbolEntry[], keyLadder: jcukenKeyLadder },
 };
+
+/**
+ * Контентный радар: распределение корпуса по ступеням KeyLadder для раскладки.
+ * На каждый шаг — сколько drill'ов открывается именно на нём (`count`) и сколько
+ * доступно всего к этому шагу (`available` = накопительно, drill'ы со
+ * `stepLevel ≤ step`). Показывает дыры: где для шага мало упражнений.
+ */
+export const ladderReport = query({
+  args: { symbolLayoutId: v.string() },
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query('drillSelectionIndex')
+      .withIndex('by_layout_and_step', (q) => q.eq('symbolLayoutId', args.symbolLayoutId))
+      .collect();
+
+    const countByStep = new Map<number, number>();
+    for (const row of rows) countByStep.set(row.stepLevel, (countByStep.get(row.stepLevel) ?? 0) + 1);
+
+    let available = 0;
+    return [...countByStep.keys()]
+      .sort((a, b) => a - b)
+      .map((step) => {
+        const count = countByStep.get(step) ?? 0;
+        available += count;
+        return { step, count, available };
+      });
+  },
+});
 
 /** Страница drills: только нужное для расчёта (`_id` + символы). */
 export const drillsPage = internalQuery({

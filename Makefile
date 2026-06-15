@@ -9,7 +9,7 @@ SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
-        corpus-process build-corpus import-corpus rebuild-selection-index \
+        corpus-process build-corpus import-corpus rebuild-selection-index ladder-report \
         reinstall-gemini-cli convex
 
 all: help
@@ -51,6 +51,7 @@ help:
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
 	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
+	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням KeyLadder"
 	@echo "------------------------------------------------------------------"
 
 
@@ -182,6 +183,10 @@ import-corpus:
 rebuild-selection-index:
 	@echo "☁️  Пересборка drillSelectionIndex на сервере ($(LAYOUT))..."
 	npx convex run selectionIndex:rebuild '{"symbolLayoutId":"$(LAYOUT)"}'
+
+# Контентный радар: распределение корпуса по ступеням KeyLadder.
+ladder-report:
+	@npx convex run selectionIndex:ladderReport '{"symbolLayoutId":"$(LAYOUT)"}'
 
 
 # ==============================================================================
