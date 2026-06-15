@@ -146,11 +146,11 @@ describe('appMachine', () => {
       expect(snap.context.lastTrainingStream!.length).toBeGreaterThan(0);
     });
 
-    it('Escape NAVIGATION_KEY is ignored in sessionComplete (no Escape handler)', () => {
+    it('Escape NAVIGATION_KEY returns to menu (mirrors the "В меню" button)', () => {
       const actor = arriveInSessionComplete();
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().value).toBe('sessionComplete');
+      expect(actor.getSnapshot().value).toBe('menu');
     });
 
     it('a stray CHARACTER_INPUT does not freeze the machine; Enter still restarts', () => {

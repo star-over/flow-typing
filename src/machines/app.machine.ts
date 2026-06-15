@@ -192,14 +192,18 @@ export const appMachine = setup({
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
         },
-        'KEYBOARD.NAVIGATION_KEY': {
-          guard: 'isEnter',
-          target: 'trainingStart',
-          actions: {
-            type: 'startNewTrainingStream',
-            params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
+        'KEYBOARD.NAVIGATION_KEY': [
+          {
+            guard: 'isEnter',
+            target: 'trainingStart',
+            actions: {
+              type: 'startNewTrainingStream',
+              params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
+            },
           },
-        },
+          // Esc дублирует кнопку «В меню» (TO_MENU): та же навигация с клавиатуры.
+          { guard: 'isEscape', target: 'menu', reenter: true },
+        ],
       },
     },
 
