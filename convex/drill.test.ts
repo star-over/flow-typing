@@ -1,0 +1,190 @@
+import { convexTest } from 'convex-test';
+import { describe, expect, test } from 'vitest';
+import { api } from './_generated/api';
+import schema from './schema';
+import type { MutationCtx } from './_generated/server';
+import { foldSummaryIntoCells, applyDrillSummaryHandler } from './drill';
+
+// import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
+const modules = import.meta.glob('./**/*.ts');
+
+// Вставляет drill (полная мета — схема требует все поля) + строку таблицы отбора.
+async function insertDrill(
+  ctx: MutationCtx,
+  { text, step, layout }: { text: string; step: number; layout: string }
+) {
+  const length = text.length;
+  const drillId = await ctx.db.insert('drills', {
+    text,
+    length,
+    uniqueSymbols: [...new Set(text.split(''))],
+    wordCount: 1,
+    avgWordLength: length,
+    maxWordLength: length,
+    bigrams: [],
+    symbolFrequency: [],
+  });
+  await ctx.db.insert('drillSelectionIndex', { drillId, symbolLayoutId: layout, stepLevel: step });
+  return drillId;
+}
+
+describe('drillNext — выдача порции (этап 1)', () => {
+  test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+    });
+
+    const res = await t.mutation(api.drill.drillNext, {
+      symbolLayoutId: 'test',
+      openedSteps: 1,
+      budgetChars: 10,
+    });
+
+    expect(res.contentGap).toBe(false);
+    expect(res.drills).toHaveLength(2);
+    expect(res.drills.reduce((sum, d) => sum + d.length, 0)).toBe(10);
+  });
+
+  test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
+    const t = convexTest(schema, modules);
+    const stepFive = await t.run(async (ctx) => {
+      for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      return insertDrill(ctx, { text: 'zzzzz', step: 5, layout: 'test' });
+    });
+
+    const res = await t.mutation(api.drill.drillNext, {
+      symbolLayoutId: 'test',
+      openedSteps: 1,
+      budgetChars: 300,
+    });
+
+    // Бюджет 300 знаков > всех step-0 (10×5=50): выдаются все 10, step-5 — никогда.
+    expect(res.drills).toHaveLength(10);
+    expect(res.drills.some((d) => d.id === stepFive)).toBe(false);
+  });
+
+  test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
+    const t = convexTest(schema, modules);
+    const otherLayout = await t.run(async (ctx) => {
+      await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      return insertDrill(ctx, { text: 'zzzzz', step: 0, layout: 'other' });
+    });
+
+    const res = await t.mutation(api.drill.drillNext, {
+      symbolLayoutId: 'test',
+      openedSteps: 1,
+      budgetChars: 300,
+    });
+
+    expect(res.drills).toHaveLength(1);
+    expect(res.drills.some((d) => d.id === otherLayout)).toBe(false);
+  });
+
+  test('пустой пул → контентный сбой (contentGap), сессия не падает', async () => {
+    const t = convexTest(schema, modules);
+    const res = await t.mutation(api.drill.drillNext, {
+      symbolLayoutId: 'test',
+      openedSteps: 1,
+      budgetChars: 300,
+    });
+
+    expect(res.contentGap).toBe(true);
+    expect(res.drills).toEqual([]);
+  });
+});
+
+describe('foldSummaryIntoCells — слияние сводки в ячейки профиля', () => {
+  test('пустые ячейки: новая ячейка, EWMA инициализируется первым сэмплом', () => {
+    const cells = foldSummaryIntoCells({
+      cells: [],
+      perSymbol: [{ symbol: 'а', exposures: 2, clean: 1, latencies: [100, 200] }],
+      latencyAlpha: 0.3,
+    });
+    expect(cells).toHaveLength(1);
+    // EWMA: 100 (init) → 0.3·200 + 0.7·100 = 130
+    expect(cells[0]).toMatchObject({ symbol: 'а', exposures: 2, clean: 1, latencySamples: 2 });
+    expect(cells[0]?.latencyEwma).toBeCloseTo(130);
+  });
+
+  test('существующая ячейка накапливает предъявления и продолжает EWMA', () => {
+    const cells = foldSummaryIntoCells({
+      cells: [{ symbol: 'а', exposures: 5, clean: 3, latencyEwma: 120, latencySamples: 4 }],
+      perSymbol: [{ symbol: 'а', exposures: 1, clean: 1, latencies: [200] }],
+      latencyAlpha: 0.3,
+    });
+    expect(cells[0]).toMatchObject({ symbol: 'а', exposures: 6, clean: 4, latencySamples: 5 });
+    // 0.3·200 + 0.7·120 = 144
+    expect(cells[0]?.latencyEwma).toBeCloseTo(144);
+  });
+
+  test('без латентностей: предъявления растут, EWMA и счётчик сэмплов не трогаются', () => {
+    const cells = foldSummaryIntoCells({
+      cells: [{ symbol: 'а', exposures: 5, clean: 3, latencyEwma: 120, latencySamples: 4 }],
+      perSymbol: [{ symbol: 'а', exposures: 2, clean: 0, latencies: [] }],
+      latencyAlpha: 0.3,
+    });
+    expect(cells[0]).toMatchObject({
+      symbol: 'а',
+      exposures: 7,
+      clean: 3,
+      latencyEwma: 120,
+      latencySamples: 4,
+    });
+  });
+
+  test('новый символ добавляется рядом с существующим', () => {
+    const cells = foldSummaryIntoCells({
+      cells: [{ symbol: 'а', exposures: 1, clean: 1, latencyEwma: 100, latencySamples: 1 }],
+      perSymbol: [{ symbol: 'о', exposures: 1, clean: 0, latencies: [150] }],
+      latencyAlpha: 0.3,
+    });
+    expect(cells).toHaveLength(2);
+    expect(cells.map((c) => c.symbol).sort()).toEqual(['а', 'о']);
+  });
+});
+
+describe('applyDrillSummaryHandler — запись сводки в профиль', () => {
+  test('первая запись создаёт профиль с cold-start openedSteps = 1', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      const profileId = await applyDrillSummaryHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'а', exposures: 2, clean: 1, latencies: [100, 200] }],
+      });
+      const profile = await ctx.db.get(profileId);
+      expect(profile?.openedSteps).toBe(1);
+      expect(profile?.symbolCells).toHaveLength(1);
+      expect(profile?.symbolCells[0]).toMatchObject({ symbol: 'а', exposures: 2, clean: 1 });
+      expect(profile?.updatedAt).toBeGreaterThan(0);
+    });
+  });
+
+  test('вторая запись копит в тот же профиль (один на пару user × раскладка)', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await applyDrillSummaryHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'а', exposures: 2, clean: 1, latencies: [100] }],
+      });
+      await applyDrillSummaryHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'а', exposures: 3, clean: 2, latencies: [200] }],
+      });
+      const profiles = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .collect();
+      expect(profiles).toHaveLength(1);
+      expect(profiles[0]?.symbolCells[0]).toMatchObject({ symbol: 'а', exposures: 5, clean: 3 });
+    });
+  });
+});

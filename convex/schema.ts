@@ -48,4 +48,26 @@ export default defineSchema({
     symbolLayoutId: v.string(),
     stepLevel: v.number(),
   }).index('by_layout_and_step', ['symbolLayoutId', 'stepLevel']),
+  // Skill Profile: всё знание системы о пользователе в одном Layout Context
+  // (пара user × раскладка). Server-authoritative (ADR 0005). Наполняется
+  // drillRecord (apply сводки с затуханием); на этапе 1 ещё ничего не выбирает.
+  // openedSteps — Repertoire (число открытых шагов KeyLadder, ADR 0001).
+  // symbolCells — ячейки per-символ массивом: ключи-символы не-ASCII, Convex
+  // запрещает их в именах полей (как symbolFrequency в drills). per-биграмма —
+  // на этапе «Фокус». updatedAt ставит сервер.
+  skillProfiles: defineTable({
+    userId: v.id('users'),
+    symbolLayoutId: v.string(),
+    openedSteps: v.number(),
+    symbolCells: v.array(
+      v.object({
+        symbol: v.string(),
+        exposures: v.number(), // всего предъявлений символа
+        clean: v.number(), // из них чистых (первое нажатие верное)
+        latencyEwma: v.number(), // EWMA латентности, мс (0 пока нет сэмплов)
+        latencySamples: v.number(), // сколько латентностей сложено
+      })
+    ),
+    updatedAt: v.number(),
+  }).index('by_user_and_layout', ['userId', 'symbolLayoutId']),
 });

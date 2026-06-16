@@ -194,7 +194,7 @@ ladder-report:
 OPENED_STEPS ?= 6
 BUDGET_CHARS ?= 300
 next-batch:
-	@npx convex run batch:getNextBatch '{"symbolLayoutId":"$(LAYOUT)","openedSteps":$(OPENED_STEPS),"budgetChars":$(BUDGET_CHARS)}'
+	@npx convex run drill:drillNext '{"symbolLayoutId":"$(LAYOUT)","openedSteps":$(OPENED_STEPS),"budgetChars":$(BUDGET_CHARS)}'
 
 
 # ==============================================================================
