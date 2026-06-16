@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as batch from "../batch.js";
 import type * as http from "../http.js";
 import type * as selectionIndex from "../selectionIndex.js";
 import type * as userSettings from "../userSettings.js";
@@ -22,6 +23,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  batch: typeof batch;
   http: typeof http;
   selectionIndex: typeof selectionIndex;
   userSettings: typeof userSettings;

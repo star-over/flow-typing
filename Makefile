@@ -10,7 +10,7 @@ SHELL := /bin/bash
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell storybook storybook-build check-all compile-drills create-drills \
         corpus-process build-corpus import-corpus rebuild-selection-index ladder-report \
-        reinstall-gemini-cli convex
+        next-batch reinstall-gemini-cli convex
 
 all: help
 
@@ -52,6 +52,7 @@ help:
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
 	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
 	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням KeyLadder"
+	@echo "  make next-batch       - Auto-Flow: дымовой вызов выдачи порции (LAYOUT/OPENED_STEPS/BUDGET_CHARS)"
 	@echo "------------------------------------------------------------------"
 
 
@@ -187,6 +188,13 @@ rebuild-selection-index:
 # Контентный радар: распределение корпуса по ступеням KeyLadder.
 ladder-report:
 	@npx convex run selectionIndex:ladderReport '{"symbolLayoutId":"$(LAYOUT)"}'
+
+# Дымовой вызов выдачи порции (этап 1: фильтр по openedSteps + случайный выбор).
+# Контракт в символах (ADR 0006): бюджет считает клиент, сервер про cpm не знает.
+OPENED_STEPS ?= 6
+BUDGET_CHARS ?= 300
+next-batch:
+	@npx convex run batch:getNextBatch '{"symbolLayoutId":"$(LAYOUT)","openedSteps":$(OPENED_STEPS),"budgetChars":$(BUDGET_CHARS)}'
 
 
 # ==============================================================================
