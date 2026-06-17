@@ -8,9 +8,23 @@ import { fromPromise } from 'xstate';
 
 import type { SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import type { DrillSummary } from '@/lib/drill-summarize';
-import { fetchLocalDrillStream, fetchServerDrillStream } from '@/lib/drill-stream';
+import { fetchLocalDrillStream, glueServerDrills } from '@/lib/drill-stream';
 import { convex, api } from '@/lib/convex';
 import { sessionMachine } from './session.machine';
+
+/** Серверный сбор порции через Convex drillNext. */
+async function fetchServerDrillStream({
+  symbolLayoutId,
+  openedSteps,
+  budgetChars,
+}: {
+  symbolLayoutId: SymbolLayoutId;
+  openedSteps: number;
+  budgetChars: number;
+}): Promise<TypingStream> {
+  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, openedSteps, budgetChars });
+  return glueServerDrills({ drills: res.drills, symbolLayoutId });
+}
 
 export const sessionService = sessionMachine.provide({
   actors: {
@@ -36,7 +50,7 @@ export const sessionService = sessionMachine.provide({
     // Fire-and-forget: запись профиля не блокирует сессию. Гость (не
     // авторизован) → drillRecord бросит 'Not authenticated' → молча гасим.
     recordCheckpoint: (_, params) => {
-      const { summary, symbolLayoutId } = params as { summary: DrillSummary; symbolLayoutId: SymbolLayoutId };
+      const { summary, symbolLayoutId } = params;
       void convex
         .mutation(api.drill.drillRecord, { symbolLayoutId, summary })
         .catch((err) => console.warn('drillRecord пропущен (гость/офлайн)', err));

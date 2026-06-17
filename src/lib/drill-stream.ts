@@ -1,14 +1,14 @@
 /**
  * @file Сбор и склейка порции drill'ов в непрерывный TypingStream.
  * Склейка чистая; локальный сбор читает DRILL_CORPUS (детерминированно-чистый
- * по входу, кроме случайного выбора). Серверный сбор добавлен в задаче 6.
+ * по входу, кроме случайного выбора). Серверный fetch живёт в session-impl.ts
+ * (импурный, там же Convex).
  */
 import type { SymbolLayout, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/typing-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import { DRILL_CORPUS } from '@/lib/drill-corpus';
 import { filterDrillsBySymbolLayout, selectRandomDrill } from '@/lib/drill-selection';
-import { convex, api } from '@/lib/convex';
 
 /** Склеивает тексты drill'ов в один поток, разделяя ровно одним пробелом-символом. */
 export function glueDrillsIntoStream({
@@ -64,16 +64,3 @@ export function glueServerDrills({
   });
 }
 
-/** Серверный сбор порции через Convex drillNext. */
-export async function fetchServerDrillStream({
-  symbolLayoutId,
-  openedSteps,
-  budgetChars,
-}: {
-  symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
-  budgetChars: number;
-}): Promise<TypingStream> {
-  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, openedSteps, budgetChars });
-  return glueServerDrills({ drills: res.drills, symbolLayoutId });
-}

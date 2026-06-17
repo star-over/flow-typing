@@ -28,6 +28,10 @@ describe('glueServerDrills', () => {
     });
     expect(stream.map((s) => s.targetSymbol)).toEqual(['a', 'b', ' ', 'c', 'd']);
   });
+
+  test('пустой ответ сервера → пустой поток (якорь contentGap-деградации)', () => {
+    expect(glueServerDrills({ drills: [], symbolLayoutId: 'qwerty' })).toEqual([]);
+  });
 });
 
 describe('fetchLocalDrillStream', () => {
