@@ -15,10 +15,13 @@ export const sessionService = sessionMachine.provide({
     fetchDrills: fromPromise<
       TypingStream,
       { symbolLayoutId: SymbolLayoutId; openedSteps: number; budgetChars: number }
-    >(async ({ input }) => fetchLocalDrillStream({
-      symbolLayoutId: input.symbolLayoutId,
-      budgetChars: input.budgetChars,
-    })),
+    >(async ({ input }) => {
+      // openedSteps не используется локальным сбором — фильтр по шагу делает серверный fetch (задача 6)
+      return fetchLocalDrillStream({
+        symbolLayoutId: input.symbolLayoutId,
+        budgetChars: input.budgetChars,
+      });
+    }),
   },
   actions: {
     // Запись профиля подключается в задаче 6 (drillRecord). Пока no-op,

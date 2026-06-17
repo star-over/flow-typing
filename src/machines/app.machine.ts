@@ -89,12 +89,6 @@ export const appMachine = setup({
         keys: event.keys,
       })),
     },
-    'SESSION.COMPLETE': {
-      actions: {
-        type: 'storeCompletedStream',
-        params: ({ event }) => ({ stream: event.stream }),
-      },
-    },
   },
   states: {
     initializing: {
@@ -127,6 +121,7 @@ export const appMachine = setup({
         }),
       },
       on: {
+        // sessionService шлёт SESSION.COMPLETE только изнутри training — выше не всплывает
         'SESSION.COMPLETE': {
           target: 'sessionComplete',
           actions: {
@@ -147,6 +142,7 @@ export const appMachine = setup({
             sendTo('keyboardService', { type: 'RESET' }),
             sendTo('sessionService', { type: 'PAUSE_TIMER' }),
           ],
+          // при → menu тоже сработает, но session уже останавливается — RESUME_TIMER отбрасывается
           exit: sendTo('sessionService', { type: 'RESUME_TIMER' }),
           on: {
             RESUME: 'running',
