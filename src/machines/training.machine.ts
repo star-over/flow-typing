@@ -1,11 +1,13 @@
 /**
- * @file Машина состояний XState для управления процессом тренировки слепой печати.
- * @description Управляет потоком упражнения, классифицирует ввод пользователя как
- * корректный/ошибочный, копит попытки и завершает урок по достижении конца стрима.
+ * @file Машина состояний XState — чистый классификатор печати.
+ * @description Прогоняет непрерывный TypingStream: классифицирует ввод как
+ * корректный/ошибочный, копит attempts, шлёт родителю TYPING.ADVANCED на каждом
+ * продвижении курсора, принимает дозагрузку хвоста через APPEND_SYMBOLS.
+ * Завершение сессии — НЕ его забота (решает sessionMachine по таймеру).
  */
 import { assign, sendTo, setup } from 'xstate';
 
-import type { KeyCapId, ParentActor, SymbolLayoutId, TypingStream } from '@/interfaces/types';
+import type { KeyCapId, ParentActor, StreamSymbol, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { addAttempt } from '@/lib/stream-utils';
 import { areKeyCapIdArraysEqual } from '@/lib/symbol-utils';
 
@@ -20,7 +22,8 @@ export interface TrainingContext {
 }
 
 export type TrainingEvent =
-  | { type: 'KEY_PRESS'; keys: KeyCapId[] };
+  | { type: 'KEY_PRESS'; keys: KeyCapId[] }
+  | { type: 'APPEND_SYMBOLS'; symbols: StreamSymbol[] };
 
 export interface TrainingInput {
   stream: TypingStream;
@@ -55,13 +58,18 @@ export const trainingMachine = setup({
     incrementErrors: assign({
       errors: ({ context }) => context.errors + 1,
     }),
-    sendSessionComplete: sendTo(
+    // Шлёт родителю ЗАВЕРШЁННЫЙ (замороженный) символ — курсор уже за ним,
+    // attempts финальны. База для event-sourced проекции sessionMachine.
+    notifyAdvanced: sendTo(
       ({ context }) => context.parentActor,
       ({ context }) => ({
-        type: 'SESSION.COMPLETE',
-        stream: context.stream,
+        type: 'TYPING.ADVANCED',
+        symbol: context.stream[context.currentIndex]!,
       }),
     ),
+    appendSymbols: assign(({ context }, params: { symbols: StreamSymbol[] }) => ({
+      stream: [...context.stream, ...params.symbols],
+    })),
   },
   guards: {
     isAttemptCorrect: ({ context, event }) => {
@@ -69,10 +77,8 @@ export const trainingMachine = setup({
       if (!currentSymbol) return false;
       return areKeyCapIdArraysEqual({ a: currentSymbol.targetKeyCaps, b: event.keys });
     },
-    isLessonComplete: ({ context }) => context.currentIndex >= context.stream.length,
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QBcBOBDAlgOx1AdDNmBsngDJywD22AxANoAMAuoqAA7WyZm3sgAHogDMADib4ALADYZAdhEBGRfICcAVgBMYqQBoQAT0QBaGSPxqmTJWJ1iNEjRpkBfVwbRZc2AugDuWGS+AJLYHACuyHQA0gCiAJoA+gAKAEpxAMqZzGxIIFw8fNgCwggiGlL4TGIiWvJMWkzy9TIaBsYISlJK+OYKOiptUiLunhg4ePgcqNQAxlR4YZHRuQKFvJj8+WUiMpIyYkoa8nbmavInHYhaVn0jDvUXLUdjIF6TvtOzC7A8oeEoowlHlONxNttQGUpGo1NU1CImBpuvI2ictNcELcDg9tOp5C83h8fAQ5tRUKgwHNkMsgWt8htiqVRPs+kcTmcRBcrkZEFJapYmsitFolJo1FINESJiT8GSKVSaYDViD1uCmTtEEoxfgxBIHC1bHstPzMfyLGohUoRWKNBKpR53jKpjh5ZTqbTVqw1UUtiVNQgGr09fUGidkUoKpjuhZI6oxHIExomPz3I7sNQIHABMS8D6If6oYh5MH9eijTITWJMSYtId8A0RRU1DIpEwrA5pd4pkQSOhglBKH9IQV1X7meU6n0ETpHHJKzIlDXbL0ROo6ia0aiHeNu18AkElsr8xqi+VJdPTi46nJLhjeQgxLrI-qpKiRM29l3PgQZvNFgCKwnuOAYfnCSitq2263I47QPiKcJqGKYgtk0SEtI436ym6iqesBI67BeMgXA4SjNIcagoZixr4JUew9AS8j8jCWEutgOEeseDJjgRiCHBobLHIolqOEcmJ1lUraSkwXKioiLisV8AA2VC0AAwtQAC2HAqcgYD4YWQiiFy+BNHsmh2JuLT6A+zgHCcpxWEwxEqGoaauEAA */
   id: 'training',
   initial: 'awaitingInput',
   context: ({ input }) => ({
@@ -83,6 +89,15 @@ export const trainingMachine = setup({
     symbolAppearanceTime: 0,
     parentActor: input.parentActor,
   }),
+  // Дозагрузка хвоста доступна в любом состоянии — поток непрерывен.
+  on: {
+    APPEND_SYMBOLS: {
+      actions: {
+        type: 'appendSymbols',
+        params: ({ event }) => ({ symbols: event.symbols }),
+      },
+    },
+  },
   states: {
     awaitingInput: {
       entry: 'captureAppearanceTime',
@@ -99,35 +114,25 @@ export const trainingMachine = setup({
     },
 
     correctInput: {
+      // ПОРЯДОК ЖЁСТКИЙ, не переставлять: recordAttempt пишет attempt в
+      // stream[currentIndex]; notifyAdvanced читает этот уже-замороженный символ
+      // (с attempt'ом) и шлёт его родителю; advanceCursor двигает курсор за него.
+      // На конце потока просто ждём в awaitingInput — самозавершения нет, конец
+      // сессии решает sessionMachine.
       entry: [
-        {
-          type: 'recordAttempt',
-          params: ({ event }) => ({ keys: event.keys }),
-        },
+        { type: 'recordAttempt', params: ({ event }) => ({ keys: event.keys }) },
+        'notifyAdvanced',
         'advanceCursor',
       ],
-      always: [
-        { target: 'lessonComplete', guard: 'isLessonComplete' },
-        { target: 'awaitingInput' },
-      ],
+      always: 'awaitingInput',
     },
 
     incorrectInput: {
       entry: [
         'incrementErrors',
-        {
-          type: 'recordAttempt',
-          params: ({ event }) => ({ keys: event.keys }),
-        },
+        { type: 'recordAttempt', params: ({ event }) => ({ keys: event.keys }) },
       ],
       always: 'awaitingInput',
-    },
-
-    // Внутреннее имя `lessonComplete` намеренно сохранено: это деталь
-    // реализации training.machine'а (drill завершён). Наружу уходит
-    // `SESSION.COMPLETE` — событие сессионного слоя.
-    lessonComplete: {
-      entry: 'sendSessionComplete',
     },
   },
 });
