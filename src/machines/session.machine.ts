@@ -4,9 +4,9 @@
  * бюджет). Собирает порцию (fetchDrills), invoke'ит trainingMachine над
  * непрерывным потоком, накапливает event-sourced проекцию completed[] из
  * TYPING.ADVANCED, на чекпоинтах сводит [previousCheckpoint .. completed.length)
- * и шлёт recordCheckpoint, по истечении таймера допечатывает очередь и шлёт
- * родителю SESSION.COMPLETE. Чистая: провайдеры fetchDrills/recordCheckpoint
- * инъектируются (см. session-impl.ts). Refill — задача 7.
+ * и шлёт recordCheckpoint, при низкой воде очереди дозагружает (refilling), по
+ * истечении таймера допечатывает очередь и шлёт родителю SESSION.COMPLETE.
+ * Чистая: провайдеры fetchDrills/recordCheckpoint инъектируются (см. session-impl.ts).
  */
 import { assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate';
 
@@ -21,6 +21,7 @@ import { computeBudgetChars } from '@/lib/batch-budget';
 import { drillSummarize, type DrillSummary } from '@/lib/drill-summarize';
 import {
   DRAIN_CAP_MS,
+  REFILL_THRESHOLD_SYMBOLS,
   SESSION_DURATION_SECONDS,
   TICK_INTERVAL_MS,
 } from '@/lib/session-config';
@@ -110,10 +111,17 @@ export const sessionMachine = setup({
       type: 'KEY_PRESS',
       keys: (event as { keys: KeyCapId[] }).keys,
     })),
+    appendFetched: enqueueActions(({ event, enqueue }) => {
+      const symbols = (event as unknown as { output: StreamSymbol[] }).output;
+      enqueue.sendTo('training', { type: 'APPEND_SYMBOLS', symbols });
+      enqueue.assign({ totalAppended: ({ context }) => context.totalAppended + symbols.length });
+    }),
   },
   guards: {
     isExpired: ({ context }) => context.displayElapsedMs >= SESSION_WINDOW_MS,
     allTyped: ({ context }) => context.completed.length >= context.totalAppended,
+    needsRefill: ({ context }) =>
+      context.totalAppended - (context.completed.length + 1) <= REFILL_THRESHOLD_SYMBOLS,
   },
   delays: {
     drainCap: DRAIN_CAP_MS,
@@ -158,7 +166,8 @@ export const sessionMachine = setup({
     active: {
       // registry-ключ актора — `trainingService` (соглашение xService, как в
       // appMachine), но адресуемся по invoke id 'training': XState и children, и
-      // sendTo резолвят по id, не по ключу реестра.
+      // sendTo резолвят по id, не по ключу реестра. training invoke'ится на active
+      // (не на timing) — переживает paused и draining.
       invoke: {
         id: 'training',
         src: 'trainingService',
@@ -168,15 +177,21 @@ export const sessionMachine = setup({
           parentActor: self,
         }),
       },
-      // ВНИМАНИЕ: KEY_PRESS и TYPING.ADVANCED НЕ на active.on, а в каждом
-      // подсостоянии, где печать активна (running/draining). В paused их нет —
-      // на паузе ввод не форвардится в training, курсор не двигается, и
-      // TYPING.ADVANCED прийти не может (нечему). Так пауза замораживает и
-      // таймер, И печать; ни одно продвижение не теряется.
-      initial: 'running',
+      initial: 'timing',
       states: {
-        running: {
+        // running + refilling — ОДИН непрерывный сегмент таймера. Тикер и
+        // markSegmentStart живут здесь, на родителе `timing`: bounce
+        // running↔refilling — внутренний переход, timing НЕ выходит → тикер не
+        // перезапускается, segmentStartedAt не сбрасывается, время идёт
+        // непрерывно (юзер печатает и во время refill), и истечение может
+        // сработать в refilling. accumulateElapsed на exit timing — один коммит
+        // при ЛЮБОМ выходе (→ paused или → draining), без двойного счёта. Общие
+        // KEY_PRESS/TICK/TIMER_EXPIRED/PAUSE_TIMER — на timing.on (покрывают и
+        // running, И refilling). У paused их нет → пауза замораживает И печать, И
+        // таймер; ни одно продвижение не теряется.
+        timing: {
           entry: 'markSegmentStart',
+          exit: 'accumulateElapsed',
           invoke: {
             id: 'ticker',
             src: 'ticker',
@@ -184,19 +199,50 @@ export const sessionMachine = setup({
           },
           on: {
             KEY_PRESS: { actions: 'forwardKeyPress' },
-            'TYPING.ADVANCED': { actions: 'pushCompleted' },
             TICK: [
-              { guard: 'isExpired', target: 'draining', actions: 'accumulateElapsed' },
+              { guard: 'isExpired', target: 'draining' },
               { actions: 'refreshDisplay' },
             ],
-            TIMER_EXPIRED: { target: 'draining', actions: 'accumulateElapsed' },
-            PAUSE_TIMER: { target: 'paused', actions: 'accumulateElapsed' },
+            TIMER_EXPIRED: { target: 'draining' },
+            PAUSE_TIMER: { target: 'paused' },
+          },
+          initial: 'running',
+          states: {
+            running: {
+              on: {
+                'TYPING.ADVANCED': [
+                  { guard: 'needsRefill', target: 'refilling', actions: ['pushCompleted', 'checkpointAndRecord'] },
+                  { actions: 'pushCompleted' },
+                ],
+              },
+            },
+            refilling: {
+              invoke: {
+                id: 'refetch',
+                src: 'fetchDrills',
+                input: ({ context }) => ({
+                  symbolLayoutId: context.symbolLayoutId,
+                  openedSteps: context.openedSteps,
+                  budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
+                }),
+                onDone: { target: 'running', actions: 'appendFetched' },
+                onError: { target: 'running' }, // не удалось добрать — продолжаем тем, что есть
+              },
+              on: {
+                // Во время добора печать продолжается, но needsRefill НЕ
+                // перепроверяется (один fetch считается достаточным, чтобы хвост
+                // снова был выше порога). Безопасно при текущем пороге + добор
+                // одной порцией; если порции станут крошечными — добавить
+                // повторную проверку/добор здесь.
+                'TYPING.ADVANCED': { actions: 'pushCompleted' },
+              },
+            },
           },
         },
         paused: {
-          // Печать заморожена: ни форварда KEY_PRESS, ни обработки ADVANCED.
+          // Печать и таймер заморожены: ни KEY_PRESS, ни TICK, ни ADVANCED.
           on: {
-            RESUME_TIMER: 'running',
+            RESUME_TIMER: 'timing',
           },
         },
         draining: {
