@@ -118,7 +118,7 @@ export const trainingMachine = setup({
       // ПОРЯДОК ЖЁСТКИЙ, не переставлять: recordAttempt пишет attempt в
       // stream[currentIndex]; notifyAdvanced читает этот уже-замороженный символ
       // (с attempt'ом) и шлёт его родителю; advanceCursor двигает курсор за него.
-      // На конце потока просто ждём в awaitingInput — самозавершения нет, конец
+      // На конце потока просто ждём в awaitingInput — автоматического завершения нет, конец
       // сессии решает sessionMachine.
       entry: [
         {

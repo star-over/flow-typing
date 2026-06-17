@@ -88,7 +88,7 @@ describe('sessionMachine', () => {
 
     actor.send({ type: 'PAUSE_TIMER' });
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // во время паузы — игнор
-    // дать микротаскам отработать
+    // дать микрозадачам отработать
     await Promise.resolve();
     const snap = actor.getSnapshot() as SessionSnapshot;
     expect(snap.context.completed).toHaveLength(0);
@@ -98,7 +98,7 @@ describe('sessionMachine', () => {
   it('после истечения таймера допечатывается очередь → done + SESSION.COMPLETE родителю', async () => {
     const onRecord = vi.fn();
     // Сток-родитель: ловит SESSION.COMPLETE. Без него sendComplete уходит в self
-    // (XState-фоллбэк при отсутствии parentActor) и «родителю» НЕ проверяется.
+    // (XState-запасной вариант при отсутствии parentActor) и «родителю» НЕ проверяется.
     const sink = createActor(
       createMachine({
         types: {} as { context: { got: TypingStream[] } },
@@ -116,7 +116,7 @@ describe('sessionMachine', () => {
     actor.start();
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
 
-    // Истекаем ДО печати — тогда refill не триггерится (нет TYPING.ADVANCED), и
+    // Истекаем ДО печати — тогда refill не срабатывает (нет TYPING.ADVANCED), и
     // тест проверяет чистый сценарий «допечатать очередь после истечения» с
     // единственным (финальным) чекпоинтом.
     actor.send({ type: 'TIMER_EXPIRED' });
@@ -131,10 +131,10 @@ describe('sessionMachine', () => {
   });
 
   it('истёкший таймер при уже допечатанном потоке → сразу done', async () => {
-    // Однобуквенный поток: печать 'a' триггерит refill (порог 40 ≫ 1). Чтобы
+    // Однобуквенный поток: печать 'a' запускает refill (порог 40 ≫ 1). Чтобы
     // refill был безвреден (не раздул totalAppended), добор возвращает [].
     let call = 0;
-    const sess = sessionMachine.provide({
+    const providedSession = sessionMachine.provide({
       actors: {
         fetchDrills: fromPromise(async () => {
           call += 1;
@@ -143,7 +143,7 @@ describe('sessionMachine', () => {
       },
       actions: { recordCheckpoint: () => {} },
     });
-    const actor = createActor(sess, { input: INPUT });
+    const actor = createActor(providedSession, { input: INPUT });
     actor.start();
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
 
@@ -157,7 +157,7 @@ describe('sessionMachine', () => {
     const onRecord = vi.fn();
     // fetch отдаёт по 1 символу за раз — порог refill заведомо пробивается.
     let call = 0;
-    const sess = sessionMachine.provide({
+    const providedSession = sessionMachine.provide({
       actors: {
         fetchDrills: fromPromise(async () => {
           call += 1;
@@ -166,7 +166,7 @@ describe('sessionMachine', () => {
       },
       actions: { recordCheckpoint: (_, p) => onRecord((p as { summary: unknown }).summary) },
     });
-    const actor = createActor(sess, { input: INPUT });
+    const actor = createActor(providedSession, { input: INPUT });
     actor.start();
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
 
@@ -184,7 +184,7 @@ describe('sessionMachine', () => {
     // 41 > 40) и истинен на 2-м (остаток упал бы до 40). Добор возвращает [].
     const big: TypingStream = Array.from({ length: REFILL_THRESHOLD_SYMBOLS + 2 }, () => sym('a', 'KeyA'));
     let call = 0;
-    const sess = sessionMachine.provide({
+    const providedSession = sessionMachine.provide({
       actors: {
         fetchDrills: fromPromise(async () => {
           call += 1;
@@ -193,7 +193,7 @@ describe('sessionMachine', () => {
       },
       actions: { recordCheckpoint: (_, p) => onRecord((p as { summary: unknown }).summary) },
     });
-    const actor = createActor(sess, { input: INPUT });
+    const actor = createActor(providedSession, { input: INPUT });
     actor.start();
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
 

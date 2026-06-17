@@ -21,7 +21,7 @@ describe('glueDrillsIntoStream', () => {
 });
 
 describe('glueServerDrills', () => {
-  test('маппит drills сервера в склеенный поток', () => {
+  test('отображает drills сервера в склеенный поток', () => {
     const stream = glueServerDrills({
       drills: [{ text: 'ab' }, { text: 'cd' }], // glueServerDrills читает только .text
       symbolLayoutId: 'qwerty',

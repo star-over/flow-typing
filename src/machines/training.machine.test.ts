@@ -83,7 +83,7 @@ describe('trainingMachine (непрерывный)', () => {
     expect(actor.getSnapshot().context.advanced).toHaveLength(0);
   });
 
-  it('на конце потока НЕ самозавершается — стоит в awaitingInput, принимает APPEND', () => {
+  it('на конце потока НЕ завершается автоматически — стоит в awaitingInput, принимает APPEND', () => {
     const stream: TypingStream = [sym('a', 'KeyA')];
     const actor = createActor(makeTestParent(stream));
     actor.start();
@@ -126,7 +126,7 @@ describe('trainingMachine (непрерывный)', () => {
     expect(advanced[0]!.attempts.map((a) => a.pressedKeyCaps)).toEqual([['KeyX'], ['KeyA']]);
   });
 
-  it('аккорд с обратным порядком клавиш — верно (areKeyCapIdArraysEqual порядко-независим)', () => {
+  it('аккорд с обратным порядком клавиш — верно (areKeyCapIdArraysEqual порядок-независим)', () => {
     const stream: TypingStream = [{ targetSymbol: 'A', targetKeyCaps: ['ShiftLeft', 'KeyA'], attempts: [] }];
     const actor = createActor(makeTestParent(stream));
     actor.start();
@@ -147,7 +147,7 @@ describe('trainingMachine (непрерывный)', () => {
     expect(child.context.currentIndex).toBe(0);
   });
 
-  it('пишет startAt/endAt таймстемпы каждой попытки в окне реального времени', () => {
+  it('пишет startAt/endAt метки времени каждой попытки в окне реального времени', () => {
     const stream: TypingStream = [sym('a', 'KeyA')];
     const before = Date.now();
     const actor = createActor(makeTestParent(stream));

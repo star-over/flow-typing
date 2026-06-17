@@ -45,10 +45,11 @@
 ### XState-машины
 
 - `appMachine` (`src/machines/app.machine.ts`) — корневая FSM цикла тренировки (`menu`, `training` с substates `running`/`paused`, `sessionComplete`, `trainingStart`, `initializing`). Singleton-актор в `appActor.ts` (на уровне модуля, с `import.meta.hot.invalidate()`, чтобы HMR не плодил «двойных» акторов). Навигация между «страницами» (Settings, Stats) — настоящие SvelteKit-роуты, не состояния FSM.
-- `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` пересылает `CHARACTER_INPUT` в `trainingService`.
-- `trainingMachine` — invoked в state `training`. Прогоняет `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts` с таймстемпами, по завершении шлёт `SESSION.COMPLETE`. Внутреннее имя финального состояния — `lessonComplete` (деталь реализации drill'а, не leak'ает наружу).
+- `keyboardMachine` — invoked-ребёнок `appMachine`. Принимает физические `KEY_DOWN`/`KEY_UP`, шлёт родителю `KEYBOARD.CHARACTER_INPUT` (массив одновременно зажатых кодов) или `KEYBOARD.NAVIGATION_KEY` (Escape/Enter). `appMachine` пересылает `CHARACTER_INPUT` в `sessionService` как `KEY_PRESS`.
+- `sessionMachine` (`src/machines/session.machine.ts`) — invoked в state `training`. Таймерный жизненный цикл сессии: `loading` (первый fetch) → `active` (`running`/`paused`/`draining`) → `done`. Собирает порцию drill'ов (`fetchDrills`), склеивает в непрерывный `TypingStream`, invoke'ит `trainingMachine` как внука, накапливает event-sourced проекцию `completed[]` из `TYPING.ADVANCED`, на чекпоинтах (перед дозагрузкой и в конце) вызывает `drillRecord` через `recordCheckpoint`. Провайдеры внедряются через `session-impl.ts`. По истечении таймера фаза `draining` даёт допечатать очередь, затем шлёт `SESSION.COMPLETE` родителю.
+- `trainingMachine` — invoked внутри `sessionMachine` (внук `appMachine`). Чистый классификатор печати: прогоняет непрерывный `TypingStream`, сравнивает нажатые `KeyCapId[]` с `targetKeyCaps` через `areKeyCapIdArraysEqual` (порядок не важен), копит `attempts`, при продвижении курсора шлёт `TYPING.ADVANCED` вверх в `sessionMachine`. Завершение сессии решает таймер `sessionMachine`, не длина потока (нет `lessonComplete`).
 
-Подписка из Svelte: дочерний актор через `state.children.trainingService`, локальный `$state(snapshot)` + `subscribe()`/`unsubscribe()` в `onDestroy` — образец в `TrainingScene.svelte`, `+layout.svelte`, `App.svelte`.
+Подписка из Svelte: `sessionService` — прямой ребёнок `appMachine` (`state.children.sessionService`); `trainingMachine` — внук под `sessionState.children.training`. `TrainingScene` подписывается на `sessionActor` (таймер, поток) и выводит вложенный `trainingActor` из `sessionState.children.training`.
 
 ### UI entry points
 
@@ -57,7 +58,7 @@
 - `src/routes/+page.svelte` — лендинг с CTA «Начать тренировку» (`href="/train"`). Inline-placeholder, контракт темы не выделен (tech-debt note inline; запись в `docs/backlog.md`).
 - `src/routes/train/+page.svelte` → `src/components/app/App.svelte` — содержимое `/train`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
 - `Space` в `training` блокируется (`preventDefault`), чтобы не прокручивать.
-- `TrainingScene.svelte` строит `viewModel` и передаёт в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
+- `TrainingScene.svelte` получает `sessionActor` (`state.children.sessionService`), подписывается на него для таймера и строит вложенный `trainingActor` (`sessionState.children.training`); передаёт `viewModel` в `HandsScene.svelte`; `FlowLine` показывает поток символов с курсором.
 
 ### Domain language
 

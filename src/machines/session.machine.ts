@@ -6,7 +6,7 @@
  * TYPING.ADVANCED, на чекпоинтах сводит [previousCheckpoint .. completed.length)
  * и шлёт recordCheckpoint, при низкой воде очереди дозагружает (refilling), по
  * истечении таймера допечатывает очередь и шлёт родителю SESSION.COMPLETE.
- * Чистая: провайдеры fetchDrills/recordCheckpoint инъектируются (см. session-impl.ts).
+ * Чистая: провайдеры fetchDrills/recordCheckpoint внедряются (см. session-impl.ts).
  */
 import { assign, enqueueActions, fromCallback, fromPromise, sendTo, setup } from 'xstate';
 
@@ -93,7 +93,7 @@ export const sessionMachine = setup({
       displayElapsedMs: context.elapsedMs + (Date.now() - context.segmentStartedAt),
     })),
     // Один вход: свести [previousCheckpoint .. completed.length), инициировать
-    // инъектированную запись и сдвинуть границу. drillSummarize — чистый;
+    // внедрённую запись и сдвинуть границу. drillSummarize — чистый;
     // recordCheckpoint — провайдер (Convex/skip), вызывается через enqueue.
     checkpointAndRecord: enqueueActions(({ context, enqueue }) => {
       const slice = context.completed.slice(context.previousCheckpoint);
@@ -166,7 +166,7 @@ export const sessionMachine = setup({
     active: {
       // registry-ключ актора — `trainingService` (соглашение xService, как в
       // appMachine), но адресуемся по invoke id 'training': XState и children, и
-      // sendTo резолвят по id, не по ключу реестра. training invoke'ится на active
+      // sendTo разрешают по id, не по ключу реестра. training invoke'ится на active
       // (не на timing) — переживает paused и draining.
       invoke: {
         id: 'training',
@@ -246,7 +246,7 @@ export const sessionMachine = setup({
           },
         },
         draining: {
-          // Таймер вышел: дозагрузки нет, даём допечатать очередь. Кап-драйн
+          // Таймер вышел: дозагрузки нет, даём допечатать очередь. Страховочный таймаут
           // не даёт зависнуть, если юзер бросил печатать на середине символа.
           after: {
             drainCap: { target: '#session.done' },

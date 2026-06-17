@@ -1046,7 +1046,7 @@ npx convex dashboard
 
 В первой вкладке — клик на своё имя → dropdown → «Выйти». Состояние должно перейти `authenticated → loading → guest`. В Header первой вкладки появится «Войти».
 
-Во второй вкладке (из Step 7.5) состояние **может** не переключиться сразу — зависит от того, слушает ли wrapper `storage` event. Проверь: после reload вторая вкладка показывает `guest`. **Не препятствие** для merge — типовое UX-ограничение localStorage-flow без cross-tab broadcasts.
+Во второй вкладке (из Step 7.5) состояние **может** не переключиться сразу — зависит от того, слушает ли wrapper `storage` event. Проверь: после reload вторая вкладка показывает `guest`. **Не препятствие** для merge — обычное UX-ограничение localStorage-flow без cross-tab broadcasts.
 
 - [ ] **Step 7.7: Hard-reload и verify persistence**
 

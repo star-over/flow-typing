@@ -536,7 +536,7 @@ make test 2>&1 | tail -15
   --sign-in-screen-btn-google-hover-background: oklch(95% 0 0);
 ```
 
-**Палитра:** Google-кнопка инверсная к GitHub (GitHub в light = тёмная заливка; Google = светлая с тонким рамкой). Это типовое расположение «contained vs outlined» — позволяет визуально различить два провайдера, не вводя bright brand colors.
+**Палитра:** Google-кнопка инверсная к GitHub (GitHub в light = тёмная заливка; Google = светлая с тонким рамкой). Это обычный паттерн «contained vs outlined» — позволяет визуально различить два провайдера, не вводя bright brand colors.
 
 - [ ] **Step 3.5: Заполнить `dark.css`**
 

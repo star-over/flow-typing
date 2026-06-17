@@ -57,7 +57,7 @@ export const KEY_CAP_PRESS_RESULTS = [
 ] as const;
 export type KeyCapPressResult = typeof KEY_CAP_PRESS_RESULTS[number];
 
-/** Стандартные размеры ширины клавиш, выраженные в "юнитах" (1U ~ 19мм). */
+/** Стандартные размеры ширины клавиш, выраженные в unit'ах (1U ~ 19мм). */
 export const KEY_CAP_UNIT_WIDTHS = ["1U", "1.25U", "1.5U", "1.75U", "2U", "2.5U", "3U", "5U"] as const;
 export type KeyCapUnitWidth = typeof KEY_CAP_UNIT_WIDTHS[number];
 
@@ -172,7 +172,7 @@ export type TypingStream = StreamSymbol[];
 
 /**
  * Описывает одну физическую клавишу: её геометрию (координаты `x`/`y` и ширину `w`
- * в U-юнитах, 1U ~ 19мм), надпись и базовый тип.
+ * в U-unit'ах, 1U ~ 19мм), надпись и базовый тип.
  *
  * `x` — позиция левого края клавиши от левого края клавиатуры в U;
  * `y` — номер ряда (целое 0..N для стандартных клавиатур);

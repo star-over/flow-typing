@@ -1,8 +1,8 @@
 /**
  * @file Сбор и склейка порции drill'ов в непрерывный TypingStream.
- * Склейка чистая; локальный сбор читает DRILL_CORPUS (детерминированно-чистый
+ * Склейка чистая; локальный сбор читает DRILL_CORPUS (детерминированно-воспроизводимый
  * по входу, кроме случайного выбора). Серверный fetch живёт в session-impl.ts
- * (импурный, там же Convex).
+ * (с побочным эффектом, там же Convex).
  */
 import type { SymbolLayout, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/typing-stream';
