@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { glueDrillsIntoStream, fetchLocalDrillStream } from './drill-stream';
+import { glueDrillsIntoStream, fetchLocalDrillStream, glueServerDrills } from './drill-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 
 const qwerty = getSymbolLayoutDescriptor('qwerty').symbolLayout;
@@ -16,6 +16,16 @@ describe('glueDrillsIntoStream', () => {
 
   test('два drill\'а склеены ровно одним пробелом-символом', () => {
     const stream = glueDrillsIntoStream({ drillTexts: ['ab', 'cd'], symbolLayout: qwerty });
+    expect(stream.map((s) => s.targetSymbol)).toEqual(['a', 'b', ' ', 'c', 'd']);
+  });
+});
+
+describe('glueServerDrills', () => {
+  test('маппит drills сервера в склеенный поток', () => {
+    const stream = glueServerDrills({
+      drills: [{ text: 'ab' }, { text: 'cd' }], // glueServerDrills читает только .text
+      symbolLayoutId: 'qwerty',
+    });
     expect(stream.map((s) => s.targetSymbol)).toEqual(['a', 'b', ' ', 'c', 'd']);
   });
 });

@@ -1,13 +1,14 @@
 /**
  * @file Сбор и склейка порции drill'ов в непрерывный TypingStream.
  * Склейка чистая; локальный сбор читает DRILL_CORPUS (детерминированно-чистый
- * по входу, кроме случайного выбора). Серверный сбор — задача 6.
+ * по входу, кроме случайного выбора). Серверный сбор добавлен в задаче 6.
  */
 import type { SymbolLayout, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/typing-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import { DRILL_CORPUS } from '@/lib/drill-corpus';
 import { filterDrillsBySymbolLayout, selectRandomDrill } from '@/lib/drill-selection';
+import { convex, api } from '@/lib/convex';
 
 /** Склеивает тексты drill'ов в один поток, разделяя ровно одним пробелом-символом. */
 export function glueDrillsIntoStream({
@@ -46,4 +47,33 @@ export function fetchLocalDrillStream({
     total += drill.text.length + (texts.length > 1 ? 1 : 0); // +1 пробел только между drill'ами
   }
   return glueDrillsIntoStream({ drillTexts: texts, symbolLayout: descriptor.symbolLayout });
+}
+
+/** Чистый маппинг ответа drillNext в склеенный поток. */
+export function glueServerDrills({
+  drills,
+  symbolLayoutId,
+}: {
+  drills: { text: string }[];
+  symbolLayoutId: SymbolLayoutId;
+}): TypingStream {
+  const descriptor = getSymbolLayoutDescriptor(symbolLayoutId);
+  return glueDrillsIntoStream({
+    drillTexts: drills.map((d) => d.text),
+    symbolLayout: descriptor.symbolLayout,
+  });
+}
+
+/** Серверный сбор порции через Convex drillNext. */
+export async function fetchServerDrillStream({
+  symbolLayoutId,
+  openedSteps,
+  budgetChars,
+}: {
+  symbolLayoutId: SymbolLayoutId;
+  openedSteps: number;
+  budgetChars: number;
+}): Promise<TypingStream> {
+  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, openedSteps, budgetChars });
+  return glueServerDrills({ drills: res.drills, symbolLayoutId });
 }
