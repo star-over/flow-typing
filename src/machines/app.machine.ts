@@ -2,15 +2,13 @@ import { assign, sendTo, setup } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
-import { getPhysicalLayout, getSymbolLayoutDescriptor } from "@/lib/layouts";
+import { getPhysicalLayout } from "@/lib/layouts";
 
 const physicalLayoutANSI = getPhysicalLayout('ansi');
-import { createTypingStream } from "@/lib/typing-stream";
-import { DRILL_CORPUS } from "@/lib/drill-corpus";
-import { filterDrillsBySymbolLayout, selectRandomDrill } from "@/lib/drill-selection";
+import { DEFAULT_OPENED_STEPS, DEFAULT_SESSION_CPM } from "@/lib/session-config";
 
 import { keyboardMachine } from "./keyboard.machine";
-import { trainingMachine } from "./training.machine";
+import { sessionService } from "./session-impl";
 
 export interface AppContext {
   lastTrainingStream: TypingStream | null;
@@ -36,30 +34,14 @@ export const appMachine = setup({
   },
   actors: {
     keyboardService: keyboardMachine,
-    trainingService: trainingMachine,
+    sessionService,
   },
   actions: {
-    // Единственное место, где рождается новый TypingStream. Используется
-    // во всех трёх точках старта/рестарта тренировки.
-    startNewTrainingStream: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => {
-      const descriptor = getSymbolLayoutDescriptor(params.symbolLayoutId);
-      const compatible = filterDrillsBySymbolLayout({
-        allDrills: DRILL_CORPUS,
-        symbolLayoutDescriptor: descriptor,
-      });
-      const drill = selectRandomDrill({ drills: compatible });
-      // Защищено ApplicationDataSchema на старте — сюда мы не должны попасть с пустым массивом.
-      if (!drill) {
-        throw new Error(`No compatible drills for layout=${params.symbolLayoutId}`);
-      }
-      return {
-        lastTrainingStream: createTypingStream({
-          drillText: drill.text,
-          symbolLayout: descriptor.symbolLayout,
-        }),
-        currentSymbolLayoutId: params.symbolLayoutId,
-      };
-    }),
+    // Выбор drill'ов и построение потока уехали в sessionMachine (session-impl).
+    // На корне — только зафиксировать раскладку для будущей сессии.
+    setSymbolLayout: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => ({
+      currentSymbolLayoutId: params.symbolLayoutId,
+    })),
     storeCompletedStream: assign((_, params: { stream: TypingStream }) => ({
       lastTrainingStream: params.stream,
     })),
@@ -71,7 +53,6 @@ export const appMachine = setup({
       event.type === 'KEYBOARD.NAVIGATION_KEY' && event.key === 'Enter',
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEMAOqDEBpAogTQH0ARAeQHUA5AbQAYBdRUVAe1gEsAXN5gO0ZAAeiAIwAmABzCAdAE454mTQBsAFgCs6mcIA0IAJ6IAzKLVSlWyQHZDl8ROEaAvo91pMuQgFUACrQZIQFnYuXn4hBGEVGUMpUUs1Y0NxGkt4pV0DBGNTc2ErGztJJxcQN2x8ACESAEEAJSIpWpwAYRIAcQoASQAtHCI-fiDObj4A8JlLUTMJURVDKKVLB3EMoxMzCxsVUUMxNSVnV3QpNh5h5AAbNgAvU6gMAYChkNHQcOFhJRopcXm1cSU8wmilEqwQSkiZiUEMMMm2hl2cMOpWOAFswDwAK4YADKABU6niCHjatVOl0KG1HkxWMNQmMRB8YkoEvsomphHComDLCypIY1CkNALUh9kW4pOisRg8SQCDicHi8eS2jjqYFaS8wiJRF8pDQLLNVIkVGClHF+RoZKIZL9fmpLDJxWiMdjZQRqgAZT3ygl49XPEbahC2mSyGiGQFzOYGmim-SIc2WS1RG12gXiZ2oKQcABOyFOdxlpPJKqkrQAst5PYqcAHNUGGRFhDRvjDRLqlhIwS25lJLFEZPtjNtLHGszn84WePdvNVPAr68FG28RAjpJI8lHkkpxBowXCw7aW6kFLsbQcShLYGAOFwZ7AZXKKzgKJ4l3TXoIRNGpA6VMISyckm6QJuC8RSJEvIaBGNDiNsmZXsceYFmcM7NMwqKoBct5gE+BAvm+H5ak24hLP2rYdjs5jWBMPYONIEwAeIkg0Hke6Xkc2YodOUAYVhOEcHh+KEsSJYUlS9CDA29KriGKhKLECQKDR1p2KCYG-NIUQfOaogfJEdgTqgyCYje+GEe+UlPDJX7vL+-6fHuEjRJGPJ8gKKTJNEcKRqIxmmeZIm1ESJJkhJxErt+EQ2jEnxxAkvLmg4ahglpUg6fF+kfCovwBWZeFNDingvpFsnRcI2SxGm8xjo6sJpdaGWIh8sxzNanEotxU5oVAOIcMguYcA81k0su5XvJ83w0LMEa7n5cxpfB-KqCxSQSOaLETpcFz9cgw3upZZV2YgZHSGOM0mBGY52DoYGLKYUEsiosHwRIzglDwzAQHA-BuNJ40nQgdgxBdVGRhMsKWGCcxTLs8ORgsyhkROhZcJcNx3ADn7Bjl0hfK5bF5HExhgvsikKRovKwSYswTlKmLYyRckfP8sSGHGyxsRyQ48nBGVqDIEIttCdhRBOPG9UzUWTbqPxyHGAp+QaqVgXCcN5PMkgdYLE43nedzwDZgO4yo2z9ooCKw8kcaq5kSb6h2Q5DvpcEOBLPV3Px2G4dLE2MnksgvXBygthYd2ZKz+PbHkM1m2I8z5TeftA5ECRmGoF6CmIocHlEZhRHG0KwkOkQe6hdx7UNKe45VilxlyuQOi7aW7JBguVQa0LbA620XLtA0cDXpF2JaqRpI66gmGaFqXQoe7RICCQfY4QA */
   id: 'app',
   initial: 'initializing',
   invoke: {
@@ -103,7 +84,7 @@ export const appMachine = setup({
       actions: sendTo('keyboardService', { type: 'RESET' }),
     },
     'KEYBOARD.CHARACTER_INPUT': {
-      actions: sendTo('trainingService', ({ event }) => ({
+      actions: sendTo('sessionService', ({ event }) => ({
         type: 'KEY_PRESS',
         keys: event.keys,
       })),
@@ -126,7 +107,7 @@ export const appMachine = setup({
           target: 'trainingStart',
           reenter: true,
           actions: {
-            type: 'startNewTrainingStream',
+            type: 'setSymbolLayout',
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
         },
@@ -136,11 +117,12 @@ export const appMachine = setup({
     training: {
       initial: 'running',
       invoke: {
-        id: 'trainingService',
-        src: 'trainingService',
+        id: 'sessionService',
+        src: 'sessionService',
         input: ({ context, self }) => ({
-          stream: context.lastTrainingStream!,
           symbolLayoutId: context.currentSymbolLayoutId,
+          openedSteps: DEFAULT_OPENED_STEPS,
+          cpm: DEFAULT_SESSION_CPM,
           parentActor: self,
         }),
       },
@@ -157,14 +139,15 @@ export const appMachine = setup({
         running: {
           on: {
             PAUSE: 'paused',
-            'KEYBOARD.NAVIGATION_KEY': {
-              guard: 'isEscape',
-              target: 'paused',
-            },
+            'KEYBOARD.NAVIGATION_KEY': { guard: 'isEscape', target: 'paused' },
           },
         },
         paused: {
-          entry: sendTo('keyboardService', { type: 'RESET' }),
+          entry: [
+            sendTo('keyboardService', { type: 'RESET' }),
+            sendTo('sessionService', { type: 'PAUSE_TIMER' }),
+          ],
+          exit: sendTo('sessionService', { type: 'RESUME_TIMER' }),
           on: {
             RESUME: 'running',
             TO_MENU: '#app.menu',
@@ -184,7 +167,7 @@ export const appMachine = setup({
           target: 'trainingStart',
           reenter: true,
           actions: {
-            type: 'startNewTrainingStream',
+            type: 'setSymbolLayout',
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
         },
@@ -192,7 +175,7 @@ export const appMachine = setup({
           guard: 'isEnter',
           target: 'trainingStart',
           actions: {
-            type: 'startNewTrainingStream',
+            type: 'setSymbolLayout',
             params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
           },
         },

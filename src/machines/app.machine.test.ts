@@ -1,14 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { createActor } from 'xstate';
+import { createActor, createMachine } from 'xstate';
 
 import type { TypingStream } from '@/interfaces/types';
 
 import { appMachine } from './app.machine';
 
+// Заглушка сессии — пустая МАШИНА (не fromCallback!). В setup appMachine
+// `sessionService` зарегистрирован как машина, поэтому override обязан быть
+// машинной логикой — callback-актор не присвоится по типам (red в make check).
+// Пустая машина глотает KEY_PRESS/PAUSE_TIMER/RESUME_TIMER, остаётся жива →
+// snap.children.sessionService определён. Каст нужен, т.к. её generics не совпадают
+// с конкретным sessionService; SESSION.COMPLETE в тестах шлём в appMachine напрямую.
+const sessionStub = createMachine({ id: 'sessionStub' });
+const appMachineForTest = appMachine.provide({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  actors: { sessionService: sessionStub as any },
+});
+
 describe('appMachine', () => {
   describe('initial / navigation', () => {
     it('settles in menu after initializing (always transition)', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       expect(actor.getSnapshot().value).toBe('menu');
     });
@@ -16,20 +28,19 @@ describe('appMachine', () => {
   });
 
   describe('START_TRAINING', () => {
-    it('from menu: enters training.running, stores symbolLayoutId, prepares non-empty stream', () => {
-      const actor = createActor(appMachine);
+    it('from menu: enters training.running, stores symbolLayoutId, spawns sessionService', () => {
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
-      expect(snap.context.lastTrainingStream).not.toBeNull();
-      expect(snap.context.lastTrainingStream!.length).toBeGreaterThan(0);
+      expect(snap.children.sessionService).toBeDefined();
     });
 
     it('stores currentSymbolLayoutId = qwerty when started with qwerty', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty' });
       expect(actor.getSnapshot().context.currentSymbolLayoutId).toBe('qwerty');
@@ -38,7 +49,7 @@ describe('appMachine', () => {
 
   describe('training.running / paused transitions', () => {
     it('PAUSE → paused; RESUME → running', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
@@ -51,7 +62,7 @@ describe('appMachine', () => {
     });
 
     it('Escape in training.running → paused', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
@@ -60,7 +71,7 @@ describe('appMachine', () => {
     });
 
     it('Escape in training.paused → menu', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
       actor.send({ type: 'PAUSE' });
@@ -70,7 +81,7 @@ describe('appMachine', () => {
     });
 
     it('Enter in training.paused → resumes training.running', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
       actor.send({ type: 'PAUSE' });
@@ -80,7 +91,7 @@ describe('appMachine', () => {
     });
 
     it('TO_MENU from training.paused → menu', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
       actor.send({ type: 'PAUSE' });
@@ -90,7 +101,7 @@ describe('appMachine', () => {
     });
 
     it('NAVIGATION_KEY other than Escape/Enter does not transition from running', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
@@ -101,7 +112,7 @@ describe('appMachine', () => {
 
   describe('SESSION.COMPLETE', () => {
     it('moves to sessionComplete and stores final stream', () => {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
@@ -118,7 +129,7 @@ describe('appMachine', () => {
 
   describe('sessionComplete transitions', () => {
     function arriveInSessionComplete(layout: 'qwerty' | 'йцукен' = 'йцукен') {
-      const actor = createActor(appMachine);
+      const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: layout });
       actor.send({ type: 'SESSION.COMPLETE', stream: [] });
@@ -142,8 +153,6 @@ describe('appMachine', () => {
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
-      expect(snap.context.lastTrainingStream).not.toBeNull();
-      expect(snap.context.lastTrainingStream!.length).toBeGreaterThan(0);
     });
 
     it('Escape NAVIGATION_KEY is ignored in sessionComplete (no Escape handler)', () => {
