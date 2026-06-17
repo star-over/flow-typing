@@ -83,12 +83,6 @@ export const appMachine = setup({
     RESET_KEYBOARD: {
       actions: sendTo('keyboardService', { type: 'RESET' }),
     },
-    'KEYBOARD.CHARACTER_INPUT': {
-      actions: sendTo('sessionService', ({ event }) => ({
-        type: 'KEY_PRESS',
-        keys: event.keys,
-      })),
-    },
   },
   states: {
     initializing: {
@@ -121,7 +115,17 @@ export const appMachine = setup({
         }),
       },
       on: {
-        // sessionService шлёт SESSION.COMPLETE только изнутри training — выше не всплывает
+        // Форвард ввода в session ТОЛЬКО внутри training — здесь живёт
+        // invoked-ребёнок. На корневом уровне это морозит root-актор: в
+        // menu/sessionComplete ребёнка нет, и sendTo мёртвому актору роняет
+        // машину в error (см. app.machine.test.ts «stray CHARACTER_INPUT»).
+        // sessionService шлёт SESSION.COMPLETE тоже только изнутри training.
+        'KEYBOARD.CHARACTER_INPUT': {
+          actions: sendTo('sessionService', ({ event }) => ({
+            type: 'KEY_PRESS',
+            keys: event.keys,
+          })),
+        },
         'SESSION.COMPLETE': {
           target: 'sessionComplete',
           actions: {
@@ -167,14 +171,18 @@ export const appMachine = setup({
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
         },
-        'KEYBOARD.NAVIGATION_KEY': {
-          guard: 'isEnter',
-          target: 'trainingStart',
-          actions: {
-            type: 'setSymbolLayout',
-            params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
+        'KEYBOARD.NAVIGATION_KEY': [
+          {
+            guard: 'isEnter',
+            target: 'trainingStart',
+            actions: {
+              type: 'setSymbolLayout',
+              params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
+            },
           },
-        },
+          // Esc дублирует кнопку «В меню» (TO_MENU): та же навигация с клавиатуры.
+          { guard: 'isEscape', target: 'menu', reenter: true },
+        ],
       },
     },
 

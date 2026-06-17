@@ -107,7 +107,7 @@
   onblur={handleBlur}
 />
 
-<div class="app-container">
+<div class="app-shell">
   <Header title={$dictionary.app.title} />
 
   <main class="main">
@@ -116,22 +116,22 @@
 </div>
 
 <style>
-  .app-container {
+  .app-shell {
     font-family: var(--font-sans);
-    display: grid;
-    grid-template-rows: auto 1fr;
-    align-items: center;
-    justify-items: center;
-    min-height: 100vh;
-    padding: var(--spacing-8);
-    gap: var(--spacing-8);
-  }
-
-  .main {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
+    min-height: 100vh;
+  }
+
+  /* Header — slim top bar (sibling, не внутри центрирующего padding'а контента). */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    gap: var(--spacing-4);
     width: 100%;
+    padding: var(--spacing-8);
   }
 </style>

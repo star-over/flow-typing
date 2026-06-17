@@ -25,14 +25,14 @@ export const HAND_VIEW_BOX = '0 0 281 321';
 
 /** Координаты центра пальца (для позиционирования кластеров клавиш). */
 export const FINGER_CENTER_POINTS: Record<Exclude<FingerId, 'LB' | 'RB'>, { cx: number; cy: number }> = {
-  L1: { cx: 270, cy: 245 },
-  L2: { cx: 249, cy: 48 },
-  L3: { cx: 176, cy: 8 },
-  L4: { cx: 90, cy: 16 },
-  L5: { cx: 15, cy: 50 },
-  R1: { cx: 270, cy: 245 },
-  R2: { cx: 240, cy: 48 },
-  R3: { cx: 176, cy: 8 },
-  R4: { cx: 90, cy: 16 },
-  R5: { cx: 15, cy: 50 },
+  L1: { cx: 260, cy: 245 },
+  L2: { cx: 255, cy: 25 },
+  L3: { cx: 170, cy: 25 },
+  L4: { cx: 90,  cy: 25 },
+  L5: { cx: 15,  cy: 25 },
+  R1: { cx: 260, cy: 245 },
+  R2: { cx: 255, cy: 25 },
+  R3: { cx: 170, cy: 25 },
+  R4: { cx: 90,  cy: 25 },
+  R5: { cx: 15,  cy: 25 },
 };

@@ -4,11 +4,13 @@
  * Контракт-тест в `src/themes/contract.test.ts` проверяет, что каждая
  * тема декларирует токены из этого списка.
  *
- * Header — лого-бренд и навигация (ссылки на Settings / Stats).
+ * Header — slim top bar: лого-бренд (Wordmark) слева, меню пользователя
+ * (UserMenu) справа. Навигация (Settings / Stats) живёт в выпадающем меню
+ * UserMenu. Единственная роль самого бара, которую задаёт тема, — нижняя
+ * граница, отделяющая его от контента.
  */
 export const HEADER_CONTRACT = [
-  '--header-title-color',                 // color навигационных ссылок
-  '--header-nav-link-hover-background',   // background nav-link при hover
+  '--header-border', // полный border-bottom бара (divider между меню и контентом)
 ] as const satisfies readonly `--${string}`[];
 
 export type HeaderContractToken = (typeof HEADER_CONTRACT)[number];

@@ -2,7 +2,7 @@
   import type { Actor } from 'xstate';
   import type { sessionMachine } from '@/machines/session.machine';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
+  import type { FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -21,10 +21,9 @@
     physicalLayout: PhysicalLayout;
     cursorType: FlowLineCursorType;
     cursorMode: FlowLineCursorMode;
-    dictionary: Dictionary;
   }
 
-  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode, dictionary }: Props = $props();
+  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let sessionState = $state(sessionActor.getSnapshot());
@@ -78,8 +77,7 @@
 </script>
 
 <div class="training-scene">
-  <h2 class="title">{dictionary.app.training_in_progress}</h2>
-  <p class="timer"><code class="state-code">{remainingSeconds}s</code></p>
+  <p class="timer">{remainingSeconds}s</p>
 
   <FlowLine
     symbols={enrichedSymbols}
@@ -102,15 +100,11 @@
     width: 100%;
   }
 
-  .title {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .state-code {
+  /* Обратный отсчёт сессии: примитивы темы достаточно, выделенный токен не нужен
+     (визуальная чистка master убрала debug-токен TrainingScene). */
+  .timer {
     font-family: var(--font-mono);
-    background: var(--training-scene-state-code-background);
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-2);
+    font-size: 1.25rem;
+    opacity: 0.7;
   }
 </style>

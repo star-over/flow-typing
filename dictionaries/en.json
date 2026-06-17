@@ -16,9 +16,7 @@
     "error_title": "An Error Occurred",
     "start_again": "Start Again",
     "pause": "Pause",
-    "resume": "Resume",
-    "training_in_progress": "Training In Progress",
-    "training_machine_state": "Training Machine State:"
+    "resume": "Resume"
   },
   "settings": {
     "title": "User Preferences",

@@ -43,15 +43,17 @@
 <style>
   .select-wrapper {
     position: relative;
-    display: inline-block;
+    display: block;
+    width: 100%;
   }
 
   .select {
     appearance: none;
+    width: 100%;
     background: var(--select-background);
     border: var(--select-border);
     border-radius: var(--radius-3);
-    padding: var(--spacing-2) var(--spacing-6) var(--spacing-2) var(--spacing-3);
+    padding: var(--spacing-1) var(--spacing-6) var(--spacing-1) var(--spacing-3);
     color: var(--select-color);
     font-family: var(--font-sans);
     font-size: 0.875rem;
