@@ -5,7 +5,7 @@
  * продвижении курсора, принимает дозагрузку хвоста через APPEND_SYMBOLS.
  * Завершение сессии — НЕ его забота (решает sessionMachine по таймеру).
  */
-import { assign, sendTo, setup } from 'xstate';
+import { assertEvent, assign, sendTo, setup } from 'xstate';
 
 import type { KeyCapId, ParentActor, StreamSymbol, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { addAttempt } from '@/lib/stream-utils';
@@ -73,6 +73,7 @@ export const trainingMachine = setup({
   },
   guards: {
     isAttemptCorrect: ({ context, event }) => {
+      assertEvent(event, 'KEY_PRESS');
       const currentSymbol = context.stream[context.currentIndex];
       if (!currentSymbol) return false;
       return areKeyCapIdArraysEqual({ a: currentSymbol.targetKeyCaps, b: event.keys });
@@ -120,7 +121,13 @@ export const trainingMachine = setup({
       // На конце потока просто ждём в awaitingInput — самозавершения нет, конец
       // сессии решает sessionMachine.
       entry: [
-        { type: 'recordAttempt', params: ({ event }) => ({ keys: event.keys }) },
+        {
+          type: 'recordAttempt',
+          params: ({ event }) => {
+            assertEvent(event, 'KEY_PRESS');
+            return { keys: event.keys };
+          },
+        },
         'notifyAdvanced',
         'advanceCursor',
       ],
@@ -130,7 +137,13 @@ export const trainingMachine = setup({
     incorrectInput: {
       entry: [
         'incrementErrors',
-        { type: 'recordAttempt', params: ({ event }) => ({ keys: event.keys }) },
+        {
+          type: 'recordAttempt',
+          params: ({ event }) => {
+            assertEvent(event, 'KEY_PRESS');
+            return { keys: event.keys };
+          },
+        },
       ],
       always: 'awaitingInput',
     },
