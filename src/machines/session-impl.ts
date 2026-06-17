@@ -7,7 +7,6 @@
 import { fromPromise } from 'xstate';
 
 import type { SymbolLayoutId, TypingStream } from '@/interfaces/types';
-import type { DrillSummary } from '@/lib/drill-summarize';
 import { fetchLocalDrillStream, glueServerDrills } from '@/lib/drill-stream';
 import { convex, api } from '@/lib/convex';
 import { sessionMachine } from './session.machine';

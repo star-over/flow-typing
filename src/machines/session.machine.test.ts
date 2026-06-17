@@ -4,7 +4,7 @@ import { assign, createActor, createMachine, fromPromise, type SnapshotFrom } fr
 import type { KeyCapId, StreamSymbol, TypingStream } from '@/interfaces/types';
 import { REFILL_THRESHOLD_SYMBOLS } from '@/lib/session-config';
 import { sessionMachine } from './session.machine';
-import { trainingMachine } from './training.machine';
+import type { trainingMachine } from './training.machine';
 
 type SessionSnapshot = SnapshotFrom<typeof sessionMachine>;
 

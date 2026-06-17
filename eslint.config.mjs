@@ -39,6 +39,10 @@ export default [
             'scripts/*.ts',
             'convex/*.test.ts',
           ],
+          // Кап default-project у typescript-eslint по умолчанию 8, а под
+          // allowDefaultProject подпадает 11 файлов (configs + .storybook +
+          // scripts + convex-тесты) → иначе линт падает «Too many files (>8)».
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 25,
         },
         extraFileExtensions: ['.svelte'],
       },
@@ -141,6 +145,10 @@ export default [
             'scripts/*.ts',
             'convex/*.test.ts',
           ],
+          // Кап default-project у typescript-eslint по умолчанию 8, а под
+          // allowDefaultProject подпадает 11 файлов (configs + .storybook +
+          // scripts + convex-тесты) → иначе линт падает «Too many files (>8)».
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 25,
         },
         extraFileExtensions: ['.svelte'],
       },

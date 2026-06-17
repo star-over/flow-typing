@@ -13,7 +13,6 @@ import { appMachine } from './app.machine';
 // с конкретным sessionService; SESSION.COMPLETE в тестах шлём в appMachine напрямую.
 const sessionStub = createMachine({ id: 'sessionStub' });
 const appMachineForTest = appMachine.provide({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actors: { sessionService: sessionStub as any },
 });
 
