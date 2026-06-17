@@ -3,6 +3,7 @@ import { assign, createActor, createMachine, fromPromise, type SnapshotFrom } fr
 
 import type { KeyCapId, StreamSymbol, TypingStream } from '@/interfaces/types';
 import { sessionMachine } from './session.machine';
+import { trainingMachine } from './training.machine';
 
 type SessionSnapshot = SnapshotFrom<typeof sessionMachine>;
 
@@ -35,9 +36,9 @@ function makeSession({
 const noopParent = createActor(createMachine({ id: 'noopParent' })).start();
 const INPUT = { symbolLayoutId: 'qwerty' as const, openedSteps: 1, cpm: 200, parentActor: noopParent };
 
-function getTraining(actor: ReturnType<typeof createActor>) {
+function getTraining(actor: ReturnType<typeof createActor>): SnapshotFrom<typeof trainingMachine> | null {
   const child = actor.getSnapshot().children.training;
-  return child ? child.getSnapshot() : null;
+  return child ? (child.getSnapshot() as SnapshotFrom<typeof trainingMachine>) : null;
 }
 
 describe('sessionMachine (без refill)', () => {
@@ -86,8 +87,7 @@ describe('sessionMachine (без refill)', () => {
     await Promise.resolve();
     const snap = actor.getSnapshot() as SessionSnapshot;
     expect(snap.context.completed).toHaveLength(0);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((snap.children.training!.getSnapshot() as any).context.currentIndex).toBe(0);
+    expect(getTraining(actor)!.context.currentIndex).toBe(0);
   });
 
   it('по допечатке всей очереди после истечения таймера → done + SESSION.COMPLETE родителю', async () => {
@@ -123,7 +123,7 @@ describe('sessionMachine (без refill)', () => {
     expect(sink.getSnapshot().context.got[0]).toHaveLength(2); // полный набранный поток [a, b]
   });
 
-  it('istёкший таймер при уже допечатанном потоке → сразу done', async () => {
+  it('истёкший таймер при уже допечатанном потоке → сразу done', async () => {
     const actor = createActor(makeSession({ stream: [sym('a', 'KeyA')] }), { input: INPUT });
     actor.start();
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches({ active: 'running' })).toBe(true));

@@ -80,11 +80,6 @@ export const sessionMachine = setup({
     recordCheckpoint: (_, _params: { summary: DrillSummary; symbolLayoutId: SymbolLayoutId }) => {
       throw new Error('recordCheckpoint not provided');
     },
-    storeFetched: assign(({ event }) => {
-      // onDone актора fetchDrills: event.output — собранный поток
-      const stream = (event as unknown as { output: TypingStream }).output;
-      return { pendingStream: stream, totalAppended: stream.length };
-    }),
     pushCompleted: assign(({ context, event }) => ({
       completed: [...context.completed, (event as { symbol: StreamSymbol }).symbol],
     })),
@@ -149,7 +144,13 @@ export const sessionMachine = setup({
           openedSteps: context.openedSteps,
           budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
         }),
-        onDone: { target: 'active', actions: 'storeFetched' },
+        onDone: {
+          target: 'active',
+          actions: assign(({ event }) => ({
+            pendingStream: event.output,
+            totalAppended: event.output.length,
+          })),
+        },
         onError: { target: 'done' }, // пустой fetch → нечего печатать, в конец
       },
     },
