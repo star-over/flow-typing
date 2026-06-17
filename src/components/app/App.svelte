@@ -1,6 +1,6 @@
 <script lang="ts">
   import { appActor } from '@/machines/appActor';
-  import type { trainingMachine } from '@/machines/training.machine';
+  import type { sessionMachine } from '@/machines/session.machine';
   import type { Actor } from 'xstate';
 
   import { dictionary } from '@/lib/i18n';
@@ -16,8 +16,8 @@
   });
   onDestroy(() => actorSub.unsubscribe());
 
-  const trainingActor = $derived(
-    state.children.trainingService as Actor<typeof trainingMachine> | undefined
+  const sessionActor = $derived(
+    state.children.sessionService as Actor<typeof sessionMachine> | undefined
   );
 </script>
 
@@ -25,7 +25,7 @@
   {state}
   send={appActor.send.bind(appActor)}
   dictionary={$dictionary}
-  {trainingActor}
+  {sessionActor}
 />
 
 <FooterActions

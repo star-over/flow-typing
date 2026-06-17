@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor, StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
-  import type { trainingMachine } from '@/machines/training.machine';
+  import type { sessionMachine } from '@/machines/session.machine';
   import type { Dictionary } from '@/interfaces/types';
   import { getFingerLayout, getPhysicalLayout } from '@/lib/layouts';
   import { settings } from '@/lib/settings';
@@ -20,10 +20,10 @@
     state: StateFrom<typeof appMachine>;
     send: (event: AppEvent) => void;
     dictionary: Dictionary;
-    trainingActor: Actor<typeof trainingMachine> | undefined;
+    sessionActor: Actor<typeof sessionMachine> | undefined;
   }
 
-  const { state, send, dictionary, trainingActor }: Props = $props();
+  const { state, send, dictionary, sessionActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённого потока или нет нажатий).
   // Тогда экран sessionComplete пуст — допустимое degenerate-состояние,
@@ -36,8 +36,8 @@
   });
 </script>
 
-{#if inState({ snapshot: state, value: { training: 'running' } }) && trainingActor}
-  <TrainingScene {trainingActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} {dictionary} />
+{#if inState({ snapshot: state, value: { training: 'running' } }) && sessionActor}
+  <TrainingScene {sessionActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} {dictionary} />
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
