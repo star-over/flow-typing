@@ -277,4 +277,8 @@
   --landing-cta-color            : unset;
   --landing-cta-border           : unset;
   --landing-cta-hover-background : unset;
+  --landing-muted-color          : unset;
+  --landing-rule                 : unset;
+  --landing-demo-path            : unset;
+  --landing-demo-surface         : unset;
 }

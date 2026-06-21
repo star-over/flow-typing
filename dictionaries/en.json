@@ -1,8 +1,32 @@
 {
   "title": "Welcome to FlowTyping",
   "landing": {
-    "hero_title": "Welcome to FlowTyping",
-    "tagline": "A touch-typing trainer that visualizes finger motion."
+    "hero_title": "Touch-type by motion, not by hunting keys.",
+    "tagline": "FlowTyping shows the path each finger travels — home to key and back. Accuracy and rhythm first; speed follows.",
+    "demo_aria": "Demonstration: a finger travels from its home key to the target and back; each finger has its own color.",
+    "how_title": "How it works",
+    "principles": [
+      {
+        "title": "The path, not the key",
+        "body": "We show the route a finger takes to a key and back — you learn the motion, not a picture on the screen."
+      },
+      {
+        "title": "Always home",
+        "body": "Every keystroke ends back on the ASDF–JKL; home row. Your hands always know where they are."
+      },
+      {
+        "title": "Rhythm over rushing",
+        "body": "Even intervals between keystrokes. Accuracy leads — speed arrives on its own."
+      }
+    ],
+    "philosophy_title": "Motion, not highlight",
+    "philosophy_lead": "Ordinary trainers highlight a key — and you watch the screen. FlowTyping draws the motion — and you feel the keyboard.",
+    "philosophy_old_label": "Ordinary trainer",
+    "philosophy_old_text": "Highlights the key. Your eyes stay tied to the screen.",
+    "philosophy_new_label": "FlowTyping",
+    "philosophy_new_text": "Shows the finger's path. Eyes free, memory in the hands.",
+    "closing_title": "Ready to feel the keyboard?",
+    "closing_text": "A few minutes a day. Accuracy before speed."
   },
   "app": {
     "title": "FlowTyping",

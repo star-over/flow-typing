@@ -332,4 +332,8 @@
   --landing-cta-color            : oklch(0.26 0.02 60);
   --landing-cta-border           : 1px solid transparent;
   --landing-cta-hover-background : oklch(0.66 0.16 70);
+  --landing-muted-color          : var(--color-text-secondary);
+  --landing-rule                 : 1px solid var(--color-border);
+  --landing-demo-path            : var(--color-path-highlight);
+  --landing-demo-surface         : var(--color-surface);
 }
