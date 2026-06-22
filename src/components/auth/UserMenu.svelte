@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { on } from 'svelte/events';
   import { resolve } from '$app/paths';
   import Avatar from '@/components/ui/Avatar.svelte';
   import { settings } from '@/lib/settings';
@@ -28,11 +29,11 @@
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') open = false;
     };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    const offPointerDown = on(document, 'pointerdown', onPointerDown);
+    const offKeyDown = on(document, 'keydown', onKeyDown);
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      offPointerDown();
+      offKeyDown();
     };
   });
 

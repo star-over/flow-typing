@@ -5,7 +5,7 @@ import type { UserSettings } from '@/interfaces/user-settings';
  * Mirror'ит `Doc<'userSettings'>` без runtime-зависимости от convex types
  * (тесты этого модуля бегут в node env без convex code-generation).
  */
-export type CloudSettings = {
+export interface CloudSettings {
   interfaceLanguage: string;
   textLanguage: string;
   symbolLayoutId: string;
@@ -18,7 +18,7 @@ export type CloudSettings = {
   // Optional на чтение: строки, записанные до появления поля, его не имеют.
   displayName?: string;
   updatedAt: number;
-};
+}
 
 export type SyncOnLoginDecision =
   | { action: 'pull'; settings: UserSettings }

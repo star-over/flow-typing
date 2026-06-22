@@ -16,7 +16,7 @@ export interface LayoutData {
 }
 
 const LAYOUTS: Record<string, LayoutData> = {
-  'йцукен': { symbolLayout: symbolLayoutJcuken as SymbolEntry[], keyLadder: jcukenKeyLadder },
+  'йцукен': { symbolLayout: symbolLayoutJcuken, keyLadder: jcukenKeyLadder },
 };
 
 export function getLayoutData(symbolLayoutId: string): LayoutData | null {

@@ -197,7 +197,7 @@ describe('applyDrillSummaryHandler — рост репертуара', () => {
         profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
           perSymbol: [{ symbol, exposures: 25, clean: 25, latencies: [200] }] });
       }
-      const profile = await ctx.db.get(profileId!);
+      const profile = await ctx.db.get(profileId);
       expect(profile?.openedSteps).toBe(2);
     });
   });
