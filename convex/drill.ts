@@ -19,8 +19,8 @@
  *
  * Жёсткое требование одно: drill доступен ⟺ его `stepLevel` в таблице отбора
  * `< openedSteps` (ADR 0001) — индексируемое сравнение через `by_layout_and_step`.
- * `openedSteps` пока приходит параметром (на этапе 1 набор букв фиксирован,
- * профиль ещё ничего не выбирает); позже его будет давать Skill Profile.
+ * `openedSteps` читается из Skill Profile (ADR 0008): `resolveOpenedSteps` возвращает
+ * значение профиля (user × раскладка) или cold-start 1 для гостя/нового профиля.
  */
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { mutation } from './_generated/server';
@@ -33,10 +33,31 @@ import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
 
+// Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
+// openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
+const DEFAULT_OPENED_STEPS = 1;
+
+/** Резолв репертуара: openedSteps из профиля (user × раскладка) или cold-start. */
+export async function resolveOpenedSteps({
+  ctx,
+  userId,
+  symbolLayoutId,
+}: {
+  ctx: MutationCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+}): Promise<number> {
+  if (userId === null) return DEFAULT_OPENED_STEPS;
+  const profile = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
+    .unique();
+  return profile?.openedSteps ?? DEFAULT_OPENED_STEPS;
+}
+
 export const drillNext = mutation({
   args: {
     symbolLayoutId: v.string(),
-    openedSteps: v.number(),
     budgetChars: v.number(),
   },
   returns: v.object({
@@ -44,11 +65,14 @@ export const drillNext = mutation({
     drills: v.array(v.object({ id: v.id('drills'), text: v.string(), length: v.number() })),
   }),
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
+
     // Жёсткий фильтр: все доступные drill'ы раскладки (stepLevel < openedSteps).
     const eligible = await ctx.db
       .query('drillSelectionIndex')
       .withIndex('by_layout_and_step', (q) =>
-        q.eq('symbolLayoutId', args.symbolLayoutId).lt('stepLevel', args.openedSteps)
+        q.eq('symbolLayoutId', args.symbolLayoutId).lt('stepLevel', openedSteps)
       )
       .collect();
 
@@ -57,7 +81,7 @@ export const drillNext = mutation({
     // дефолтный drill домашнего ряда — задача клиента/следующего шага.
     if (eligible.length === 0) {
       console.warn(
-        `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${args.openedSteps}) — контентный сбой`
+        `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — контентный сбой`
       );
       return { contentGap: true, drills: [] };
     }
@@ -92,10 +116,6 @@ export const drillNext = mutation({
 // ────────────────────────────────────────────────────────────────────────────
 // drillRecord — приём сводки drill'а в Skill Profile (apply-агрегатор, ADR 0005)
 // ────────────────────────────────────────────────────────────────────────────
-
-// Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
-// openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
-const DEFAULT_OPENED_STEPS = 1;
 
 // Коэффициент EWMA латентности ячейки (затухание старых замеров). Провизорно
 // (план «Числа-настройки»), уточним по реальным данным. Первый сэмпл
