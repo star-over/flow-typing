@@ -13,7 +13,7 @@ import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
 import { computeStepLevel } from '../shared/selection-index/compute.ts';
-import { getLayoutData } from './layout-data';
+import { getLayoutData } from './layoutData';
 
 /**
  * Контентный радар: распределение корпуса по ступеням KeyLadder для раскладки.

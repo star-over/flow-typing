@@ -27,7 +27,7 @@ import { mutation } from './_generated/server';
 import type { MutationCtx } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
-import { getLayoutData } from './layout-data';
+import { getLayoutData } from './layoutData';
 import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';

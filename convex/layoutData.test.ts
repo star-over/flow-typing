@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getLayoutData } from './layout-data';
+import { getLayoutData } from './layoutData';
 
 describe('getLayoutData', () => {
   test('известная раскладка → symbolLayout + keyLadder', () => {
