@@ -161,13 +161,16 @@
     flex-shrink: 0;
   }
 
+  /* Бренд-янтарная CTA — те же токены, что у primary-CTA лендинга
+     (`--landing-cta-*`), чтобы «Начать тренировку» выглядела одинаково на `/`
+     и на `/train`. */
   .start-btn {
     width: 100%;
     padding: var(--spacing-3) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--footer-actions-btn-primary-border);
-    background: var(--footer-actions-btn-primary-background);
-    color: var(--footer-actions-btn-primary-color);
+    border: var(--landing-cta-border);
+    background: var(--landing-cta-background);
+    color: var(--landing-cta-color);
     font-family: var(--font-sans);
     font-size: 0.9375rem;
     font-weight: 600;
@@ -175,7 +178,12 @@
   }
 
   .start-btn:hover {
-    opacity: 0.9;
+    background: var(--landing-cta-hover-background);
+  }
+
+  .start-btn:focus-visible {
+    outline: 2px solid var(--landing-cta-background);
+    outline-offset: 2px;
   }
 
   /* Узкие экраны — подпись над списком, обе на всю ширину. */
