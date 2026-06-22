@@ -19,6 +19,8 @@ import type {
 } from '@/interfaces/types';
 import { computeBudgetChars } from '@/lib/batch-budget';
 import { drillSummarize, type DrillSummary } from '@/lib/drill-summarize';
+import { createTypingStream } from '@/lib/typing-stream';
+import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
   DRAIN_CAP_MS,
   REFILL_THRESHOLD_SYMBOLS,
@@ -109,8 +111,17 @@ export const sessionMachine = setup({
       type: 'KEY_PRESS',
       keys: (event as { keys: KeyCapId[] }).keys,
     })),
-    appendFetched: enqueueActions(({ event, enqueue }) => {
-      const symbols = (event as unknown as { output: StreamSymbol[] }).output;
+    appendFetched: enqueueActions(({ context, event, enqueue }) => {
+      const fetched = (event as unknown as { output: StreamSymbol[] }).output;
+      if (fetched.length === 0) return;
+      // Стык порций — это стык drill'ов: разделяем пробелом, иначе хвост старой
+      // порции слипается с началом новой (слова сливаются без границы). Внутри
+      // порции пробелы ставит glueDrillsIntoStream; на границе порций — здесь.
+      const separator = createTypingStream({
+        drillText: ' ',
+        symbolLayout: getSymbolLayoutDescriptor(context.symbolLayoutId).symbolLayout,
+      });
+      const symbols = [...separator, ...fetched];
       enqueue.sendTo('training', { type: 'APPEND_SYMBOLS', symbols });
       enqueue.assign({ totalAppended: ({ context }) => context.totalAppended + symbols.length });
     }),
