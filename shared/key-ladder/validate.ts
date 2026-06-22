@@ -5,6 +5,7 @@
  * параметром. Возвращает список проблем (пусто = валидна).
  */
 import type { KeyLadder } from './types.ts';
+import { maxLadderStep } from './key-step-map.ts';
 
 export function validateKeyLadder({
   ladder,
@@ -29,7 +30,7 @@ export function validateKeyLadder({
 
   // Шаги 0..max без дыр.
   const steps = new Set(ladder.keys.map((entry) => entry.step));
-  const maxStep = Math.max(-1, ...steps);
+  const maxStep = maxLadderStep(ladder);
   for (let step = 0; step <= maxStep; step++) {
     if (!steps.has(step)) problems.push(`пропущен шаг: ${step}`);
   }
