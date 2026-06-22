@@ -27,6 +27,11 @@ import { mutation } from './_generated/server';
 import type { MutationCtx } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
+import { getLayoutData } from './layout-data';
+import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
+import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
+import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
+import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
 
 export const drillNext = mutation({
   args: {
@@ -110,6 +115,32 @@ interface SymbolStatInput {
   exposures: number;
   clean: number;
   latencies: number[];
+}
+
+/** Чистое решение о новом openedSteps по обновлённым ячейкам (writer-логика). */
+function grownOpenedSteps({
+  symbolLayoutId,
+  openedSteps,
+  cells,
+}: {
+  symbolLayoutId: string;
+  openedSteps: number;
+  cells: SymbolCell[];
+}): number {
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) {
+    console.warn(`grownOpenedSteps: нет данных раскладки ${symbolLayoutId} — рост пропущен`);
+    return openedSteps;
+  }
+  const { symbolLayout, keyLadder } = layoutData;
+  return decideOpenedSteps({
+    openedSteps,
+    maxStep: maxLadderStep(keyLadder),
+    currentStepSymbols: symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder }),
+    cells,
+    params: READINESS_PARAMS,
+    debtLimit: REPERTOIRE_DEBT_LIMIT,
+  });
 }
 
 /**
@@ -211,7 +242,8 @@ export async function applyDrillSummaryHandler({
       updatedAt: now,
     });
   }
-  await ctx.db.patch(existing._id, { symbolCells, updatedAt: now });
+  const openedSteps = grownOpenedSteps({ symbolLayoutId, openedSteps: existing.openedSteps, cells: symbolCells });
+  await ctx.db.patch(existing._id, { symbolCells, openedSteps, updatedAt: now });
   return existing._id;
 }
 
