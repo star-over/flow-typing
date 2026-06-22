@@ -25,16 +25,14 @@ const logConvex = import.meta.env.DEV
 /** Серверный сбор порции через Convex drillNext. */
 async function fetchServerDrillStream({
   symbolLayoutId,
-  openedSteps,
   budgetChars,
 }: {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   budgetChars: number;
 }): Promise<TypingStream> {
-  logConvex(`drillNext → openedSteps=${openedSteps} budgetChars=${budgetChars} layout=${symbolLayoutId}`);
+  logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId}`);
   const startedAt = performance.now();
-  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, openedSteps, budgetChars });
+  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, budgetChars });
   const stream = glueServerDrills({ drills: res.drills, symbolLayoutId });
   const elapsedMs = Math.round(performance.now() - startedAt);
   logConvex(`drillNext ← ${res.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
@@ -45,7 +43,7 @@ export const sessionService = sessionMachine.provide({
   actors: {
     fetchDrills: fromPromise<
       TypingStream,
-      { symbolLayoutId: SymbolLayoutId; openedSteps: number; budgetChars: number }
+      { symbolLayoutId: SymbolLayoutId; budgetChars: number }
     >(async ({ input }) => {
       try {
         const stream = await fetchServerDrillStream(input);

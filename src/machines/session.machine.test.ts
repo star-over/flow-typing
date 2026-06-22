@@ -35,7 +35,7 @@ function makeSession({
 // каждому INPUT нужен реальный ActorRef. Тестам, которым неважно SESSION.COMPLETE,
 // хватает пустой машины (событие просто игнорируется).
 const noopParent = createActor(createMachine({ id: 'noopParent' })).start();
-const INPUT = { symbolLayoutId: 'qwerty' as const, openedSteps: 1, cpm: 200, parentActor: noopParent };
+const INPUT = { symbolLayoutId: 'qwerty' as const, cpm: 200, parentActor: noopParent };
 
 // Активная печать живёт в active.timing.running (тикер и сегмент таймера — на
 // родителе timing, чтобы пережить bounce running↔refilling).

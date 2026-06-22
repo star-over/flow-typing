@@ -29,14 +29,12 @@ import { trainingMachine } from './training.machine';
 
 export interface SessionInput {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   cpm: number;
   parentActor: ParentActor;
 }
 
 export interface SessionContext {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   cpm: number;
   parentActor: ParentActor;
   pendingStream: TypingStream; // результат первого fetch до invoke training
@@ -67,7 +65,7 @@ export const sessionMachine = setup({
   actors: {
     trainingService: trainingMachine,
     // Провайдеры — дефолты-заглушки. Реальные в session-impl.ts; тесты переопределяют.
-    fetchDrills: fromPromise<TypingStream, { symbolLayoutId: SymbolLayoutId; openedSteps: number; budgetChars: number }>(
+    fetchDrills: fromPromise<TypingStream, { symbolLayoutId: SymbolLayoutId; budgetChars: number }>(
       async () => {
         throw new Error('fetchDrills not provided');
       },
@@ -131,7 +129,6 @@ export const sessionMachine = setup({
   initial: 'loading',
   context: ({ input }) => ({
     symbolLayoutId: input.symbolLayoutId,
-    openedSteps: input.openedSteps,
     cpm: input.cpm,
     parentActor: input.parentActor,
     pendingStream: [],
@@ -149,7 +146,6 @@ export const sessionMachine = setup({
         src: 'fetchDrills',
         input: ({ context }) => ({
           symbolLayoutId: context.symbolLayoutId,
-          openedSteps: context.openedSteps,
           budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
         }),
         onDone: {
@@ -222,7 +218,6 @@ export const sessionMachine = setup({
                 src: 'fetchDrills',
                 input: ({ context }) => ({
                   symbolLayoutId: context.symbolLayoutId,
-                  openedSteps: context.openedSteps,
                   budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
                 }),
                 onDone: { target: 'running', actions: 'appendFetched' },
