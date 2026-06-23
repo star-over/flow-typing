@@ -4,6 +4,7 @@
   import { PUBLIC_CONVEX_URL } from '$env/static/public';
   import { convex, api } from '@/lib/convex';
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
+  import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
@@ -37,6 +38,12 @@
   const authStore = createAuthStore();
   setContext('auth', authStore);
 
+  const repertoireStore = createRepertoireStore({
+    authStore,
+    symbolLayoutId: () => $settings.symbolLayoutId,
+  });
+  setContext('repertoire', repertoireStore);
+
   // Phase 5: cross-device settings sync для авторизованных юзеров.
   // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.
   const cloudSync = attachCloudSync({
@@ -59,6 +66,11 @@
     state = snapshot;
   });
   onDestroy(() => actorSub.unsubscribe());
+
+  // Отмечаем ступень на входе в тренировку — для показа перехода в sessionComplete.
+  $effect(() => {
+    if (inState({ snapshot: state, value: 'training' })) repertoireStore.markSessionStart();
+  });
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
