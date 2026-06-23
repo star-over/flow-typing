@@ -10,7 +10,7 @@ const LAYOUT: SymbolEntry[] = [
   { symbol: 'в', keyCaps: ['KeyD'] }, // шаг 1
 ];
 const ready = (s: string): ProfileCell => ({ symbol: s, exposures: 30, clean: 29, latencyEwma: 200, latencySamples: 30 });
-const notReady = (s: string, clean: number, latencyEwma: number = 200): ProfileCell => ({ symbol: s, exposures: 30, clean, latencyEwma, latencySamples: 30 });
+const notReady = (s: string, clean: number, latencyEwma = 200): ProfileCell => ({ symbol: s, exposures: 30, clean, latencyEwma, latencySamples: 30 });
 
 describe('computeRepertoireProgress', () => {
   test('ступень, готовность и долг по текущему шагу', () => {
