@@ -12,19 +12,8 @@ import { internalAction, internalMutation, internalQuery, query } from './_gener
 import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
-import symbolLayoutJcuken from '../src/data/layouts/symbol-layout-jcuken.json';
-import { jcukenKeyLadder } from '../shared/key-ladder/jcuken.ts';
 import { computeStepLevel } from '../shared/selection-index/compute.ts';
-
-interface SymbolEntry {
-  symbol: string;
-  keyCaps: string[];
-}
-
-/** symbolLayoutId → единый источник: символьная раскладка + KeyLadder. */
-const LAYOUTS: Record<string, { symbolLayout: SymbolEntry[]; keyLadder: typeof jcukenKeyLadder }> = {
-  'йцукен': { symbolLayout: symbolLayoutJcuken as SymbolEntry[], keyLadder: jcukenKeyLadder },
-};
+import { getLayoutData } from './layoutData';
 
 /**
  * Контентный радар: распределение корпуса по ступеням KeyLadder для раскладки.
@@ -96,13 +85,14 @@ export const clearLayoutPage = internalMutation({
 export const rebuild = internalAction({
   args: { symbolLayoutId: v.string() },
   handler: async (ctx, args): Promise<{ cleared: number; inserted: number }> => {
-    const layout = LAYOUTS[args.symbolLayoutId];
-    if (!layout) throw new Error(`нет данных раскладки: ${args.symbolLayoutId}`);
+    const layoutData = getLayoutData(args.symbolLayoutId);
+    if (!layoutData) throw new Error(`нет данных раскладки: ${args.symbolLayoutId}`);
+    const { symbolLayout, keyLadder } = layoutData;
     const symbolToKeyCaps = new Map<string, string[]>(
-      layout.symbolLayout.map((entry) => [entry.symbol, entry.keyCaps])
+      symbolLayout.map((entry) => [entry.symbol, entry.keyCaps])
     );
     const keyToStep = new Map<string, number>(
-      layout.keyLadder.keys.map((entry) => [entry.keyCapId, entry.step])
+      keyLadder.keys.map((entry) => [entry.keyCapId, entry.step])
     );
 
     let cleared = 0;

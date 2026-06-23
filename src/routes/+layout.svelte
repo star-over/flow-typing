@@ -4,6 +4,7 @@
   import { PUBLIC_CONVEX_URL } from '$env/static/public';
   import { convex, api } from '@/lib/convex';
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
+  import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
@@ -37,6 +38,12 @@
   const authStore = createAuthStore();
   setContext('auth', authStore);
 
+  const repertoireStore = createRepertoireStore({
+    authStore,
+    symbolLayoutId: () => $settings.symbolLayoutId,
+  });
+  setContext('repertoire', repertoireStore);
+
   // Phase 5: cross-device settings sync для авторизованных юзеров.
   // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.
   const cloudSync = attachCloudSync({
@@ -59,6 +66,17 @@
     state = snapshot;
   });
   onDestroy(() => actorSub.unsubscribe());
+
+  // Отмечаем ступень РОВНО на входе в тренировку (edge-triggered) — для показа
+  // перехода в sessionComplete. Не на каждый внутренний переход (running↔paused):
+  // рост openedSteps случается на refill-чекпоинтах внутри сессии, и повторный
+  // markSessionStart перезаписал бы стартовую отметку, скрыв «новую ступень».
+  let wasTraining = false;
+  $effect(() => {
+    const isTraining = inState({ snapshot: state, value: 'training' });
+    if (isTraining && !wasTraining) repertoireStore.markSessionStart();
+    wasTraining = isTraining;
+  });
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;

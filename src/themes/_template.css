@@ -223,6 +223,15 @@
   --lesson-stats-display-value-color    : unset;
   --lesson-stats-display-unit-color     : unset;
 
+  /* RepertoireProgress */
+  --repertoire-progress-background  : unset;
+  --repertoire-progress-border      : unset;
+  --repertoire-progress-label-color : unset;
+  --repertoire-progress-value-color : unset;
+  --repertoire-progress-bar-track   : unset;
+  --repertoire-progress-bar-fill    : unset;
+  --repertoire-progress-accent-color: unset;
+
   /* SettingsPage */
   --settings-page-label-color         : unset;
   --settings-page-input-background    : unset;

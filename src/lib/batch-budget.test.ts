@@ -15,8 +15,9 @@ describe('computeBudgetChars', () => {
   });
 
   test('окно по умолчанию — константа BATCH_WINDOW_SECONDS', () => {
-    expect(BATCH_WINDOW_SECONDS).toBe(90);
-    expect(computeBudgetChars({ secondsRemaining: 600, cpm: 200 })).toBe(300);
+    expect(BATCH_WINDOW_SECONDS).toBe(15);
+    // min(600, 15) × 200 / 60 = 50 знаков — целевая порция первого этапа.
+    expect(computeBudgetChars({ secondsRemaining: 600, cpm: 200 })).toBe(50);
   });
 
   test('всегда хотя бы 1 знак — порция непустая даже у нулевого остатка', () => {

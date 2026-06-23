@@ -19,6 +19,8 @@ import type {
 } from '@/interfaces/types';
 import { computeBudgetChars } from '@/lib/batch-budget';
 import { drillSummarize, type DrillSummary } from '@/lib/drill-summarize';
+import { createTypingStream } from '@/lib/typing-stream';
+import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
   DRAIN_CAP_MS,
   REFILL_THRESHOLD_SYMBOLS,
@@ -29,14 +31,12 @@ import { trainingMachine } from './training.machine';
 
 export interface SessionInput {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   cpm: number;
   parentActor: ParentActor;
 }
 
 export interface SessionContext {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   cpm: number;
   parentActor: ParentActor;
   pendingStream: TypingStream; // результат первого fetch до invoke training
@@ -67,7 +67,7 @@ export const sessionMachine = setup({
   actors: {
     trainingService: trainingMachine,
     // Провайдеры — дефолты-заглушки. Реальные в session-impl.ts; тесты переопределяют.
-    fetchDrills: fromPromise<TypingStream, { symbolLayoutId: SymbolLayoutId; openedSteps: number; budgetChars: number }>(
+    fetchDrills: fromPromise<TypingStream, { symbolLayoutId: SymbolLayoutId; budgetChars: number }>(
       async () => {
         throw new Error('fetchDrills not provided');
       },
@@ -111,8 +111,17 @@ export const sessionMachine = setup({
       type: 'KEY_PRESS',
       keys: (event as { keys: KeyCapId[] }).keys,
     })),
-    appendFetched: enqueueActions(({ event, enqueue }) => {
-      const symbols = (event as unknown as { output: StreamSymbol[] }).output;
+    appendFetched: enqueueActions(({ context, event, enqueue }) => {
+      const fetched = (event as unknown as { output: StreamSymbol[] }).output;
+      if (fetched.length === 0) return;
+      // Стык порций — это стык drill'ов: разделяем пробелом, иначе хвост старой
+      // порции слипается с началом новой (слова сливаются без границы). Внутри
+      // порции пробелы ставит glueDrillsIntoStream; на границе порций — здесь.
+      const separator = createTypingStream({
+        drillText: ' ',
+        symbolLayout: getSymbolLayoutDescriptor(context.symbolLayoutId).symbolLayout,
+      });
+      const symbols = [...separator, ...fetched];
       enqueue.sendTo('training', { type: 'APPEND_SYMBOLS', symbols });
       enqueue.assign({ totalAppended: ({ context }) => context.totalAppended + symbols.length });
     }),
@@ -131,7 +140,6 @@ export const sessionMachine = setup({
   initial: 'loading',
   context: ({ input }) => ({
     symbolLayoutId: input.symbolLayoutId,
-    openedSteps: input.openedSteps,
     cpm: input.cpm,
     parentActor: input.parentActor,
     pendingStream: [],
@@ -149,7 +157,6 @@ export const sessionMachine = setup({
         src: 'fetchDrills',
         input: ({ context }) => ({
           symbolLayoutId: context.symbolLayoutId,
-          openedSteps: context.openedSteps,
           budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
         }),
         onDone: {
@@ -222,7 +229,6 @@ export const sessionMachine = setup({
                 src: 'fetchDrills',
                 input: ({ context }) => ({
                   symbolLayoutId: context.symbolLayoutId,
-                  openedSteps: context.openedSteps,
                   budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
                 }),
                 onDone: { target: 'running', actions: 'appendFetched' },

@@ -142,7 +142,8 @@ check-dev: install
 	@echo "✅ DEVELOPMENT проверки завершены!"
 
 check-all: install
-	$(MAKE) lint check test spell build
+	npx eslint . --max-warnings 0
+	$(MAKE) check test spell build
 	@echo "✅ Все проверки завершены!"
 
 

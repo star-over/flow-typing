@@ -23,10 +23,13 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
-function tx<T>(
-  mode: IDBTransactionMode,
-  run: (store: IDBObjectStore) => IDBRequest<T>,
-): Promise<T> {
+function tx<T>({
+  mode,
+  run,
+}: {
+  mode: IDBTransactionMode;
+  run: (store: IDBObjectStore) => IDBRequest<T>;
+}): Promise<T> {
   return openDb().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
@@ -40,19 +43,19 @@ function tx<T>(
 }
 
 export function append(record: TypingRunRecord): Promise<IDBValidKey> {
-  return tx('readwrite', (store) => store.add(record));
+  return tx({ mode: 'readwrite', run: (store) => store.add(record) });
 }
 
 export function getAll(): Promise<TypingRunRecord[]> {
-  return tx('readonly', (store) => store.getAll() as IDBRequest<TypingRunRecord[]>);
+  return tx({ mode: 'readonly', run: (store) => store.getAll() as IDBRequest<TypingRunRecord[]> });
 }
 
 export function count(): Promise<number> {
-  return tx('readonly', (store) => store.count());
+  return tx({ mode: 'readonly', run: (store) => store.count() });
 }
 
 export function clear(): Promise<undefined> {
-  return tx('readwrite', (store) => store.clear());
+  return tx({ mode: 'readwrite', run: (store) => store.clear() });
 }
 
 /** Скачивает накопленный набор данных как JSONL (одна запись на строку). */

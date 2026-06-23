@@ -281,6 +281,15 @@
   --lesson-stats-display-value-color    : var(--color-text-primary);
   --lesson-stats-display-unit-color     : var(--color-text-secondary);
 
+  /* RepertoireProgress */
+  --repertoire-progress-background  : var(--color-surface);
+  --repertoire-progress-border      : 1px solid var(--color-border);
+  --repertoire-progress-label-color : var(--color-text-muted);
+  --repertoire-progress-value-color : var(--color-text-primary);
+  --repertoire-progress-bar-track   : var(--color-bg);
+  --repertoire-progress-bar-fill    : var(--color-success);
+  --repertoire-progress-accent-color: var(--color-success);
+
   /* SettingsPage */
   --settings-page-label-color         : var(--color-text-secondary);
   --settings-page-input-background    : var(--color-surface);

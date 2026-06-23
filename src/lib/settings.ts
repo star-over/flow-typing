@@ -188,10 +188,10 @@ export function attachCloudSync({
   let pushChain: Promise<unknown> = Promise.resolve();
 
   function enqueuePush(args: ReturnType<typeof settingsToCloudArgs>) {
-    pushChain = pushChain.catch(() => {}).then(() => pushCloud(args));
+    pushChain = pushChain.catch(() => { /* проглотить ошибку предыдущего звена цепочки */ }).then(() => pushCloud(args));
     pushChain.catch(() => {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
+         
         console.warn('[settings-sync] push failed (will retry on next change)');
       }
     });
@@ -252,7 +252,7 @@ export function attachCloudSync({
         // Сброс флага → следующий state-tick (или mount после reload) повторит pull.
         hasSyncedThisSession = false;
         if (import.meta.env.DEV) {
-          // eslint-disable-next-line no-console
+           
           console.warn('[settings-sync] login-sync failed (will retry)', e);
         }
       }

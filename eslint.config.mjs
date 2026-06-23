@@ -193,6 +193,13 @@ export default [
       'tmp/',
       'coverage/',
       'convex/_generated/',
+      // AI-обвязка инструментов (impeccable skill под разные CLI) — не код проекта
+      '.agents/',
+      '.codex/',
+      '.kiro/',
+      '.opencode/',
+      '.claude/',
+      '.impeccable/',
     ],
   },
 ];

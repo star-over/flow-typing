@@ -56,7 +56,20 @@ storybook-static
 
 .gemini/
 .claude/settings.local.json
+.claude/settings.json
+.claude/skills/
 gha-creds-*.json
+
+# AI-обвязка инструментов (один скилл impeccable, продублированный под разные
+# CLI) — локальная разработческая обвязка, не часть продукта
+.agents/
+.codex/
+.kiro/
+.opencode/
+# impeccable: версионируем только sidecar design.json (часть дизайн-системы,
+# см. CLAUDE.md); локальный конфиг, кэш хука и live-артефакты — мимо
+.impeccable/*
+!.impeccable/design.json
 
 # git worktrees
 .worktrees/

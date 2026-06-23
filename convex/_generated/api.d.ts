@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as drill from "../drill.js";
 import type * as http from "../http.js";
+import type * as layoutData from "../layoutData.js";
 import type * as selectionIndex from "../selectionIndex.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
@@ -25,6 +26,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   drill: typeof drill;
   http: typeof http;
+  layoutData: typeof layoutData;
   selectionIndex: typeof selectionIndex;
   userSettings: typeof userSettings;
   users: typeof users;

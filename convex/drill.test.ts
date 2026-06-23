@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
-import { foldSummaryIntoCells, applyDrillSummaryHandler } from './drill';
+import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler } from './drill';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');
@@ -37,7 +37,6 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
     const res = await t.mutation(api.drill.drillNext, {
       symbolLayoutId: 'test',
-      openedSteps: 1,
       budgetChars: 10,
     });
 
@@ -55,7 +54,6 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
     const res = await t.mutation(api.drill.drillNext, {
       symbolLayoutId: 'test',
-      openedSteps: 1,
       budgetChars: 300,
     });
 
@@ -73,7 +71,6 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
     const res = await t.mutation(api.drill.drillNext, {
       symbolLayoutId: 'test',
-      openedSteps: 1,
       budgetChars: 300,
     });
 
@@ -85,7 +82,6 @@ describe('drillNext — выдача порции (этап 1)', () => {
     const t = convexTest(schema, modules);
     const res = await t.mutation(api.drill.drillNext, {
       symbolLayoutId: 'test',
-      openedSteps: 1,
       budgetChars: 300,
     });
 
@@ -185,6 +181,140 @@ describe('applyDrillSummaryHandler — запись сводки в профил
         .collect();
       expect(profiles).toHaveLength(1);
       expect(profiles[0]?.symbolCells[0]).toMatchObject({ symbol: 'а', exposures: 5, clean: 3 });
+    });
+  });
+});
+
+describe('applyDrillSummaryHandler — рост репертуара', () => {
+  const STEP0 = ['а', 'к', 'е', 'п', 'м', 'и', 'н', 'г', 'р', 'о', 'т', 'ь', ' '];
+
+  test('весь шаг 0 дозрел → openedSteps 1 → 2', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      let profileId;
+      for (const symbol of STEP0) {
+        profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
+          perSymbol: [{ symbol, exposures: 25, clean: 25, latencies: [200] }] });
+      }
+      const profile = await ctx.db.get(profileId);
+      expect(profile?.openedSteps).toBe(2);
+    });
+  });
+
+  test('недозревших шага 0 больше лимита → openedSteps не растёт', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'а', exposures: 25, clean: 25, latencies: [180] }] });
+      const profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'к', exposures: 25, clean: 25, latencies: [190] }] });
+      expect((await ctx.db.get(profileId))?.openedSteps).toBe(1);
+    });
+  });
+
+  test('insert (первый профиль) не растит, даже при готовой ячейке', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      const profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'а', exposures: 99, clean: 99, latencies: [150] }] });
+      expect((await ctx.db.get(profileId))?.openedSteps).toBe(1);
+    });
+  });
+
+  test('рост монотонный: слабый шаг не откатывает уже открытое', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 3,
+        symbolCells: [{ symbol: 'ы', exposures: 3, clean: 1, latencyEwma: 0, latencySamples: 0 }], updatedAt: 1 });
+      const profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен',
+        perSymbol: [{ symbol: 'ы', exposures: 2, clean: 0, latencies: [] }] });
+      expect((await ctx.db.get(profileId))?.openedSteps).toBe(3);
+    });
+  });
+
+  test('неизвестная раскладка → рост пропущен, сводка сохранена (без throw)', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'unknown',
+        perSymbol: [{ symbol: 'x', exposures: 5, clean: 5, latencies: [100] }] });
+      const profileId = await applyDrillSummaryHandler({ ctx, userId, symbolLayoutId: 'unknown',
+        perSymbol: [{ symbol: 'x', exposures: 5, clean: 5, latencies: [100] }] });
+      const profile = await ctx.db.get(profileId);
+      expect(profile?.openedSteps).toBe(1);
+      expect(profile?.symbolCells[0]?.exposures).toBe(10);
+    });
+  });
+});
+
+describe('repertoireSnapshotHandler — снимок прогресса', () => {
+  test('гость (null userId) → null', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      expect(await repertoireSnapshotHandler({ ctx, userId: null, symbolLayoutId: 'йцукен' })).toBeNull();
+    });
+  });
+  test('нет профиля → cold-start ступень 1', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      const snap = await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
+      expect(snap?.openedSteps).toBe(1);
+      expect(snap?.totalOnStep).toBe(13); // шаг 0 йцукен
+      expect(snap?.readyCount).toBe(0);
+    });
+  });
+  test('профиль с ростом → текущая ступень', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 2,
+        symbolCells: [{ symbol: 'е', exposures: 30, clean: 30, latencyEwma: 150, latencySamples: 30 }], updatedAt: 1 });
+      const snap = await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
+      expect(snap?.openedSteps).toBe(2);
+    });
+  });
+  test('неизвестная раскладка → null', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      expect(await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'unknown' })).toBeNull();
+    });
+  });
+});
+
+describe('resolveOpenedSteps — чтение репертуара из профиля', () => {
+  test('есть профиль → его openedSteps', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 4, symbolCells: [], updatedAt: 1 });
+      expect(await resolveOpenedSteps({ ctx, userId, symbolLayoutId: 'йцукен' })).toBe(4);
+    });
+  });
+  test('профиль другой раскладки → cold-start 1 (ключ user × раскладка)', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 4, symbolCells: [], updatedAt: 1 });
+      expect(await resolveOpenedSteps({ ctx, userId, symbolLayoutId: 'qwerty' })).toBe(1);
+    });
+  });
+  test('нет профиля (новый) → cold-start 1', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      expect(await resolveOpenedSteps({ ctx, userId, symbolLayoutId: 'йцукен' })).toBe(1);
+    });
+  });
+  test('null userId (неавторизован/гость) → cold-start 1', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      expect(await resolveOpenedSteps({ ctx, userId: null, symbolLayoutId: 'йцукен' })).toBe(1);
     });
   });
 });

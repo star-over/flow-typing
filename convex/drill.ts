@@ -1,7 +1,8 @@
 /**
- * @file Серверные функции фичи Auto-Flow: выдача порции (`drillNext`) и приём
- * сводки в профиль (`drillRecord`, дальше). Семья функций под общим префиксом
- * `drill`. Чистая клиентская сводка — `drillSummarize` (`src/lib`).
+ * @file Серверные функции фичи Auto-Flow под общим префиксом `drill`: выдача
+ * порции (`drillNext`), приём сводки в профиль + рост репертуара (`drillRecord`,
+ * ADR 0008), снимок прогресса ступени для UI (`repertoireSnapshot` — reader-query,
+ * CQRS, профиль не пишет). Чистая клиентская сводка — `drillSummarize` (`src/lib`).
  *
  * `drillNext` — этап 1 «Рабочая петля»: минимум без ума — жёсткий фильтр по
  * набору введённых букв (Repertoire) + случайный выбор + добор под бюджет.
@@ -19,19 +20,46 @@
  *
  * Жёсткое требование одно: drill доступен ⟺ его `stepLevel` в таблице отбора
  * `< openedSteps` (ADR 0001) — индексируемое сравнение через `by_layout_and_step`.
- * `openedSteps` пока приходит параметром (на этапе 1 набор букв фиксирован,
- * профиль ещё ничего не выбирает); позже его будет давать Skill Profile.
+ * `openedSteps` читается из Skill Profile (ADR 0008): `resolveOpenedSteps` возвращает
+ * значение профиля (user × раскладка) или cold-start 1 для гостя/нового профиля.
  */
 import { getAuthUserId } from '@convex-dev/auth/server';
-import { mutation } from './_generated/server';
-import type { MutationCtx } from './_generated/server';
+import { mutation, query } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
+import { getLayoutData } from './layoutData';
+import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
+import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
+import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
+import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
+import { computeRepertoireProgress, type RepertoireProgress } from '../shared/repertoire/progress.ts';
+
+// Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
+// openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
+const DEFAULT_OPENED_STEPS = 1;
+
+/** Резолв репертуара: openedSteps из профиля (user × раскладка) или cold-start. */
+export async function resolveOpenedSteps({
+  ctx,
+  userId,
+  symbolLayoutId,
+}: {
+  ctx: MutationCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+}): Promise<number> {
+  if (userId === null) return DEFAULT_OPENED_STEPS;
+  const profile = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
+    .unique();
+  return profile?.openedSteps ?? DEFAULT_OPENED_STEPS;
+}
 
 export const drillNext = mutation({
   args: {
     symbolLayoutId: v.string(),
-    openedSteps: v.number(),
     budgetChars: v.number(),
   },
   returns: v.object({
@@ -39,11 +67,14 @@ export const drillNext = mutation({
     drills: v.array(v.object({ id: v.id('drills'), text: v.string(), length: v.number() })),
   }),
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
+
     // Жёсткий фильтр: все доступные drill'ы раскладки (stepLevel < openedSteps).
     const eligible = await ctx.db
       .query('drillSelectionIndex')
       .withIndex('by_layout_and_step', (q) =>
-        q.eq('symbolLayoutId', args.symbolLayoutId).lt('stepLevel', args.openedSteps)
+        q.eq('symbolLayoutId', args.symbolLayoutId).lt('stepLevel', openedSteps)
       )
       .collect();
 
@@ -52,7 +83,7 @@ export const drillNext = mutation({
     // дефолтный drill домашнего ряда — задача клиента/следующего шага.
     if (eligible.length === 0) {
       console.warn(
-        `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${args.openedSteps}) — контентный сбой`
+        `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — контентный сбой`
       );
       return { contentGap: true, drills: [] };
     }
@@ -88,10 +119,6 @@ export const drillNext = mutation({
 // drillRecord — приём сводки drill'а в Skill Profile (apply-агрегатор, ADR 0005)
 // ────────────────────────────────────────────────────────────────────────────
 
-// Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
-// openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
-const DEFAULT_OPENED_STEPS = 1;
-
 // Коэффициент EWMA латентности ячейки (затухание старых замеров). Провизорно
 // (план «Числа-настройки»), уточним по реальным данным. Первый сэмпл
 // инициализирует EWMA, дальше — fold с этим alpha.
@@ -110,6 +137,32 @@ interface SymbolStatInput {
   exposures: number;
   clean: number;
   latencies: number[];
+}
+
+/** Чистое решение о новом openedSteps по обновлённым ячейкам (writer-логика). */
+function grownOpenedSteps({
+  symbolLayoutId,
+  openedSteps,
+  cells,
+}: {
+  symbolLayoutId: string;
+  openedSteps: number;
+  cells: SymbolCell[];
+}): number {
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) {
+    console.warn(`grownOpenedSteps: нет данных раскладки ${symbolLayoutId} — рост пропущен`);
+    return openedSteps;
+  }
+  const { symbolLayout, keyLadder } = layoutData;
+  return decideOpenedSteps({
+    openedSteps,
+    maxStep: maxLadderStep(keyLadder),
+    currentStepSymbols: symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder }),
+    cells,
+    params: READINESS_PARAMS,
+    debtLimit: REPERTOIRE_DEBT_LIMIT,
+  });
 }
 
 /**
@@ -211,7 +264,8 @@ export async function applyDrillSummaryHandler({
       updatedAt: now,
     });
   }
-  await ctx.db.patch(existing._id, { symbolCells, updatedAt: now });
+  const openedSteps = grownOpenedSteps({ symbolLayoutId, openedSteps: existing.openedSteps, cells: symbolCells });
+  await ctx.db.patch(existing._id, { symbolCells, openedSteps, updatedAt: now });
   return existing._id;
 }
 
@@ -231,5 +285,42 @@ export const drillRecord = mutation({
       symbolLayoutId: args.symbolLayoutId,
       perSymbol: args.summary.perSymbol,
     });
+  },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// repertoireSnapshot — снимок прогресса репертуара для UI (CQRS reader-query)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Снимок прогресса репертуара для UI. null для гостя/неизвестной раскладки. */
+export async function repertoireSnapshotHandler({
+  ctx,
+  userId,
+  symbolLayoutId,
+}: {
+  ctx: QueryCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+}): Promise<RepertoireProgress | null> {
+  if (userId === null) return null;
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) return null;
+  const profile = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
+    .unique();
+  return computeRepertoireProgress({
+    openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
+    symbolCells: profile?.symbolCells ?? [],
+    symbolLayout: layoutData.symbolLayout,
+    keyLadder: layoutData.keyLadder,
+  });
+}
+
+export const repertoireSnapshot = query({
+  args: { symbolLayoutId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    return await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
   },
 });

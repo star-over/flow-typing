@@ -35,7 +35,7 @@ function makeSession({
 // каждому INPUT нужен реальный ActorRef. Тестам, которым неважно SESSION.COMPLETE,
 // хватает пустой машины (событие просто игнорируется).
 const noopParent = createActor(createMachine({ id: 'noopParent' })).start();
-const INPUT = { symbolLayoutId: 'qwerty' as const, openedSteps: 1, cpm: 200, parentActor: noopParent };
+const INPUT = { symbolLayoutId: 'qwerty' as const, cpm: 200, parentActor: noopParent };
 
 // Активная печать живёт в active.timing.running (тикер и сегмент таймера — на
 // родителе timing, чтобы пережить bounce running↔refilling).
@@ -203,5 +203,29 @@ describe('sessionMachine', () => {
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // 2-й: остаток упал бы до 40 → refill (чекпоинт)
     await vi.waitFor(() => expect(onRecord).toHaveBeenCalled());
+  });
+
+  it('стык порций при refill разделяется пробелом (нет склейки слов)', async () => {
+    // Порция 1 = "a", порция 2 = "b". Без разделителя поток склеится в "ab"
+    // (слова слипаются на стыке порций); на границе должен быть пробел → "a b".
+    let call = 0;
+    const providedSession = sessionMachine.provide({
+      actors: {
+        fetchDrills: fromPromise(async () => {
+          call += 1;
+          return call === 1 ? [sym('a', 'KeyA')] : [sym('b', 'KeyB')];
+        }),
+      },
+      actions: { recordCheckpoint: () => {} },
+    });
+    const actor = createActor(providedSession, { input: INPUT });
+    actor.start();
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // допечатали "a" → refill дописывает порцию 2
+    await vi.waitFor(() => {
+      const training = actor.getSnapshot().children.training!.getSnapshot() as SnapshotFrom<typeof trainingMachine>;
+      expect(training.context.stream.map((s: StreamSymbol) => s.targetSymbol).join('')).toBe('a b');
+    });
   });
 });

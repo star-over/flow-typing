@@ -11,7 +11,7 @@ function mockUser(overrides: Partial<User> = {}): User {
     _creationTime: 0,
     email: 'foo@example.com',
     ...overrides,
-  } as User;
+  };
 }
 
 describe('computeAuthState — 3-state contract', () => {

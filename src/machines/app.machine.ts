@@ -5,7 +5,7 @@ import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
 import { getPhysicalLayout } from "@/lib/layouts";
 
 const physicalLayoutANSI = getPhysicalLayout('ansi');
-import { DEFAULT_OPENED_STEPS, DEFAULT_SESSION_CPM } from "@/lib/session-config";
+import { DEFAULT_SESSION_CPM } from "@/lib/session-config";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { sessionService } from "./session-impl";
@@ -109,7 +109,6 @@ export const appMachine = setup({
         src: 'sessionService',
         input: ({ context, self }) => ({
           symbolLayoutId: context.currentSymbolLayoutId,
-          openedSteps: DEFAULT_OPENED_STEPS,
           cpm: DEFAULT_SESSION_CPM,
           parentActor: self,
         }),

@@ -11,25 +11,39 @@ import { fetchLocalDrillStream, glueServerDrills } from '@/lib/drill-stream';
 import { convex, api } from '@/lib/convex';
 import { sessionMachine } from './session.machine';
 
+/**
+ * Наблюдаемость границы с Convex: лог момента запроса (→) и ответа (←) при
+ * тренировке. Только в dev — в production консоль не шумит (деградации ниже идут
+ * через console.warn и видны всегда). Фильтр в консоли браузера: `[convex]`.
+ */
+const logConvex = import.meta.env.DEV
+  ? (line: string, ...rest: unknown[]) => console.log(`[convex] ${line}`, ...rest)
+  : () => {
+      /* no-op в production */
+    };
+
 /** Серверный сбор порции через Convex drillNext. */
 async function fetchServerDrillStream({
   symbolLayoutId,
-  openedSteps,
   budgetChars,
 }: {
   symbolLayoutId: SymbolLayoutId;
-  openedSteps: number;
   budgetChars: number;
 }): Promise<TypingStream> {
-  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, openedSteps, budgetChars });
-  return glueServerDrills({ drills: res.drills, symbolLayoutId });
+  logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId}`);
+  const startedAt = performance.now();
+  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, budgetChars });
+  const stream = glueServerDrills({ drills: res.drills, symbolLayoutId });
+  const elapsedMs = Math.round(performance.now() - startedAt);
+  logConvex(`drillNext ← ${res.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
+  return stream;
 }
 
 export const sessionService = sessionMachine.provide({
   actors: {
     fetchDrills: fromPromise<
       TypingStream,
-      { symbolLayoutId: SymbolLayoutId; openedSteps: number; budgetChars: number }
+      { symbolLayoutId: SymbolLayoutId; budgetChars: number }
     >(async ({ input }) => {
       try {
         const stream = await fetchServerDrillStream(input);
@@ -50,8 +64,14 @@ export const sessionService = sessionMachine.provide({
     // авторизован) → drillRecord бросит 'Not authenticated' → молча гасим.
     recordCheckpoint: (_, params) => {
       const { summary, symbolLayoutId } = params;
+      const { exposures, clean, accuracy } = summary.overall;
+      logConvex(
+        `drillRecord → ${summary.perSymbol.length} символов, exposures=${exposures} clean=${clean} acc=${accuracy.toFixed(2)}`,
+      );
+      const startedAt = performance.now();
       void convex
         .mutation(api.drill.drillRecord, { symbolLayoutId, summary })
+        .then(() => logConvex(`drillRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
         .catch((err) => console.warn('drillRecord пропущен (гость/офлайн)', err));
     },
   },

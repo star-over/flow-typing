@@ -3,6 +3,7 @@
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { sessionMachine } from '@/machines/session.machine';
   import type { Dictionary } from '@/interfaces/types';
+  import { getContext } from 'svelte';
   import { getFingerLayout, getPhysicalLayout } from '@/lib/layouts';
   import { settings } from '@/lib/settings';
 
@@ -15,6 +16,12 @@
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
   import MenuScreen from '@/components/ui/MenuScreen.svelte';
+  import RepertoireProgress from '@/components/ui/RepertoireProgress.svelte';
+  import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
+  import type { AuthStore } from '@/lib/auth/auth-store.svelte';
+
+  const repertoire = getContext<RepertoireStore>('repertoire');
+  const auth = getContext<AuthStore>('auth');
 
   interface Props {
     state: StateFrom<typeof appMachine>;
@@ -41,6 +48,12 @@
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
+  <RepertoireProgress
+    snapshot={repertoire.snapshot}
+    grew={repertoire.grew}
+    isGuest={auth.state.status === 'guest'}
+    {dictionary}
+  />
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
 {:else if inState({ snapshot: state, value: 'menu' })}

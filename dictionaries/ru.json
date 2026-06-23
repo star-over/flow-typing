@@ -80,6 +80,18 @@
       "duration": "с"
     }
   },
+  "repertoire_progress": {
+    "title": "Прогресс ступени",
+    "step": "Ступень {current} из {max}",
+    "ready": "{ready} из {total} символов готово",
+    "maturing": "Осталось закрепить: {count}",
+    "ready_to_advance": "Готово к следующей ступени",
+    "new_step": "Открыта новая ступень!",
+    "blockers_practice": "нужно больше практики",
+    "blockers_accuracy": "нужна точность",
+    "blockers_speed": "нужна скорость",
+    "guest_invite": "Войдите, чтобы сохранять прогресс ступеней"
+  },
   "debug": {
     "state_title": "Состояние"
   },
