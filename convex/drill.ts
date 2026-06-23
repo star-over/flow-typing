@@ -23,8 +23,8 @@
  * значение профиля (user × раскладка) или cold-start 1 для гостя/нового профиля.
  */
 import { getAuthUserId } from '@convex-dev/auth/server';
-import { mutation } from './_generated/server';
-import type { MutationCtx } from './_generated/server';
+import { mutation, query } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { getLayoutData } from './layoutData';
@@ -32,6 +32,7 @@ import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
+import { computeRepertoireProgress, type RepertoireProgress } from '../shared/repertoire/progress.ts';
 
 // Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
 // openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
@@ -283,5 +284,42 @@ export const drillRecord = mutation({
       symbolLayoutId: args.symbolLayoutId,
       perSymbol: args.summary.perSymbol,
     });
+  },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// repertoireSnapshot — снимок прогресса репертуара для UI (CQRS reader-query)
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Снимок прогресса репертуара для UI. null для гостя/неизвестной раскладки. */
+export async function repertoireSnapshotHandler({
+  ctx,
+  userId,
+  symbolLayoutId,
+}: {
+  ctx: QueryCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+}): Promise<RepertoireProgress | null> {
+  if (userId === null) return null;
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) return null;
+  const profile = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
+    .unique();
+  return computeRepertoireProgress({
+    openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
+    symbolCells: profile?.symbolCells ?? [],
+    symbolLayout: layoutData.symbolLayout,
+    keyLadder: layoutData.keyLadder,
+  });
+}
+
+export const repertoireSnapshot = query({
+  args: { symbolLayoutId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    return await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
   },
 });

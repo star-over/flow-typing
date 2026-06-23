@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
-import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps } from './drill';
+import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler } from './drill';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');
@@ -247,6 +247,42 @@ describe('applyDrillSummaryHandler — рост репертуара', () => {
       const profile = await ctx.db.get(profileId);
       expect(profile?.openedSteps).toBe(1);
       expect(profile?.symbolCells[0]?.exposures).toBe(10);
+    });
+  });
+});
+
+describe('repertoireSnapshotHandler — снимок прогресса', () => {
+  test('гость (null userId) → null', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      expect(await repertoireSnapshotHandler({ ctx, userId: null, symbolLayoutId: 'йцукен' })).toBeNull();
+    });
+  });
+  test('нет профиля → cold-start ступень 1', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      const snap = await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
+      expect(snap?.openedSteps).toBe(1);
+      expect(snap?.totalOnStep).toBe(13); // шаг 0 йцукен
+      expect(snap?.readyCount).toBe(0);
+    });
+  });
+  test('профиль с ростом → текущая ступень', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 2,
+        symbolCells: [{ symbol: 'е', exposures: 30, clean: 30, latencyEwma: 150, latencySamples: 30 }], updatedAt: 1 });
+      const snap = await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
+      expect(snap?.openedSteps).toBe(2);
+    });
+  });
+  test('неизвестная раскладка → null', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      expect(await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'unknown' })).toBeNull();
     });
   });
 });
