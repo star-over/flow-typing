@@ -30,6 +30,39 @@ export function repertoireMedianLatency(cells: readonly ProfileCell[]): number {
   return ((samples[mid - 1] ?? 0) + (samples[mid] ?? 0)) / 2;
 }
 
+export interface ReadinessGaps {
+  exposure: boolean; // не хватает предъявлений
+  accuracy: boolean; // точность с первой попытки ниже порога
+  latency: boolean;  // медленнее k× медианы репертуара
+}
+
+/**
+ * Какие условия Readiness символ НЕ выполнил. Точность/латентность оцениваем только
+ * при достаточных предъявлениях (иначе нет данных); латентность — только при
+ * собственных замерах и ненулевой медиане репертуара (холодный старт не штрафуем).
+ * Для отсутствующей ячейки (символ ни разу не печатался) все три условия не выполнены.
+ */
+export function readinessGaps({
+  cell,
+  params,
+  repertoireMedianLatency,
+}: {
+  cell: ProfileCell | undefined;
+  params: ReadinessParams;
+  repertoireMedianLatency: number;
+}): ReadinessGaps {
+  if (!cell) return { exposure: true, accuracy: true, latency: true };
+  if (cell.exposures < params.minExposures) return { exposure: true, accuracy: false, latency: false };
+  const accuracy = cell.clean / cell.exposures < params.minFirstTryAccuracy;
+  // Латентность судим только при собственных замерах и наличии базы сравнения;
+  // на cold-start латентных данных (медиана 0) гейт неактивен — by design.
+  const latency =
+    cell.latencySamples > 0 &&
+    repertoireMedianLatency > 0 &&
+    cell.latencyEwma > params.latencyK * repertoireMedianLatency;
+  return { exposure: false, accuracy, latency };
+}
+
 export function isSymbolReady({
   cell,
   params,
@@ -39,11 +72,6 @@ export function isSymbolReady({
   params: ReadinessParams;
   repertoireMedianLatency: number;
 }): boolean {
-  if (!cell) return false;
-  if (cell.exposures < params.minExposures) return false;
-  if (cell.clean / cell.exposures < params.minFirstTryAccuracy) return false;
-  // Латентность судим только при собственных замерах и наличии базы сравнения;
-  // на cold-start латентных данных (медиана 0) гейт неактивен — by design.
-  if (cell.latencySamples === 0 || repertoireMedianLatency === 0) return true;
-  return cell.latencyEwma <= params.latencyK * repertoireMedianLatency;
+  const gaps = readinessGaps({ cell, params, repertoireMedianLatency });
+  return !gaps.exposure && !gaps.accuracy && !gaps.latency;
 }

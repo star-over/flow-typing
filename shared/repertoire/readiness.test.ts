@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { isSymbolReady, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
+import { isSymbolReady, readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
 
 const PARAMS = { minExposures: 20, minFirstTryAccuracy: 0.9, latencyK: 1.5 };
 const cell = (over: Partial<ProfileCell>): ProfileCell => ({
@@ -24,6 +24,30 @@ describe('repertoireMedianLatency', () => {
   });
   test('нет замеров — 0', () => {
     expect(repertoireMedianLatency([cell({ latencySamples: 0, latencyEwma: 0 })])).toBe(0);
+  });
+});
+
+describe('readinessGaps', () => {
+  const P = { minExposures: 20, minFirstTryAccuracy: 0.9, latencyK: 1.5 };
+  test('нет ячейки — все три условия не выполнены', () => {
+    expect(readinessGaps({ cell: undefined, params: P, repertoireMedianLatency: 200 }))
+      .toEqual({ exposure: true, accuracy: true, latency: true });
+  });
+  test('готовый символ — условия не нарушены', () => {
+    expect(readinessGaps({ cell: { symbol: 'а', exposures: 30, clean: 29, latencyEwma: 200, latencySamples: 30 }, params: P, repertoireMedianLatency: 200 }))
+      .toEqual({ exposure: false, accuracy: false, latency: false });
+  });
+  test('мало предъявлений → точность/латентность не оценивать (нет данных)', () => {
+    expect(readinessGaps({ cell: { symbol: 'а', exposures: 5, clean: 5, latencyEwma: 0, latencySamples: 0 }, params: P, repertoireMedianLatency: 200 }))
+      .toEqual({ exposure: true, accuracy: false, latency: false });
+  });
+  test('хватает предъявлений, низкая точность → accuracy не выполнено', () => {
+    expect(readinessGaps({ cell: { symbol: 'а', exposures: 30, clean: 20, latencyEwma: 200, latencySamples: 30 }, params: P, repertoireMedianLatency: 200 }))
+      .toMatchObject({ exposure: false, accuracy: true });
+  });
+  test('медленнее k× медианы → latency не выполнено', () => {
+    expect(readinessGaps({ cell: { symbol: 'а', exposures: 30, clean: 29, latencyEwma: 400, latencySamples: 30 }, params: P, repertoireMedianLatency: 200 }))
+      .toMatchObject({ latency: true });
   });
 });
 
