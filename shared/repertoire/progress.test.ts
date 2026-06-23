@@ -18,7 +18,7 @@ describe('computeRepertoireProgress', () => {
       openedSteps: 1, symbolCells: [ready('а')], symbolLayout: LAYOUT, keyLadder: jcukenKeyLadder,
     });
     expect(p.openedSteps).toBe(1);
-    expect(p.maxStep).toBe(9);
+    expect(p.totalSteps).toBe(10); // 10 ступеней (индексы 0..9)
     expect(p.totalOnStep).toBe(2);   // 'а','о' на шаге 0 (в LAYOUT)
     expect(p.readyCount).toBe(1);    // 'а' готов
     expect(p.blockers.exposure).toBe(1); // 'о' без ячейки → не добрал предъявлений

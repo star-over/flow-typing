@@ -38,7 +38,7 @@
     <h3 class="title">{t.title}</h3>
 
     <div class="meta">
-      <span class="label">{fill({ template: t.step, values: { current: snapshot.openedSteps, max: snapshot.maxStep } })}</span>
+      <span class="label">{fill({ template: t.step, values: { current: snapshot.openedSteps, max: snapshot.totalSteps } })}</span>
       <span class="value">{fill({ template: t.ready, values: { ready: snapshot.readyCount, total: snapshot.totalOnStep } })}</span>
     </div>
 

@@ -12,7 +12,7 @@ import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from './config.ts';
 
 export interface RepertoireProgress {
   openedSteps: number;
-  maxStep: number;
+  totalSteps: number; // всего ступеней в лестнице (для «N из M»); = maxLadderStep + 1
   totalOnStep: number;
   readyCount: number;
   maturingNeeded: number;
@@ -48,7 +48,7 @@ export function computeRepertoireProgress({
   const notReady = currentStepSymbols.length - readyCount;
   return {
     openedSteps,
-    maxStep: maxLadderStep(keyLadder),
+    totalSteps: maxLadderStep(keyLadder) + 1, // индекс макс. шага → количество ступеней
     totalOnStep: currentStepSymbols.length,
     readyCount,
     maturingNeeded: Math.max(0, notReady - REPERTOIRE_DEBT_LIMIT),
