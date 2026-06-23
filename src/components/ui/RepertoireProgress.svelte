@@ -20,13 +20,13 @@
     );
   }
 
-  const fillWidth = $derived(
-    snapshot
-      ? snapshot.totalOnStep === 0
-        ? '0%'
-        : `${Math.round((snapshot.readyCount / snapshot.totalOnStep) * 100)}%`
-      : '0%',
+  const readyPct = $derived(
+    snapshot && snapshot.totalOnStep > 0
+      ? Math.round((snapshot.readyCount / snapshot.totalOnStep) * 100)
+      : 0,
   );
+
+  const fillWidth = $derived(`${readyPct}%`);
 </script>
 
 {#if isGuest}
@@ -42,7 +42,14 @@
       <span class="value">{fill(t.ready, { ready: snapshot.readyCount, total: snapshot.totalOnStep })}</span>
     </div>
 
-    <div class="bar-track">
+    <div
+      class="bar-track"
+      role="progressbar"
+      aria-valuenow={readyPct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={t.title}
+    >
       <div class="bar-fill" style="width: {fillWidth}"></div>
     </div>
 
