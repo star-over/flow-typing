@@ -20,6 +20,11 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   void import('@/lib/dev/typing-capture').then(({ attachTypingCapture }) => {
     attachTypingCapture(appActor);
   });
+  // Dev-only: window.__resetProfile() — сброс профиля текущего юзера для проверки
+  // алгоритма роста с чистого листа (см. lib/dev/profile-reset).
+  void import('@/lib/dev/profile-reset').then(({ attachProfileReset }) => {
+    attachProfileReset();
+  });
 }
 
 if (import.meta.hot) {
