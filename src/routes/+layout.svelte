@@ -67,9 +67,15 @@
   });
   onDestroy(() => actorSub.unsubscribe());
 
-  // Отмечаем ступень на входе в тренировку — для показа перехода в sessionComplete.
+  // Отмечаем ступень РОВНО на входе в тренировку (edge-triggered) — для показа
+  // перехода в sessionComplete. Не на каждый внутренний переход (running↔paused):
+  // рост openedSteps случается на refill-чекпоинтах внутри сессии, и повторный
+  // markSessionStart перезаписал бы стартовую отметку, скрыв «новую ступень».
+  let wasTraining = false;
   $effect(() => {
-    if (inState({ snapshot: state, value: 'training' })) repertoireStore.markSessionStart();
+    const isTraining = inState({ snapshot: state, value: 'training' });
+    if (isTraining && !wasTraining) repertoireStore.markSessionStart();
+    wasTraining = isTraining;
   });
 
   function handleKeyDown(event: KeyboardEvent) {
