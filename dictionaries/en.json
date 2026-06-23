@@ -80,6 +80,18 @@
       "duration": "s"
     }
   },
+  "repertoire_progress": {
+    "title": "Step progress",
+    "step": "Step {current} of {max}",
+    "ready": "{ready} of {total} symbols ready",
+    "maturing": "Left to consolidate: {count}",
+    "ready_to_advance": "Ready for the next step",
+    "new_step": "New step unlocked!",
+    "blockers_practice": "needs more practice",
+    "blockers_accuracy": "needs accuracy",
+    "blockers_speed": "needs speed",
+    "guest_invite": "Sign in to save step progress"
+  },
   "debug": {
     "state_title": "State"
   },
