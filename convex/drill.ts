@@ -324,3 +324,36 @@ export const repertoireSnapshot = query({
     return await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
   },
 });
+
+// ────────────────────────────────────────────────────────────────────────────
+// resetMyProfile — DEV/TEST утилита: полный сброс профиля текущего юзера.
+// Удаляет ВСЕ его skillProfiles (по всем раскладкам) → следующая сессия стартует
+// с cold-start (ступень 1, пустые ячейки), как у нового юзера. Нужна для проверки
+// алгоритма роста с чистого листа. Стирает только профили getAuthUserId — чужие
+// недоступны (безопасно даже как public mutation).
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Удаляет все профили юзера (все раскладки); возвращает число удалённых. */
+export async function resetMyProfileHandler({
+  ctx,
+  userId,
+}: {
+  ctx: MutationCtx;
+  userId: Id<'users'> | null;
+}): Promise<number> {
+  if (userId === null) return 0;
+  const profiles = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId))
+    .collect();
+  for (const profile of profiles) await ctx.db.delete(profile._id);
+  return profiles.length;
+}
+
+export const resetMyProfile = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    return await resetMyProfileHandler({ ctx, userId });
+  },
+});
