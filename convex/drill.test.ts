@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
-import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler } from './drill';
+import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler } from './drill';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');
@@ -283,6 +283,46 @@ describe('repertoireSnapshotHandler — снимок прогресса', () => 
     await t.run(async (ctx) => {
       const userId = await ctx.db.insert('users', { name: 'U' });
       expect(await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: 'unknown' })).toBeNull();
+    });
+  });
+});
+
+describe('resetMyProfileHandler — сброс профиля', () => {
+  test('гость (null userId) → 0 удалённых, без падения', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      expect(await resetMyProfileHandler({ ctx, userId: null })).toBe(0);
+    });
+  });
+
+  test('удаляет все профили юзера (все раскладки) → cold-start заново', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { name: 'U' });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'йцукен', openedSteps: 5, symbolCells: [], updatedAt: 1 });
+      await ctx.db.insert('skillProfiles', { userId, symbolLayoutId: 'qwerty', openedSteps: 3, symbolCells: [], updatedAt: 1 });
+      expect(await resetMyProfileHandler({ ctx, userId })).toBe(2);
+      const left = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', userId))
+        .collect();
+      expect(left).toHaveLength(0);
+    });
+  });
+
+  test('не трогает чужие профили', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const me = await ctx.db.insert('users', { name: 'me' });
+      const other = await ctx.db.insert('users', { name: 'other' });
+      await ctx.db.insert('skillProfiles', { userId: me, symbolLayoutId: 'йцукен', openedSteps: 5, symbolCells: [], updatedAt: 1 });
+      await ctx.db.insert('skillProfiles', { userId: other, symbolLayoutId: 'йцукен', openedSteps: 5, symbolCells: [], updatedAt: 1 });
+      await resetMyProfileHandler({ ctx, userId: me });
+      const otherLeft = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', other))
+        .collect();
+      expect(otherLeft).toHaveLength(1);
     });
   });
 });
