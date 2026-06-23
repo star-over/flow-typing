@@ -13,7 +13,7 @@
 
   const t = $derived(dictionary.repertoire_progress);
 
-  function fill(template: string, values: Record<string, string | number>): string {
+  function fill({ template, values }: { template: string; values: Record<string, string | number> }): string {
     return Object.entries(values).reduce(
       (s, [key, val]) => s.replace(`{${key}}`, String(val)),
       template,
@@ -26,7 +26,7 @@
       : 0,
   );
 
-  const fillWidth = $derived(`${readyPct}%`);
+  const fillScale = $derived(readyPct / 100);
 </script>
 
 {#if isGuest}
@@ -38,8 +38,8 @@
     <h3 class="title">{t.title}</h3>
 
     <div class="meta">
-      <span class="label">{fill(t.step, { current: snapshot.openedSteps, max: snapshot.maxStep })}</span>
-      <span class="value">{fill(t.ready, { ready: snapshot.readyCount, total: snapshot.totalOnStep })}</span>
+      <span class="label">{fill({ template: t.step, values: { current: snapshot.openedSteps, max: snapshot.maxStep } })}</span>
+      <span class="value">{fill({ template: t.ready, values: { ready: snapshot.readyCount, total: snapshot.totalOnStep } })}</span>
     </div>
 
     <div
@@ -50,7 +50,7 @@
       aria-valuemax={100}
       aria-label={t.title}
     >
-      <div class="bar-fill" style="width: {fillWidth}"></div>
+      <div class="bar-fill" style="transform: scaleX({fillScale})"></div>
     </div>
 
     <div class="status">
@@ -59,7 +59,7 @@
       {:else if snapshot.maturingNeeded === 0}
         <p class="status-ready">{t.ready_to_advance}</p>
       {:else}
-        <p class="status-maturing">{fill(t.maturing, { count: snapshot.maturingNeeded })}</p>
+        <p class="status-maturing">{fill({ template: t.maturing, values: { count: snapshot.maturingNeeded } })}</p>
         {#if snapshot.blockers.exposure > 0 || snapshot.blockers.accuracy > 0 || snapshot.blockers.latency > 0}
           <ul class="blockers">
             {#if snapshot.blockers.exposure > 0}
@@ -123,10 +123,12 @@
   }
 
   .bar-fill {
+    width: 100%;
     height: 100%;
     background: var(--repertoire-progress-bar-fill);
     border-radius: var(--radius-2);
-    transition: width 0.3s ease;
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
 
   .status {
