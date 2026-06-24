@@ -27,7 +27,7 @@ export function formatSessionRow({
   const accuracy = session.exposures > 0 ? (session.clean / session.exposures) * 100 : 0;
   return {
     id: session._id,
-    date: new Date(session.capturedAt).toLocaleString(locale),
+    date: new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(session.capturedAt),
     durationSeconds: Math.round(session.durationMs / 1000),
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),

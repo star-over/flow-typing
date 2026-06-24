@@ -10,7 +10,7 @@
 
 **Порядок задач:** 1 (store + formatter) → 2 (i18n) → 3 (layout wiring) → 4 (page, зависит от 1+2+3) → 5 (verify).
 
-**Решения (зафиксированы с пользователем):** колонки минимальные (Дата · Время · CPM · Точность); скоуп — текущая раскладка из настроек; сортировка новые-сверху; гость → приглашение войти, пусто → «сеансов нет»; форматирование как `LessonStatsDisplay` (cpm `Math.round`, точность `toFixed(1)`, время — целые секунды, дата — `toLocaleString(locale)`).
+**Решения (зафиксированы с пользователем):** колонки минимальные (Дата · Время · CPM · Точность); скоуп — текущая раскладка из настроек; сортировка новые-сверху; гость → приглашение войти, пусто → «сеансов нет»; форматирование как `LessonStatsDisplay` (cpm `Math.round`, точность `toFixed(1)`, время — целые секунды, дата — `Intl.DateTimeFormat`).
 
 **Проверенные факты (не перепроверять):** примитивы `--font-size-sm`, `--font-weight-semibold`, `--spacing-2/4/6`, `--radius-3` есть в `app.css`; палитра `--color-border/-surface/-text-primary/-text-secondary` определена во всех 4 темах + `_template`; `settings.back_button` есть в словарях; `repertoire-store` импортирует `{ api, convex }` в `.svelte.ts` и его тест проходит (тот же паттерн для нас безопасен).
 
@@ -96,7 +96,7 @@ export type SessionSummary = FunctionReturnType<typeof api.sessions.listMine>[nu
 /** Презентационная строка таблицы сеансов. */
 export interface SessionRow {
   id: string;
-  date: string; // toLocaleString(locale)
+  date: string; // локализованная дата+время
   durationSeconds: number; // целые секунды
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
@@ -113,7 +113,7 @@ export function formatSessionRow({
   const accuracy = session.exposures > 0 ? (session.clean / session.exposures) * 100 : 0;
   return {
     id: session._id,
-    date: new Date(session.capturedAt).toLocaleString(locale),
+    date: new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(session.capturedAt),
     durationSeconds: Math.round(session.durationMs / 1000),
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),
