@@ -10,7 +10,7 @@ export type SessionSummary = FunctionReturnType<typeof api.sessions.listMine>[nu
 /** Презентационная строка таблицы сеансов. */
 export interface SessionRow {
   id: string;
-  date: string; // toLocaleString(locale)
+  date: string; // Intl.DateTimeFormat(locale) — дата+время
   durationSeconds: number; // целые секунды
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
