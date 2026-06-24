@@ -439,7 +439,7 @@ export const record = mutation({
   handler: async (ctx, { symbolLayoutId, ...payload }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error('Not authenticated');
-    await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, payload });
+    return await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, payload });
   },
 });
 
