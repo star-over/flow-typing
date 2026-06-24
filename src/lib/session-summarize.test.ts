@@ -31,10 +31,10 @@ describe('summarizeSession', () => {
     expect(out.confusions).toEqual([]);
   });
 
-  test('confusion игнорирует мультиклавишные и пустые нажатия (V1 — только одиночные)', () => {
+  test('confusion игнорирует сочетания клавиш и пустые нажатия (V1 — только одиночные)', () => {
     const out = summarizeSession({
       stream: [
-        streamSymbol('я', ['KeyZ'], [press(['KeyZ', 'ShiftLeft']), press(['KeyZ'])]), // мультиклавишный промах
+        streamSymbol('я', ['KeyZ'], [press(['KeyZ', 'ShiftLeft']), press(['KeyZ'])]), // сочетание клавиш как промах
         streamSymbol('ф', ['KeyA'], [press([]), press(['KeyA'])]), // пустое нажатие
       ],
       durationMs: 60000,
@@ -61,7 +61,7 @@ describe('summarizeSession', () => {
 
   test('confusions отсортированы по убыванию count и обрезаны до MAX_CONFUSIONS', () => {
     const stream: StreamSymbol[] = [];
-    // 'a' промахнут трижды в 'KeyS' (один пул), плюс 21 разных целей по разу.
+    // 'a' не попадёт трижды в 'KeyS' (один пул), плюс 21 разных целей по разу.
     for (let i = 0; i < 3; i += 1) stream.push(streamSymbol('a', ['KeyA'], [press(['KeyS']), press(['KeyA'])]));
     for (let i = 0; i < 21; i += 1) {
       const sym = String.fromCharCode(0x430 + i); // кириллица а,б,в… как уникальные цели

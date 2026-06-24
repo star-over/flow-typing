@@ -14,7 +14,7 @@ export const MAX_CONFUSIONS = 20;
 
 export interface SessionConfusion {
   target: string; // целевой символ ('а')
-  pressed: string; // нажатый KeyCapId ('KeyS'); V1 — только одиночные. UI маппит в символ через (pressed, symbolLayoutId)
+  pressed: string; // нажатый KeyCapId ('KeyS'); V1 — только одиночные. UI переводит в символ через (pressed, symbolLayoutId)
   count: number;
 }
 
@@ -39,13 +39,13 @@ export function summarizeSession({
   const { overall } = drillSummarize(stream);
 
   // Направление промаха: судим ТОЛЬКО по первому нажатию (как clean в drillSummarize —
-  // проскок не множим). V1 — только одиночные нажатия (мультиклавишные/пустые мимо).
+  // проскок не множим). V1 — только одиночные нажатия (сочетания/пустые мимо).
   const tally = new Map<string, SessionConfusion>();
   for (const symbol of stream) {
     const first = symbol.attempts[0];
     if (first === undefined) continue;
     if (areKeyCapIdArraysEqual({ a: first.pressedKeyCaps, b: symbol.targetKeyCaps })) continue;
-    if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/мультиклавишные — мимо
+    if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/сочетания — мимо
     const pressed = first.pressedKeyCaps[0];
     if (pressed === undefined) continue; // noUncheckedIndexedAccess: сужаем KeyCapId | undefined
     const key = `${symbol.targetSymbol} ${pressed}`;

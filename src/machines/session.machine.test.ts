@@ -257,8 +257,7 @@ describe('sessionMachine', () => {
     actor.send({ type: 'TIMER_EXPIRED' });
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
 
-    expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на рефиллах
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на дозагрузках
     const payload = onSession.mock.calls[0]![0] as { exposures: number; confusions: unknown[]; durationMs: number };
     expect(payload.exposures).toBe(8);
     expect(payload.confusions).toEqual([]);

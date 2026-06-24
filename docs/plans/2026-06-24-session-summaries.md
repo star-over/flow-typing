@@ -15,15 +15,15 @@
 
 **Порядок задач (зависимости):** 1 (pure) → 2 (schema) → 3 (convex, зависит от schema) → 4 (machine, зависит от 1) → 5 (provider, зависит от 1 и 3) → 6 (verify).
 
-**Gotcha (память проекта):** `convex-test`/build НЕ ловят деплой-ошибки Convex — после правок в `convex/` обязателен `npx convex dev --once`. Имя модуля `sessions.ts` — camelCase без дефисов (требование Convex).
+**Gotcha (память проекта):** `convex-test`/build НЕ ловят ошибки развёртывания Convex — после правок в `convex/` обязателен `npx convex dev --once`. Имя модуля `sessions.ts` — camelCase без дефисов (требование Convex).
 
 **Решения, зафиксированные аудитом плана (4 агента, чистый контекст):**
 - **`cpm` — пропускная способность за активную минуту, НЕ моторная скорость.** При полной 60-сек сессии `cpm ≈ символов/сессию` (объёмный тренд — тот самый сигнал 41→244 у медленного новичка). Чистую скорость печати UI выводит из `latencyMedianMs` (≈ `60000/latencyMedianMs`). Имена не путать; при `durationMs < 1000` cpm = 0 (не делим на крошечное время).
 - **`latencySpreadMs` убран** (YAGNI — нет потребителя; вернуть, когда появится).
-- **Гонка `openedSteps` безопасна:** Convex исполняет мутации одного клиента одной упорядоченной очередью по порядку вызова; `drillRecord` (в `checkpointAndRecord`) submit-ится раньше `sessions.record` → коммитится первым → сервер читает свежий `openedSteps`. Держится на singleton `convex` (`src/lib/convex.ts`) — задокументировано в коде.
+- **Гонка `openedSteps` безопасна:** Convex исполняет мутации одного клиента одной упорядоченной очередью по порядку вызова; `drillRecord` (в `checkpointAndRecord`) отправляется раньше `sessions.record` → фиксируется первым → сервер читает свежий `openedSteps`. Держится на singleton `convex` (`src/lib/convex.ts`) — задокументировано в коде.
 - **Гость — без журнала, by design** (как `drillRecord`: `throw 'Not authenticated'` → клиент гасит молча). Локальный журнал гостя — вне scope.
 - **Чтение журнала** (`sessions.listMine`) включено в Task 3; UI-потребитель — отдельный план.
-- **confusions V1 — только одиночные нажатия** (`pressedKeyCaps.length === 1`); пустые/мультиклавишные отбрасываем (декодинг сочетаний отложен).
+- **confusions V1 — только одиночные нажатия** (`pressedKeyCaps.length === 1`); пустые/сочетания клавиш отбрасываем (разбор сочетаний отложен).
 - **Короткие сессии (`< MIN_JOURNAL_EXPOSURES`) не журналируем** — шум.
 
 ---
@@ -70,10 +70,10 @@ describe('summarizeSession', () => {
     expect(out.confusions).toEqual([]);
   });
 
-  test('confusion игнорирует мультиклавишные и пустые нажатия (V1 — только одиночные)', () => {
+  test('confusion игнорирует сочетания клавиш и пустые нажатия (V1 — только одиночные)', () => {
     const out = summarizeSession({
       stream: [
-        streamSymbol('я', ['KeyZ'], [press(['KeyZ', 'ShiftLeft']), press(['KeyZ'])]), // мультиклавишный промах
+        streamSymbol('я', ['KeyZ'], [press(['KeyZ', 'ShiftLeft']), press(['KeyZ'])]), // сочетание клавиш как промах
         streamSymbol('ф', ['KeyA'], [press([]), press(['KeyA'])]), // пустое нажатие
       ],
       durationMs: 60000,
@@ -100,7 +100,7 @@ describe('summarizeSession', () => {
 
   test('confusions отсортированы по убыванию count и обрезаны до MAX_CONFUSIONS', () => {
     const stream: StreamSymbol[] = [];
-    // 'a' промахнут трижды в 'KeyS' (один пул), плюс 21 разных целей по разу.
+    // 'a' не попадёт трижды в 'KeyS' (один пул), плюс 21 разных целей по разу.
     for (let i = 0; i < 3; i += 1) stream.push(streamSymbol('a', ['KeyA'], [press(['KeyS']), press(['KeyA'])]));
     for (let i = 0; i < 21; i += 1) {
       const sym = String.fromCharCode(0x430 + i); // кириллица а,б,в… как уникальные цели
@@ -116,7 +116,7 @@ describe('summarizeSession', () => {
 - [ ] **Step 2: Запустить тест — убедиться, что падает**
 
 Run: `npx vitest run src/lib/session-summarize.test.ts`
-Expected: FAIL — `Failed to resolve import "./session-summarize"` / `summarizeSession is not a function`.
+Expected: FAIL — `Failed to resolve import "./session-summarize"` / `summarizeSession не является функцией`.
 
 - [ ] **Step 3: Минимальная реализация**
 
@@ -137,7 +137,7 @@ export const MAX_CONFUSIONS = 20;
 
 export interface SessionConfusion {
   target: string; // целевой символ ('а')
-  pressed: string; // нажатый KeyCapId ('KeyS'); V1 — только одиночные. UI маппит в символ через (pressed, symbolLayoutId)
+  pressed: string; // нажатый KeyCapId ('KeyS'); V1 — только одиночные. UI переводит в символ через (pressed, symbolLayoutId)
   count: number;
 }
 
@@ -162,13 +162,13 @@ export function summarizeSession({
   const { overall } = drillSummarize(stream);
 
   // Направление промаха: судим ТОЛЬКО по первому нажатию (как clean в drillSummarize —
-  // проскок не множим). V1 — только одиночные нажатия (мультиклавишные/пустые мимо).
+  // проскок не множим). V1 — только одиночные нажатия (сочетания/пустые мимо).
   const tally = new Map<string, SessionConfusion>();
   for (const symbol of stream) {
     const first = symbol.attempts[0];
     if (first === undefined) continue;
     if (areKeyCapIdArraysEqual({ a: first.pressedKeyCaps, b: symbol.targetKeyCaps })) continue;
-    if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/мультиклавишные — мимо
+    if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/сочетания — мимо
     const pressed = first.pressedKeyCaps[0];
     if (pressed === undefined) continue; // noUncheckedIndexedAccess: сужаем KeyCapId | undefined
     const key = `${symbol.targetSymbol} ${pressed}`;
@@ -370,7 +370,7 @@ describe('listMine query — guest', () => {
 - [ ] **Step 2: Запустить тест — убедиться, что падает**
 
 Run: `npx vitest run convex/sessions.test.ts`
-Expected: FAIL — `Failed to resolve import "./sessions"`.
+Expected: FAIL — `Failed to resolve import "./sessions"` (модуль не найден).
 
 - [ ] **Step 3: Реализовать handler + мутацию `record` + reader-query `listMine`**
 
@@ -478,10 +478,10 @@ export const listMine = query({
 Run: `npx vitest run convex/sessions.test.ts`
 Expected: PASS (все тесты: handler, cold-start, append-only, guest-throw, listMine-порядок, изоляция, guest-list).
 
-- [ ] **Step 5: Валидация деплоя Convex (build/test это НЕ ловят)**
+- [ ] **Step 5: Валидация развёртывания Convex (build/test это НЕ ловят)**
 
 Run: `npx convex dev --once`
-Expected: `✔ Convex functions ready` без ошибок (новый модуль `sessions` задеплоен, схема принята).
+Expected: `✔ Convex functions ready` без ошибок (новый модуль `sessions` развёрнут, схема принята).
 
 - [ ] **Step 6: Commit**
 
@@ -496,12 +496,12 @@ git commit -m "feat(stats): sessions.record + listMine — журнал сесс
 
 **Files:**
 - Modify: `src/lib/session-config.ts` (константа-порог `MIN_JOURNAL_EXPOSURES`)
-- Modify: `src/machines/session.machine.ts` (импорт порога; импорт сводчика; стаб действия; `emitSessionSummary`; `done.entry`)
+- Modify: `src/machines/session.machine.ts` (импорт порога; импорт сводчика; заглушка действия; `emitSessionSummary`; `done.entry`)
 - Test: `src/machines/session.machine.test.ts` (новый тест)
 
 - [ ] **Step 1: Написать падающий тест**
 
-Добавить в `src/machines/session.machine.test.ts` внутри `describe('sessionMachine', …)` (мирроринг теста «истёкший таймер → done», строки 133–154):
+Добавить в `src/machines/session.machine.test.ts` внутри `describe('sessionMachine', …)` (зеркало теста «истёкший таймер → done», строки 133–154):
 
 ```ts
   it('на завершении сессии (done) шлёт recordSessionSummary с payload по всему потоку', async () => {
@@ -531,7 +531,7 @@ git commit -m "feat(stats): sessions.record + listMine — журнал сесс
     actor.send({ type: 'TIMER_EXPIRED' });
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
 
-    expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на рефиллах
+    expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на дозагрузках
     const payload = onSession.mock.calls[0][0] as { exposures: number; confusions: unknown[]; durationMs: number };
     expect(payload.exposures).toBe(8);
     expect(payload.confusions).toEqual([]);
@@ -542,7 +542,7 @@ git commit -m "feat(stats): sessions.record + listMine — журнал сесс
 - [ ] **Step 2: Запустить тест — убедиться, что падает**
 
 Run: `npx vitest run src/machines/session.machine.test.ts -t "recordSessionSummary"`
-Expected: FAIL — `recordSessionSummary not provided` (стаб бросает) либо действие не вызвано.
+Expected: FAIL — `recordSessionSummary not provided` (заглушка бросает) либо действие не вызвано.
 
 - [ ] **Step 3a: Добавить импорт сводчика**
 
@@ -552,9 +552,9 @@ Expected: FAIL — `recordSessionSummary not provided` (стаб бросает)
 import { summarizeSession, type SessionSummaryPayload } from '@/lib/session-summarize';
 ```
 
-- [ ] **Step 3b: Добавить стаб действия в `setup.actions`**
+- [ ] **Step 3b: Добавить заглушку действия в `setup.actions`**
 
-В блоке `actions:` сразу после стаба `recordCheckpoint` (строки 81–83) добавить:
+В блоке `actions:` сразу после заглушки `recordCheckpoint` (строки 81–83) добавить:
 
 ```ts
     recordSessionSummary: (
@@ -597,7 +597,7 @@ import {
     // время за вычетом пауз). Порядок в done.entry важен: emitSessionSummary идёт
     // ПОСЛЕ checkpointAndRecord — обе мутации Convex от одного клиента (singleton
     // src/lib/convex.ts) исполняются одной упорядоченной очередью по порядку вызова,
-    // значит drillRecord закоммитит рост openedSteps раньше, чем sessions.record его
+    // значит drillRecord зафиксирует рост openedSteps раньше, чем sessions.record его
     // прочитает. Короткие сессии (< MIN_JOURNAL_EXPOSURES) — шум, не журналируем.
     emitSessionSummary: enqueueActions(({ context, enqueue }) => {
       if (context.completed.length === 0) return;
@@ -626,11 +626,11 @@ import {
       type: 'final',
 ```
 
-- [ ] **Step 3e: Провайдить no-op `recordSessionSummary` в существующих тестах, доходящих до `done`**
+- [ ] **Step 3e: Внедрить no-op `recordSessionSummary` в существующих тестах, доходящих до `done`**
 
-Стаб `recordSessionSummary` бросает. Тесты с сессией ≥ 5 символов, доходящие до `done`, обязаны его провайдить (как `recordCheckpoint`). Короткие (1–2 символа) отсечёт guard *до* enqueue, но провайдим no-op везде для надёжности (иначе будущее снижение порога их сломает).
+Заглушка `recordSessionSummary` бросает. Тесты с сессией ≥ 5 символов, доходящие до `done`, обязаны его внедрить (как `recordCheckpoint`). Короткие (1–2 символа) отсечёт guard *до* enqueue, но внедряем no-op везде для надёжности (иначе будущее снижение порога их сломает).
 
-В хелпере `makeSession` (строки 20–32) добавить в объект `actions`:
+В помощнике `makeSession` (строки 20–32) добавить в объект `actions`:
 
 ```ts
       recordSessionSummary: () => {},
@@ -645,7 +645,7 @@ import {
 - [ ] **Step 4: Запустить тесты — убедиться, что проходят**
 
 Run: `npx vitest run src/machines/session.machine.test.ts`
-Expected: PASS — новый тест + прежние (no-op `recordSessionSummary` провайжен в `makeSession` и в тесте «сразу done»; короткие сессии guard отсекает до enqueue).
+Expected: PASS — новый тест + прежние (no-op `recordSessionSummary` внедрён в `makeSession` и в тесте «сразу done»; короткие сессии guard отсекает до enqueue).
 
 - [ ] **Step 5: Commit**
 
@@ -661,7 +661,7 @@ git commit -m "feat(stats): emitSessionSummary в done — журнал сесс
 **Files:**
 - Modify: `src/machines/session-impl.ts` (добавить действие-провайдер рядом с `recordCheckpoint`)
 
-Примечание: как и `recordCheckpoint`, это побочный эффект Convex (fire-and-forget) — отдельным юнит-тестом не покрываем; корректность проводки ловит `make check` (типы) и финальная задача. Тип `params` выводится из сигнатуры действия машины (Task 4).
+Примечание: как и `recordCheckpoint`, это побочный эффект Convex (fire-and-forget) — отдельным модульным тестом не покрываем; корректность проводки ловит `make check` (типы) и финальная задача. Тип `params` выводится из сигнатуры действия машины (Task 4).
 
 - [ ] **Step 1: Добавить провайдер**
 
@@ -711,7 +711,7 @@ git commit -m "feat(stats): провайдер recordSessionSummary — запи
 Run: `make check-all`
 Expected: PASS — lint + check + test + spell + build все зелёные. (Если `make spell` падает на русских словоформах/доменных терминах — разобрать по правилам CLAUDE.md, при необходимости `/fix-spell`.)
 
-- [ ] **Step 2: Валидация деплоя Convex (повтор после всех правок)**
+- [ ] **Step 2: Валидация развёртывания Convex (повтор после всех правок)**
 
 Run: `npx convex dev --once`
 Expected: `✔ Convex functions ready` без ошибок.
@@ -731,21 +731,21 @@ Expected: ≥1 строка с непустыми `cpm`, `openedSteps`, `confusi
 - Схема `sessionSummaries` (поля + bounded confusion) → Task 2. ✓
 - Server-stamp `openedSteps`/`capturedAt` → Task 3 (handler). ✓
 - Чистый сводчик с confusion + cpm → Task 1. ✓
-- Решение durationMs = `displayElapsedMs` (активное время), cpm — throughput, не моторная скорость: формула и clamp → Task 1 (юнит-тесты); проводка `displayElapsedMs`→payload → Task 4 (тест проверяет `exposures`/`confusions`/`durationMs`). ✓
+- Решение durationMs = `displayElapsedMs` (активное время), cpm — throughput, не моторная скорость: формула и clamp → Task 1 (модульные тесты); проводка `displayElapsedMs`→payload → Task 4 (тест проверяет `exposures`/`confusions`/`durationMs`). ✓
 - Точка записи = `done.entry` (финальный чекпоинт), `recordCheckpoint` не тронут → Task 4. ✓
 - Чтение журнала (`sessions.listMine`, CQRS-симметрия) → Task 3. ✓
 - Fire-and-forget + guest gracefully (запись и чтение) → Task 5 + Task 3. ✓
 
 **Правки аудита, внесённые в план:**
 - `latencySpreadMs` убран (YAGNI) — Task 1/2/3.
-- confusions V1: только одиночные нажатия, пустые/мультиклавишные отброшены — Task 1.
+- confusions V1: только одиночные нажатия, пустые/сочетания клавиш отброшены — Task 1.
 - cpm защищён от деления на ~ноль (`durationMs < 1000 → 0`) — Task 1.
 - Порог `MIN_JOURNAL_EXPOSURES` против шумовых коротких сессий — Task 4.
-- no-op `recordSessionSummary` в существующих `done`-тестах (стаб бросает) — Task 4 Step 3e.
-- Усиленный тест Task 4 (6 символов, `exposures`/`confusions` проверены, не только `typeof`) — Task 4 Step 1.
+- no-op `recordSessionSummary` в существующих `done`-тестах (заглушка бросает) — Task 4 Step 3e.
+- Усиленный тест Task 4 (8 символов, `exposures`/`confusions` проверены, не только `typeof`) — Task 4 Step 1.
 - guest-throw тест мутации `record` — Task 3.
 - Комментарий о Convex single-client ordering (гонка `openedSteps` безопасна) — Task 4.
 
-**Type consistency:** `SessionSummaryPayload` (Task 1) = поля `exposures, clean, cpm, durationMs, latencyMedianMs, confusions` — те же поля в args мутации (Task 3) и в стабе действия машины (Task 4). `SessionConfusion {target, pressed, count}` — идентично в schema (Task 2), мутации (Task 3) и сводчике (Task 1). Функция называется `summarizeSession` во всех ссылках; handlers — `recordSessionSummaryHandler` / `listMineHandler`; действия — `emitSessionSummary` (сборка) и `recordSessionSummary` (провайдер). ✓
+**Type consistency:** `SessionSummaryPayload` (Task 1) = поля `exposures, clean, cpm, durationMs, latencyMedianMs, confusions` — те же поля в args мутации (Task 3) и в заглушке действия машины (Task 4). `SessionConfusion {target, pressed, count}` — идентично в schema (Task 2), мутации (Task 3) и сводчике (Task 1). Функция называется `summarizeSession` во всех ссылках; handlers — `recordSessionSummaryHandler` / `listMineHandler`; действия — `emitSessionSummary` (сборка) и `recordSessionSummary` (провайдер). ✓
 
 **Placeholder scan:** код приведён полностью в каждом шаге; команд и ожидаемых результатов — конкретные. ✓

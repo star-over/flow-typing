@@ -116,7 +116,7 @@ export const sessionMachine = setup({
     // время за вычетом пауз). Порядок в done.entry важен: emitSessionSummary идёт
     // ПОСЛЕ checkpointAndRecord — обе мутации Convex от одного клиента (singleton
     // src/lib/convex.ts) исполняются одной упорядоченной очередью по порядку вызова,
-    // значит drillRecord закоммитит рост openedSteps раньше, чем sessions.record его
+    // значит drillRecord зафиксирует рост openedSteps раньше, чем sessions.record его
     // прочитает. Короткие сессии (< MIN_JOURNAL_EXPOSURES) — шум, не журналируем.
     emitSessionSummary: enqueueActions(({ context, enqueue }) => {
       if (context.completed.length === 0) return;
