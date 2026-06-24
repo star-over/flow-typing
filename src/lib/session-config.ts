@@ -24,3 +24,9 @@ export const REFILL_THRESHOLD_SYMBOLS = 40;
  * в ожидании последнего символа.
  */
 export const DRAIN_CAP_MS = 4000;
+
+/**
+ * Нижний порог журналирования сессии в символах: короче — шум (мало данных,
+ * неустойчивый cpm/латентность), строку в sessionSummaries не пишем.
+ */
+export const MIN_JOURNAL_EXPOSURES = 5;

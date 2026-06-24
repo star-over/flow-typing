@@ -23,10 +23,12 @@ import { createTypingStream } from '@/lib/typing-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
   DRAIN_CAP_MS,
+  MIN_JOURNAL_EXPOSURES,
   REFILL_THRESHOLD_SYMBOLS,
   SESSION_DURATION_SECONDS,
   TICK_INTERVAL_MS,
 } from '@/lib/session-config';
+import { summarizeSession, type SessionSummaryPayload } from '@/lib/session-summarize';
 import { trainingMachine } from './training.machine';
 
 export interface SessionInput {
@@ -81,6 +83,12 @@ export const sessionMachine = setup({
     recordCheckpoint: (_, _params: { summary: DrillSummary; symbolLayoutId: SymbolLayoutId }) => {
       throw new Error('recordCheckpoint not provided');
     },
+    recordSessionSummary: (
+      _,
+      _params: { payload: SessionSummaryPayload; symbolLayoutId: SymbolLayoutId },
+    ) => {
+      throw new Error('recordSessionSummary not provided');
+    },
     pushCompleted: assign(({ context, event }) => ({
       completed: [...context.completed, (event as { symbol: StreamSymbol }).symbol],
     })),
@@ -102,6 +110,20 @@ export const sessionMachine = setup({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       enqueue({ type: 'recordCheckpoint', params: { summary, symbolLayoutId: context.symbolLayoutId } } as any);
       enqueue.assign({ previousCheckpoint: context.completed.length });
+    }),
+    // Сводка ВСЕЙ сессии в журнал (sessionSummaries) — на завершении. Берёт весь
+    // completed[] (не срез чекпоинта) и displayElapsedMs как длительность (активное
+    // время за вычетом пауз). Порядок в done.entry важен: emitSessionSummary идёт
+    // ПОСЛЕ checkpointAndRecord — обе мутации Convex от одного клиента (singleton
+    // src/lib/convex.ts) исполняются одной упорядоченной очередью по порядку вызова,
+    // значит drillRecord закоммитит рост openedSteps раньше, чем sessions.record его
+    // прочитает. Короткие сессии (< MIN_JOURNAL_EXPOSURES) — шум, не журналируем.
+    emitSessionSummary: enqueueActions(({ context, enqueue }) => {
+      if (context.completed.length === 0) return;
+      const payload = summarizeSession({ stream: context.completed, durationMs: context.displayElapsedMs });
+      if (payload.exposures < MIN_JOURNAL_EXPOSURES) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      enqueue({ type: 'recordSessionSummary', params: { payload, symbolLayoutId: context.symbolLayoutId } } as any);
     }),
     sendComplete: sendTo(
       ({ context }) => context.parentActor,
@@ -267,7 +289,7 @@ export const sessionMachine = setup({
     },
 
     done: {
-      entry: ['checkpointAndRecord', 'sendComplete'],
+      entry: ['checkpointAndRecord', 'emitSessionSummary', 'sendComplete'],
       type: 'final',
     },
   },
