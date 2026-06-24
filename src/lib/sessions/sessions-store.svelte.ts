@@ -16,7 +16,7 @@ export interface SessionRow {
   accuracy: string; // один знак, напр. "97.2"
 }
 
-/** Чистый форматтер: документ сеанса → строка таблицы. Округления как в LessonStatsDisplay. */
+/** Функция форматирования: документ сеанса → строка таблицы. Округления как в LessonStatsDisplay. */
 export function formatSessionRow({
   session,
   locale,
@@ -35,9 +35,9 @@ export function formatSessionRow({
 }
 
 /**
- * Reactive store истории сеансов текущего юзера для текущей раскладки. Вызывать в
+ * Reactive хранилище истории сеансов текущего юзера для текущей раскладки. Вызывать в
  * +layout (svelte-context), после auth. Подписка живёт весь сеанс (паттерн
- * repertoire-store): при смене раскладки $effect переподписывается, гость → [].
+ * repertoire-store): при смене раскладки $effect подписывается заново, гость → [].
  */
 export function createSessionsStore({
   authStore,
