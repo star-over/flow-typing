@@ -47,6 +47,7 @@ export function summarizeSession({
     if (areKeyCapIdArraysEqual({ a: first.pressedKeyCaps, b: symbol.targetKeyCaps })) continue;
     if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/мультиклавишные — мимо
     const pressed = first.pressedKeyCaps[0];
+    if (pressed === undefined) continue; // noUncheckedIndexedAccess: сужаем KeyCapId | undefined
     const key = `${symbol.targetSymbol} ${pressed}`;
     const row = tally.get(key) ?? { target: symbol.targetSymbol, pressed, count: 0 };
     row.count += 1;
