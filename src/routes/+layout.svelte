@@ -5,6 +5,7 @@
   import { convex, api } from '@/lib/convex';
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
   import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
+  import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
@@ -43,6 +44,12 @@
     symbolLayoutId: () => $settings.symbolLayoutId,
   });
   setContext('repertoire', repertoireStore);
+
+  const sessionsStore = createSessionsStore({
+    authStore,
+    symbolLayoutId: () => $settings.symbolLayoutId,
+  });
+  setContext('sessions', sessionsStore);
 
   // Phase 5: cross-device settings sync для авторизованных юзеров.
   // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.
