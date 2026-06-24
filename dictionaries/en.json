@@ -36,7 +36,6 @@
     "stats": "Stats",
     "session_complete": "Session Complete!",
     "back_to_menu": "Back to Menu",
-    "stats_screen_title": "Stats Screen",
     "error_title": "An Error Occurred",
     "start_again": "Start Again",
     "pause": "Pause",
@@ -79,6 +78,22 @@
       "accuracy": "%",
       "duration": "s"
     }
+  },
+  "stats_sessions": {
+    "title": "Training sessions",
+    "headers": {
+      "date": "Date",
+      "duration": "Duration",
+      "cpm": "Speed",
+      "accuracy": "Accuracy"
+    },
+    "units": {
+      "duration": "s",
+      "cpm": "CPM",
+      "accuracy": "%"
+    },
+    "empty": "No sessions yet",
+    "guest": "Sign in to see your session history"
   },
   "repertoire_progress": {
     "title": "Step progress",

@@ -27,6 +27,7 @@ function makeSession({
     },
     actions: {
       recordCheckpoint: (_, params) => onRecord((params as { summary: unknown }).summary),
+      recordSessionSummary: () => {},
     },
   });
 }
@@ -141,7 +142,7 @@ describe('sessionMachine', () => {
           return call === 1 ? [sym('a', 'KeyA')] : [];
         }),
       },
-      actions: { recordCheckpoint: () => {} },
+      actions: { recordCheckpoint: () => {}, recordSessionSummary: () => {} },
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
@@ -227,5 +228,39 @@ describe('sessionMachine', () => {
       const training = actor.getSnapshot().children.training!.getSnapshot() as SnapshotFrom<typeof trainingMachine>;
       expect(training.context.stream.map((s: StreamSymbol) => s.targetSymbol).join('')).toBe('a b');
     });
+  });
+
+  it('на завершении сессии (done) шлёт recordSessionSummary с payload по всему потоку', async () => {
+    const onSession = vi.fn();
+    let call = 0;
+    // Восемь символов: с запасом проходим guard MIN_JOURNAL_EXPOSURES (5).
+    const EIGHT: TypingStream = Array.from({ length: 8 }, () => sym('a', 'KeyA'));
+    const providedSession = sessionMachine.provide({
+      actors: {
+        fetchDrills: fromPromise(async () => {
+          call += 1;
+          return call === 1 ? EIGHT : [];
+        }),
+      },
+      actions: {
+        recordCheckpoint: () => {},
+        recordSessionSummary: (_, p) =>
+          onSession((p as { payload: { exposures: number; confusions: unknown[]; durationMs: number } }).payload),
+      },
+    });
+    const actor = createActor(providedSession, { input: INPUT });
+    actor.start();
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+
+    for (let i = 0; i < 8; i += 1) actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(8));
+    actor.send({ type: 'TIMER_EXPIRED' });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
+
+    expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на дозагрузках
+    const payload = onSession.mock.calls[0]![0] as { exposures: number; confusions: unknown[]; durationMs: number };
+    expect(payload.exposures).toBe(8);
+    expect(payload.confusions).toEqual([]);
+    expect(typeof payload.durationMs).toBe('number');
   });
 });

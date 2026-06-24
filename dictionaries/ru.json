@@ -36,7 +36,6 @@
     "stats": "Статистика",
     "session_complete": "Тренировка завершена!",
     "back_to_menu": "В меню",
-    "stats_screen_title": "Экран статистики",
     "error_title": "Произошла ошибка",
     "start_again": "Начать заново",
     "pause": "Пауза",
@@ -79,6 +78,22 @@
       "accuracy": "%",
       "duration": "с"
     }
+  },
+  "stats_sessions": {
+    "title": "История тренировок",
+    "headers": {
+      "date": "Дата",
+      "duration": "Время",
+      "cpm": "Скорость",
+      "accuracy": "Точность"
+    },
+    "units": {
+      "duration": "с",
+      "cpm": "зн/мин",
+      "accuracy": "%"
+    },
+    "empty": "Сеансов пока нет",
+    "guest": "Войдите, чтобы видеть историю сеансов"
   },
   "repertoire_progress": {
     "title": "Прогресс ступени",

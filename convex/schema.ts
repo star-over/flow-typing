@@ -70,4 +70,23 @@ export default defineSchema({
     ),
     updatedAt: v.number(),
   }).index('by_user_and_layout', ['userId', 'symbolLayoutId']),
+  // Журнал сессий: append-only, по строке на завершённую сессию. Отдельно от
+  // skillProfiles (проекция для алгоритма) — это аналитика/коучинг: тренд
+  // cpm/accuracy, хронология ступеней (openedSteps во времени), пары-путаницы
+  // (направление промаха). Сырьё attempts сюда НЕ кладём. capturedAt и
+  // openedSteps штампует сервер (см. convex/sessions.ts), как updatedAt в userSettings.
+  sessionSummaries: defineTable({
+    userId: v.id('users'),
+    symbolLayoutId: v.string(),
+    capturedAt: v.number(), // server-stamped
+    openedSteps: v.number(), // server-stamped из skillProfiles на момент записи
+    durationMs: v.number(),
+    exposures: v.number(),
+    clean: v.number(),
+    cpm: v.number(),
+    latencyMedianMs: v.number(),
+    confusions: v.array(
+      v.object({ target: v.string(), pressed: v.string(), count: v.number() }),
+    ),
+  }).index('by_user_and_layout', ['userId', 'symbolLayoutId']),
 });
