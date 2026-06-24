@@ -74,5 +74,18 @@ export const sessionService = sessionMachine.provide({
         .then(() => logConvex(`drillRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
         .catch((err) => console.warn('drillRecord пропущен (гость/офлайн)', err));
     },
+    // Журнал сессии: fire-and-forget, как recordCheckpoint. capturedAt/openedSteps
+    // ставит сервер. Гость → 'Not authenticated' → молча гасим.
+    recordSessionSummary: (_, params) => {
+      const { payload, symbolLayoutId } = params;
+      logConvex(
+        `sessionRecord → ${payload.exposures} символов, cpm=${Math.round(payload.cpm)} confusions=${payload.confusions.length}`,
+      );
+      const startedAt = performance.now();
+      void convex
+        .mutation(api.sessions.record, { symbolLayoutId, ...payload })
+        .then(() => logConvex(`sessionRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
+        .catch((err) => console.warn('sessionSummary пропущен (гость/офлайн)', err));
+    },
   },
 });
