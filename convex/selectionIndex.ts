@@ -68,7 +68,8 @@ export const insertBatch = internalMutation({
     for (const row of args.rows) {
       const id = await ctx.db.insert('drillSelectionIndex', row);
       const doc = await ctx.db.get(id);
-      await drillIndex.insertIfDoesNotExist(ctx, doc!);
+      if (doc === null) throw new Error(`строка drillSelectionIndex исчезла сразу после вставки: ${id}`);
+      await drillIndex.insertIfDoesNotExist(ctx, doc);
     }
   },
 });

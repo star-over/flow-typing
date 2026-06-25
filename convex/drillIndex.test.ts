@@ -2,7 +2,7 @@ import { convexTest } from 'convex-test';
 import { describe, expect, test } from 'vitest';
 import schema from './schema';
 import { drillIndex } from './drillIndex';
-import { registerDrillIndex } from './test-helpers';
+import { registerDrillIndex } from './test.helpers';
 
 const modules = import.meta.glob('./**/*.ts');
 

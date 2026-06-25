@@ -5,7 +5,7 @@ import schema from './schema';
 import type { MutationCtx } from './_generated/server';
 import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler } from './drill';
 import { drillIndex } from './drillIndex';
-import { registerDrillIndex } from './test-helpers';
+import { registerDrillIndex } from './test.helpers';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');

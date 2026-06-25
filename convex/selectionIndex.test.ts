@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 import { internal } from './_generated/api';
 import schema from './schema';
 import { drillIndex } from './drillIndex';
-import { registerDrillIndex } from './test-helpers';
+import { registerDrillIndex } from './test.helpers';
 
 const modules = import.meta.glob('./**/*.ts');
 
