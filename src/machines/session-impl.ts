@@ -22,7 +22,7 @@ const logConvex = import.meta.env.DEV
       /* no-op в production */
     };
 
-/** Серверный сбор порции через Convex drillNext. */
+/** Серверный сбор порции через Convex drillNext (query со свежим seed, ADR 0009). */
 async function fetchServerDrillStream({
   symbolLayoutId,
   budgetChars,
@@ -30,9 +30,12 @@ async function fetchServerDrillStream({
   symbolLayoutId: SymbolLayoutId;
   budgetChars: number;
 }): Promise<TypingStream> {
-  logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId}`);
+  // Свежий seed на каждый поход → разный ключ кэша query → честная случайная выборка
+  // (кэш Convex иначе заморозил бы порцию между записями в namespace).
+  const seed = Math.floor(Math.random() * 0x7fffffff);
+  logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId} seed=${seed}`);
   const startedAt = performance.now();
-  const res = await convex.mutation(api.drill.drillNext, { symbolLayoutId, budgetChars });
+  const res = await convex.query(api.drill.drillNext, { symbolLayoutId, budgetChars, seed });
   const stream = glueServerDrills({ drills: res.drills, symbolLayoutId });
   const elapsedMs = Math.round(performance.now() - startedAt);
   logConvex(`drillNext ← ${res.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
