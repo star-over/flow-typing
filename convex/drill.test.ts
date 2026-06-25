@@ -4,11 +4,14 @@ import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
 import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler } from './drill';
+import { drillIndex } from './drillIndex';
+import { registerDrillIndex } from './test-helpers';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');
 
 // Вставляет drill (полная мета — схема требует все поля) + строку таблицы отбора.
+// Прямой insert обходит insertBatch, поэтому зеркалим строку в агрегат вручную.
 async function insertDrill(
   ctx: MutationCtx,
   { text, step, layout }: { text: string; step: number; layout: string }
@@ -24,20 +27,23 @@ async function insertDrill(
     bigrams: [],
     symbolFrequency: [],
   });
-  await ctx.db.insert('drillSelectionIndex', { drillId, symbolLayoutId: layout, stepLevel: step });
+  const rowId = await ctx.db.insert('drillSelectionIndex', { drillId, symbolLayoutId: layout, stepLevel: step });
+  await drillIndex.insertIfDoesNotExist(ctx, (await ctx.db.get(rowId))!);
   return drillId;
 }
 
 describe('drillNext — выдача порции (этап 1)', () => {
   test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
     const t = convexTest(schema, modules);
+    registerDrillIndex(t);
     await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
     });
 
-    const res = await t.mutation(api.drill.drillNext, {
+    const res = await t.query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 10,
+      seed: 1,
     });
 
     expect(res.contentGap).toBe(false);
@@ -47,14 +53,16 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
   test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
     const t = convexTest(schema, modules);
+    registerDrillIndex(t);
     const stepFive = await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
       return insertDrill(ctx, { text: 'zzzzz', step: 5, layout: 'test' });
     });
 
-    const res = await t.mutation(api.drill.drillNext, {
+    const res = await t.query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 300,
+      seed: 1,
     });
 
     // Бюджет 300 знаков > всех step-0 (10×5=50): выдаются все 10, step-5 — никогда.
@@ -64,14 +72,16 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
   test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
     const t = convexTest(schema, modules);
+    registerDrillIndex(t);
     const otherLayout = await t.run(async (ctx) => {
       await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
       return insertDrill(ctx, { text: 'zzzzz', step: 0, layout: 'other' });
     });
 
-    const res = await t.mutation(api.drill.drillNext, {
+    const res = await t.query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 300,
+      seed: 1,
     });
 
     expect(res.drills).toHaveLength(1);
@@ -80,11 +90,47 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
   test('пустой пул → контентный сбой (contentGap), сессия не падает', async () => {
     const t = convexTest(schema, modules);
-    const res = await t.mutation(api.drill.drillNext, {
+    registerDrillIndex(t);
+    const res = await t.query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 300,
+      seed: 1,
     });
 
+    expect(res.contentGap).toBe(true);
+    expect(res.drills).toEqual([]);
+  });
+
+  test('seed детерминирует выборку: один seed → одинаковые id', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await t.run(async (ctx) => {
+      for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: `dr${i}xx`, step: 0, layout: 'test' });
+    });
+    const a = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
+    const b = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
+    expect(a.drills.map((d) => d.id)).toEqual(b.drills.map((d) => d.id));
+  });
+
+  test('drill\'ы в порции не повторяются (distinct)', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await t.run(async (ctx) => {
+      for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+    });
+    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
+    expect(new Set(res.drills.map((d) => d.id)).size).toBe(res.drills.length);
+  });
+
+  test('битые ссылки (drills удалён, индекс жив) → contentGap, не врёт пустотой', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await t.run(async (ctx) => {
+      // Индекс + агрегат живы (count>0), сам drill удалён → ссылка битая.
+      const drillId = await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      await ctx.db.delete(drillId);
+    });
+    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 1 });
     expect(res.contentGap).toBe(true);
     expect(res.drills).toEqual([]);
   });

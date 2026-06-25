@@ -8,10 +8,11 @@
  * набору введённых букв (Repertoire) + случайный выбор + добор под бюджет.
  * Ранжирование, фокус и подстройка трудности — последующие этапы (ADR 0003/0004).
  *
- * Это **mutation**, а не query: query в Convex кэшируется и реактивна — повторный
- * вызов с теми же аргументами вернул бы ту же порцию; нам нужна свежая случайная
- * выборка на каждый поход за порцией. Сюда же позже ляжет ленивое создание
- * анонимного профиля (ADR 0005).
+ * `drillNext` — **query** (ADR 0009): жёсткий фильтр исполняет агрегат
+ * `drillIndex` (namespace=раскладка, bounds: stepLevel < openedSteps), случайный
+ * доступ — count()+at() за O(log n). Свежесть выборки даёт `seed`-аргумент с
+ * клиента (разный ключ кэша query), а не write-путь mutation. Форма распределения
+ * (soft-слой) — отложена (ADR 0009), v1 равномерный.
  *
  * Контракт говорит в **символах и записях**, не в cpm (ADR 0006): cpm и таймер —
  * клиентские бизнес-сущности, клиент сам считает `budgetChars` из своей скорости
@@ -19,7 +20,7 @@
  * фильтрация — в одном слое (здесь), иначе промах по количеству.
  *
  * Жёсткое требование одно: drill доступен ⟺ его `stepLevel` в таблице отбора
- * `< openedSteps` (ADR 0001) — индексируемое сравнение через `by_layout_and_step`.
+ * `< openedSteps` (ADR 0001) — сравнение через bounds агрегата `drillIndex`.
  * `openedSteps` читается из Skill Profile (ADR 0008): `resolveOpenedSteps` возвращает
  * значение профиля (user × раскладка) или cold-start 1 для гостя/нового профиля.
  */
@@ -28,6 +29,8 @@ import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
+import { drillIndex } from './drillIndex';
+import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/random-pick.ts';
 import { getLayoutData } from './layoutData';
 import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
@@ -45,7 +48,7 @@ export async function resolveOpenedSteps({
   userId,
   symbolLayoutId,
 }: {
-  ctx: MutationCtx;
+  ctx: QueryCtx | MutationCtx;
   userId: Id<'users'> | null;
   symbolLayoutId: string;
 }): Promise<number> {
@@ -57,10 +60,11 @@ export async function resolveOpenedSteps({
   return profile?.openedSteps ?? DEFAULT_OPENED_STEPS;
 }
 
-export const drillNext = mutation({
+export const drillNext = query({
   args: {
     symbolLayoutId: v.string(),
     budgetChars: v.number(),
+    seed: v.number(),
   },
   returns: v.object({
     contentGap: v.boolean(),
@@ -70,47 +74,46 @@ export const drillNext = mutation({
     const userId = await getAuthUserId(ctx);
     const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
 
-    // Жёсткий фильтр: все доступные drill'ы раскладки (stepLevel < openedSteps).
-    const eligible = await ctx.db
-      .query('drillSelectionIndex')
-      .withIndex('by_layout_and_step', (q) =>
-        q.eq('symbolLayoutId', args.symbolLayoutId).lt('stepLevel', openedSteps)
-      )
-      .collect();
+    // Жёсткий фильтр (ADR 0009): namespace=раскладка, bounds: stepLevel < openedSteps.
+    const bounds = { upper: { key: openedSteps, inclusive: false } } as const;
+    const count = await drillIndex.count(ctx, { namespace: args.symbolLayoutId, bounds });
 
     // Ноль кандидатов — не деградация, а контентный сбой (дыра в корпусе либо
     // нет таблицы отбора для раскладки). Сессию не блокируем: сигналим в лог,
     // дефолтный drill домашнего ряда — задача клиента/следующего шага.
-    if (eligible.length === 0) {
+    if (count === 0) {
       console.warn(
         `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — контентный сбой`
       );
       return { contentGap: true, drills: [] };
     }
 
-    // Случайный порядок: сортировка по случайному ключу. Math.random в Convex —
-    // детерминированный seed на вызов (выборка случайна, воспроизводима на реплее).
-    // Перф-заметка: собираем весь пул индекса (строки крошечные) ради честной
-    // случайности; при росте корпуса заменимо индексом со случайным ключом.
-    const shuffledIds: Id<'drills'>[] = eligible
-      .map((row) => ({ id: row.drillId, key: Math.random() }))
-      .sort((a, b) => a.key - b.key)
-      .map((entry) => entry.id);
-
-    // Добор по бюджету: берём drill'ы в случайном порядке, пока не наберём
-    // budgetChars. Недобор допустим (ранний поход за следующей порцией); перебор —
-    // максимум на один последний drill. Тексты тянем только у выбранных (~десяток),
-    // не у всего пула.
+    // Равномерный seeded-отбор distinct drill'ов под бюджет (поведение-сохраняющий v1).
+    // Свежесть — из seed (разный на каждый поход с клиента → разный ключ кэша query).
+    // Случайный доступ — count()+at() за O(log n); тексты тянем только у выбранных.
+    const rng = makeSeededRandom(args.seed);
+    const used = new Set<number>();
     const drills: { id: Id<'drills'>; text: string; length: number }[] = [];
     let total = 0;
-    for (const id of shuffledIds) {
+    for (;;) {
       if (drills.length > 0 && total >= args.budgetChars) break;
-      const drill = await ctx.db.get(id);
+      const offset = nextDistinctOffset({ rng, count, used });
+      if (offset === null) break;
+      const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: args.symbolLayoutId, bounds });
+      const row = await ctx.db.get(selectionId); // строка drillSelectionIndex
+      // Битая ссылка: offset уже помечен used в nextDistinctOffset и не выпадет
+      // снова. Пул сплошь из битых → недобор → выход в post-loop contentGap (intent).
+      if (row === null) continue;
+      const drill = await ctx.db.get(row.drillId);
       if (drill === null) continue;
       drills.push({ id: drill._id, text: drill.text, length: drill.length });
       total += drill.length;
     }
 
+    // Пул не пуст (count>0), но все ссылки битые → это контентный сбой, а не
+    // «успех с нулём»: не врём contentGap:false (иначе session-impl примет пустой
+    // stream за валидный и не деградирует на корпус с правильным сигналом).
+    if (drills.length === 0) return { contentGap: true, drills: [] };
     return { contentGap: false, drills };
   },
 });
