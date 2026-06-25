@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as drill from "../drill.js";
+import type * as drillIndex from "../drillIndex.js";
 import type * as http from "../http.js";
 import type * as layoutData from "../layoutData.js";
 import type * as selectionIndex from "../selectionIndex.js";
@@ -26,6 +27,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   drill: typeof drill;
+  drillIndex: typeof drillIndex;
   http: typeof http;
   layoutData: typeof layoutData;
   selectionIndex: typeof selectionIndex;
@@ -60,4 +62,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  drillIndex: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"drillIndex">;
+};
