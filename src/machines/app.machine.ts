@@ -1,4 +1,4 @@
-import { assign, sendTo, setup } from "xstate";
+import { assign, emit, sendTo, setup } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
@@ -31,6 +31,10 @@ export const appMachine = setup({
   types: {
     context: {} as AppContext,
     events: {} as AppEvent,
+    // Уведомление через `emit`: пользователь запросил старт тренировки с
+    // клавиатуры (Enter в menu). Машина сама не стартует — раскладку знает только
+    // UI ($settings), и слушатель есть лишь на /train. Подробности — ниже у menu.
+    emitted: {} as { type: 'MENU_START_REQUESTED' },
   },
   actors: {
     keyboardService: keyboardMachine,
@@ -98,6 +102,15 @@ export const appMachine = setup({
             type: 'setSymbolLayout',
             params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
           },
+        },
+        // Enter в menu = нажать «Начать тренировку». Машина не стартует напрямую:
+        // listener клавиатуры в +layout долетает до appActor на ЛЮБОМ маршруте,
+        // а FSM в menu и на /settings — прямой переход стартовал бы тренировку
+        // вне экрана. Вместо этого шлём уведомление через `emit`; его ловит
+        // App.svelte (есть лишь на /train) и шлёт тот же START_TRAINING с $settings.
+        'KEYBOARD.NAVIGATION_KEY': {
+          guard: 'isEnter',
+          actions: emit({ type: 'MENU_START_REQUESTED' }),
         },
       },
     },

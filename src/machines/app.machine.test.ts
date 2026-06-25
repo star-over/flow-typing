@@ -26,6 +26,34 @@ describe('appMachine', () => {
 
   });
 
+  describe('menu navigation keys', () => {
+    it('Enter emits MENU_START_REQUESTED (the UI mirrors the Start button), stays in menu', () => {
+      const actor = createActor(appMachineForTest);
+      const requests: { type: string }[] = [];
+      actor.on('MENU_START_REQUESTED', (event) => requests.push(event));
+      actor.start();
+      expect(actor.getSnapshot().value).toBe('menu');
+
+      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
+
+      // Машина не стартует сама — раскладку добавляет UI, здесь лишь уведомление.
+      expect(requests).toHaveLength(1);
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('Escape in menu is inert (no Start button to mirror) and emits nothing', () => {
+      const actor = createActor(appMachineForTest);
+      const requests: { type: string }[] = [];
+      actor.on('MENU_START_REQUESTED', (event) => requests.push(event));
+      actor.start();
+
+      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
+
+      expect(requests).toHaveLength(0);
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+  });
+
   describe('START_TRAINING', () => {
     it('from menu: enters training.running, stores symbolLayoutId, spawns sessionService', () => {
       const actor = createActor(appMachineForTest);
