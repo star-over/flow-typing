@@ -9,6 +9,8 @@
 
 ```
 shared/
+├── drill-selection/   чистый случайный отбор (seeded PRNG + distinct-offset),
+│                      storage-слой ADR 0009; делит сервер convex/drill.ts
 ├── key-ladder/        порядок открытия клавиш: типы, лестница йцукен, реестр,
 │                      карта клавиша→шаг, проверка покрытия (+ тесты)
 ├── selection-index/   computeStepLevel: drill → макс. шаг его клавиш (+ тесты)
