@@ -22,8 +22,13 @@
 
 ## Consequences
 
-- Новый компонент + инвариант синхронизации: агрегат держится в синхроне с `drillSelectionIndex` — `insert`/`delete` в `selectionIndex.ts` (`insertBatch`, `clearLayoutPage`) плюс `clear()` + backfill в action `rebuild`; операции идемпотентны (rebuild прогоняется повторно).
+- Новый компонент + инвариант синхронизации: агрегат держится в синхроне с
+  `drillSelectionIndex` на уровне оркестрации `rebuild` (единственный писатель таблицы):
+  `insertBatch` зеркалит вставку (`insertIfDoesNotExist`), а namespace сбрасывается одним
+  `clear()` в начале `rebuild` (`resetLayoutAggregate`). `clearLayoutPage` — только таблица.
+  Операции идемпотентны (rebuild прогоняется повторно).
 - Контракт меняется: `drillNext(symbolLayoutId, budgetChars, seed)` — добавляется `seed`; функция перестаёт быть mutation. `session-impl.ts` зовёт `convex.query` со свежим seed на каждый поход вместо `convex.mutation`. Доменно `drillNext` остаётся читателем (ADR 0008) — теперь и технически.
 - `rankBySoftSignals` — единая точка будущей политики выдачи: фокус-паттерны (ADR 0004), анти-повтор/recency, длина слова (мягкие требования ADR 0003), взвешенный random. Чистая, тестируется без заглушек над фиктивным over-sample.
 - На текущих ~501 drill выигрыша по перформансу нет — `.collect()` копеечный. Внедряем сейчас, пока корпус мал и backfill агрегата бесплатен, чтобы не переписывать горячий путь на большом корпусе позже.
 - `M` (over-sample factor) — провизорная ручка, как числовые пороги ADR 0008: ADR фиксирует структуру (storage даёт равномерный seeded over-sample, форму задаёт soft), не значение.
+- Реализовано планом `docs/plans/2026-06-25-drill-random-selection-aggregate.md` (v1 поведение-сохраняющий: равномерный seeded-отбор, soft-слой/over-sample отложены).

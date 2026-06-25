@@ -52,7 +52,7 @@ help:
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
 	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
 	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням KeyLadder"
-	@echo "  make next-batch       - Auto-Flow: дымовой вызов выдачи порции (LAYOUT/OPENED_STEPS/BUDGET_CHARS)"
+	@echo "  make next-batch       - Auto-Flow: дымовой вызов выдачи порции (LAYOUT/BUDGET_CHARS/SEED)"
 	@echo "------------------------------------------------------------------"
 
 
@@ -192,10 +192,10 @@ ladder-report:
 
 # Дымовой вызов выдачи порции (этап 1: фильтр по openedSteps + случайный выбор).
 # Контракт в символах (ADR 0006): бюджет считает клиент, сервер про cpm не знает.
-OPENED_STEPS ?= 6
+SEED ?= 1
 BUDGET_CHARS ?= 300
 next-batch:
-	@npx convex run drill:drillNext '{"symbolLayoutId":"$(LAYOUT)","openedSteps":$(OPENED_STEPS),"budgetChars":$(BUDGET_CHARS)}'
+	@npx convex run drill:drillNext '{"symbolLayoutId":"$(LAYOUT)","budgetChars":$(BUDGET_CHARS),"seed":$(SEED)}'
 
 
 # ==============================================================================
