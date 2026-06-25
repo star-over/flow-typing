@@ -14,6 +14,7 @@ import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
 import { computeStepLevel } from '../shared/selection-index/compute.ts';
 import { getLayoutData } from './layoutData';
+import { drillIndex } from './drillIndex';
 
 /**
  * Контентный радар: распределение корпуса по ступеням KeyLadder для раскладки.
@@ -56,7 +57,7 @@ export const drillsPage = internalQuery({
   },
 });
 
-/** Вставка батча строк таблицы отбора. */
+/** Вставка батча строк таблицы отбора + зеркалирование в агрегат (ADR 0009). */
 export const insertBatch = internalMutation({
   args: {
     rows: v.array(
@@ -64,7 +65,11 @@ export const insertBatch = internalMutation({
     ),
   },
   handler: async (ctx, args) => {
-    for (const row of args.rows) await ctx.db.insert('drillSelectionIndex', row);
+    for (const row of args.rows) {
+      const id = await ctx.db.insert('drillSelectionIndex', row);
+      const doc = await ctx.db.get(id);
+      await drillIndex.insertIfDoesNotExist(ctx, doc!);
+    }
   },
 });
 
@@ -78,6 +83,14 @@ export const clearLayoutPage = internalMutation({
       .take(args.numItems);
     for (const row of rows) await ctx.db.delete(row._id);
     return rows.length;
+  },
+});
+
+/** Сброс namespace агрегата для раскладки (идемпотентность rebuild: ADR 0009). */
+export const resetLayoutAggregate = internalMutation({
+  args: { symbolLayoutId: v.string() },
+  handler: async (ctx, args) => {
+    await drillIndex.clear(ctx, { namespace: args.symbolLayoutId });
   },
 });
 
@@ -104,6 +117,10 @@ export const rebuild = internalAction({
       cleared += removed;
       if (removed === 0) break;
     }
+
+    await ctx.runMutation(internal.selectionIndex.resetLayoutAggregate, {
+      symbolLayoutId: args.symbolLayoutId,
+    });
 
     let cursor: string | null = null;
     let inserted = 0;
