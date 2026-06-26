@@ -22,6 +22,7 @@ export interface AppContext {
 export type AppEvent =
   | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId }
   | { type: 'TO_MENU' }
+  | { type: 'TRAINER_OPENED' }
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
   | { type: 'SESSION.COMPLETE'; stream: TypingStream; summary: SessionSummaryPayload | null }
@@ -95,6 +96,14 @@ export const appMachine = setup({
     RESET_KEYBOARD: {
       actions: sendTo('keyboardService', { type: 'RESET' }),
     },
+    // Открытие тренажёра всегда начинается с чистого меню. appActor — singleton,
+    // переживает SvelteKit-навигацию (ADR 0007), поэтому без сброса экран прошлой
+    // сессии (`sessionComplete`) и брошенная пауза/сессия «застревают» и всплывают
+    // при возврате на /train. Это ломает «Начать тренировку»: ожидается новая
+    // тренировка, а не воскрешение прошлого экрана (ADR 0010). App.svelte шлёт это
+    // при входе на /train из любого активного состояния → возврат в `menu`.
+    // Пауза/возобновление ВНУТРИ /train не задеты: внутренние переходы не размонтируют App.
+    TRAINER_OPENED: { target: '#app.menu' },
   },
   states: {
     initializing: {

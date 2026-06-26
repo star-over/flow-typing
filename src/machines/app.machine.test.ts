@@ -219,4 +219,41 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toBe('menu');
     });
   });
+
+  // Вход на /train (App.svelte mount) нормализует тренажёр в чистое меню из
+  // ЛЮБОГО состояния: экран не переживает навигацию между страницами, «Начать
+  // тренировку» начинает заново, а не воскрешает прошлый экран/сессию (ADR 0010).
+  describe('TRAINER_OPENED (return to /train resets the view)', () => {
+    it('from sessionComplete → menu (the reported bug: stale stats screen)', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'SESSION.COMPLETE', stream: [], summary: null });
+      expect(actor.getSnapshot().value).toBe('sessionComplete');
+
+      actor.send({ type: 'TRAINER_OPENED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('from training.running → menu (abandoned, never-paused session)', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
+
+      actor.send({ type: 'TRAINER_OPENED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('from training.paused → menu (paused session is not resurrected across nav)', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'PAUSE' });
+      expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
+
+      actor.send({ type: 'TRAINER_OPENED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+  });
 });

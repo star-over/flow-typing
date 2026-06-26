@@ -5,7 +5,7 @@
 
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   import MainContent from './MainContent.svelte';
   import FooterActions from './FooterActions.svelte';
@@ -15,6 +15,18 @@
     state = snapshot;
   });
   onDestroy(() => actorSub.unsubscribe());
+
+  // Вход на /train всегда показывает чистое меню. appActor — singleton и
+  // переживает навигацию (ADR 0007), поэтому без сброса при возврате всплывает
+  // прошлый экран результатов (`sessionComplete`) или брошенная пауза/сессия.
+  // «Начать тренировку» на лендинге должна именно начинать заново — нормализуем
+  // тренажёр в `menu` здесь, при монтировании (= при входе на /train). Пауза/
+  // возобновление внутри /train не задеты: их внутренние переходы App не размонтируют (ADR 0010).
+  onMount(() => {
+    if (!appActor.getSnapshot().matches('menu')) {
+      appActor.send({ type: 'TRAINER_OPENED' });
+    }
+  });
 
   // Enter в menu: машина шлёт MENU_START_REQUESTED через `emit`, а старт здесь —
   // тем же событием и с той же $settings-раскладкой, что и кнопка «Начать
