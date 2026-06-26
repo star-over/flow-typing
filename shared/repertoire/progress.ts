@@ -7,7 +7,7 @@ import type { KeyLadder } from '../key-ladder/types.ts';
 import { maxLadderStep } from '../key-ladder/key-step-map.ts';
 import { symbolsAtStep } from '../key-ladder/step-symbols.ts';
 import type { SymbolEntry } from '../symbol-layout.ts';
-import { readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
+import { readinessGaps, repertoireMedianLatency, type ProfileCell, type ReadinessGaps } from './readiness.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from './config.ts';
 
 export interface RepertoireProgress {
@@ -53,5 +53,90 @@ export function computeRepertoireProgress({
     readyCount,
     maturingNeeded: Math.max(0, notReady - REPERTOIRE_DEBT_LIMIT),
     blockers,
+  };
+}
+
+/**
+ * Per-symbol разбор готовности символов ТЕКУЩЕГО шага — те самые входные данные,
+ * на которых `decideOpenedSteps` решает открыть ли следующую ступень (growth.ts).
+ * Для каждого символа: сырые ячейки (предъявления/чистые/латентность), три гейта
+ * Readiness и итог. Плюс пороги, медиана и порог латентности репертуара (база
+ * сравнения) и долговой лимит — чтобы UI мог показать «сколько до созревания».
+ * Витринная производная для /stats; в подборе/писателе не участвует.
+ */
+export interface SymbolProgress {
+  symbol: string;
+  exposures: number;
+  clean: number;
+  /** clean / exposures; null при нуле предъявлений (точность ещё не определена). */
+  firstTryAccuracy: number | null;
+  /** EWMA латентности (мс); null при отсутствии замеров. */
+  latencyEwmaMs: number | null;
+  latencySamples: number;
+  /** Какие из трёх условий Readiness символ НЕ выполнил. */
+  gaps: ReadinessGaps;
+  ready: boolean;
+}
+
+export interface ProgressionDetail {
+  openedSteps: number;
+  totalSteps: number;
+  totalOnStep: number;
+  readyCount: number;
+  maturingNeeded: number;
+  debtLimit: number;
+  params: { minExposures: number; minFirstTryAccuracy: number; latencyK: number };
+  /** Медиана latencyEwma по символам с замерами (0 — на холодном старте). */
+  repertoireMedianLatencyMs: number;
+  /** Порог латентности гейта = latencyK × медиана (0 → гейт неактивен). */
+  latencyThresholdMs: number;
+  /** Символы текущего шага в порядке раскладки. */
+  symbols: SymbolProgress[];
+}
+
+export function computeProgressionDetail({
+  openedSteps,
+  symbolCells,
+  symbolLayout,
+  keyLadder,
+}: {
+  openedSteps: number;
+  symbolCells: readonly ProfileCell[];
+  symbolLayout: SymbolEntry[];
+  keyLadder: KeyLadder;
+}): ProgressionDetail {
+  const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder });
+  const median = repertoireMedianLatency(symbolCells);
+  const bySymbol = new Map(symbolCells.map((c) => [c.symbol, c]));
+  let readyCount = 0;
+  const symbols: SymbolProgress[] = currentStepSymbols.map((symbol) => {
+    const cell = bySymbol.get(symbol);
+    const gaps = readinessGaps({ cell, params: READINESS_PARAMS, repertoireMedianLatency: median });
+    const ready = !gaps.exposure && !gaps.accuracy && !gaps.latency;
+    if (ready) readyCount += 1;
+    const exposures = cell?.exposures ?? 0;
+    return {
+      symbol,
+      exposures,
+      clean: cell?.clean ?? 0,
+      firstTryAccuracy: cell && exposures > 0 ? cell.clean / exposures : null,
+      latencyEwmaMs: cell && cell.latencySamples > 0 ? cell.latencyEwma : null,
+      latencySamples: cell?.latencySamples ?? 0,
+      gaps,
+      ready,
+    };
+  });
+  const notReady = currentStepSymbols.length - readyCount;
+  return {
+    openedSteps,
+    totalSteps: maxLadderStep(keyLadder) + 1,
+    totalOnStep: currentStepSymbols.length,
+    readyCount,
+    maturingNeeded: Math.max(0, notReady - REPERTOIRE_DEBT_LIMIT),
+    debtLimit: REPERTOIRE_DEBT_LIMIT,
+    params: READINESS_PARAMS,
+    repertoireMedianLatencyMs: median,
+    latencyThresholdMs: median > 0 ? READINESS_PARAMS.latencyK * median : 0,
+    symbols,
   };
 }

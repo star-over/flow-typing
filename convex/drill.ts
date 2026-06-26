@@ -36,7 +36,12 @@ import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
-import { computeRepertoireProgress, type RepertoireProgress } from '../shared/repertoire/progress.ts';
+import {
+  computeRepertoireProgress,
+  computeProgressionDetail,
+  type RepertoireProgress,
+  type ProgressionDetail,
+} from '../shared/repertoire/progress.ts';
 
 // Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
 // openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
@@ -325,6 +330,44 @@ export const repertoireSnapshot = query({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     return await repertoireSnapshotHandler({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
+  },
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// progressionDetail — per-symbol разбор готовности текущего шага для /stats.
+// Те же входные данные, на которых writer (decideOpenedSteps) решает рост ступени.
+// CQRS reader-query, профиль не пишет. null для гостя/неизвестной раскладки.
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function progressionDetailHandler({
+  ctx,
+  userId,
+  symbolLayoutId,
+}: {
+  ctx: QueryCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+}): Promise<ProgressionDetail | null> {
+  if (userId === null) return null;
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) return null;
+  const profile = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
+    .unique();
+  return computeProgressionDetail({
+    openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
+    symbolCells: profile?.symbolCells ?? [],
+    symbolLayout: layoutData.symbolLayout,
+    keyLadder: layoutData.keyLadder,
+  });
+}
+
+export const progressionDetail = query({
+  args: { symbolLayoutId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    return await progressionDetailHandler({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
   },
 });
 

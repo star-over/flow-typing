@@ -85,15 +85,45 @@
       "date": "Date",
       "duration": "Duration",
       "cpm": "Speed",
-      "accuracy": "Accuracy"
+      "accuracy": "Accuracy",
+      "latency": "Latency"
     },
     "units": {
       "duration": "s",
       "cpm": "CPM",
-      "accuracy": "%"
+      "accuracy": "%",
+      "latency": "ms"
     },
     "empty": "No sessions yet",
     "guest": "Sign in to see your session history"
+  },
+  "stats_progression": {
+    "title": "Step progression",
+    "intro": "The next step unlocks once the current step's symbols mature ({debt} immature allowed). Each symbol matures on the three conditions below.",
+    "step": "Step {current} of {max}",
+    "ready": "{ready} of {total} matured",
+    "ready_to_advance": "Ready for the next step",
+    "maturing": "Left to consolidate: {count}",
+    "all_open": "All steps unlocked",
+    "headers": {
+      "symbol": "Symbol",
+      "exposures": "Exposures",
+      "accuracy": "First-try",
+      "latency": "Latency",
+      "status": "Status"
+    },
+    "target_exposures": "target ≥ {min}",
+    "target_accuracy": "target ≥ {min}%",
+    "target_latency": "limit ≤ {max} ms",
+    "status_ready": "matured",
+    "gap_exposures": "practice",
+    "gap_accuracy": "accuracy",
+    "gap_latency": "speed",
+    "none": "—",
+    "median_note": "Repertoire median latency: {median} ms · gate ≤ {threshold} ms ({k}×).",
+    "median_cold": "Latency isn't judged yet — too few samples (the gate appears with data).",
+    "rhythm_note": "Rhythm and the thermostat (flow zone) don't affect progression yet — designed, not wired.",
+    "guest": "Sign in to see step progression"
   },
   "repertoire_progress": {
     "title": "Step progress",

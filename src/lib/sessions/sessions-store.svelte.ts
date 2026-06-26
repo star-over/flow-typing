@@ -14,6 +14,7 @@ export interface SessionRow {
   durationSeconds: number; // целые секунды
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
+  latencyMs: number; // медиана латентности сеанса, целые мс
 }
 
 /** Функция форматирования: документ сеанса → строка таблицы. Округления как в LessonStatsDisplay. */
@@ -31,6 +32,7 @@ export function formatSessionRow({
     durationSeconds: Math.round(session.durationMs / 1000),
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),
+    latencyMs: Math.round(session.latencyMedianMs),
   };
 }
 

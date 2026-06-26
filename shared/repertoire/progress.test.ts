@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { computeRepertoireProgress } from './progress.ts';
+import { computeRepertoireProgress, computeProgressionDetail } from './progress.ts';
 import { jcukenKeyLadder } from '../key-ladder/jcuken.ts';
 import type { SymbolEntry } from '../symbol-layout.ts';
 import type { ProfileCell } from './readiness.ts';
@@ -85,5 +85,64 @@ describe('computeRepertoireProgress', () => {
       keyLadder: jcukenKeyLadder,
     });
     expect(p.blockers.latency).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('computeProgressionDetail', () => {
+  test('per-symbol разбор текущего шага: сырые ячейки + гейты + итог', () => {
+    const d = computeProgressionDetail({
+      openedSteps: 1,
+      symbolCells: [ready('а')], // 'о' без ячейки
+      symbolLayout: LAYOUT,
+      keyLadder: jcukenKeyLadder,
+    });
+
+    expect(d.symbols).toHaveLength(2); // 'а','о' — символы шага 0
+    expect(d.totalOnStep).toBe(2);
+    expect(d.readyCount).toBe(1);
+    expect(d.debtLimit).toBe(2);
+    expect(d.params.minExposures).toBe(20);
+
+    const a = d.symbols.find((s) => s.symbol === 'а');
+    expect(a).toMatchObject({ exposures: 30, clean: 29, latencyEwmaMs: 200, ready: true });
+    expect(a?.firstTryAccuracy).toBeCloseTo(29 / 30);
+    expect(a?.gaps).toEqual({ exposure: false, accuracy: false, latency: false });
+
+    const o = d.symbols.find((s) => s.symbol === 'о');
+    expect(o).toMatchObject({ exposures: 0, firstTryAccuracy: null, latencyEwmaMs: null, ready: false });
+    expect(o?.gaps.exposure).toBe(true);
+
+    // База сравнения латентности: медиана по символам с замерами (только 'а') → порог = 1.5×.
+    expect(d.repertoireMedianLatencyMs).toBe(200);
+    expect(d.latencyThresholdMs).toBe(300);
+  });
+
+  test('холодный старт без ячеек: медиана и порог латентности 0, всё блокируется предъявлениями', () => {
+    const d = computeProgressionDetail({
+      openedSteps: 1,
+      symbolCells: [],
+      symbolLayout: LAYOUT,
+      keyLadder: jcukenKeyLadder,
+    });
+    expect(d.repertoireMedianLatencyMs).toBe(0);
+    expect(d.latencyThresholdMs).toBe(0);
+    expect(d.readyCount).toBe(0);
+    // Отсутствующая ячейка = все три гейта не выполнены (нет данных судить ни о чём).
+    expect(d.symbols.every((s) => s.gaps.exposure)).toBe(true);
+  });
+
+  test('ячейка без замеров латентности: гейт латентности неактивен (cold-start не штрафуем)', () => {
+    // 'а': достаточно предъявлений и точности, но latencySamples=0 → медиана 0 → латентный гейт молчит → готов.
+    const noLatency = { symbol: 'а', exposures: 30, clean: 29, latencyEwma: 0, latencySamples: 0 };
+    const d = computeProgressionDetail({
+      openedSteps: 1,
+      symbolCells: [noLatency],
+      symbolLayout: LAYOUT,
+      keyLadder: jcukenKeyLadder,
+    });
+    const a = d.symbols.find((s) => s.symbol === 'а');
+    expect(a?.latencyEwmaMs).toBeNull();
+    expect(a?.gaps.latency).toBe(false);
+    expect(a?.ready).toBe(true);
   });
 });
