@@ -11,7 +11,7 @@
   const physicalLayoutANSI = getPhysicalLayout('ansi');
 
   import { inState } from '@/lib/state-utils';
-  import { calculateLessonStats } from '@/lib/stats-calculator';
+  import { lessonStatsFromSummary } from '@/lib/stats-calculator';
 
   import TrainingScene from '@/components/ui/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
@@ -32,14 +32,14 @@
 
   const { state, send, dictionary, sessionActor }: Props = $props();
 
-  // null, когда нечего показывать (нет завершённого потока или нет нажатий).
-  // Тогда экран sessionComplete пуст — допустимое degenerate-состояние,
-  // решение принимает родитель, не сам LessonStatsDisplay.
+  // null, когда нечего показывать (нет завершённой сессии или ни одного предъявления).
+  // Тогда экран sessionComplete пуст — допустимое degenerate-состояние, решение
+  // принимает родитель, не сам LessonStatsDisplay. Источник — каноническая сводка
+  // сессии (те же числа, что строка /stats), а не «настенное» время по attempts.
   const lessonStats = $derived.by(() => {
-    const stream = state.context.lastTrainingStream;
-    if (!stream) return null;
-    const s = calculateLessonStats(stream);
-    return s.totalAttempts > 0 ? s : null;
+    const summary = state.context.lastSessionSummary;
+    if (!summary || summary.exposures === 0) return null;
+    return lessonStatsFromSummary(summary);
   });
 </script>
 

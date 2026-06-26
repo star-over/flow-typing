@@ -5,9 +5,7 @@
   import enDictionary from '../../../dictionaries/en.json';
 
   const goodPerformanceStats: LessonStats = {
-    durationInSeconds: 60.059,
-    totalCharacters: 15,
-    totalAttempts: 15,
+    durationInSeconds: 60,
     accuracy: 88.89,
     cpm: 55.94,
     wpm: 11.19,
@@ -15,8 +13,6 @@
 
   const averagePerformanceStats: LessonStats = {
     durationInSeconds: 4,
-    totalCharacters: 10,
-    totalAttempts: 12,
     accuracy: 83.33,
     cpm: 150,
     wpm: 30,

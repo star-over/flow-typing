@@ -38,6 +38,8 @@ function makeSession({
 const noopParent = createActor(createMachine({ id: 'noopParent' })).start();
 const INPUT = { symbolLayoutId: 'qwerty' as const, cpm: 200, parentActor: noopParent };
 
+// Часы стоят до первого нажатия: после loading сессия ждёт в active.armed.
+const ARMED = { active: 'armed' } as const;
 // Активная печать живёт в active.timing.running (тикер и сегмент таймера — на
 // родителе timing, чтобы пережить bounce running↔refilling).
 const RUNNING = { active: { timing: 'running' } } as const;
@@ -48,20 +50,26 @@ function getTraining(actor: ReturnType<typeof createActor>): SnapshotFrom<typeof
 }
 
 describe('sessionMachine', () => {
-  it('после loading заходит в active.timing.running и invoke\'ит training с собранным потоком', async () => {
+  it('после loading ждёт в active.armed (часы стоят), первое нажатие → timing.running', async () => {
     const actor = createActor(makeSession(), { input: INPUT });
     actor.start();
     await vi.waitFor(() => {
       const snap = actor.getSnapshot() as SessionSnapshot;
-      expect(snap.matches(RUNNING)).toBe(true);
+      expect(snap.matches(ARMED)).toBe(true);
     });
     expect(getTraining(actor)!.context.stream.map((s: StreamSymbol) => s.targetSymbol)).toEqual(['a', 'b']);
+    // Часы ещё не пошли → дисплей держит полное окно.
+    expect((actor.getSnapshot() as SessionSnapshot).context.displayElapsedMs).toBe(0);
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+    // Часы пошли — вышли из armed в timing (running/refilling зависит от длины очереди).
+    expect((actor.getSnapshot() as SessionSnapshot).matches({ active: 'timing' })).toBe(true);
   });
 
   it('накапливает completed[] из TYPING.ADVANCED по мере печати', async () => {
     const actor = createActor(makeSession(), { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
     await vi.waitFor(() =>
@@ -69,34 +77,45 @@ describe('sessionMachine', () => {
     );
   });
 
-  it('пауза замораживает таймер: elapsedMs не растёт через paused', async () => {
+  it('пауза в timing замораживает И таймер, И печать', async () => {
     const actor = createActor(makeSession(), { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // первое нажатие → timing.running, часы пошли
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(1));
 
     actor.send({ type: 'PAUSE_TIMER' });
     expect((actor.getSnapshot() as SessionSnapshot).matches({ active: 'paused' })).toBe(true);
     const frozen = (actor.getSnapshot() as SessionSnapshot).context.elapsedMs;
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyB'] }); // во время паузы — игнор
+    await Promise.resolve();
+    expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(1); // печать заморожена
+
     actor.send({ type: 'RESUME_TIMER' });
     expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true);
-    expect((actor.getSnapshot() as SessionSnapshot).context.elapsedMs).toBe(frozen);
+    expect((actor.getSnapshot() as SessionSnapshot).context.elapsedMs).toBe(frozen); // таймер заморожен
   });
 
-  it('на паузе печать заблокирована: KEY_PRESS не двигает курсор, completed не растёт', async () => {
+  it('пауза ДО первого нажатия (armedPaused): часы стоят, ввод игнорируется', async () => {
     const actor = createActor(makeSession(), { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'PAUSE_TIMER' });
-    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // во время паузы — игнор
-    // дать микрозадачам отработать
+    expect((actor.getSnapshot() as SessionSnapshot).matches({ active: 'armedPaused' })).toBe(true);
+
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // на паузе до старта — игнор, таймер не стартует
     await Promise.resolve();
     const snap = actor.getSnapshot() as SessionSnapshot;
+    expect(snap.matches({ active: 'armedPaused' })).toBe(true);
     expect(snap.context.completed).toHaveLength(0);
+    expect(snap.context.displayElapsedMs).toBe(0);
     expect(getTraining(actor)!.context.currentIndex).toBe(0);
   });
 
-  it('после истечения таймера допечатывается очередь → done + SESSION.COMPLETE родителю', async () => {
+  it('истечение таймера → СРАЗУ done + SESSION.COMPLETE; ввод после истечения не добирается', async () => {
     const onRecord = vi.fn();
     // Сток-родитель: ловит SESSION.COMPLETE. Без него sendComplete уходит в self
     // (XState-запасной вариант при отсутствии parentActor) и «родителю» НЕ проверяется.
@@ -113,22 +132,24 @@ describe('sessionMachine', () => {
         },
       }),
     ).start();
-    const actor = createActor(makeSession({ onRecord }), { input: { ...INPUT, parentActor: sink } });
+    // Поток длиннее порога refill — одно нажатие не дёргает дозагрузку, чекпоинт
+    // ровно один (финальный), сценарий «истёк → стоп» чистый.
+    const LONG: TypingStream = Array.from({ length: REFILL_THRESHOLD_SYMBOLS + 5 }, () => sym('a', 'KeyA'));
+    const actor = createActor(makeSession({ stream: LONG, onRecord }), { input: { ...INPUT, parentActor: sink } });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
-    // Истекаем ДО печати — тогда refill не срабатывает (нет TYPING.ADVANCED), и
-    // тест проверяет чистый сценарий «допечатать очередь после истечения» с
-    // единственным (финальным) чекпоинтом.
-    actor.send({ type: 'TIMER_EXPIRED' });
-    expect((actor.getSnapshot() as SessionSnapshot).matches({ active: 'draining' })).toBe(true);
+    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // набрали 'a' → timing.running
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(1));
 
-    actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // допечатываем [a, b]
-    actor.send({ type: 'KEY_PRESS', keys: ['KeyB'] });
+    actor.send({ type: 'TIMER_EXPIRED' }); // истёк → сразу done (без draining/добора)
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
+
+    // Очередь НЕ добирается: completed застыл на наборе до истечения, родителю ушёл он же.
+    expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(1);
     expect(onRecord).toHaveBeenCalledTimes(1); // единственный (финальный) чекпоинт
     expect(sink.getSnapshot().context.got).toHaveLength(1); // родитель получил SESSION.COMPLETE
-    expect(sink.getSnapshot().context.got[0]).toHaveLength(2); // полный набранный поток [a, b]
+    expect(sink.getSnapshot().context.got[0]).toHaveLength(1); // только набранное до истечения ['a']
   });
 
   it('истёкший таймер при уже допечатанном потоке → сразу done', async () => {
@@ -146,7 +167,7 @@ describe('sessionMachine', () => {
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // всё набрано (refill вернёт [], totalAppended=1)
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(1));
@@ -169,7 +190,7 @@ describe('sessionMachine', () => {
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // допечатали хвост → refill
     await vi.waitFor(() => {
@@ -196,7 +217,7 @@ describe('sessionMachine', () => {
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // 1-й символ: остаётся 41 > 40 → НЕ refill
     await Promise.resolve();
@@ -221,7 +242,7 @@ describe('sessionMachine', () => {
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] }); // допечатали "a" → refill дописывает порцию 2
     await vi.waitFor(() => {
@@ -250,7 +271,7 @@ describe('sessionMachine', () => {
     });
     const actor = createActor(providedSession, { input: INPUT });
     actor.start();
-    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(RUNNING)).toBe(true));
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
 
     for (let i = 0; i < 8; i += 1) actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
     await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(8));

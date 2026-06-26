@@ -138,7 +138,7 @@ describe('appMachine', () => {
   });
 
   describe('SESSION.COMPLETE', () => {
-    it('moves to sessionComplete and stores final stream', () => {
+    it('moves to sessionComplete and stores final stream + canonical summary', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
@@ -146,11 +146,20 @@ describe('appMachine', () => {
       const finalStream: TypingStream = [
         { targetSymbol: 'x', targetKeyCaps: ['KeyX'], attempts: [] },
       ];
-      actor.send({ type: 'SESSION.COMPLETE', stream: finalStream });
+      const finalSummary = {
+        exposures: 1,
+        clean: 1,
+        cpm: 60,
+        durationMs: 60_000,
+        latencyMedianMs: 0,
+        confusions: [],
+      };
+      actor.send({ type: 'SESSION.COMPLETE', stream: finalStream, summary: finalSummary });
 
       const snap = actor.getSnapshot();
       expect(snap.value).toBe('sessionComplete');
       expect(snap.context.lastTrainingStream).toEqual(finalStream);
+      expect(snap.context.lastSessionSummary).toEqual(finalSummary);
     });
   });
 
@@ -159,7 +168,7 @@ describe('appMachine', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: layout });
-      actor.send({ type: 'SESSION.COMPLETE', stream: [] });
+      actor.send({ type: 'SESSION.COMPLETE', stream: [], summary: null });
       return actor;
     }
 

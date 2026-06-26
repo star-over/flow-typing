@@ -2,6 +2,7 @@ import { assign, emit, sendTo, setup } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
+import type { SessionSummaryPayload } from "@/lib/session-summarize";
 import { getPhysicalLayout } from "@/lib/layouts";
 
 const physicalLayoutANSI = getPhysicalLayout('ansi');
@@ -12,6 +13,9 @@ import { sessionService } from "./session-impl";
 
 export interface AppContext {
   lastTrainingStream: TypingStream | null;
+  // Каноническая сводка последней сессии — источник чисел для экрана результатов
+  // (те же время/cpm/точность, что в журнале /stats). Приходит в SESSION.COMPLETE.
+  lastSessionSummary: SessionSummaryPayload | null;
   currentSymbolLayoutId: SymbolLayoutId;
 }
 
@@ -20,7 +24,7 @@ export type AppEvent =
   | { type: 'TO_MENU' }
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
-  | { type: 'SESSION.COMPLETE'; stream: TypingStream }
+  | { type: 'SESSION.COMPLETE'; stream: TypingStream; summary: SessionSummaryPayload | null }
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
   | { type: 'RESET_KEYBOARD' }
@@ -46,9 +50,12 @@ export const appMachine = setup({
     setSymbolLayout: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => ({
       currentSymbolLayoutId: params.symbolLayoutId,
     })),
-    storeCompletedStream: assign((_, params: { stream: TypingStream }) => ({
-      lastTrainingStream: params.stream,
-    })),
+    storeSessionResult: assign(
+      (_, params: { stream: TypingStream; summary: SessionSummaryPayload | null }) => ({
+        lastTrainingStream: params.stream,
+        lastSessionSummary: params.summary,
+      }),
+    ),
   },
   guards: {
     isEscape: ({ event }) =>
@@ -69,6 +76,7 @@ export const appMachine = setup({
   },
   context: {
     lastTrainingStream: null,
+    lastSessionSummary: null,
     currentSymbolLayoutId: 'qwerty',
   },
   on: {
@@ -141,8 +149,8 @@ export const appMachine = setup({
         'SESSION.COMPLETE': {
           target: 'sessionComplete',
           actions: {
-            type: 'storeCompletedStream',
-            params: ({ event }) => ({ stream: event.stream }),
+            type: 'storeSessionResult',
+            params: ({ event }) => ({ stream: event.stream, summary: event.summary }),
           },
         },
       },

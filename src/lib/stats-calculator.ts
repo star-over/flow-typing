@@ -1,122 +1,28 @@
 // src/lib/stats-calculator.ts
+/**
+ * @file Числа статистики упражнения для экрана результатов (LessonStatsDisplay).
+ * Источник — КАНОНИЧЕСКАЯ SessionSummaryPayload (та же, что пишется в журнал
+ * sessionSummaries), а не «настенное» время по attempts: длительность —
+ * активное время за вычетом пауз (displayElapsedMs, ≤ окна), посчитанное в
+ * sessionMachine. Значения отдаём СЫРЫМИ — округляет уже отображающий слой, ровно
+ * как formatSessionRow для строки /stats, поэтому числа на двух экранах совпадают.
+ */
+import type { SessionSummaryPayload } from './session-summarize';
 
-import type { TypingStream } from '@/interfaces/types';
-
-// Define the interface for the returned statistics
 export interface LessonStats {
   durationInSeconds: number;
-  totalCharacters: number;
-  totalAttempts: number;
-  accuracy: number; // Percentage
-  cpm: number;      // Characters Per Minute
-  wpm: number;      // Words Per Minute
+  accuracy: number; // процент: clean / exposures * 100 (как в журнале)
+  cpm: number; // знаков в минуту (пропускная способность за активную минуту)
+  wpm: number; // слов в минуту = cpm / 5
 }
 
-/**
- * Calculates the total duration of the lesson from the first attempt to the last.
- * @param stream The typing stream containing all symbols and attempts.
- * @returns The duration in seconds. Returns 0 if no attempts are made.
- */
-export function getLessonDuration(stream: TypingStream): number {
-  if (!stream.length) {
-    return 0;
-  }
-
-  const firstAttempt = stream[0]?.attempts[0];
-  const lastSymbol = stream[stream.length - 1];
-  const lastAttempt = lastSymbol?.attempts[lastSymbol.attempts.length - 1];
-
-  if (!firstAttempt?.startAt || !lastAttempt?.endAt) {
-    return 0; // Not enough data to calculate duration
-  }
-
-  // Duration in milliseconds
-  const durationMs = lastAttempt.endAt - firstAttempt.startAt;
-  return durationMs / 1000; // Convert to seconds
-}
-
-/**
- * Counts the total number of key presses (attempts) made during the lesson.
- * @param stream The typing stream.
- * @returns The total number of attempts.
- */
-export function getTotalAttempts(stream: TypingStream): number {
-  return stream.reduce((acc, symbol) => acc + symbol.attempts.length, 0);
-}
-
-/**
- * Counts the total number of characters in the lesson (length of the stream).
- * @param stream The typing stream.
- * @returns The total number of characters.
- */
-export function getTotalCharacters(stream: TypingStream): number {
-  return stream.length;
-}
-
-/**
- * Calculates the accuracy percentage: (totalCharacters / totalAttempts) * 100%.
- * Returns 0 when there are no attempts.
- */
-export function calculateAccuracy({
-  totalCharacters,
-  totalAttempts,
-}: {
-  totalCharacters: number;
-  totalAttempts: number;
-}): number {
-  if (totalAttempts === 0) {
-    return 0;
-  }
-  return (totalCharacters / totalAttempts) * 100;
-}
-
-/**
- * Calculates Characters Per Minute (CPM).
- * Returns 0 when duration is 0.
- */
-export function calculateCpm({
-  totalCharacters,
-  durationInSeconds,
-}: {
-  totalCharacters: number;
-  durationInSeconds: number;
-}): number {
-  if (durationInSeconds === 0) {
-    return 0;
-  }
-  return (totalCharacters / durationInSeconds) * 60;
-}
-
-/**
- * Calculates Words Per Minute (WPM) based on CPM.
- * WPM is typically CPM / 5.
- * @param cpm Characters Per Minute.
- * @returns WPM.
- */
-export function calculateWpm(cpm: number): number {
-  return cpm / 5;
-}
-
-/**
- * Main function to calculate all basic lesson statistics.
- * @param stream The typing stream representing the completed lesson.
- * @returns An object containing all calculated statistics.
- */
-export function calculateLessonStats(stream: TypingStream): LessonStats {
-  const durationInSeconds = getLessonDuration(stream);
-  const totalCharacters = getTotalCharacters(stream);
-  const totalAttempts = getTotalAttempts(stream);
-
-  const accuracy = calculateAccuracy({ totalCharacters, totalAttempts });
-  const cpm = calculateCpm({ totalCharacters, durationInSeconds });
-  const wpm = calculateWpm(cpm);
-
+/** Сводка завершённой сессии → числа карточки результатов. Сырые, без округления. */
+export function lessonStatsFromSummary(summary: SessionSummaryPayload): LessonStats {
+  const accuracy = summary.exposures > 0 ? (summary.clean / summary.exposures) * 100 : 0;
   return {
-    durationInSeconds,
-    totalCharacters,
-    totalAttempts,
-    accuracy: parseFloat(accuracy.toFixed(2)), // Round to 2 decimal places
-    cpm: parseFloat(cpm.toFixed(2)),           // Round to 2 decimal places
-    wpm: parseFloat(wpm.toFixed(2)),           // Round to 2 decimal places
+    durationInSeconds: summary.durationMs / 1000,
+    accuracy,
+    cpm: summary.cpm,
+    wpm: summary.cpm / 5,
   };
 }
