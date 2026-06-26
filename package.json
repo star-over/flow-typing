@@ -6,6 +6,7 @@
     "@auth/core": "~0.41.2",
     "@convex-dev/aggregate": "^0.2.2",
     "@convex-dev/auth": "~0.0.94",
+    "@gorules/zen-engine": "^0.54.0",
     "@mmailaender/convex-auth-svelte": "~0.1.3",
     "convex": "^1.40.0",
     "convex-svelte": "~0.0.12",
