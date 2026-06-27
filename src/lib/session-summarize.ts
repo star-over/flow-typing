@@ -6,11 +6,18 @@
  * Сырые attempts на сервер НЕ уходят — только агрегаты.
  */
 import type { TypingStream } from '@/interfaces/types';
-import { drillSummarize } from './drill-summarize';
+import { drillSummarize, PAUSE_CAP_MS } from './drill-summarize';
 import { areKeyCapIdArraysEqual } from './symbol-utils';
 
 /** Сколько пар-путаниц максимум кладём в строку сессии (защита от роста). */
 export const MAX_CONFUSIONS = 20;
+
+/**
+ * Минимум межсимвольных интервалов, ниже которого ровность ритма недостоверна →
+ * метрику не считаем (поле опускается, в /stats — «—»). Реальные записываемые
+ * сессии набирают десятки интервалов, так что отсекаются лишь вырожденные.
+ */
+export const MIN_RHYTHM_INTERVALS = 5;
 
 export interface SessionConfusion {
   target: string; // целевой символ ('а')
@@ -27,6 +34,50 @@ export interface SessionSummaryPayload {
   durationMs: number;
   latencyMedianMs: number;
   confusions: SessionConfusion[];
+  // Ровность ритма за сессию: 100·(1 − σ/μ)% по межсимвольным интервалам (CV,
+  // как Monkeytype Consistency). Нормирована на μ → не зависит от темпа. Опционально:
+  // при нехватке интервалов (< MIN_RHYTHM_INTERVALS) поле опускается (старые строки
+  // журнала его тоже не имеют) → в /stats показывается «—».
+  rhythm?: number;
+}
+
+/**
+ * Межсимвольные интервалы сессии для метрики ровности — та же латентность, что в
+ * `drillSummarize` (startAt верного нажатия предыдущего → startAt первого текущего),
+ * паузы отбрасываются по `PAUSE_CAP_MS`. Первый символ без предыдущего пропускается.
+ */
+function collectInterSymbolIntervals(stream: TypingStream): number[] {
+  const intervals: number[] = [];
+  let prevCorrectAt: number | undefined;
+  for (const symbol of stream) {
+    const first = symbol.attempts[0];
+    if (first === undefined) {
+      prevCorrectAt = undefined;
+      continue;
+    }
+    if (prevCorrectAt !== undefined && first.startAt !== undefined) {
+      const delta = first.startAt - prevCorrectAt;
+      if (delta > 0 && delta <= PAUSE_CAP_MS) intervals.push(delta);
+    }
+    const correct = symbol.attempts.find((attempt) =>
+      areKeyCapIdArraysEqual({ a: attempt.pressedKeyCaps, b: symbol.targetKeyCaps }),
+    );
+    prevCorrectAt = correct?.startAt;
+  }
+  return intervals;
+}
+
+/**
+ * Ровность ритма (0–100%) = 100·(1 − CV), где `CV = σ/μ` интервалов. `undefined`
+ * при нехватке данных — пусть слой отображения покажет «—», а не ложный «0%».
+ */
+export function rhythmConsistency(intervals: number[]): number | undefined {
+  if (intervals.length < MIN_RHYTHM_INTERVALS) return undefined;
+  const mean = intervals.reduce((sum, x) => sum + x, 0) / intervals.length;
+  if (mean <= 0) return undefined;
+  const variance = intervals.reduce((sum, x) => sum + (x - mean) ** 2, 0) / intervals.length;
+  const cv = Math.sqrt(variance) / mean;
+  return Math.round(100 * Math.max(0, 1 - cv));
 }
 
 export function summarizeSession({
@@ -55,6 +106,10 @@ export function summarizeSession({
   }
   const confusions = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, MAX_CONFUSIONS);
 
+  // Ровность ритма — отдельно от drill-метрик: считаем по тем же межсимвольным
+  // интервалам, но как CV всей сессии (окно сессии, не τ-EWMA живого канала).
+  const rhythm = rhythmConsistency(collectInterSymbolIntervals(stream));
+
   // cpm — пропускная способность за активную минуту (durationMs = displayElapsedMs),
   // не моторная скорость (та — из latencyMedianMs). При длительности < 1 с измерение
   // недостоверно → cpm = 0 (не делим на ~ноль).
@@ -65,5 +120,7 @@ export function summarizeSession({
     durationMs,
     latencyMedianMs: overall.latencyMedian,
     confusions,
+    // Опускаем при нехватке данных — `undefined` не шлём в Convex (optional-поле).
+    ...(rhythm !== undefined ? { rhythm } : {}),
   };
 }

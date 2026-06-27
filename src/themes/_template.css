@@ -290,4 +290,13 @@
   --landing-rule                 : unset;
   --landing-demo-path            : unset;
   --landing-demo-surface         : unset;
+
+  /* RhythmChannel */
+  --rhythm-channel-track-background: unset;
+  --rhythm-channel-track-border   : unset;
+  --rhythm-channel-zone-fill      : unset;
+  --rhythm-channel-zone-edge      : unset;
+  --rhythm-channel-marker-in      : unset;
+  --rhythm-channel-marker-above   : unset;
+  --rhythm-channel-marker-below   : unset;
 }

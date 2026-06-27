@@ -25,6 +25,8 @@ import type { ThemeSetting } from '@/themes/registry';
  * - `displayName` — имя, показываемое рядом с аватаром. Редактируемый слой поверх
  *   `users.name` (которое остаётся нетронутым оригиналом от провайдера). Пустая
  *   строка = использовать имя провайдера; «сброс к оригиналу» = очистить поле.
+ * - `rhythmChannelEnabled` — показывать ли «канал ритма» (визуальный ритм-гид) во
+ *   время тренировки; дефолт — `false` (сцена по умолчанию тихая, гид — opt-in).
  */
 export interface UserSettings {
   interfaceLanguage: InterfaceLanguage;
@@ -35,4 +37,5 @@ export interface UserSettings {
   cursorMode: FlowLineCursorMode;
   theme: ThemeSetting;
   displayName: string;
+  rhythmChannelEnabled: boolean;
 }

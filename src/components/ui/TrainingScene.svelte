@@ -14,6 +14,7 @@
 
   import FlowLine from './FlowLine.svelte';
   import HandsScene from './HandsScene.svelte';
+  import RhythmChannel from './RhythmChannel.svelte';
 
   interface Props {
     sessionActor: Actor<typeof sessionMachine>;
@@ -21,9 +22,13 @@
     physicalLayout: PhysicalLayout;
     cursorType: FlowLineCursorType;
     cursorMode: FlowLineCursorMode;
+    /** Показывать «канал ритма» (opt-in настройка). */
+    rhythmChannelEnabled: boolean;
+    /** Локализованное доступное имя канала ритма. */
+    rhythmAriaLabel: string;
   }
 
-  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode }: Props = $props();
+  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode, rhythmChannelEnabled, rhythmAriaLabel }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let sessionState = $state(sessionActor.getSnapshot());
@@ -88,6 +93,14 @@
     blink={cursorBlink}
   />
 
+  {#if rhythmChannelEnabled}
+    <!-- Канал ритма крепится прямо под строкой: неподвижный курсор FlowLine
+         читается как «сейчас», маркер ритма — в той же вертикали внимания. -->
+    <div class="rhythm-slot">
+      <RhythmChannel beatIndex={currentIndex} ariaLabel={rhythmAriaLabel} />
+    </div>
+  {/if}
+
   <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
 </div>
 
@@ -106,5 +119,12 @@
     font-family: var(--font-mono);
     font-size: 1.25rem;
     opacity: 0.7;
+  }
+
+  /* Канал ритма подтягивается ближе к строке (перебивает часть scene-gap),
+     чтобы читаться «под FlowLine», а не висеть посреди сцены. */
+  .rhythm-slot {
+    width: 100%;
+    margin-top: calc(var(--spacing-2) - var(--spacing-6));
   }
 </style>

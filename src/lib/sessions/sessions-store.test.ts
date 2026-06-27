@@ -42,4 +42,12 @@ describe('formatSessionRow', () => {
     expect(typeof row.date).toBe('string');
     expect(row.date.length).toBeGreaterThan(0);
   });
+
+  test('ровность: число → "NN%"', () => {
+    expect(formatSessionRow({ session: session({ rhythm: 82 }), locale: 'en' }).rhythm).toBe('82%');
+  });
+
+  test('ровность: нет данных (старая строка) → "—"', () => {
+    expect(formatSessionRow({ session: session(), locale: 'en' }).rhythm).toBe('—');
+  });
 });

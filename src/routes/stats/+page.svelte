@@ -121,6 +121,7 @@
             <th class="num">{t.headers.duration}</th>
             <th class="num">{t.headers.cpm}</th>
             <th class="num">{t.headers.accuracy}</th>
+            <th class="num">{t.headers.rhythm}</th>
             <th class="num">{t.headers.latency}</th>
           </tr>
         </thead>
@@ -131,6 +132,7 @@
               <td class="num">{row.durationSeconds} {t.units.duration}</td>
               <td class="num">{row.cpm} {t.units.cpm}</td>
               <td class="num">{row.accuracy}{t.units.accuracy}</td>
+              <td class="num">{row.rhythm}</td>
               <td class="num">{row.latencyMs} {t.units.latency}</td>
             </tr>
           {/each}

@@ -39,7 +39,8 @@
     "error_title": "An Error Occurred",
     "start_again": "Start Again",
     "pause": "Pause",
-    "resume": "Resume"
+    "resume": "Resume",
+    "rhythm_channel_aria": "Typing rhythm indicator"
   },
   "settings": {
     "title": "User Preferences",
@@ -60,6 +61,8 @@
     "cursor_mode_description": "Where the cursor sits in the line (typed vs upcoming ratio).",
     "theme_label": "Theme",
     "theme_description": "Visual theme of the interface.",
+    "rhythm_channel_label": "Rhythm channel",
+    "rhythm_channel_description": "Show a rhythm guide under the typing line during training.",
     "theme_group_light": "Light themes",
     "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
@@ -86,6 +89,7 @@
       "duration": "Duration",
       "cpm": "Speed",
       "accuracy": "Accuracy",
+      "rhythm": "Rhythm",
       "latency": "Latency"
     },
     "units": {
@@ -167,6 +171,10 @@
       "THIRD": "Third (1/3)",
       "QUARTER": "Quarter (1/4)",
       "DINAMIC": "Dynamic"
+    },
+    "rhythmChannel": {
+      "on": "On",
+      "off": "Off"
     },
     "themes": {
       "auto": "Auto (system)",

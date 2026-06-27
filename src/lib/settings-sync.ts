@@ -17,6 +17,7 @@ export interface CloudSettings {
   theme: string;
   // Optional на чтение: строки, записанные до появления поля, его не имеют.
   displayName?: string;
+  rhythmChannelEnabled?: boolean;
   updatedAt: number;
 }
 
@@ -69,6 +70,7 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     cursorMode: cloud.cursorMode,
     theme: cloud.theme,
     displayName: cloud.displayName ?? '',
+    rhythmChannelEnabled: cloud.rhythmChannelEnabled,
   } as UserSettings;
 }
 
@@ -86,6 +88,7 @@ export function settingsToCloudArgs(settings: UserSettings): {
   cursorMode: string;
   theme: string;
   displayName: string;
+  rhythmChannelEnabled: boolean;
 } {
   return {
     interfaceLanguage: settings.interfaceLanguage,
@@ -96,5 +99,6 @@ export function settingsToCloudArgs(settings: UserSettings): {
     cursorMode: settings.cursorMode,
     theme: settings.theme,
     displayName: settings.displayName,
+    rhythmChannelEnabled: settings.rhythmChannelEnabled,
   };
 }

@@ -44,7 +44,15 @@
 </script>
 
 {#if inState({ snapshot: state, value: { training: 'running' } }) && sessionActor}
-  <TrainingScene {sessionActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} />
+  <TrainingScene
+    {sessionActor}
+    {fingerLayout}
+    physicalLayout={physicalLayoutANSI}
+    cursorType={$settings.cursorType}
+    cursorMode={$settings.cursorMode}
+    rhythmChannelEnabled={$settings.rhythmChannelEnabled}
+    rhythmAriaLabel={dictionary.app.rhythm_channel_aria}
+  />
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />

@@ -13,6 +13,7 @@ describe('normalizeSettings', () => {
       cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
+      rhythmChannelEnabled: false,
     });
   });
 
@@ -26,6 +27,7 @@ describe('normalizeSettings', () => {
       cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
+      rhythmChannelEnabled: false,
     });
   });
 
@@ -46,8 +48,15 @@ describe('normalizeSettings', () => {
       cursorMode: 'THIRD',
       theme: 'dark',
       displayName: 'Custom Name',
+      rhythmChannelEnabled: true,
     };
     expect(normalizeSettings(input)).toEqual(input);
+  });
+
+  it('валидный rhythmChannelEnabled сохраняется, не-boolean → дефолт false', () => {
+    expect(normalizeSettings({ rhythmChannelEnabled: true }).rhythmChannelEnabled).toBe(true);
+    expect(normalizeSettings({ rhythmChannelEnabled: 'yes' }).rhythmChannelEnabled).toBe(false);
+    expect(normalizeSettings({}).rhythmChannelEnabled).toBe(false);
   });
 
   it('displayName: любая строка проходит как есть', () => {

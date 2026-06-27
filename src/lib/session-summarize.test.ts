@@ -1,6 +1,6 @@
 // src/lib/session-summarize.test.ts
 import { describe, expect, test } from 'vitest';
-import { summarizeSession, MAX_CONFUSIONS } from './session-summarize';
+import { summarizeSession, MAX_CONFUSIONS, MIN_RHYTHM_INTERVALS, rhythmConsistency } from './session-summarize';
 import type { StreamAttempt, StreamSymbol } from '@/interfaces/types';
 import type { KeyCapId } from '@/interfaces/key-cap-id';
 
@@ -70,5 +70,41 @@ describe('summarizeSession', () => {
     const out = summarizeSession({ stream, durationMs: 60000 });
     expect(out.confusions.length).toBe(MAX_CONFUSIONS);
     expect(out.confusions[0]).toEqual({ target: 'a', pressed: 'KeyS', count: 3 }); // самый частый — первым
+  });
+});
+
+describe('rhythmConsistency', () => {
+  test('ровный ритм → 100%', () => {
+    expect(rhythmConsistency([200, 200, 200, 200, 200])).toBe(100);
+  });
+
+  test('CV = 0.5 (интервалы 100/300) → 50%', () => {
+    expect(rhythmConsistency([100, 300, 100, 300, 100, 300])).toBe(50);
+  });
+
+  test('меньше MIN_RHYTHM_INTERVALS → undefined (недостоверно)', () => {
+    expect(rhythmConsistency(new Array(MIN_RHYTHM_INTERVALS - 1).fill(200))).toBeUndefined();
+  });
+});
+
+describe('summarizeSession — ровность ритма', () => {
+  // Чистые символы с равномерными startAt → равные межсимвольные интервалы → 100%.
+  function evenStream(count: number, stepMs: number): StreamSymbol[] {
+    return Array.from({ length: count }, (_, i) =>
+      streamSymbol('a', ['KeyA'], [press(['KeyA'], i * stepMs)]),
+    );
+  }
+
+  test('равномерный набор → rhythm = 100', () => {
+    const out = summarizeSession({ stream: evenStream(8, 200), durationMs: 60000 });
+    expect(out.rhythm).toBe(100);
+  });
+
+  test('нет времени нажатий (startAt отсутствует) → поле rhythm опущено', () => {
+    const out = summarizeSession({
+      stream: [streamSymbol('a', ['KeyA'], [press(['KeyA'])])],
+      durationMs: 60000,
+    });
+    expect('rhythm' in out).toBe(false);
   });
 });

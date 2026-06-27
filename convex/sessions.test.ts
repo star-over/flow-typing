@@ -38,6 +38,17 @@ describe('recordSessionSummaryHandler', () => {
     });
   });
 
+  test('ровность ритма: персистится когда есть, опускается когда нет', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { email: 'r@example.com' });
+      const withRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, rhythm: 82 } });
+      expect((await ctx.db.get(withRhythm))?.rhythm).toBe(82);
+      const withoutRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
+      expect((await ctx.db.get(withoutRhythm))?.rhythm).toBeUndefined();
+    });
+  });
+
   test('cold-start: openedSteps по умолчанию 1, если профиля нет', async () => {
     const t = convexTest(schema, modules);
     await t.run(async (ctx) => {

@@ -16,6 +16,7 @@ const validSettings = {
   cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
+  rhythmChannelEnabled: false,
 };
 
 describe('getMineHandler', () => {
@@ -112,6 +113,19 @@ describe('upsertMineHandler', () => {
       await upsertMineHandler({ ctx, userId, settings: { ...validSettings, displayName: '' } });
       const patched = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       expect(patched?.displayName).toBe('');
+    });
+  });
+
+  test('persists rhythmChannelEnabled through insert and patch', async () => {
+    const t = convexTest(schema, modules);
+    await t.run(async (ctx) => {
+      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, rhythmChannelEnabled: true } });
+      const inserted = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(inserted?.rhythmChannelEnabled).toBe(true);
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, rhythmChannelEnabled: false } });
+      const patched = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(patched?.rhythmChannelEnabled).toBe(false);
     });
   });
 

@@ -9,4 +9,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
+  rhythmChannelEnabled: false,
 };

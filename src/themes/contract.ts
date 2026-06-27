@@ -2,6 +2,7 @@ import { KEYCAP_CONTRACT } from '@/components/ui/KeyCap.contract';
 import { FINGER_CONTRACT } from '@/components/ui/Finger.contract';
 import { HANDS_SCENE_CONTRACT } from '@/components/ui/HandsScene.contract';
 import { FLOW_LINE_CONTRACT } from '@/components/ui/FlowLine.contract';
+import { RHYTHM_CHANNEL_CONTRACT } from '@/components/ui/RhythmChannel.contract';
 import { CURSOR_SYMBOL_CONTRACT } from '@/components/ui/CursorSymbol.contract';
 import { REGULAR_SYMBOL_CONTRACT } from '@/components/ui/RegularSymbol.contract';
 import { NAV_ARROW_CONTRACT } from '@/components/ui/NavArrow.contract';
@@ -38,6 +39,7 @@ export const THEME_CONTRACT = [
   ...FINGER_CONTRACT,
   ...HANDS_SCENE_CONTRACT,
   ...FLOW_LINE_CONTRACT,
+  ...RHYTHM_CHANNEL_CONTRACT,
   ...CURSOR_SYMBOL_CONTRACT,
   ...REGULAR_SYMBOL_CONTRACT,
   ...NAV_ARROW_CONTRACT,

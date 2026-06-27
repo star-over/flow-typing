@@ -15,6 +15,7 @@ export interface SessionRow {
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
   latencyMs: number; // медиана латентности сеанса, целые мс
+  rhythm: string; // ровность ритма: "82%" или "—" (нет данных / старая строка)
 }
 
 /** Функция форматирования: документ сеанса → строка таблицы. Округления как в LessonStatsDisplay. */
@@ -33,6 +34,8 @@ export function formatSessionRow({
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),
     latencyMs: Math.round(session.latencyMedianMs),
+    // Старые строки и сессии без достаточных данных поля не имеют → «—».
+    rhythm: session.rhythm == null ? '—' : `${Math.round(session.rhythm)}%`,
   };
 }
 

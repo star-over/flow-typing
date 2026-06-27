@@ -16,6 +16,7 @@ const validLocal: UserSettings = {
   cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
+  rhythmChannelEnabled: false,
 };
 
 const validCloud: CloudSettings = {
@@ -26,6 +27,7 @@ const validCloud: CloudSettings = {
   cursorType: 'VERTICAL',
   cursorMode: 'THIRD',
   theme: 'dark',
+  rhythmChannelEnabled: true,
   updatedAt: 1000,
 };
 
@@ -48,6 +50,7 @@ describe('decideSyncOnLogin', () => {
       cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
+      rhythmChannelEnabled: true,
     });
   });
 
@@ -61,6 +64,7 @@ describe('decideSyncOnLogin', () => {
       cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
+      rhythmChannelEnabled: true,
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
     expect(decision.action).toBe('pull');
@@ -80,6 +84,7 @@ describe('cloudRowToSettings', () => {
       cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
+      rhythmChannelEnabled: true,
     });
   });
 
@@ -91,6 +96,7 @@ describe('cloudRowToSettings', () => {
       'displayName',
       'fingerLayoutId',
       'interfaceLanguage',
+      'rhythmChannelEnabled',
       'symbolLayoutId',
       'textLanguage',
       'theme',
@@ -127,6 +133,7 @@ describe('settingsToCloudArgs', () => {
       cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
+      rhythmChannelEnabled: false,
     });
   });
 
@@ -138,6 +145,7 @@ describe('settingsToCloudArgs', () => {
       'displayName',
       'fingerLayoutId',
       'interfaceLanguage',
+      'rhythmChannelEnabled',
       'symbolLayoutId',
       'textLanguage',
       'theme',

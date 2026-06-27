@@ -21,6 +21,7 @@ export default defineSchema({
     theme: v.string(),
     // Optional: строки, записанные до появления поля, его не имеют (back-compat).
     displayName: v.optional(v.string()),
+    rhythmChannelEnabled: v.optional(v.boolean()),
     updatedAt: v.number(),
   }).index('by_user', ['userId']),
   // Корпус упражнений. Вся мета — чистая функция текста и нейтральна к
@@ -85,6 +86,9 @@ export default defineSchema({
     clean: v.number(),
     cpm: v.number(),
     latencyMedianMs: v.number(),
+    // Ровность ритма за сессию, % (100·(1−CV)). Optional: строки до появления поля
+    // и сессии с нехваткой интервалов его не имеют → в /stats «—».
+    rhythm: v.optional(v.number()),
     confusions: v.array(
       v.object({ target: v.string(), pressed: v.string(), count: v.number() }),
     ),

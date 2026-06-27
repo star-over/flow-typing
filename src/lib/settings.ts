@@ -102,6 +102,11 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.displayName
     : DEFAULT_USER_SETTINGS.displayName;
 
+  // Булев флаг; не-boolean (legacy/cloud без поля) → дефолт (выключено).
+  const rhythmChannelEnabled = typeof stored.rhythmChannelEnabled === 'boolean'
+    ? stored.rhythmChannelEnabled
+    : DEFAULT_USER_SETTINGS.rhythmChannelEnabled;
+
   return {
     interfaceLanguage,
     textLanguage,
@@ -111,6 +116,7 @@ export function normalizeSettings(raw: unknown): UserSettings {
     cursorMode,
     theme,
     displayName,
+    rhythmChannelEnabled,
   };
 }
 

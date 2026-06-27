@@ -20,6 +20,7 @@ interface SessionSummaryPayload {
   cpm: number;
   durationMs: number;
   latencyMedianMs: number;
+  rhythm?: number;
   confusions: { target: string; pressed: string; count: number }[];
 }
 
@@ -56,6 +57,7 @@ export const record = mutation({
     cpm: v.number(),
     durationMs: v.number(),
     latencyMedianMs: v.number(),
+    rhythm: v.optional(v.number()),
     confusions: v.array(v.object({ target: v.string(), pressed: v.string(), count: v.number() })),
   },
   handler: async (ctx, { symbolLayoutId, ...payload }) => {
