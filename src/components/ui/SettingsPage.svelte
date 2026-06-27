@@ -22,11 +22,6 @@
     { value: 'ru' as const, label: dictionary.options.interfaceLanguages.ru },
   ]);
 
-  const rhythmChannelOptions = $derived([
-    { value: 'on', label: dictionary.options.rhythmChannel.on },
-    { value: 'off', label: dictionary.options.rhythmChannel.off },
-  ]);
-
   const themeOptions = $derived.by(() => {
     const lightThemes = THEMES
       .filter((t) => t.colorScheme === 'light')
@@ -76,16 +71,6 @@
       options={themeOptions}
       onChange={(v) => setTheme(v as ThemeSetting)}
     />
-  </label>
-
-  <label class="field">
-    <span class="label-text">{dictionary.settings.rhythm_channel_label}</span>
-    <Select
-      value={$settings.rhythmChannelEnabled ? 'on' : 'off'}
-      options={rhythmChannelOptions}
-      onChange={(v) => updateSettings({ rhythmChannelEnabled: v === 'on' })}
-    />
-    <span class="hint">{dictionary.settings.rhythm_channel_description}</span>
   </label>
 
   <button type="button" class="btn" onclick={onBack}>

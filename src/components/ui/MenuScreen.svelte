@@ -55,6 +55,11 @@
     { value: 'QUARTER' as const, label: dictionary.options.cursorModes.QUARTER },
     { value: 'DINAMIC' as const, label: dictionary.options.cursorModes.DINAMIC },
   ]);
+
+  const rhythmChannelOptions = $derived([
+    { value: 'on', label: dictionary.options.rhythmChannel.on },
+    { value: 'off', label: dictionary.options.rhythmChannel.off },
+  ]);
 </script>
 
 <div class="menu-screen">
@@ -110,6 +115,17 @@
           value={$settings.cursorMode}
           options={cursorModes}
           onChange={(v) => updateSettings({ cursorMode: v as FlowLineCursorMode })}
+        />
+      </span>
+    </label>
+
+    <label class="field">
+      <span class="label-text">{dictionary.settings.rhythm_channel_label}</span>
+      <span class="field__control">
+        <Select
+          value={$settings.rhythmChannelEnabled ? 'on' : 'off'}
+          options={rhythmChannelOptions}
+          onChange={(v) => updateSettings({ rhythmChannelEnabled: v === 'on' })}
         />
       </span>
     </label>
