@@ -3,7 +3,7 @@
   import RhythmChannel from './RhythmChannel.svelte';
 
   // Канал — time-driven: каждый инкремент `beatIndex` = удар (прыжок + последующее
-  // оседание). В Storybook бей по стрелке контрола `beatIndex`, чтобы увидеть прыжок
+  // оседание). В Storybook бей по стрелке управления `beatIndex`, чтобы увидеть прыжок
   // маркера и плавное падение к центру. В покое маркер стоит в центре зоны (зелёный).
   const { Story } = defineMeta({
     title: 'UI/RhythmChannel',
