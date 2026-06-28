@@ -6,8 +6,8 @@
  * Сырые attempts на сервер НЕ уходят — только агрегаты.
  */
 import type { TypingStream } from '@/interfaces/types';
-import { drillSummarize, PAUSE_CAP_MS } from './drill-summarize';
-import { areKeyCapIdArraysEqual } from './symbol-utils';
+import { foldDrillSummary } from './drill-summarize';
+import { readExposures } from './exposure-reading';
 
 /** Сколько пар-путаниц максимум кладём в строку сессии (защита от роста). */
 export const MAX_CONFUSIONS = 20;
@@ -42,32 +42,6 @@ export interface SessionSummaryPayload {
 }
 
 /**
- * Межсимвольные интервалы сессии для метрики ровности — та же латентность, что в
- * `drillSummarize` (startAt верного нажатия предыдущего → startAt первого текущего),
- * паузы отбрасываются по `PAUSE_CAP_MS`. Первый символ без предыдущего пропускается.
- */
-function collectInterSymbolIntervals(stream: TypingStream): number[] {
-  const intervals: number[] = [];
-  let prevCorrectAt: number | undefined;
-  for (const symbol of stream) {
-    const first = symbol.attempts[0];
-    if (first === undefined) {
-      prevCorrectAt = undefined;
-      continue;
-    }
-    if (prevCorrectAt !== undefined && first.startAt !== undefined) {
-      const delta = first.startAt - prevCorrectAt;
-      if (delta > 0 && delta <= PAUSE_CAP_MS) intervals.push(delta);
-    }
-    const correct = symbol.attempts.find((attempt) =>
-      areKeyCapIdArraysEqual({ a: attempt.pressedKeyCaps, b: symbol.targetKeyCaps }),
-    );
-    prevCorrectAt = correct?.startAt;
-  }
-  return intervals;
-}
-
-/**
  * Ровность ритма (0–100%) = 100·(1 − CV), где `CV = σ/μ` интервалов. `undefined`
  * при нехватке данных — пусть слой отображения покажет «—», а не ложный «0%».
  */
@@ -87,28 +61,30 @@ export function summarizeSession({
   stream: TypingStream;
   durationMs: number;
 }): SessionSummaryPayload {
-  const { overall } = drillSummarize(stream);
+  // Единственный проход потока — общий шов вычитания проскока и латентности.
+  // Из тех же чтений выводим overall, confusions и ритм.
+  const readings = readExposures(stream);
+  const { overall } = foldDrillSummary(readings);
 
-  // Направление промаха: судим ТОЛЬКО по первому нажатию (как clean в drillSummarize —
-  // проскок не множим). V1 — только одиночные нажатия (сочетания/пустые мимо).
+  // Направление промаха: судим ТОЛЬКО по первому нажатию (`reading.clean` — то же
+  // вычитание проскока). V1 — только одиночные нажатия (сочетания/пустые мимо).
   const tally = new Map<string, SessionConfusion>();
-  for (const symbol of stream) {
-    const first = symbol.attempts[0];
-    if (first === undefined) continue;
-    if (areKeyCapIdArraysEqual({ a: first.pressedKeyCaps, b: symbol.targetKeyCaps })) continue;
-    if (first.pressedKeyCaps.length !== 1) continue; // V1: пустые/сочетания — мимо
-    const pressed = first.pressedKeyCaps[0];
+  for (const reading of readings) {
+    if (reading.clean) continue;
+    if (reading.firstAttempt.pressedKeyCaps.length !== 1) continue; // V1: пустые/сочетания — мимо
+    const pressed = reading.firstAttempt.pressedKeyCaps[0];
     if (pressed === undefined) continue; // noUncheckedIndexedAccess: сужаем KeyCapId | undefined
-    const key = `${symbol.targetSymbol} ${pressed}`;
-    const row = tally.get(key) ?? { target: symbol.targetSymbol, pressed, count: 0 };
+    const key = `${reading.targetSymbol} ${pressed}`;
+    const row = tally.get(key) ?? { target: reading.targetSymbol, pressed, count: 0 };
     row.count += 1;
     tally.set(key, row);
   }
   const confusions = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, MAX_CONFUSIONS);
 
-  // Ровность ритма — отдельно от drill-метрик: считаем по тем же межсимвольным
-  // интервалам, но как CV всей сессии (окно сессии, не τ-EWMA живого канала).
-  const rhythm = rhythmConsistency(collectInterSymbolIntervals(stream));
+  // Ровность ритма — отдельно от drill-метрик: те же межсимвольные латентности
+  // предъявлений, но как CV всей сессии (окно сессии, не τ-EWMA живого канала).
+  const intervals = readings.flatMap((r) => (r.latency !== undefined ? [r.latency] : []));
+  const rhythm = rhythmConsistency(intervals);
 
   // cpm — пропускная способность за активную минуту (durationMs = displayElapsedMs),
   // не моторная скорость (та — из latencyMedianMs). При длительности < 1 с измерение

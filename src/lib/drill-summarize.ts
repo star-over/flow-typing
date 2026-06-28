@@ -4,26 +4,19 @@
  * компактную дельту по затронутым ячейкам профиля; payload мутации `drillRecord`.
  * Сырые нажатия на сервер не уходят (CONTEXT.md → DrillSummary).
  *
- * Три преобразования:
- *  1. Предъявление — каждый набранный символ потока (CONTEXT.md → Exposure).
- *  2. Чистое = первое нажатие верное. Это вычитание проскока v1: символ судим
- *     ТОЛЬКО по первому нажатию, хвостовые промахи (цели следующих позиций при
- *     проскоке) игнорируем — ошибку не множим. Точное отнесение хвостовых
- *     промахов к их настоящим целям — отложено.
- *  3. Латентность — межсимвольный интервал startAt(первое нажатие символа) −
- *     startAt(верное нажатие предыдущего). Первый символ исключаем (нет
- *     предыдущего), паузы отбрасываем по PAUSE_CAP_MS (отвлёкся ≠ моторный сигнал).
+ * Сводка — свёртка поверх `readExposures` (`exposure-reading.ts`): тот единственный
+ * проход вычитает проскок и считает межсимвольную латентность (правило живёт там,
+ * не здесь). Здесь — лишь группировка чтений по символу + overall (медиана/разброс).
  *
  * Scope этапа 1 — perSymbol + overall; ячейки per-биграмма появятся на этапе
  * «Фокус», где будет потребитель. Форма результата — массивы: ключи не-ASCII, в объекты
  * Convex их не положить (как `symbolFrequency` в схеме drills).
  */
 import type { TypingStream } from '@/interfaces/types';
-import { areKeyCapIdArraysEqual } from './symbol-utils';
+import { readExposures, PAUSE_CAP_MS, type ExposureReading } from './exposure-reading';
 
-// Порог «паузы»: межсимвольный интервал длиннее — человек отвлёкся, не моторный
-// сигнал, в латентность не идёт. Провизорно (план «Числа-настройки»).
-export const PAUSE_CAP_MS = 1500;
+// Ре-экспорт ради стабильного контракта: исторически порог паузы жил здесь.
+export { PAUSE_CAP_MS };
 
 /** Дельта одной ячейки профиля per-символ. */
 export interface SymbolStat {
@@ -62,53 +55,38 @@ function meanAbsoluteDeviation({ nums, center }: { nums: number[]; center: numbe
 }
 
 export function drillSummarize(stream: TypingStream): DrillSummary {
+  return foldDrillSummary(readExposures(stream));
+}
+
+/**
+ * Свёртка чтений предъявлений в `DrillSummary` (группировка по символу + overall).
+ * Отдельно от прохода потока, чтобы `summarizeSession` обходил поток один раз:
+ * читает предъявления единожды и переиспользует те же чтения для overall, ритма и
+ * confusions.
+ */
+export function foldDrillSummary(readings: ExposureReading[]): DrillSummary {
   const bySymbol = new Map<string, SymbolStat>();
   const allLatencies: number[] = [];
   let totalExposures = 0;
   let totalClean = 0;
 
-  // startAt верного нажатия предыдущего набранного символа — база латентности.
-  let prevCorrectAt: number | undefined;
-
-  for (const symbol of stream) {
-    const firstAttempt = symbol.attempts[0];
-    if (firstAttempt === undefined) {
-      // Символ не набирался (незавершённый поток) — не предъявление; цепь рвём.
-      prevCorrectAt = undefined;
-      continue;
-    }
-
-    const clean = areKeyCapIdArraysEqual({ a: firstAttempt.pressedKeyCaps, b: symbol.targetKeyCaps });
-
-    // Латентность перехода к этому символу.
-    let latency: number | undefined;
-    if (prevCorrectAt !== undefined && firstAttempt.startAt !== undefined) {
-      const delta = firstAttempt.startAt - prevCorrectAt;
-      if (delta > 0 && delta <= PAUSE_CAP_MS) latency = delta;
-    }
-
-    const cell = bySymbol.get(symbol.targetSymbol) ?? {
-      symbol: symbol.targetSymbol,
+  for (const reading of readings) {
+    const cell = bySymbol.get(reading.targetSymbol) ?? {
+      symbol: reading.targetSymbol,
       exposures: 0,
       clean: 0,
       latencies: [],
     };
     cell.exposures += 1;
-    if (clean) cell.clean += 1;
-    if (latency !== undefined) {
-      cell.latencies.push(latency);
-      allLatencies.push(latency);
+    if (reading.clean) cell.clean += 1;
+    if (reading.latency !== undefined) {
+      cell.latencies.push(reading.latency);
+      allLatencies.push(reading.latency);
     }
-    bySymbol.set(symbol.targetSymbol, cell);
+    bySymbol.set(reading.targetSymbol, cell);
 
     totalExposures += 1;
-    if (clean) totalClean += 1;
-
-    // Момент, когда символ набран верно, — база латентности следующего.
-    const correctAttempt = symbol.attempts.find((attempt) =>
-      areKeyCapIdArraysEqual({ a: attempt.pressedKeyCaps, b: symbol.targetKeyCaps })
-    );
-    prevCorrectAt = correctAttempt?.startAt;
+    if (reading.clean) totalClean += 1;
   }
 
   const latencyMedian = median(allLatencies);
