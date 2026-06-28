@@ -9,8 +9,7 @@ export type KeyCoordinateMap = Map<KeyCapId, { r: number; c: number }>;
 /**
  * Сетка `(r, c)` для каждой клавиши: `r = key.y` (номер ряда),
  * `c` — индекс клавиши в её ряду после сортировки по `key.x`.
- * Используется в `difficulty-calculator` как дискретные шаги движения пальца
- * (один шаг = одна клавиша), а не в физических U.
+ * Дискретные шаги движения пальца (один шаг = одна клавиша), а не физические U.
  */
 export function createKeyCoordinateMap(physicalLayout: PhysicalLayout): KeyCoordinateMap {
   const rows = new Map<number, KeyCapId[]>();

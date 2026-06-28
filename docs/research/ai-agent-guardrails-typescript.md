@@ -407,7 +407,7 @@ src/lib/dev       |     2.4 |        0 |    5.71 |    2.94 |
 | **P1** | **Усилить ESLint**: `no-floating-promises`, `no-misused-promises`, `await-thenable` → `error`; добавить `import/no-cycle`, `unused-imports/no-unused-imports`, `sonarjs/cognitive-complexity` | Асинхронные сторы и Convex-вызовы — риск floating promises. Cycle detection защитит от будущих проблем. | 2–3 часа |
 | **P2** | **`dependency-cruiser` для слоёв** | Закрепляет архитектуру `src → convex → shared`, `auto-flow → shared`. Предотвращает architectural drift. | 2–4 часа |
 | **P2** | **Mutation testing (`Stryker`) для `shared/` и `src/lib/`** | `shared/` уже 100% покрыт, но coverage ≠ качество assertions. Stryker проверит, ловят ли тесты реальные баги. | 4–8 часов |
-| **P2** | **Property-based tests (`fast-check`) для алгоритмов** | `key-ladder`, `repertoire/progress`, `drill-selection`, `difficulty-calculator`, `stats-calculator` — идеальные кандидаты. | 4–8 часов |
+| **P2** | **Property-based tests (`fast-check`) для алгоритмов** | `key-ladder`, `repertoire/progress`, `drill-selection`, `stats-calculator` — идеальные кандидаты. | 4–8 часов |
 | **P2** | **AGENTS.md / CLAUDE.md с конкретными правилами** | Машиночитаемая карта проекта: слои, команды, запреты, workflow. Снижает риск, что агент пойдёт не туда. | 2–3 часа |
 
 ---
