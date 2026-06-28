@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
-  import Select from './Select.svelte';
+  import Select from '@/components/ui/Select.svelte';
   import type {
     Dictionary,
     FingerLayoutId,

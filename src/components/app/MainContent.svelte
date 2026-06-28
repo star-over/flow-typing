@@ -13,10 +13,10 @@
   import { inState } from '@/lib/state-utils';
   import { lessonStatsFromSummary } from '@/lib/stats-calculator';
 
-  import TrainingScene from '@/components/ui/TrainingScene.svelte';
-  import LessonStatsDisplay from '@/components/ui/LessonStatsDisplay.svelte';
-  import MenuScreen from '@/components/ui/MenuScreen.svelte';
-  import RepertoireProgress from '@/components/ui/RepertoireProgress.svelte';
+  import TrainingScene from '@/components/train/TrainingScene.svelte';
+  import LessonStatsDisplay from '@/components/train/LessonStatsDisplay.svelte';
+  import MenuScreen from '@/components/train/MenuScreen.svelte';
+  import RepertoireProgress from '@/components/train/RepertoireProgress.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 

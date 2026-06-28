@@ -119,7 +119,7 @@ UI: вместо нашей кнопки `<button>Войти через ...</but
 
 ### `MenuScreen.contract.ts` — выделить токены, когда компонент стабилизируется
 
-**Что:** Сейчас `src/components/ui/MenuScreen.svelte` намеренно без contract-файла: переиспользует токены `SettingsPage` и `FooterActions`. Когда компонент станет самостоятельной сущностью — выделить `--menu-screen-*` токены, завести `MenuScreen.contract.ts`, добавить в `THEME_CONTRACT` и пройти по всем 4 темам + `_template.css`.
+**Что:** Сейчас `src/components/train/MenuScreen.svelte` намеренно без contract-файла: переиспользует токены `SettingsPage` и `FooterActions`. Когда компонент станет самостоятельной сущностью — выделить `--menu-screen-*` токены, завести `MenuScreen.contract.ts`, добавить в `THEME_CONTRACT` и пройти по всем 4 темам + `_template.css`.
 
 **Почему отложено:** Компонент тонкий, токены чужих компонентов покрывают визуальные потребности без расхождений. Преждевременный extract = пять контракт-токенов без визуальной семантики. Tech-debt note зафиксирована inline в `MenuScreen.svelte:1-7`.
 

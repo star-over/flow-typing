@@ -71,6 +71,6 @@ All primary project commands are centralized in the `Makefile` for simplicity an
 - `src/routes/+layout.svelte`: Hosts the singleton `appActor`, the global keyboard listener (`<svelte:window>` onkeydown/up/blur), theme effects, and the `Header` nav-chrome. Persists across sibling-route navigation so the FSM survives moving between `/`, `/settings`, and `/stats`.
 - `src/components/app/App.svelte`: The content of the `/` route. Renders `MainContent` (FSM-driven view) and `FooterActions` (process controls, hidden on menu).
 - `src/components/app/MainContent.svelte`: Switches between screens (`MenuScreen`, `TrainingScene`, `LessonStatsDisplay`, pause heading) based on `appMachine` state.
-- `src/components/ui/HandsScene.svelte`: The "dumb" Svelte component responsible for visualizing the hands and keyboard based on the ViewModel.
+- `src/components/hands-scene/HandsScene.svelte`: The "dumb" Svelte component responsible for visualizing the hands and keyboard based on the ViewModel.
 - `src/lib/settings.ts`: The Svelte store for managing user settings with `localStorage` persistence.
 - `Makefile`: Centralized script runner for all common development tasks.

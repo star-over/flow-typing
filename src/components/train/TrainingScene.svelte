@@ -12,9 +12,9 @@
   import { enrichStreamSymbols } from '@/lib/stream-utils';
   import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
 
-  import FlowLine from './FlowLine.svelte';
-  import HandsScene from './HandsScene.svelte';
-  import RhythmChannel from './RhythmChannel.svelte';
+  import FlowLine from '@/components/flow-line/FlowLine.svelte';
+  import HandsScene from '@/components/hands-scene/HandsScene.svelte';
+  import RhythmChannel from '@/components/rhythm-channel/RhythmChannel.svelte';
 
   interface Props {
     sessionActor: Actor<typeof sessionMachine>;

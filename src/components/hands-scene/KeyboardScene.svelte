@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { KeyboardSceneViewModel, KeyCapId } from '@/interfaces/types';
-  import KeyCap from './KeyCap.svelte';
+  import KeyCap from '@/components/ui/KeyCap.svelte';
 
   interface Props {
     keyboardScene: KeyboardSceneViewModel;
