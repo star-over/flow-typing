@@ -13,7 +13,7 @@
    */
   import { onMount } from 'svelte';
   import { on } from 'svelte/events';
-  import KeyCap from '@/components/ui/KeyCap.svelte';
+  import KeyCap from '@/components/key-cap/KeyCap.svelte';
 
   interface Props {
     /** Доступное описание анимации (role="img"). */

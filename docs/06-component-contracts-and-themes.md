@@ -19,8 +19,8 @@
 У каждого компонента, у которого есть стилизуемые элементы, рядом лежит файл `*.contract.ts`:
 
 ```
-src/components/ui/KeyCap.svelte
-src/components/ui/KeyCap.contract.ts          ← 30 токенов
+src/components/key-cap/KeyCap.svelte
+src/components/key-cap/KeyCap.contract.ts     ← 30 токенов
 src/components/hands-scene/Finger.svelte
 src/components/hands-scene/Finger.contract.ts ← 9 токенов
 src/components/app/FooterActions.svelte

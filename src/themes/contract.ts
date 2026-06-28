@@ -1,11 +1,11 @@
-import { KEYCAP_CONTRACT } from '@/components/ui/KeyCap.contract';
+import { KEYCAP_CONTRACT } from '@/components/key-cap/KeyCap.contract';
 import { FINGER_CONTRACT } from '@/components/hands-scene/Finger.contract';
 import { HANDS_SCENE_CONTRACT } from '@/components/hands-scene/HandsScene.contract';
 import { FLOW_LINE_CONTRACT } from '@/components/flow-line/FlowLine.contract';
 import { RHYTHM_CHANNEL_CONTRACT } from '@/components/rhythm-channel/RhythmChannel.contract';
 import { CURSOR_SYMBOL_CONTRACT } from '@/components/flow-line/CursorSymbol.contract';
 import { REGULAR_SYMBOL_CONTRACT } from '@/components/flow-line/RegularSymbol.contract';
-import { NAV_ARROW_CONTRACT } from '@/components/ui/NavArrow.contract';
+import { NAV_ARROW_CONTRACT } from '@/components/key-cap/NavArrow.contract';
 import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
 import { LESSON_STATS_DISPLAY_CONTRACT } from '@/components/train/LessonStatsDisplay.contract';
