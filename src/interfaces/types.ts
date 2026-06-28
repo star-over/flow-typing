@@ -322,7 +322,7 @@ export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
     for (const [lang, ids] of defaultCounts) {
       if (ids.length > 1) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `Multiple default layouts for textLanguage='${lang}': ${ids.join(', ')}`,
         });
       }
@@ -334,7 +334,7 @@ export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
     for (const lang of TEXT_LANGUAGES) {
       if (!covered.has(lang)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `No layout covers textLanguage='${lang}'`,
         });
       }

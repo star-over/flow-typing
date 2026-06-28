@@ -23,7 +23,7 @@ const ApplicationDataSchema = z
       });
       if (compatible.length === 0) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `No drills in corpus for layout '${d.symbolLayoutId}'`,
         });
       }

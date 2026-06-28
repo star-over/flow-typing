@@ -74,6 +74,7 @@ export default [
       '@typescript-eslint/consistent-indexed-object-style': 'warn',
 
       // Typed-linting (точечно — без полного recommendedTypeChecked)
+      '@typescript-eslint/no-deprecated': 'warn',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
       '@typescript-eslint/no-redundant-type-constituents': 'warn',
