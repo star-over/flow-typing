@@ -1,5 +1,5 @@
 import { convexTest } from 'convex-test';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
@@ -283,6 +283,10 @@ describe('applyDrillSummaryHandler — рост репертуара', () => {
   });
 
   test('неизвестная раскладка → рост пропущен, сводка сохранена (без throw)', async () => {
+    // grownOpenedSteps пишет console.warn для раскладки без данных — рабочее
+    // поведение. Тест намеренно подаёт 'unknown', поэтому глушим warn, чтобы он
+    // не засорял вывод тестов.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const t = convexTest(schema, modules);
     await t.run(async (ctx) => {
       const userId = await ctx.db.insert('users', { name: 'U' });
@@ -294,6 +298,7 @@ describe('applyDrillSummaryHandler — рост репертуара', () => {
       expect(profile?.openedSteps).toBe(1);
       expect(profile?.symbolCells[0]?.exposures).toBe(10);
     });
+    warn.mockRestore();
   });
 });
 

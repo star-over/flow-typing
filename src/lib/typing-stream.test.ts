@@ -1,10 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getSymbolLayout } from '@/lib/layouts';
 import { createTypingStream } from './typing-stream';
 
 const symbolLayoutQwerty = getSymbolLayout('qwerty');
 
 describe('createTypingStream', () => {
+  // Символы вне раскладки createTypingStream отбрасывает и пишет console.warn
+  // (implementation detail, см. тест ниже). Тесты ниже намеренно подают такие
+  // символы — глушим warn, чтобы он не засорял вывод тестов.
+  beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => {}));
+  afterEach(() => vi.restoreAllMocks());
+
   it('generates a correct stream for a simple word', () => {
     const stream = createTypingStream({ drillText: 'hi', symbolLayout: symbolLayoutQwerty });
 
