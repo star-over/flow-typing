@@ -16,7 +16,7 @@
   import { onDestroy, setContext } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
 
-  import Header from '@/components/app/Header.svelte';
+  import Header from '@/components/header/Header.svelte';
 
   setupConvexAuth({
     client: convex,

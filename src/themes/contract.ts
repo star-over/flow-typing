@@ -13,7 +13,7 @@ import { REPERTOIRE_PROGRESS_CONTRACT } from '@/components/train/RepertoireProgr
 import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
 import { LANDING_CONTRACT } from '@/components/landing/LandingScreen.contract';
 import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract';
-import { HEADER_CONTRACT } from '@/components/app/Header.contract';
+import { HEADER_CONTRACT } from '@/components/header/Header.contract';
 import { MAIN_CONTENT_CONTRACT } from '@/components/app/MainContent.contract';
 import { ROOT_CONTRACT } from '@/Root.contract';
 import { SIGN_IN_SCREEN_CONTRACT } from '@/components/auth/SignInScreen.contract';
