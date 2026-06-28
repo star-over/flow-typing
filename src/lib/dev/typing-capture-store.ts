@@ -46,7 +46,7 @@ export function append(record: TypingRunRecord): Promise<IDBValidKey> {
   return tx({ mode: 'readwrite', run: (store) => store.add(record) });
 }
 
-export function getAll(): Promise<TypingRunRecord[]> {
+function getAll(): Promise<TypingRunRecord[]> {
   return tx({ mode: 'readonly', run: (store) => store.getAll() as IDBRequest<TypingRunRecord[]> });
 }
 

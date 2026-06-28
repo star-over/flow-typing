@@ -11,6 +11,7 @@
   "ignoreDependencies": [
     "svelte-check",
     "@cspell/dict-ru_ru",
-    "svelte-eslint-parser"
+    "svelte-eslint-parser",
+    "@gorules/zen-engine"
   ]
 }

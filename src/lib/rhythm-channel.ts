@@ -24,26 +24,26 @@ export type RhythmZone = 'in' | 'above' | 'below';
 
 // ── Финальные дефолты (раздел 11.8 research-дока) ───────────────────────────
 /** Окно EWMA темпа, разброса и сил (с). */
-export const TAU_SECONDS = 2;
+const TAU_SECONDS = 2;
 /** Ширина зелёной зоны (доля шкалы). */
 export const BAND_WIDTH = 0.35;
 /** Показатель зависимости гравитации от темпа: g ∝ (T_ref/μ)^GRAVITY_EXPONENT. */
-export const GRAVITY_EXPONENT = 0.7;
+const GRAVITY_EXPONENT = 0.7;
 /** Центр статичной зоны. */
 export const ZONE_CENTER = 0.5;
 /** Верх шкалы уровня. */
 export const MAX_LEVEL = 1.0;
 /** Опорный темп (мс) — масштаб зависимости сил от темпа. */
-export const T_REF_MS = 250;
+const T_REF_MS = 250;
 /** Масштаб гравитации (падения). */
-export const BASE_GRAVITY = 1.3;
+const BASE_GRAVITY = 1.3;
 /** Приём удара: интервалы длиннее `max(этого, 3·μ)` — паузы/off-task, отбрасываются. */
-export const PAUSE_FLOOR_MS = 4000;
+const PAUSE_FLOOR_MS = 4000;
 /** Зажим среднего интервала (мс): 10…1000 зн/мин. */
 export const MIN_INTERVAL_MS = 60;
 export const MAX_INTERVAL_MS = 6000;
 /** Стартовый средний интервал до набора данных (мс). */
-export const INITIAL_INTERVAL_MS = 280;
+const INITIAL_INTERVAL_MS = 280;
 
 /** Минимальная гравитация — чтобы на очень медленном темпе кромка всё же оседала. */
 const MIN_GRAVITY = 0.05;
