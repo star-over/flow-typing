@@ -97,8 +97,7 @@ export const keyboardMachine = setup({
       // The physical spacebar 'Space' should be treated as a text key
       // even though our keyboard scene uses 'SpaceLeft' and 'SpaceRight'.
       if (event.keyCapId === 'Space') return true;
-      const result = isTextKey({ key: event.keyCapId, physicalLayout: context.physicalLayout });
-      return result;
+      return isTextKey({ key: event.keyCapId, physicalLayout: context.physicalLayout });
     },
     isNavigationalKeyGuard: ({ context, event }) => {
       if (event.type !== "KEY_DOWN") return false;

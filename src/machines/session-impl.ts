@@ -17,7 +17,10 @@ import { sessionMachine } from './session.machine';
  * через console.warn и видны всегда). Фильтр в консоли браузера: `[convex]`.
  */
 const logConvex = import.meta.env.DEV
-  ? (line: string, ...rest: unknown[]) => console.log(`[convex] ${line}`, ...rest)
+  ? (line: string, ...rest: unknown[]) => {
+      // eslint-disable-next-line no-console
+      console.log(`[convex] ${line}`, ...rest);
+    }
   : () => {
       /* no-op в production */
     };

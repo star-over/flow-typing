@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "paths": {
+    "@/*": ["src/*"]
+  },
+  "entry": [
+    "src/scripts/*.ts",
+    "scripts/*.ts",
+    "auto-flow/scripts/*.ts"
+  ],
+  "ignoreDependencies": [
+    "svelte-check",
+    "@cspell/dict-ru_ru",
+    "svelte-eslint-parser"
+  ]
+}

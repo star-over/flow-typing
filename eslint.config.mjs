@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
+import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 import svelteConfig from './svelte.config.js';
 
@@ -120,6 +121,63 @@ export default [
           excludedRunes: ['$props', '$derived', '$state'],
         },
       ],
+    },
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.svelte', '**/*.svelte.js', '**/*.svelte.ts'],
+    plugins: { sonarjs },
+    rules: {
+      // AI-агенты часто оставляют отладочный console.log.
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+      // Async guardrails — критично для Convex-вызовов и Svelte-сторов.
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+
+      // XState и discriminated unions.
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+
+      // Не даём агенту "заткнуть" ошибку ts-игнором.
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-expect-error': 'allow-with-description',
+          'ts-ignore': true,
+          'ts-nocheck': true,
+          'ts-check': false,
+          minimumDescriptionLength: 5,
+        },
+      ],
+
+      // Подмножество sonarjs: только правила, которые ловят реальные проблемы
+      // и не шумят на Svelte/TypeScript-идиомах проекта.
+      // Порог 20 выбран потому, что текущий код имеет функции со сложностью 17–19;
+      // после рефакторинга рекомендуется опустить до 15.
+      'sonarjs/cognitive-complexity': ['warn', 20],
+      'sonarjs/no-identical-functions': 'warn',
+      'sonarjs/no-identical-expressions': 'warn',
+      'sonarjs/no-all-duplicated-branches': 'warn',
+      'sonarjs/no-gratuitous-expressions': 'warn',
+      'sonarjs/no-inverted-boolean-check': 'warn',
+      'sonarjs/no-redundant-jump': 'warn',
+      'sonarjs/prefer-immediate-return': 'warn',
+      'sonarjs/no-collection-size-mischeck': 'warn',
+      'sonarjs/no-element-overwrite': 'warn',
+      'sonarjs/non-existent-operator': 'warn',
+      'sonarjs/no-extra-arguments': 'warn',
+    },
+  },
+  {
+    // В скриптах и dev-хелперах console.log — норма.
+    files: [
+      'src/scripts/**/*.ts',
+      'scripts/**/*.ts',
+      'src/lib/dev/**/*.ts',
+      'auto-flow/scripts/**/*.ts',
+    ],
+    rules: {
+      'no-console': 'off',
     },
   },
   {

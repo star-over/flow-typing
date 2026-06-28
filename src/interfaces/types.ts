@@ -18,8 +18,6 @@ export type TextLanguage = typeof TEXT_LANGUAGES[number];
 export const INTERFACE_LANGUAGES = ['en', 'ru'] as const;
 export type InterfaceLanguage = typeof INTERFACE_LANGUAGES[number];
 
-export interface KeyCapLabel { symbol?: string }
-
 /** Маркер для обозначения клавиш на 'домашнем' ряду (F и J). */
 export const KEY_CAP_HOME_KEY_MARKERS = ["NONE", "BAR", "DOT"] as const;
 export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
@@ -272,12 +270,6 @@ export interface KeyboardSceneKey {
  * в виде двумерного массива `KeyboardSceneKey`.
  */
 export type KeyboardSceneViewModel = KeyboardSceneKey[][];
-
-/**
- * Объект, описывающий состояние всех пальцев и кистей.
- * Ключ - `FingerId`, значение - `FingerNavigationRole`.
- */
-export type HandStates = Record<FingerId, FingerNavigationRole>;
 
 // --- Symbol Layout Descriptor (запись реестра раскладок) ---
 

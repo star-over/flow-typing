@@ -8,7 +8,7 @@
 SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
-        spell storybook storybook-build check-all compile-drills create-drills \
+        spell knip storybook storybook-build check-all compile-drills create-drills \
         corpus-process build-corpus import-corpus rebuild-selection-index ladder-report \
         next-batch reinstall-gemini-cli convex
 
@@ -41,6 +41,7 @@ help:
 	@echo "  make lint             - eslint ."
 	@echo "  make lint-fix         - eslint . --fix"
 	@echo "  make spell            - cspell на src + dictionaries + static + **/*.md (см. cspell.json)"
+	@echo "  make knip             - knip: аудит неиспользуемых файлов/экспортов/зависимостей (см. knip.json)"
 	@echo "  make check-all        - lint + check + test + spell + build"
 	@echo ""
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
@@ -133,6 +134,14 @@ spell: install
 		'dictionaries/*.json' \
 		'static/*.html' \
 		'**/*.md'
+
+# knip — аудит неиспользуемых файлов / экспортов / зависимостей. Конфиг в knip.json
+# (alias @/, entry-скрипты, Makefile-инструменты в ignoreDependencies). Советующий,
+# не гейт: часть находок — намеренная конвенция (типы *ContractToken, единый язык
+# types.ts), поэтому knip не в check-all и target не падает на находках.
+knip: install
+	@echo "🔍 knip..."
+	npx knip || true
 
 check-dev: install
 	npx eslint . --quiet --cache --cache-location node_modules/.cache/eslint/
