@@ -352,13 +352,39 @@ export interface KeySceneState {
 }
 
 /**
- * Итоговая модель представления для сцены с руками: словарь состояний для всех 12 элементов.
- * @see /VisualContract.md
+ * Состояние пальца-цели. `navigationRole === 'TARGET'`, и у него **всегда** есть
+ * `keyCapStates` — кластер клавиш пальца (правило «Полного Кластера», docs/03 §3.3).
+ *
+ * Замечание о коллизии имён: поле `navigationRole` существует и здесь (уровень пальца:
+ * `FingerNavigationRole`), и в {@link KeySceneState} (уровень клавиши: `KeyCapNavigationRole`).
+ * Это два разных уровня одной сцены; не путать.
  */
-export type HandsSceneViewModel = Record<FingerId, {
-  navigationRole: FingerNavigationRole;
-  keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
-}>;
+export interface TargetFingerSceneState {
+  navigationRole: 'TARGET';
+  keyCapStates: Partial<Record<KeyCapId, KeySceneState>>;
+}
+
+/**
+ * Состояние пальца-не-цели (`NONE` | `INACTIVE` | `ERROR`). `keyCapStates` отсутствует —
+ * у таких пальцев кластер клавиш не отображается.
+ */
+export interface IdleFingerSceneState {
+  navigationRole: Exclude<FingerNavigationRole, 'TARGET'>;
+}
+
+/**
+ * Состояние одного пальца в сцене рук — discriminated union по `navigationRole`.
+ * Наличие `keyCapStates` сцеплено с `TARGET` на уровне типа: собрать `NONE`/`INACTIVE`/`ERROR`
+ * палец с `keyCapStates` (или `TARGET` без них) **нельзя** — потребитель физически не видит
+ * нарушенную модель, а проверив `navigationRole === 'TARGET'`, получает `keyCapStates` без `?.`.
+ */
+export type FingerSceneState = TargetFingerSceneState | IdleFingerSceneState;
+
+/**
+ * Итоговая модель представления для сцены с руками: словарь состояний для всех 12 элементов.
+ * @see /docs/03-ui-viewmodel-contract.md §3.3 (правило «Полного Кластера»)
+ */
+export type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 
 import type { AnyActorRef } from 'xstate';
 /**

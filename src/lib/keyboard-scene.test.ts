@@ -124,7 +124,12 @@ describe('createKeyboardSceneForFinger', () => {
       keyboardScene.flat().find((k) => k.keyCapId === keyCapId);
 
     const visibleKeys = keyboardScene.flat().filter((k) => k.visibility === 'VISIBLE');
-    const l2Keys = Object.keys(handsScene.L2.keyCapStates!);
+    const l2State = handsScene.L2;
+    // L2 — целевой палец для 't'; сужаем по дискриминанту, чтобы добраться до keyCapStates.
+    if (l2State.navigationRole !== 'TARGET') {
+      throw new Error('fixture invariant: L2 must be TARGET for simple_t');
+    }
+    const l2Keys = Object.keys(l2State.keyCapStates);
     expect(visibleKeys.length).toBe(l2Keys.length);
     visibleKeys.forEach((key) => {
       expect(l2Keys).toContain(key.keyCapId);

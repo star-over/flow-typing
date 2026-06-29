@@ -71,23 +71,67 @@ import { type AdjacencyList, findOptimalPath } from "./pathfinding";
 import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
 
 /**
+ * Черновая (не запечатанная) модель сцены рук — рабочий тип конвейера сборки.
+ * Здесь `navigationRole` и `keyCapStates` ещё НЕ сцеплены: стадии мутируют черновик
+ * свободно (сперва выставляют роли пальцев, затем достраивают кластеры). Инвариант
+ * «Полного Кластера» проверяет и сужает черновик до запечатанного {@link HandsSceneViewModel}
+ * единственная точка — `sealHandsSceneViewModel`.
+ */
+interface FingerSceneDraft {
+  navigationRole: FingerNavigationRole;
+  keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
+}
+export type HandsSceneViewModelDraft = Record<FingerId, FingerSceneDraft>;
+
+const ALL_FINGER_IDS: FingerId[] = [
+  ...LEFT_HAND_FINGERS,
+  LEFT_HAND_BASE,
+  ...RIGHT_HAND_FINGERS,
+  RIGHT_HAND_BASE,
+];
+
+/** Черновик «все пальцы в NONE» — стартовая точка конвейера. */
+function createIdleDraft(): HandsSceneViewModelDraft {
+  const draft: Partial<HandsSceneViewModelDraft> = {};
+  ALL_FINGER_IDS.forEach((id) => {
+    draft[id] = { navigationRole: "NONE" };
+  });
+  return draft as HandsSceneViewModelDraft;
+}
+
+/**
+ * Точка запечатывания конвейера. Проверяет правило «Полного Кластера»
+ * (`navigationRole === 'TARGET'` ⟺ `keyCapStates` определены) для каждого пальца и
+ * сужает черновик до {@link HandsSceneViewModel}. Нарушение инварианта (например, баг
+ * порядка стадий) — громкий `throw` прямо на сборке кадра, а не молчаливо сломанная
+ * модель в UI.
+ */
+export function sealHandsSceneViewModel(
+  draft: HandsSceneViewModelDraft,
+): HandsSceneViewModel {
+  for (const fingerId of FINGER_IDS) {
+    const finger = draft[fingerId];
+    const isTarget = finger.navigationRole === "TARGET";
+    const hasKeyCapStates = finger.keyCapStates !== undefined;
+    if (isTarget !== hasKeyCapStates) {
+      throw new Error(
+        `HandsSceneViewModel: нарушено правило «Полного Кластера» для пальца ${fingerId}: ` +
+          `navigationRole=${finger.navigationRole}, keyCapStates ` +
+          `${hasKeyCapStates ? "присутствует" : "отсутствует"} ` +
+          `(keyCapStates должны быть ⟺ navigationRole === 'TARGET').`,
+      );
+    }
+  }
+  return draft as HandsSceneViewModel;
+}
+
+/**
  * Returns a completely idle view model where all fingers are NONE.
  * This is the default state when no training is active.
  * @returns A HandsSceneViewModel with all fingers in 'NONE' state.
  */
 export function createIdleViewModel(): HandsSceneViewModel {
-  const idleState: FingerNavigationRole = "NONE";
-  const viewModel: Partial<HandsSceneViewModel> = {};
-  const allFingerIds: FingerId[] = [
-    ...LEFT_HAND_FINGERS,
-    LEFT_HAND_BASE,
-    ...RIGHT_HAND_FINGERS,
-    RIGHT_HAND_BASE,
-  ];
-  allFingerIds.forEach((id) => {
-    viewModel[id] = { navigationRole: idleState };
-  });
-  return viewModel as HandsSceneViewModel;
+  return sealHandsSceneViewModel(createIdleDraft());
 }
 
 interface TypingContext {
@@ -168,9 +212,9 @@ function applyTargetNavigationRoles({
   viewModel,
   typingContext,
 }: {
-  viewModel: HandsSceneViewModel;
+  viewModel: HandsSceneViewModelDraft;
   typingContext: TypingContext;
-}): HandsSceneViewModel {
+}): HandsSceneViewModelDraft {
     const newViewModel = { ...viewModel };
     const { activeFingers, activeHands } = typingContext;
 
@@ -202,9 +246,9 @@ function buildVisibleClusters({
   viewModel,
   fingerLayout,
 }: {
-  viewModel: HandsSceneViewModel;
+  viewModel: HandsSceneViewModelDraft;
   fingerLayout: FingerLayout;
-}): HandsSceneViewModel {
+}): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
 
   for (const fingerId of FINGER_IDS) {
@@ -235,7 +279,7 @@ function _applyNavigationRoles({
   path,
   targetKey,
 }: {
-  fingerData: HandsSceneViewModel[FingerId];
+  fingerData: FingerSceneDraft;
   path: KeyCapId[];
   targetKey: KeyCapId;
 }) {
@@ -257,7 +301,7 @@ function _applyNavigationArrows({
   path,
   keyCoordinateMap,
 }: {
-  fingerData: HandsSceneViewModel[FingerId];
+  fingerData: FingerSceneDraft;
   path: KeyCapId[];
   keyCoordinateMap: KeyCoordinateMap;
 }) {
@@ -287,12 +331,12 @@ function applyNavigationPaths({
   keyboardGraph,
   keyCoordinateMap,
 }: {
-  viewModel: HandsSceneViewModel;
+  viewModel: HandsSceneViewModelDraft;
   typingContext: TypingContext;
   fingerLayout: FingerLayout;
   keyboardGraph: AdjacencyList;
   keyCoordinateMap: KeyCoordinateMap;
-}): HandsSceneViewModel {
+}): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
   const { targetKeyCaps } = typingContext;
 
@@ -323,9 +367,9 @@ function applyErrorNavigationRoles({
   viewModel,
   typingContext,
 }: {
-  viewModel: HandsSceneViewModel;
+  viewModel: HandsSceneViewModelDraft;
   typingContext: TypingContext;
-}): HandsSceneViewModel {
+}): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
   const { errorFingers } = typingContext;
 
@@ -342,9 +386,9 @@ function applyKeyPressResults({
   viewModel,
   typingContext,
 }: {
-  viewModel: HandsSceneViewModel;
+  viewModel: HandsSceneViewModelDraft;
   typingContext: TypingContext;
-}): HandsSceneViewModel {
+}): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
   const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
 
@@ -403,20 +447,22 @@ export function createHandsSceneViewModel({
   }
 
   // --- Pipeline Start ---
-  let viewModel = createIdleViewModel();
+  // Стадии работают на черновике (роли и keyCapStates ещё не сцеплены); запечатывание
+  // в конце проверяет инвариант «Полного Кластера» и сужает до HandsSceneViewModel.
+  let draft = createIdleDraft();
 
   // Data Analysis Stage: Determine the context for the current typing step
   const typingContext = determineTypingContext({ currentStreamSymbol, fingerLayout });
 
   // Stage 1: Apply TARGET finger states (TARGET, INACTIVE)
-  viewModel = applyTargetNavigationRoles({ viewModel, typingContext });
+  draft = applyTargetNavigationRoles({ viewModel: draft, typingContext });
 
   // Stage 2: Build initial visible clusters for active fingers
-  viewModel = buildVisibleClusters({ viewModel, fingerLayout });
+  draft = buildVisibleClusters({ viewModel: draft, fingerLayout });
 
   // Stage 3: Apply navigation paths and roles to visible clusters
-  viewModel = applyNavigationPaths({
-    viewModel,
+  draft = applyNavigationPaths({
+    viewModel: draft,
     typingContext,
     fingerLayout,
     keyboardGraph,
@@ -424,10 +470,10 @@ export function createHandsSceneViewModel({
   });
 
   // Stage 4: Apply feedback - incorrect fingers
-  viewModel = applyErrorNavigationRoles({ viewModel, typingContext });
+  draft = applyErrorNavigationRoles({ viewModel: draft, typingContext });
 
   // Stage 5: Apply feedback - key press results
-  viewModel = applyKeyPressResults({ viewModel, typingContext });
+  draft = applyKeyPressResults({ viewModel: draft, typingContext });
 
-  return viewModel;
+  return sealHandsSceneViewModel(draft);
 }

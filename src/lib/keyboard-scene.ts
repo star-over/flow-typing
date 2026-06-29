@@ -103,8 +103,9 @@ export const createKeyboardSceneForFinger = ({
   physicalLayout,
 }: CreateKeyboardSceneForFingerOptions): KeyboardSceneViewModel => {
   const fingerSceneState = handsScene[fingerId];
+  // keyCapStates сцеплено с TARGET на уровне типа: сужаем по дискриминанту, а не по `|| {}`.
   const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> =
-    fingerSceneState.keyCapStates || {};
+    fingerSceneState.navigationRole === "TARGET" ? fingerSceneState.keyCapStates : {};
 
   const homeKeyForFinger = getHomeKeyForFinger({ fingerId, fingerLayout });
   const rows = groupByRow(physicalLayout);

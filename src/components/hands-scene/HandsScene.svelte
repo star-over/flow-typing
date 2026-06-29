@@ -129,7 +129,7 @@
     </svg>
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
-      {#if handsScene[fingerId].navigationRole !== 'NONE' && handsScene[fingerId].keyCapStates}
+      {#if handsScene[fingerId].navigationRole === 'TARGET'}
         {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
         {@const t = clusterTranslations[fingerId]}
         <div

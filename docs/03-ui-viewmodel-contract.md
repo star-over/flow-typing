@@ -31,27 +31,32 @@ interface KeySceneState {
 Итоговая модель, представляющая собой словарь (`Record`), где ключ — это `FingerId`, а значение — состояние этого пальца и, опционально, состояния всех клавиш в его кластере.
 
 ```typescript
-type HandsSceneViewModel = Record<FingerId, {
-  fingerState: 'TARGET' | 'INACTIVE' | 'NONE' | 'ERROR';
-  // Словарь состояний для всех клавиш в кластере этого пальца.
-  // Определяется ТОЛЬКО для пальцев в состоянии 'TARGET'.
-  keyCapStates?: Record<KeyCapId, KeySceneState>; 
-}>;
+// Discriminated union: наличие keyCapStates сцеплено с TARGET на уровне типа —
+// собрать не-TARGET палец с keyCapStates (или TARGET без них) нельзя.
+// Поле navigationRole есть и на уровне пальца (здесь), и на уровне клавиши
+// (KeySceneState) — это два разных уровня одной сцены, не путать.
+type FingerSceneState =
+  | { navigationRole: 'TARGET'; keyCapStates: Partial<Record<KeyCapId, KeySceneState>> }
+  | { navigationRole: 'NONE' | 'INACTIVE' | 'ERROR' };
+
+type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ```
+
+Свойство `keyCapStates` определяется **только** для `TARGET`-пальцев (правило «Полного Кластера», §3.3). Инвариант гарантируется типом и проверяется на сборке в точке `sealHandsSceneViewModel` (`src/lib/hands-scene.ts`): нарушение — `throw`, а не молчаливо сломанная модель в UI.
 
 ## 3.3. Ключевые правила формирования ViewModel
 
 Эти правила должны неукоснительно соблюдаться при построении `ViewModel`.
 
-#### 1. Состояния пальцев (`fingerState`)
+#### 1. Состояния пальцев (`navigationRole`)
 *   `TARGET`: Палец, который должен выполнить действие (нажать целевую клавишу или модификатор).
 *   `ERROR`: Палец, который совершил ошибочное нажатие (нажал не "свою" клавишу, перепутав пальцы).
 *   `INACTIVE`: "Соседний" палец на той же руке, где есть `TARGET` или `ERROR` палец. Его задача — быть на экране, но не привлекать внимания.
 *   `NONE`: Любой палец на полностью неактивной руке.
 
 #### 2. Правило "Активной Руки" (Active Hand Rule)
-*   Если следующий ввод требует действия одной рукой, все пальцы на второй, "неактивной" руке должны иметь `fingerState: 'NONE'`. Это уменьшает визуальный шум и концентрирует внимание пользователя.
-*   Если следующий ввод требует аккорда (например, `Shift + F`), обе руки считаются активными, и пальцы, не участвующие в аккорде, получают `fingerState: 'INACTIVE'`.
+*   Если следующий ввод требует действия одной рукой, все пальцы на второй, "неактивной" руке должны иметь `navigationRole: 'NONE'`. Это уменьшает визуальный шум и концентрирует внимание пользователя.
+*   Если следующий ввод требует аккорда (например, `Shift + F`), обе руки считаются активными, и пальцы, не участвующие в аккорде, получают `navigationRole: 'INACTIVE'`.
 
 #### 3. Правило "Полного Кластера" (Complete Cluster Rule)
 *   Словарь `keyCapStates` определяется **только для `TARGET` пальцев**. У пальцев в состоянии `INACTIVE`, `NONE` и `ERROR` это свойство должно отсутствовать.
@@ -72,21 +77,21 @@ type HandsSceneViewModel = Record<FingerId, {
 Логика `ViewModel` должна однозначно визуализировать любой тип ошибки, чтобы дать пользователю четкую обратную связь.
 
 *   **Сценарий 1: Ошибка в пределах одного пальца** (Цель 'k', нажата 'i').
-    *   `R3` (целевой палец): `fingerState: 'TARGET'`.
+    *   `R3` (целевой палец): `navigationRole: 'TARGET'`.
     *   В его `keyCapStates`:
         *   `KeyK` (цель): `navigationRole: 'TARGET'`.
         *   `KeyI` (ошибка): `pressResult: 'ERROR'`.
 
 *   **Сценарий 2: Ошибка другим пальцем** (Цель 'k' (палец `R3`), нажата 'j' (палец `R2`)).
-    *   `R3` (целевой палец): `fingerState: 'TARGET'`. Его кластер клавиш отображается, чтобы показать цель.
-    *   `R2` (ошибочный палец): `fingerState: 'ERROR'`. Его кластер клавиш **не отображается**. Подсвечивается только сам палец.
+    *   `R3` (целевой палец): `navigationRole: 'TARGET'`. Его кластер клавиш отображается, чтобы показать цель.
+    *   `R2` (ошибочный палец): `navigationRole: 'ERROR'`. Его кластер клавиш **не отображается**. Подсвечивается только сам палец.
 
 *   **Сценарий 3: Ошибка с пропущенным модификатором** (Цель 'K' (Shift+k), нажата 'k').
-    *   `L5` (для Shift): `fingerState: 'TARGET'`. В его `keyCapStates`, `ShiftLeft` имеет `pressResult: 'ERROR'`.
-    *   `R3` (для 'k'): `fingerState: 'TARGET'`. В его `keyCapStates`, `KeyK` имеет `pressResult: 'CORRECT'` (так как сама клавиша верна).
+    *   `L5` (для Shift): `navigationRole: 'TARGET'`. В его `keyCapStates`, `ShiftLeft` имеет `pressResult: 'ERROR'`.
+    *   `R3` (для 'k'): `navigationRole: 'TARGET'`. В его `keyCapStates`, `KeyK` имеет `pressResult: 'CORRECT'` (так как сама клавиша верна).
 
 *   **Сценарий 4: Ошибка с ненужным модификатором** (Цель 'k', нажато 'Shift+k').
-    *   `R3` (для 'k'): `fingerState: 'TARGET'`. В его `keyCapStates`, `KeyK` имеет `pressResult: 'ERROR'`.
-    *   `L5` (для Shift): `fingerState: 'ERROR'`.
+    *   `R3` (для 'k'): `navigationRole: 'TARGET'`. В его `keyCapStates`, `KeyK` имеет `pressResult: 'ERROR'`.
+    *   `L5` (для Shift): `navigationRole: 'ERROR'`.
 
 Полный набор примеров состояний ViewModel для различных сценариев можно найти в файле `src/fixtures/hands-scene/test-data.ts`.
