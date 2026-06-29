@@ -1,10 +1,10 @@
 # Аудит архитектуры: возможности углубления модулей
 
-> Статус: **список кандидатов**, не execution-план. Кандидаты 1–4 реализованы
-> (2026-06-28…29, ветка `refactor/exposure-reading-seam`); остальные ещё не спроектированы —
-> каждый требует отдельной сессии проектирования (grilling: что за швом, какой инвариант
-> закрепляем, какие тесты выживают). Найдено инструментом `improve-codebase-architecture`
-> 2026-06-28.
+> Статус: **список кандидатов**, не execution-план. Кандидаты 1–5 реализованы
+> (2026-06-28…29, ветки `refactor/exposure-reading-seam`, `refactor/xstate-children-selectors`);
+> остальные ещё не спроектированы — каждый требует отдельной сессии проектирования
+> (grilling: что за швом, какой инвариант закрепляем, какие тесты выживают). Найдено
+> инструментом `improve-codebase-architecture` 2026-06-28.
 >
 > Словарь: **глубокий** модуль = много поведения за малым интерфейсом; **мелкий/shallow** =
 > интерфейс почти как реализация; **deletion-тест** = удали модуль, сложность исчезла →
@@ -144,7 +144,7 @@ reducer зовёт внутри на `PULL_RESOLVED`. `attachCloudSync` (`settin
 
 ---
 
-### 5. UI лезет во внутренний реестр детей XState — MEDIUM
+### 5. UI лезет во внутренний реестр детей XState — MEDIUM · ✅ СДЕЛАНО
 
 **Файлы:** `src/components/app/App.svelte:41` (`state.children.sessionService as …`) ·
 `src/components/train/TrainingScene.svelte:43` (`sessionState.children.training as …`).
@@ -159,6 +159,13 @@ call-site перестают знать структуру.
 
 **Выгода.** Leverage: одно место знает про реестр детей; рефакторинг id внутри машин не трогает
 UI. Шов становится явным и проверяемым типом.
+
+**Сделано (2026-06-29).** Добавлен `src/machines/selectors.ts` с чистыми функциями
+`selectSessionActor(appSnapshot)` и `selectTrainingActor(sessionSnapshot)` — единственное место,
+которое знает про invoke-id (`sessionService`, `training`) и типовое приведение к `Actor<…>`.
+`App.svelte` и `TrainingScene.svelte` теперь используют селекторы внутри `$derived`, реактивность
+сохранена. Типы совпадают с прежними `as`-кастами; `make check-all` чистый. Ветка
+`refactor/xstate-children-selectors`.
 
 ---
 

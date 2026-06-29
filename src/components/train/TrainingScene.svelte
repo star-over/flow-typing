@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { sessionMachine } from '@/machines/session.machine';
-  import type { trainingMachine } from '@/machines/training.machine';
   import type { FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
 
+  import { selectTrainingActor } from '@/machines/selectors';
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
@@ -39,9 +39,7 @@
   });
 
   // Вложенный training появляется после loading; терпим отсутствие.
-  const trainingActor = $derived(
-    sessionState.children.training as Actor<typeof trainingMachine> | undefined
-  );
+  const trainingActor = $derived(selectTrainingActor(sessionState));
 
   // svelte-ignore state_referenced_locally
   let trainingSnap = $state(trainingActor?.getSnapshot() ?? null);
