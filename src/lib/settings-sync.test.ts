@@ -1,9 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import {
   cloudRowToSettings,
+  coordinateSync,
   decideSyncOnLogin,
+  initialSyncCoordinatorState,
   settingsToCloudArgs,
   type CloudSettings,
+  type SyncCoordinatorState,
+  type SyncEffect,
+  type SyncEvent,
 } from './settings-sync';
 import type { UserSettings } from '@/interfaces/user-settings';
 
@@ -150,5 +155,152 @@ describe('settingsToCloudArgs', () => {
       'textLanguage',
       'theme',
     ]);
+  });
+});
+
+describe('coordinateSync', () => {
+  // Прогоняет последовательность событий, тред'ая состояние; собирает все эффекты
+  // в порядке появления. Эхо settings.set (SETTINGS_EMITTED после SET_LOCAL) —
+  // свойство runner'а, в pure-тесте эмулируется явным SETTINGS_EMITTED.
+  function run(
+    events: SyncEvent[],
+    from: SyncCoordinatorState = initialSyncCoordinatorState,
+  ): { state: SyncCoordinatorState; effects: SyncEffect[] } {
+    let state = from;
+    const effects: SyncEffect[] = [];
+    for (const event of events) {
+      const result = coordinateSync({ state, event });
+      state = result.state;
+      effects.push(...result.effects);
+    }
+    return { state, effects };
+  }
+
+  const editedLocal: UserSettings = { ...validLocal, theme: 'dark' };
+
+  test('первый SETTINGS_EMITTED (writable стреляет на подписке) — не пушит (no-push-on-init)', () => {
+    const { state, effects } = run([{ type: 'SETTINGS_EMITTED', value: validLocal }]);
+    expect(effects).toEqual([]);
+    expect(state.awaitingInitialEmit).toBe(false);
+  });
+
+  test('AUTH_CHANGED(loading) — no-op, не PULL и не сброс one-shot', () => {
+    const { state, effects } = run([{ type: 'AUTH_CHANGED', status: 'loading' }]);
+    expect(effects).toEqual([]);
+    expect(state.loginSyncDone).toBe(false);
+  });
+
+  test('login при authenticated → один PULL, loginSyncDone выставлен сразу (до получения ответа)', () => {
+    const { state, effects } = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    expect(effects).toEqual([{ type: 'PULL' }]);
+    expect(state.loginSyncDone).toBe(true);
+  });
+
+  test('PULL_RESOLVED с cloud → SET_LOCAL + skipNextEcho; следующий emit (эхо) не пушит (no-echo)', () => {
+    const afterAuth = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    const afterPull = coordinateSync({
+      state: afterAuth.state,
+      event: { type: 'PULL_RESOLVED', cloudRow: validCloud, localSettings: validLocal },
+    });
+    expect(afterPull.effects).toEqual([
+      { type: 'SET_LOCAL', settings: cloudRowToSettings(validCloud) },
+    ]);
+    expect(afterPull.state.skipNextEcho).toBe(true);
+
+    const afterEcho = coordinateSync({
+      state: afterPull.state,
+      event: { type: 'SETTINGS_EMITTED', value: cloudRowToSettings(validCloud) },
+    });
+    expect(afterEcho.effects).toEqual([]);
+    expect(afterEcho.state.skipNextEcho).toBe(false);
+  });
+
+  test('PULL_RESOLVED с пустым cloud → PUSH локальных настроек (first sync), без skipNextEcho', () => {
+    const afterAuth = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    const afterPull = coordinateSync({
+      state: afterAuth.state,
+      event: { type: 'PULL_RESOLVED', cloudRow: null, localSettings: validLocal },
+    });
+    expect(afterPull.effects).toEqual([{ type: 'PUSH', args: settingsToCloudArgs(validLocal) }]);
+    expect(afterPull.state.skipNextEcho).toBe(false);
+  });
+
+  test('token-refresh flicker (authenticated→loading→authenticated) не повторяет PULL (single-session)', () => {
+    const { state, effects } = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+      { type: 'AUTH_CHANGED', status: 'loading' },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    expect(effects).toEqual([{ type: 'PULL' }]);
+    expect(state.loginSyncDone).toBe(true);
+  });
+
+  test('PULL_FAILED сбрасывает loginSyncDone → следующий authenticated повторяет PULL (retry)', () => {
+    const afterAuth = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    const afterFail = coordinateSync({ state: afterAuth.state, event: { type: 'PULL_FAILED' } });
+    expect(afterFail.effects).toEqual([]);
+    expect(afterFail.state.loginSyncDone).toBe(false);
+
+    const afterRetry = coordinateSync({
+      state: afterFail.state,
+      event: { type: 'AUTH_CHANGED', status: 'authenticated' },
+    });
+    expect(afterRetry.effects).toEqual([{ type: 'PULL' }]);
+  });
+
+  test('локальная правка при authenticated → PUSH в порядке события (in-order push)', () => {
+    const { effects } = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+      { type: 'PULL_RESOLVED', cloudRow: null, localSettings: validLocal },
+      { type: 'SETTINGS_EMITTED', value: editedLocal },
+    ]);
+    expect(effects.at(-1)).toEqual({ type: 'PUSH', args: settingsToCloudArgs(editedLocal) });
+  });
+
+  test('guest сбрасывает loginSyncDone и шлёт CANCEL_PUSH_CHAIN', () => {
+    const afterAuth = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    const afterGuest = coordinateSync({
+      state: afterAuth.state,
+      event: { type: 'AUTH_CHANGED', status: 'guest' },
+    });
+    expect(afterGuest.effects).toEqual([{ type: 'CANCEL_PUSH_CHAIN' }]);
+    expect(afterGuest.state.loginSyncDone).toBe(false);
+    expect(afterGuest.state.authStatus).toBe('guest');
+  });
+
+  test('после guest повторный login снова делает one-shot PULL', () => {
+    const { effects } = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+      { type: 'AUTH_CHANGED', status: 'guest' },
+      { type: 'AUTH_CHANGED', status: 'authenticated' },
+    ]);
+    expect(effects.filter(e => e.type === 'PULL')).toHaveLength(2);
+  });
+
+  test('локальная правка пока не authenticated — не пушит (push gating)', () => {
+    const { effects } = run([
+      { type: 'SETTINGS_EMITTED', value: validLocal },
+      { type: 'AUTH_CHANGED', status: 'guest' },
+      { type: 'SETTINGS_EMITTED', value: editedLocal },
+    ]);
+    expect(effects).toEqual([{ type: 'CANCEL_PUSH_CHAIN' }]);
   });
 });

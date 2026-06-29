@@ -22,7 +22,14 @@ import {
 } from '@/lib/layouts';
 import { isThemeSetting, type ThemeSetting } from '@/themes/registry';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
-import { decideSyncOnLogin, settingsToCloudArgs, type CloudSettings } from './settings-sync';
+import {
+  coordinateSync,
+  initialSyncCoordinatorState,
+  type CloudSettings,
+  type settingsToCloudArgs,
+  type SyncEffect,
+  type SyncEvent,
+} from './settings-sync';
 
 const STORAGE_KEY = 'flow-typing-user-settings';
 const THEME_STORAGE_KEY = 'flow-typing-theme';
@@ -166,16 +173,21 @@ export function updateSettings(partial: Partial<UserSettings>) {
  *   `authStore.state.status`. Internal-guard'ы решают, делать ли pull/push.
  * - `dispose()` — вызывать в onDestroy layout'а.
  *
- * Гарантии:
+ * Координационные решения (эхо, гонки, one-shot) живут в чистом reducer
+ * `coordinateSync` (settings-sync.ts) и покрыты тестами; эта функция — тонкий
+ * effect-runner поверх него: транслирует мир в события, исполняет эффекты,
+ * держит `pushChain` (Promise-цепочку — побочный эффект, не решение).
+ *
+ * Гарантии (проверяются в reducer):
  * - Ни pull, ни push не делается, пока authStore не в 'authenticated'. Гость живёт
  *   исключительно в localStorage (текущее Phase 4 поведение).
  * - **Single-session sync.** Pull/push при login-sync делается один раз за
- *   authentication session (флаг `hasSyncedThisSession`). Token-refresh flicker
+ *   authentication session (`loginSyncDone`). Token-refresh flicker
  *   (`authenticated → loading → authenticated` без logout) НЕ вызывает повторный
  *   pull, что защищает pending local edit от перетирания.
  * - **In-order push.** Все push'и идут через `pushChain` Promise — Convex видит
  *   их в порядке user-actions даже если network reorder'ит requests.
- * - **Retry on failure.** Pull/push throw в login-sync сбрасывает `hasSyncedThisSession`
+ * - **Retry on failure.** Pull throw в login-sync сбрасывает `loginSyncDone`
  *   → следующий state-tick / mount / local-edit повторит попытку.
  */
 export function attachCloudSync({
@@ -187,34 +199,20 @@ export function attachCloudSync({
   pullCloud: () => Promise<CloudSettings | null>;
   pushCloud: (args: ReturnType<typeof settingsToCloudArgs>) => Promise<unknown>;
 }): { notifyAuthChanged: () => void; dispose: () => void } {
-  let hasSyncedThisSession = false;
-  let skipNextSubscribeCallback = false;
-  let isInitialSubscribe = true;
+  let state = initialSyncCoordinatorState;
   // Serialized push chain — гарантия порядка отправки даже при network reorder.
+  // Это побочный эффект (Promise-сериализация), а не решение — потому живёт здесь, в runner'е.
   let pushChain: Promise<unknown> = Promise.resolve();
 
   function enqueuePush(args: ReturnType<typeof settingsToCloudArgs>) {
     pushChain = pushChain.catch(() => { /* проглотить ошибку предыдущего звена цепочки */ }).then(() => pushCloud(args));
     pushChain.catch(() => {
       if (import.meta.env.DEV) {
-         
+
         console.warn('[settings-sync] push failed (will retry on next change)');
       }
     });
   }
-
-  const unsubscribePush = settings.subscribe((value) => {
-    if (isInitialSubscribe) {
-      isInitialSubscribe = false;
-      return;
-    }
-    if (skipNextSubscribeCallback) {
-      skipNextSubscribeCallback = false;
-      return;
-    }
-    if (authStore.state.status !== 'authenticated') return;
-    enqueuePush(settingsToCloudArgs(value));
-  });
 
   function currentSettingsSnapshot(): UserSettings {
     let snapshot!: UserSettings;
@@ -222,47 +220,57 @@ export function attachCloudSync({
     return snapshot;
   }
 
-  function notifyAuthChanged() {
-    const status = authStore.state.status;
-    // Logout / loading — сбрасываем session-flag, никаких syncs. Re-login потом
-    // снова даст one-shot sync.
-    if (status === 'guest') {
-      hasSyncedThisSession = false;
-      // Defense-in-depth: cancel pushChain. Если pending push не успел отправиться
-      // до logout, он будет отправлен под expired token (Convex 401 → catch eats).
-      // Безопасно, но шумно в console; cancel явно избегает.
-      pushChain = Promise.resolve();
-      return;
-    }
-    if (status === 'loading') return;
-    // status === 'authenticated' — но если в этой session уже синхронизировались, skip.
-    // Защита от token-refresh flicker'а и от effect re-runs из-за других reactive deps.
-    if (hasSyncedThisSession) return;
-    hasSyncedThisSession = true;
+  function runPull() {
     void (async () => {
       try {
         const cloudRow = await pullCloud();
-        const localSnapshot = currentSettingsSnapshot();
-        const decision = decideSyncOnLogin({
-          cloudRow,
-          localSettings: localSnapshot,
-        });
-        if (decision.action === 'pull') {
-          skipNextSubscribeCallback = true;
-          settings.set(decision.settings);
-        } else {
-          // First-sync push: ставим в chain (а не await отдельно) для unified ordering.
-          enqueuePush(settingsToCloudArgs(decision.settings));
-        }
+        dispatch({ type: 'PULL_RESOLVED', cloudRow, localSettings: currentSettingsSnapshot() });
       } catch (e) {
-        // Сброс флага → следующий state-tick (или mount после reload) повторит pull.
-        hasSyncedThisSession = false;
+        dispatch({ type: 'PULL_FAILED' });
         if (import.meta.env.DEV) {
-           
+
           console.warn('[settings-sync] login-sync failed (will retry)', e);
         }
       }
     })();
+  }
+
+  function runEffects(effects: SyncEffect[]) {
+    for (const effect of effects) {
+      switch (effect.type) {
+        case 'PULL':
+          runPull();
+          break;
+        case 'PUSH':
+          enqueuePush(effect.args);
+          break;
+        case 'SET_LOCAL':
+          settings.set(effect.settings);
+          break;
+        case 'CANCEL_PUSH_CHAIN':
+          // Defense-in-depth: если pending push не успел уйти до logout, он ушёл бы
+          // под expired token (Convex 401 → catch eats). Cancel явно избегает шума.
+          pushChain = Promise.resolve();
+          break;
+      }
+    }
+  }
+
+  // Порядок критичен: state присваивается ДО запуска эффектов. SET_LOCAL синхронно
+  // запускает settings-subscribe → re-entrant dispatch(SETTINGS_EMITTED), который
+  // обязан увидеть уже взведённый `skipNextEcho` (иначе эхо-push прорвётся).
+  function dispatch(event: SyncEvent) {
+    const result = coordinateSync({ state, event });
+    state = result.state;
+    runEffects(result.effects);
+  }
+
+  const unsubscribePush = settings.subscribe((value) => {
+    dispatch({ type: 'SETTINGS_EMITTED', value });
+  });
+
+  function notifyAuthChanged() {
+    dispatch({ type: 'AUTH_CHANGED', status: authStore.state.status });
   }
 
   function dispose() {
