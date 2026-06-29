@@ -1,7 +1,6 @@
 <script lang="ts">
   import { appActor } from '@/machines/appActor';
-  import type { sessionMachine } from '@/machines/session.machine';
-  import type { Actor } from 'xstate';
+  import { selectSessionActor } from '@/machines/selectors';
 
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
@@ -37,9 +36,7 @@
   });
   onDestroy(() => startSub.unsubscribe());
 
-  const sessionActor = $derived(
-    state.children.sessionService as Actor<typeof sessionMachine> | undefined
-  );
+  const sessionActor = $derived(selectSessionActor(state));
 </script>
 
 <MainContent
