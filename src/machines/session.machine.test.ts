@@ -284,4 +284,85 @@ describe('sessionMachine', () => {
     expect(payload.confusions).toEqual([]);
     expect(typeof payload.durationMs).toBe('number');
   });
+
+  // Порядок завершения теперь выражен структурой finalizeAndNotify, а не массивом
+  // entry; эти два теста замыкают его load-bearing инварианты прямо на поведении.
+
+  // Поток заметно длиннее порога → за 6 продвижений refill не срабатывает (хвост
+  // выше порога), значит чекпоинт ровно один — финальный, в done. Запись профиля и
+  // запись журнала помечают порядок диспетчеризации в общий массив.
+  function longStreamSession({
+    onCheckpoint = () => {},
+    onSession = () => {},
+  }: {
+    onCheckpoint?: () => void;
+    onSession?: (payload: { exposures: number }) => void;
+  } = {}) {
+    let call = 0;
+    const LONG: TypingStream = Array.from({ length: REFILL_THRESHOLD_SYMBOLS + 20 }, () => sym('a', 'KeyA'));
+    return sessionMachine.provide({
+      actors: {
+        fetchDrills: fromPromise(async () => {
+          call += 1;
+          return call === 1 ? LONG : [];
+        }),
+      },
+      actions: {
+        recordCheckpoint: () => onCheckpoint(),
+        recordSessionSummary: (_, p) => onSession((p as { payload: { exposures: number } }).payload),
+      },
+    });
+  }
+
+  it('done (b): чекпоинт (drillRecord) диспетчеризуется ДО журнала сессии — CQRS write-before-read', async () => {
+    const order: string[] = [];
+    const actor = createActor(
+      longStreamSession({ onCheckpoint: () => order.push('checkpoint'), onSession: () => order.push('session') }),
+      { input: INPUT },
+    );
+    actor.start();
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
+
+    for (let i = 0; i < 6; i += 1) actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(6));
+    actor.send({ type: 'TIMER_EXPIRED' });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
+
+    // Ровно один (финальный) чекпоинт и один журнал; чекпоинт — строго раньше.
+    expect(order).toEqual(['checkpoint', 'session']);
+  });
+
+  it('done (a): SESSION.COMPLETE несёт уже посчитанную summary — те же числа, что в журнале', async () => {
+    let journalPayload: { exposures: number } | undefined;
+    const sink = createActor(
+      createMachine({
+        types: {} as { context: { summary: { exposures: number } | null } },
+        context: { summary: null },
+        on: {
+          'SESSION.COMPLETE': {
+            actions: assign({
+              summary: ({ event }) => (event as unknown as { summary: { exposures: number } | null }).summary,
+            }),
+          },
+        },
+      }),
+    ).start();
+    const actor = createActor(
+      longStreamSession({ onSession: (payload) => (journalPayload = payload) }),
+      { input: { ...INPUT, parentActor: sink } },
+    );
+    actor.start();
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches(ARMED)).toBe(true));
+
+    for (let i = 0; i < 6; i += 1) actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).context.completed).toHaveLength(6));
+    actor.send({ type: 'TIMER_EXPIRED' });
+    await vi.waitFor(() => expect((actor.getSnapshot() as SessionSnapshot).matches('done')).toBe(true));
+
+    // summary посчитан ДО отправки (иначе родитель получил бы null) и совпадает с журналом.
+    const received = sink.getSnapshot().context.summary;
+    expect(received).not.toBeNull();
+    expect(received!.exposures).toBe(6);
+    expect(journalPayload?.exposures).toBe(6);
+  });
 });

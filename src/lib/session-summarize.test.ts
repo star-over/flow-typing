@@ -1,6 +1,14 @@
 // src/lib/session-summarize.test.ts
 import { describe, expect, test } from 'vitest';
-import { summarizeSession, MAX_CONFUSIONS, MIN_RHYTHM_INTERVALS, rhythmConsistency } from './session-summarize';
+import {
+  summarizeSession,
+  shouldJournalSession,
+  MAX_CONFUSIONS,
+  MIN_RHYTHM_INTERVALS,
+  rhythmConsistency,
+  type SessionSummaryPayload,
+} from './session-summarize';
+import { MIN_JOURNAL_EXPOSURES } from './session-config';
 import type { StreamAttempt, StreamSymbol } from '@/interfaces/types';
 import type { KeyCapId } from '@/interfaces/key-cap-id';
 
@@ -106,5 +114,28 @@ describe('summarizeSession — ровность ритма', () => {
       durationMs: 60000,
     });
     expect('rhythm' in out).toBe(false);
+  });
+});
+
+describe('shouldJournalSession', () => {
+  const payload = (exposures: number): SessionSummaryPayload => ({
+    exposures,
+    clean: exposures,
+    cpm: 0,
+    durationMs: 60000,
+    latencyMedianMs: 0,
+    confusions: [],
+  });
+
+  test('ниже порога — шум, не журналируем', () => {
+    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES - 1))).toBe(false);
+  });
+
+  test('ровно на пороге — журналируем (граница включительно)', () => {
+    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES))).toBe(true);
+  });
+
+  test('выше порога — журналируем', () => {
+    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES + 10))).toBe(true);
   });
 });
