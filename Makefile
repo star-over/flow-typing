@@ -88,6 +88,7 @@ clean:
 
 dev: install
 	@echo "🚀 vite dev..."
+	npx convex dev --once
 	npx vite dev
 
 build: install
