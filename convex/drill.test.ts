@@ -3,9 +3,11 @@ import { describe, expect, test, vi } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
-import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler } from './drill';
+import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler, buildDefaultDrills } from './drill';
 import { drillIndex } from './drillIndex';
 import { registerDrillIndex } from './test.helpers';
+import { getLayoutData } from './layoutData';
+import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 
 // import.meta.glob нужен convex-test для регистрации функций (см. auth.test.ts).
 const modules = import.meta.glob('./**/*.ts');
@@ -32,6 +34,16 @@ async function insertDrill(
   return drillId;
 }
 
+// Дефолт строится только для раскладок с серверными данными (getLayoutData).
+// На сервере это сейчас йцукен — на нём и проверяем контентный сбой.
+function jcukenStep0Allowed(): Set<string> {
+  const layoutData = getLayoutData('йцукен')!;
+  return new Set([
+    ...symbolsAtStep({ step: 0, symbolLayout: layoutData.symbolLayout, ladder: layoutData.keyLadder }),
+    ' ',
+  ]);
+}
+
 describe('drillNext — выдача порции (этап 1)', () => {
   test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
     const t = convexTest(schema, modules);
@@ -46,17 +58,16 @@ describe('drillNext — выдача порции (этап 1)', () => {
       seed: 1,
     });
 
-    expect(res.contentGap).toBe(false);
     expect(res.drills).toHaveLength(2);
-    expect(res.drills.reduce((sum, d) => sum + d.length, 0)).toBe(10);
+    expect(res.drills.reduce((sum, d) => sum + d.text.length, 0)).toBe(10);
   });
 
   test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    const stepFive = await t.run(async (ctx) => {
+    await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
-      return insertDrill(ctx, { text: 'zzzzz', step: 5, layout: 'test' });
+      await insertDrill(ctx, { text: 'zzzzz', step: 5, layout: 'test' });
     });
 
     const res = await t.query(api.drill.drillNext, {
@@ -67,15 +78,15 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
     // Бюджет 300 знаков > всех step-0 (10×5=50): выдаются все 10, step-5 — никогда.
     expect(res.drills).toHaveLength(10);
-    expect(res.drills.some((d) => d.id === stepFive)).toBe(false);
+    expect(res.drills.some((d) => d.text === 'zzzzz')).toBe(false);
   });
 
   test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    const otherLayout = await t.run(async (ctx) => {
+    await t.run(async (ctx) => {
       await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
-      return insertDrill(ctx, { text: 'zzzzz', step: 0, layout: 'other' });
+      await insertDrill(ctx, { text: 'zzzzz', step: 0, layout: 'other' });
     });
 
     const res = await t.query(api.drill.drillNext, {
@@ -85,23 +96,27 @@ describe('drillNext — выдача порции (этап 1)', () => {
     });
 
     expect(res.drills).toHaveLength(1);
-    expect(res.drills.some((d) => d.id === otherLayout)).toBe(false);
+    expect(res.drills.some((d) => d.text === 'zzzzz')).toBe(false);
   });
 
-  test('пустой пул → контентный сбой (contentGap), сессия не падает', async () => {
+  test('пустой пул → дефолтный drill из символов открытых шагов (контентный сбой)', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
+    // Раскладка с серверными данными (йцукен), но пул пуст → сервер строит дефолт,
+    // а не возвращает пустоту (клиентского корпуса для деградации больше нет).
     const res = await t.query(api.drill.drillNext, {
-      symbolLayoutId: 'test',
-      budgetChars: 300,
+      symbolLayoutId: 'йцукен',
+      budgetChars: 30,
       seed: 1,
     });
 
-    expect(res.contentGap).toBe(true);
-    expect(res.drills).toEqual([]);
+    expect(res.drills.length).toBeGreaterThan(0);
+    const allowed = jcukenStep0Allowed();
+    const text = res.drills.map((d) => d.text).join(' ');
+    for (const ch of text) expect(allowed.has(ch)).toBe(true);
   });
 
-  test('seed детерминирует выборку: один seed → одинаковые id', async () => {
+  test('seed детерминирует выборку: один seed → одинаковые тексты', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
     await t.run(async (ctx) => {
@@ -109,30 +124,49 @@ describe('drillNext — выдача порции (этап 1)', () => {
     });
     const a = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
     const b = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
-    expect(a.drills.map((d) => d.id)).toEqual(b.drills.map((d) => d.id));
+    expect(a.drills.map((d) => d.text)).toEqual(b.drills.map((d) => d.text));
   });
 
   test('drill\'ы в порции не повторяются (distinct)', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
     await t.run(async (ctx) => {
-      for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      // Уникальные тексты: distinct по тексту ⟺ distinct по строкам (id на проводе нет).
+      for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: `dr${i}aa`, step: 0, layout: 'test' });
     });
     const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
-    expect(new Set(res.drills.map((d) => d.id)).size).toBe(res.drills.length);
+    expect(new Set(res.drills.map((d) => d.text)).size).toBe(res.drills.length);
   });
 
-  test('битые ссылки (drills удалён, индекс жив) → contentGap, не врёт пустотой', async () => {
+  test('битые ссылки (drills удалён, индекс жив) → дефолтный drill, не пустота', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
     await t.run(async (ctx) => {
       // Индекс + агрегат живы (count>0), сам drill удалён → ссылка битая.
-      const drillId = await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      const drillId = await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'йцукен' });
       await ctx.db.delete(drillId);
     });
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 1 });
-    expect(res.contentGap).toBe(true);
-    expect(res.drills).toEqual([]);
+    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 30, seed: 1 });
+    expect(res.drills.length).toBeGreaterThan(0);
+    const allowed = jcukenStep0Allowed();
+    const text = res.drills.map((d) => d.text).join(' ');
+    for (const ch of text) expect(allowed.has(ch)).toBe(true);
+  });
+});
+
+describe('buildDefaultDrills — дефолт на контентный сбой', () => {
+  test('строит один drill из символов открытых шагов до бюджета', () => {
+    const layoutData = getLayoutData('йцукен')!;
+    const drills = buildDefaultDrills({ layoutData, openedSteps: 1, budgetChars: 30 });
+    expect(drills).toHaveLength(1);
+    expect(drills[0]!.text.length).toBeGreaterThanOrEqual(30);
+    const allowed = jcukenStep0Allowed();
+    for (const ch of drills[0]!.text) expect(allowed.has(ch)).toBe(true);
+  });
+
+  test('нет открытых шагов (openedSteps 0) → пустой массив', () => {
+    const layoutData = getLayoutData('йцукен')!;
+    expect(buildDefaultDrills({ layoutData, openedSteps: 0, budgetChars: 30 })).toEqual([]);
   });
 });
 

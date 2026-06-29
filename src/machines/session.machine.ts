@@ -22,7 +22,7 @@ import type {
 } from '@/interfaces/types';
 import { computeBudgetChars } from '@/lib/batch-budget';
 import type { DrillSummary } from '@/lib/drill-summarize';
-import { createTypingStream } from '@/lib/typing-stream';
+import { joinBatchToStream } from '@/lib/drill-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
   REFILL_THRESHOLD_SYMBOLS,
@@ -166,15 +166,14 @@ export const sessionMachine = setup({
     })),
     appendFetched: enqueueActions(({ context, event, enqueue }) => {
       const fetched = (event as unknown as { output: StreamSymbol[] }).output;
-      if (fetched.length === 0) return;
-      // Стык порций — это стык drill'ов: разделяем пробелом, иначе хвост старой
-      // порции слипается с началом новой (слова сливаются без границы). Внутри
-      // порции пробелы ставит glueDrillsIntoStream; на границе порций — здесь.
-      const separator = createTypingStream({
-        drillText: ' ',
+      // Стык порций — это стык drill'ов: тот же разделитель-пробел, что и внутри
+      // порции (один дом — joinBatchToStream), иначе хвост старой порции слипается
+      // с началом новой. Пустую порцию joinBatchToStream пропускает.
+      const symbols = joinBatchToStream({
+        batch: fetched,
         symbolLayout: getSymbolLayoutDescriptor(context.symbolLayoutId).symbolLayout,
       });
-      const symbols = [...separator, ...fetched];
+      if (symbols.length === 0) return;
       enqueue.sendTo('training', { type: 'APPEND_SYMBOLS', symbols });
       enqueue.assign({ totalAppended: ({ context }) => context.totalAppended + symbols.length });
     }),
