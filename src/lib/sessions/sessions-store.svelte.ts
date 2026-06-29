@@ -2,6 +2,8 @@ import { api, convex } from '@/lib/convex';
 import type { FunctionReturnType } from 'convex/server';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import type { SymbolLayoutId } from '@/interfaces/types';
+import { createAuthGatedQuery } from '@/lib/auth-gated-query.svelte';
+import { accuracyPercent } from '@/lib/stats-calculator';
 
 // Тип строки журнала берём из Convex-вывода listMine (как RepertoireSnapshot из
 // repertoireSnapshot) — без импорта из convex/, codegen уже даёт тип через api.
@@ -26,7 +28,7 @@ export function formatSessionRow({
   session: SessionSummary;
   locale: string;
 }): SessionRow {
-  const accuracy = session.exposures > 0 ? (session.clean / session.exposures) * 100 : 0;
+  const accuracy = accuracyPercent({ exposures: session.exposures, clean: session.clean });
   return {
     id: session._id,
     date: new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(session.capturedAt),
@@ -51,26 +53,16 @@ export function createSessionsStore({
   authStore: AuthStore;
   symbolLayoutId: () => SymbolLayoutId;
 }) {
-  let sessions = $state<SessionSummary[]>([]);
-
-  $effect(() => {
-    if (authStore.state.status !== 'authenticated') {
-      sessions = [];
-      return;
-    }
-    const unsubscribe = convex.onUpdate(
-      api.sessions.listMine,
-      { symbolLayoutId: symbolLayoutId() },
-      (result) => {
-        sessions = result;
-      },
-    );
-    return () => unsubscribe();
+  const query = createAuthGatedQuery<SessionSummary[]>({
+    authStore,
+    unauthValue: [],
+    subscribe: (onResult) =>
+      convex.onUpdate(api.sessions.listMine, { symbolLayoutId: symbolLayoutId() }, onResult),
   });
 
   return {
     get list() {
-      return sessions;
+      return query.value;
     },
   };
 }
