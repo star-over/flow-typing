@@ -12,7 +12,7 @@
 
 ### Phase 6 — Sessions tracking
 
-**Что:** Каждая завершённая тренировочная сессия (WPM, accuracy, errorCount) сохраняется в Convex для залогиненных юзеров. Pure-агрегатор attempts → SessionSummary, mutation `record`, query `listMine`.
+**Что:** Каждая завершённая тренировочная сессия (WPM, accuracy, errorCount) сохраняется в Convex для авторизованных юзеров. Pure-агрегатор attempts → SessionSummary, mutation `record`, query `listMine`.
 
 **Почему отложено:** Нет UI-потребителя. Без `/stats` (Phase 7) пользователь не видит этих данных, и backend-only telemetry без точки потребления — мёртвый груз в схеме.
 
@@ -26,7 +26,7 @@
 
 ### Phase 7 — `/stats` с реальными данными
 
-**Что:** Страница `/stats` перестаёт быть placeholder'ом. Залогинен — виджеты (всего сессий, средний WPM, accuracy, последние 10); гость — CTA «войди»; пусто — empty-state.
+**Что:** Страница `/stats` перестаёт быть placeholder'ом. Авторизован — виджеты (всего сессий, средний WPM, accuracy, последние 10); гость — CTA «войди»; пусто — empty-state.
 
 **Почему отложено:** Зависит от Phase 6 (sessions table). Без real data на бэкенде показывать нечего.
 
@@ -119,7 +119,7 @@ UI: вместо нашей кнопки `<button>Войти через ...</but
 
 ### `MenuScreen.contract.ts` — выделить токены, когда компонент стабилизируется
 
-**Что:** Сейчас `src/components/train/MenuScreen.svelte` намеренно без contract-файла: переиспользует токены `SettingsPage` и `FooterActions`. Когда компонент станет самостоятельной сущностью — выделить `--menu-screen-*` токены, завести `MenuScreen.contract.ts`, добавить в `THEME_CONTRACT` и пройти по всем 4 темам + `_template.css`.
+**Что:** Сейчас `src/components/train/MenuScreen.svelte` намеренно без contract-файла: повторно использует токены `SettingsPage` и `FooterActions`. Когда компонент станет самостоятельной сущностью — выделить `--menu-screen-*` токены, завести `MenuScreen.contract.ts`, добавить в `THEME_CONTRACT` и пройти по всем 4 темам + `_template.css`.
 
 **Почему отложено:** Компонент тонкий, токены чужих компонентов покрывают визуальные потребности без расхождений. Преждевременный extract = пять контракт-токенов без визуальной семантики. Tech-debt note зафиксирована inline в `MenuScreen.svelte:1-7`.
 

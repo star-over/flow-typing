@@ -21,7 +21,7 @@ import type { ThemeSetting } from '@/themes/registry';
  * - `cursorMode` — положение курсора в строке FlowLine, т.е. пропорция
  *   набранное/предстоящее (HALF / THIRD / QUARTER / DINAMIC); дефолт — `HALF`.
  * - `theme` — визуальная тема: либо конкретный `ThemeId`, либо `'auto'` (следует за системным
- *   `prefers-color-scheme`). Зеркалится отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
+ *   `prefers-color-scheme`). Отражается отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
  * - `displayName` — имя, показываемое рядом с аватаром. Редактируемый слой поверх
  *   `users.name` (которое остаётся нетронутым оригиналом от провайдера). Пустая
  *   строка = использовать имя провайдера; «сброс к оригиналу» = очистить поле.

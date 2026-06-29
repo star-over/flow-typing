@@ -28,7 +28,7 @@ Umbrella-план интеграции аутентификации в FlowTypin
 
 | Решение | Значение | Аргумент |
 | --- | --- | --- |
-| Backend для auth | **Convex Auth** (`@convex-dev/auth`) | бесплатно, юзеры в твоей БД, нет vendor lock-in, поддерживает любые OAuth провайдеры через `@auth/core` (включая Yandex и кастомные — для SberID) |
+| Backend для auth | **Convex Auth** (`@convex-dev/auth`) | бесплатно, юзеры в твоей БД, нет vendor lock-in, поддерживает любые OAuth провайдеры через `@auth/core` (включая Yandex и собственные — для SberID) |
 | Convex deployment | **Cloud dev tier** (`dev:wandering-ocelot-9`, EU-West-1) | HTTPS из коробки (нужен для Apple OAuth, Phase 9), production-equivalence, не нужен local daemon. Free tier покрывает |
 | Frontend-режим | **SvelteKit `adapter-static` + SPA-only auth** («гибрид») | соответствует текущей архитектуре, бесплатный хостинг, риски SPA-auth для typing-trainer'а пренебрежимы |
 | Связывание аккаунтов | **Провайдер = аккаунт** (NO link-by-email) | безопасность приоритетнее эргономики; цена — UX-ловушка «один и тот же email через GitHub и Google = два разных юзера», смягчаем явной коммуникацией в UI |
@@ -385,11 +385,11 @@ git branch -d feat/convex-auth-backend
 
 - [ ] Зайти через GitHub в браузере end-to-end (клик → GitHub OAuth → возврат → видно имя в Header)
 - [ ] Выйти через UserMenu — состояние сбрасывается, токен удалён
-- [ ] Reload страницы при залогиненном состоянии — остаёшься залогиненным (нет ререндера «loading → guest → authenticated»)
+- [ ] Reload страницы при авторизованном состоянии — остаёшься авторизованным (нет ререндера «loading → guest → authenticated»)
 - [ ] Unit-тесты `authStore` зелёные
 - [ ] Component-тесты зелёные
 - [ ] Storybook stories отображают корректно все 3 состояния `UserMenu`
-- [ ] Все темы (`light`, `dark`, `sepia`, `nord`) визуально консистентны
+- [ ] Все темы (`light`, `dark`, `sepia`, `nord`) визуально единообразны
 - [ ] `make check-all` зелёный
 
 ### Verification
@@ -482,7 +482,7 @@ git branch -d feat/auth-google-provider
 
 ## Phase 5 — Settings sync
 
-**Цель.** Настройки (язык, тема, layout, и т.д.) синхронизируются между устройствами через Convex для залогиненных юзеров. Гость продолжает работать с localStorage.
+**Цель.** Настройки (язык, тема, layout, и т.д.) синхронизируются между устройствами через Convex для авторизованных юзеров. Гость продолжает работать с localStorage.
 
 ### Scope
 
@@ -546,7 +546,7 @@ git branch -d feat/auth-google-provider
 
 ### Done criteria
 
-- [ ] Меняешь тему на устройстве A → залогинен → захожу на устройстве B (или incognito) под тем же провайдером → видишь ту же тему
+- [ ] Меняешь тему на устройстве A → авторизован → захожу на устройстве B (или incognito) под тем же провайдером → видишь ту же тему
 - [ ] Гость продолжает работать без Convex (offline, localStorage only)
 - [ ] Все тесты зелёные
 - [ ] `make check-all` зелёный

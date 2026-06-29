@@ -250,7 +250,7 @@ Expected: FAIL — модуль не найден.
 /**
  * @file Выборка символов KeyLadder по шагу: «символы шага k» — те, чей stepLevel
  * (макс. шаг среди клавиш символа) равен k. Нужны Readiness-проверке текущего
- * шага при росте репертуара. Переиспользует computeStepLevel (без дублирования логики).
+ * шага при росте репертуара. Повторно использует computeStepLevel (без дублирования логики).
  */
 import type { KeyLadder } from './types.ts';
 import { keyStepMap } from './key-step-map.ts';

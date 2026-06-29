@@ -131,7 +131,7 @@ import type { ThemeSetting } from '@/themes/registry';
  *   определяет какие drill'ы попадают в тренировку, какие раскладки доступны).
  * - `symbolLayoutId` — выбранная пользователем раскладка (производное от textLanguage).
  * - `theme` — визуальная тема: либо конкретный `ThemeId`, либо `'auto'` (следует за системным
- *   `prefers-color-scheme`). Зеркалится отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
+ *   `prefers-color-scheme`). Отражается отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
  */
 export interface UserSettings {
   interfaceLanguage: InterfaceLanguage;
@@ -546,7 +546,7 @@ symbolLayoutId: UserSettings['symbolLayoutId'] = 'qwerty'
 ... `UserSettings.symbolLayoutId` ...
 ```
 
-- [ ] **Step 18: Прогрепать остатки**
+- [ ] **Step 18: Найти через grep остатки**
 
 ```bash
 grep -rn "UserPreferences\|user_preferences\|user-preferences-page\|@/lib/preferences\|DEFAULT_USER_PREFERENCES\|normalizePreferences\|updatePreferences\|USER_PREFERENCES_PAGE_CONTRACT" src/ dictionaries/ CLAUDE.md
@@ -1251,7 +1251,7 @@ Expected: пусто.
 </style>
 ```
 
-Замечание: новые селекторы переиспользуют существующие токены — `Header.contract.ts` не меняется.
+Замечание: новые селекторы повторно используют существующие токены — `Header.contract.ts` не меняется.
 
 - [ ] **Step 5: Удалить кнопки Settings/Stats из `FooterActions.svelte`**
 
@@ -1269,7 +1269,7 @@ Expected: пусто.
 {/if}
 ```
 
-Если в этом же файле есть CSS-правило `.btn.secondary` (прогрепать `secondary` в FooterActions.svelte) — удалить его. На текущем коммите этого правила нет.
+Если в этом же файле есть CSS-правило `.btn.secondary` (найти через grep `secondary` в FooterActions.svelte) — удалить его. На текущем коммите этого правила нет.
 
 - [ ] **Step 6: Визуальная проверка**
 
@@ -1309,14 +1309,14 @@ EOF
 **Files:**
 - Create: `src/components/ui/MenuScreen.svelte`
 
-**Контролируемый тех-долг:** MenuScreen намеренно НЕ получает `*.contract.ts` файла. Это сознательное отступление от `docs/06` §6.2. Причина — компонент пока тонкий и переиспользует существующие токены SettingsPage и FooterActions. Когда форма экрана стабилизируется — выделить собственные `--menu-screen-*` токены и завести contract на общих условиях. Контракт-тест от этого зелёный (проверяет покрытие токенов в темах, не наличие contract-файлов рядом с компонентами).
+**Контролируемый тех-долг:** MenuScreen намеренно НЕ получает `*.contract.ts` файла. Это сознательное отступление от `docs/06` §6.2. Причина — компонент пока тонкий и повторно использует существующие токены SettingsPage и FooterActions. Когда форма экрана стабилизируется — выделить собственные `--menu-screen-*` токены и завести contract на общих условиях. Контракт-тест от этого зелёный (проверяет покрытие токенов в темах, не наличие contract-файлов рядом с компонентами).
 
 - [ ] **Step 1: Создать `MenuScreen.svelte`**
 
 ```svelte
 <!--
   Tech-debt note: MenuScreen намеренно не имеет рядом MenuScreen.contract.ts.
-  Компонент пока тонкий и переиспользует существующие токены SettingsPage и
+  Компонент пока тонкий и повторно использует существующие токены SettingsPage и
   FooterActions. Когда он стабилизируется как самостоятельная сущность —
   выделить собственные `--menu-screen-*` токены и завести контракт на общих
   условиях. См. docs/06 §6.2 и docs/superpowers/plans/2026-06-09-screen-routing-and-menu-refactor.md (Task 6).

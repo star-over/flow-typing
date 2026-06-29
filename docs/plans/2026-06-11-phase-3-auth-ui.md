@@ -337,7 +337,7 @@ export function computeAuthState({
 }): AuthState {
   if (isLoading) return { status: 'loading' };
   if (!isAuthenticated) return { status: 'guest' };
-  // isAuthenticated, но viewer ещё не подтянулся — держим loading, не показываем «гостя» залогиненному
+  // isAuthenticated, но viewer ещё не подтянулся — держим loading, не показываем «гостя» авторизованному
   if (viewer === null) return { status: 'loading' };
   return { status: 'authenticated', user: viewer };
 }
@@ -623,7 +623,7 @@ export type SignInScreenToken = (typeof SIGN_IN_SCREEN_CONTRACT)[number];
 
 Для `dark.css`/`sepia.css`/`nord.css` — подобрать значения, соответствующие палитре темы. Конкретные оттенки на усмотрение implementer'а; главное, контракт-тест должен пройти.
 
-> **Палитра-зависимость.** Пример использует `var(--color-surface)`/`var(--color-text-*)` — это **внутренние палитровые** токены темы (legacy `--color-*`), не из `THEME_CONTRACT`. Перед использованием в новой теме — `grep` тему на эти имена; если нет — либо завести в палитровом блоке темы, либо использовать литерал `oklch(...)`. Без этого `var(--color-...)` резолвнется к пустоте → невидимый цвет.
+> **Палитра-зависимость.** Пример использует `var(--color-surface)`/`var(--color-text-*)` — это **внутренние палитровые** токены темы (legacy `--color-*`), не из `THEME_CONTRACT`. Перед использованием в новой теме — `grep` тему на эти имена; если нет — либо завести в палитровом блоке темы, либо использовать литерал `oklch(...)`. Без этого `var(--color-...)` разрешится к пустоте → невидимый цвет.
 
 - [ ] **Step 4.6: Расширить `THEME_CONTRACT`**
 
@@ -1036,11 +1036,11 @@ Vite на `http://localhost:5173`.
 npx convex dashboard
 ```
 
-Открыть `users` таблицу. Свежая строка с email + name. Это тот юзер, которого ты только что залогинил.
+Открыть `users` таблицу. Свежая строка с email + name. Это тот юзер, которого ты только что авторизовал.
 
 - [ ] **Step 7.5: Multi-tab smoke (опционально, но полезно)**
 
-Пока всё ещё залогинен (`auth.signOut()` ещё не вызывалась), открыть `/` во второй вкладке. Вторая вкладка должна показать `<UserMenu>` залогиненным (auth state восстановлен из localStorage). Оставить вкладку открытой — продолжим в Step 7.6.
+Пока всё ещё авторизован (`auth.signOut()` ещё не вызывалась), открыть `/` во второй вкладке. Вторая вкладка должна показать `<UserMenu>` авторизованным (auth state восстановлен из localStorage). Оставить вкладку открытой — продолжим в Step 7.6.
 
 - [ ] **Step 7.6: Verify sign-out (single tab + cross-tab effect)**
 
@@ -1050,7 +1050,7 @@ npx convex dashboard
 
 - [ ] **Step 7.7: Hard-reload и verify persistence**
 
-`Cmd+Shift+R` (или равноценный). Страница перезагрузится. Поскольку мы вышли в Step 7.6 — должна снова показать «Войти». Если не вышел перед reload — должен остаться залогиненным (token в localStorage).
+`Cmd+Shift+R` (или равноценный). Страница перезагрузится. Поскольку мы вышли в Step 7.6 — должна снова показать «Войти». Если не вышел перед reload — должен остаться авторизованным (token в localStorage).
 
 - [ ] **Step 7.8: Если smoke fails — diagnose**
 
@@ -1061,7 +1061,7 @@ npx convex dashboard
 | Клик «Войти через GitHub» ничего не делает / console error | Context не установлен → `useAuth()` падает | Проверить порядок в `+layout.svelte`: `setupConvexAuth` ДО `createAuthStore` |
 | Redirect на GitHub есть, после callback'а browser возвращается, но `users` пуста | `createOrUpdateUserHandler` failure | `npx convex logs` за последнюю минуту |
 | Юзер в `users` есть, но Header показывает «Войти» | Token не сохраняется или `useAuth` не реактивен | Проверить, что `setupConvexAuth({ client: convex })` использует наш singleton; storage default = localStorage, должен сохранить |
-| `loading` бесконечно | viewer query не разрешается (auth-token не передаётся в Convex client) | Проверить `convex` client получает token через `setAuth` (это делает wrapper); если нет — wrapper bug, эскалировать |
+| `loading` бесконечно | viewer query не разрешается (auth-token не передаётся в Convex client) | Проверить `convex` client получает token через `setAuth` (это делает wrapper); если нет — wrapper bug, передать выше |
 
 **Если smoke не идёт за разумное время** (15-30 мин diagnose) — **остановиться** (НЕ продолжать к Task 8) и escalate user'у. Done criteria требует green smoke; merge без него не делаем. Эскалация может означать: (a) баг в `convex-auth-svelte` для нашей версии — pinning другой, (b) GitHub OAuth App misconfig — перепроверить callback URL точно, (c) Convex env vars лежат не там, где должно быть — `npx convex env list` cross-check.
 
@@ -1203,7 +1203,7 @@ git branch -d feat/auth-ui
 ## What's captured for Phase 4
 
 После Phase 3 у тебя:
-- **Working sign-in flow** через GitHub. Phase 4 (Google провайдер) переиспользует тот же flow — только надо добавить Google в `convex/auth.ts` providers array + новую кнопку в SignInScreen.
+- **Working sign-in flow** через GitHub. Phase 4 (Google провайдер) повторно использует тот же flow — только надо добавить Google в `convex/auth.ts` providers array + новую кнопку в SignInScreen.
 - **`authStore` стабильный контракт** — Phase 4 не нужно его править. Просто добавится альтернативный entry point в signIn.
 - **Архитектурное правило 4** (нет `*.server.ts`) — Phase 3 не нарушила. SSR не используется. Phase 4 не должна нарушать тоже.
 - **Phase 4 точки расширения** (фиксируем явно):

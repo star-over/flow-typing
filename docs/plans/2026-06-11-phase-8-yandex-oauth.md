@@ -17,7 +17,7 @@
 - **Master HEAD:** `a987bdc` — `docs(auth): update umbrella status table — Phase 2-5 done, 6-7 deferred`
 - **Backend:** `convex/auth.ts` — GitHub + Google провайдеры, `createOrUpdateUserHandler` (provider-agnostic, тестируется в `convex/auth.test.ts:1-62`)
 - **Frontend:** `SignInScreen.svelte` — две кнопки (GitHub, Google), `handleSignIn(provider: 'github' | 'google')`, локальный `type OAuthProviderId = 'github' | 'google'` в `<script>` блоке
-- **Auth store:** `createAuthStore()` экспортирует `signIn(provider: string)` — без правок переиспользуется для Yandex
+- **Auth store:** `createAuthStore()` экспортирует `signIn(provider: string)` — без правок используется повторно для Yandex
 - **Layout:** `src/routes/+layout.svelte` — reactive `$effect` re-wires `convex.setAuth(auth.fetchAccessToken)` при изменении `auth.token` (ищи блок с комментарием «Work around convex-auth-svelte: wrapper calls client.setAuth(...) only ONCE»). **Это защищает и Yandex flow тоже** (race на post-OAuth PKCE exchange не provider-specific).
 - **Auth types:** `src/lib/auth/auth.types.ts` уже существует (хранит `User` + `AuthState`), но НЕ хранит `OAuthProviderId` — он сейчас local в `SignInScreen.svelte`. Phase 8 Task 1 — экстракт типа сюда.
 - **Storybook:** `StorybookAuthFrame.svelte` — wrapper для stories с заглушкой `'auth'` context'а. `signIn: (_provider: string) => Promise.resolve()` уже принимает любой провайдер.
@@ -473,7 +473,7 @@ make test 2>&1 | tail -5
 
 **Ожидаемо: всё зелёное.** Логика:
 - `contract.test.ts` итерирует токены из `THEME_CONTRACT` → проверяет, что каждый объявлен в темах. Контракт мы пока НЕ расширяли (Task 4 это сделает), так что contract-тест не видит ничего нового.
-- Компонент теперь ссылается на `var(--sign-in-screen-btn-yandex-*)`, которых в темах нет — но это **не валидируется тестами**. Браузер для unresolved CSS variable возвращает initial value (`unset`/inherited) — никаких ошибок, кнопка просто будет «голой» до Task 4.
+- Компонент теперь ссылается на `var(--sign-in-screen-btn-yandex-*)`, которых в темах нет — но это **не проверяется тестами**. Браузер для unresolved CSS variable возвращает initial value (`unset`/inherited) — никаких ошибок, кнопка просто будет «голой» до Task 4.
 - Component-level rendering tests на SignInScreen не существуют (Storybook only).
 
 Если красное — `--filter contract` для изоляции; fix перед Task 4.
@@ -499,7 +499,7 @@ git commit -m "feat(auth-ui): import shared OAuthProviderId, add Yandex sign-in 
 - Modify: `src/themes/sepia.css`
 - Modify: `src/themes/nord.css`
 
-**Цель:** добавить 4 Yandex-токена в контракт и заполнить значения во всех темах. После Task 4 `make check-all` зелёный, Yandex-кнопка визуально консистентна в каждой теме. `src/themes/contract.ts` НЕ трогаем — он spread'ит `SIGN_IN_SCREEN_CONTRACT` (`...SIGN_IN_SCREEN_CONTRACT` уже в `THEME_CONTRACT`), расширение контракта попадёт в агрегат автоматически.
+**Цель:** добавить 4 Yandex-токена в контракт и заполнить значения во всех темах. После Task 4 `make check-all` зелёный, Yandex-кнопка визуально единообразна в каждой теме. `src/themes/contract.ts` НЕ трогаем — он spread'ит `SIGN_IN_SCREEN_CONTRACT` (`...SIGN_IN_SCREEN_CONTRACT` уже в `THEME_CONTRACT`), расширение контракта попадёт в агрегат автоматически.
 
 > **Не DRY эти токены.** Соблазн извлечь общий `--sign-in-screen-btn-base-*` и оставить только differing tokens per provider — **отказались** в «Зафиксированные решения» выше. Phase 4 / Phase 8 явно реплицируют GitHub-паттерн как есть. Refactor отложен на будущее (если когда-то Apple/SberID/др. сделают линейный рост невыносимым). `_template.css` — скелет, enforce'имый contract-тестом, чтобы новые темы не пропускали токены; держим его в синхроне через простую append-операцию, без хитрых иерархий.
 
@@ -658,7 +658,7 @@ git commit -m "feat(auth-ui): add Yandex button theme tokens across 4 themes"
 
 **Files:** ничего не меняется (но может потребоваться tune oklch-значений).
 
-**Цель:** глазами увидеть, что Yandex-кнопка отрисовалась во всех 4 темах согласованно с GitHub и Google. Это не automated test — это глаз-проверка дизайн-консистентности. Если выглядит плохо — вернуться в Task 4 и подкрутить значения oklch.
+**Цель:** глазами увидеть, что Yandex-кнопка отрисовалась во всех 4 темах согласованно с GitHub и Google. Это не automated test — это глаз-проверка дизайн-согласованности. Если выглядит плохо — вернуться в Task 4 и подкрутить значения oklch.
 
 - [ ] **Step 5.1: Запустить Storybook**
 
@@ -720,7 +720,7 @@ make dev
 
 Vite на `http://localhost:5173`.
 
-> **Watcher liveness не влияет на OAuth callback.** Yandex перенаправляет на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/yandex` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 2 и сейчас — `make check` и `make dev` работают на закэшированном `_generated/`, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — перезапусти watcher.
+> **Watcher liveness не влияет на OAuth callback.** Yandex перенаправляет на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/yandex` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 2 и сейчас — `make check` и `make dev` работают на `_generated/` в кэше, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — перезапусти watcher.
 
 - [ ] **Step 6.2: Cold start — clear localStorage**
 
@@ -736,7 +736,7 @@ Vite на `http://localhost:5173`.
 2. Должен быть SignInScreen с **тремя** кнопками + оговорка
 3. Клик «Войти через Yandex»
 4. Браузер перенаправляет на `oauth.yandex.ru/authorize?...` (current tab — не popup)
-5. Yandex показывает «Войти в Yandex» — введи credentials whitelisted-аккаунта (тот, под которым регистрировал OAuth app в Pre-flight, или любой с подтверждённым email). **Если уже залогинен в Yandex в браузере** — Yandex может пропустить шаг логина и сразу перейти на consent screen
+5. Yandex показывает «Войти в Yandex» — введи credentials whitelisted-аккаунта (тот, под которым регистрировал OAuth app в Pre-flight, или любой с подтверждённым email). **Если уже авторизован в Yandex в браузере** — Yandex может пропустить шаг логина и сразу перейти на consent screen
 6. Yandex показывает consent screen «Приложение FlowTyping (dev) запрашивает доступ к: имени, эл. почте, портрету» → **«Разрешить»** (Continue). **Возможный пропуск:** если ты уже даровал согласие этому OAuth Client'у раньше (второй заход после прерывания, или smoke-цикл повторяется после rollback и re-merge) — Yandex может skip'нуть consent screen и перенаправлять сразу на callback. Это нормально, не failure mode.
 7. Yandex перенаправляет на `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/yandex?code=...`
 8. Convex обрабатывает callback → `createOrUpdateUserHandler` создаёт user → перенаправляет на `SITE_URL=http://localhost:5173/`
@@ -763,7 +763,7 @@ npx convex dashboard
 
 Это **business-critical assertion** (umbrella plan: «Связывание аккаунтов — NO link-by-email»).
 
-**Защита уровнем выше уже есть:** `convex/auth.test.ts:44-61` содержит unit-тест на `createOrUpdateUserHandler` который явно валидирует «один email через два разных `existingUserId=null`-вызова → две разные строки». Этот тест уже зелёный (Phase 2 baseline) и продолжит быть зелёным после Phase 8, потому что handler провайдер-agnostic. То есть **если `convex/auth.test.ts` зелёный — инвариант сохранён** независимо от того, удалось ли провести browser-level проверку.
+**Защита уровнем выше уже есть:** `convex/auth.test.ts:44-61` содержит unit-тест на `createOrUpdateUserHandler` который явно проверяет «один email через два разных `existingUserId=null`-вызова → две разные строки». Этот тест уже зелёный (Phase 2 baseline) и продолжит быть зелёным после Phase 8, потому что handler провайдер-agnostic. То есть **если `convex/auth.test.ts` зелёный — инвариант сохранён** независимо от того, удалось ли провести browser-level проверку.
 
 Step 6.5 — это **доп. подтверждение через реальный браузер**, не единственная gate. Делай тот вариант, который доступен:
 
@@ -771,7 +771,7 @@ Step 6.5 — это **доп. подтверждение через реальн
 Условие: твой Yandex-аккаунт и твой GitHub-аккаунт (или Google-аккаунт) имеют **одинаковый primary email**. Часто у разработчиков это так — `me@gmail.com` зарегистрирован и в Yandex (как backup), и в GitHub.
 1. Sign out из текущей Yandex-сессии (клик на имя в Header → «Выйти») → Header показывает «Войти»
 2. DevTools → Application → Cookies: проверить **обе** записи: `localhost:5173` И `wandering-ocelot-9.eu-west-1.convex.site`. Удалить всё на обоих. Затем Application → Local Storage → `localhost:5173` → Clear.
-3. Sign in via GitHub (или Google) на `/signin`. Если после OAuth flow ты сразу залогинен как Yandex-юзер (без выбора GitHub-account) — это может быть: (a) cookies на `.convex.site` остались, вернись к Шагу 2; (b) GitHub.com сам помнит тебя — открой `github.com` в той же вкладке и нажми Sign out; (c) refresh-token в `localStorage` не был почищен — DevTools → Application → Local Storage → Clear для `localhost:5173`.
+3. Sign in via GitHub (или Google) на `/signin`. Если после OAuth flow ты сразу авторизован как Yandex-юзер (без выбора GitHub-account) — это может быть: (a) cookies на `.convex.site` остались, вернись к Шагу 2; (b) GitHub.com сам помнит тебя — открой `github.com` в той же вкладке и нажми Sign out; (c) refresh-token в `localStorage` не был почищен — DevTools → Application → Local Storage → Clear для `localhost:5173`.
 4. Открой Convex dashboard → таблица `users`: должны быть **ДВЕ строки** с одним email, разными `_id`
 
 **Вариант Б — опереться на unit-тест (полностью допустимая альтернатива)**
@@ -800,7 +800,7 @@ different provider yields two separate users".
 | Yandex consent screen без email scope | scope не отмечен при регистрации | `oauth.yandex.ru` → твоё приложение → Edit → отметить «Доступ к адресу электронной почты» |
 | `users` row создан, но `email` поле `undefined`/`null` | Scope `login:email` не выдан или email не подтверждён в Yandex Passport | Проверить scope в OAuth Console; проверить `passport.yandex.ru` → твой email confirmed |
 | `users` row создан, но `name` поле `undefined`/`null` | Scope `login:info` не выдан или у Yandex-аккаунта нет display_name/real_name/first_name | Проверить scope в OAuth Console; проверить, что в `passport.yandex.ru` указано имя |
-| «Провайдер = аккаунт» инвариант сломан в browser smoke | createOrUpdateUserHandler ловит existingUserId по email | `convex/auth.test.ts` тесты на handler должны быть зелёными. Если зелёные — баг где-то в wrapper'е, эскалировать. Если красные — баг в handler'е |
+| «Провайдер = аккаунт» инвариант сломан в browser smoke | createOrUpdateUserHandler ловит existingUserId по email | `convex/auth.test.ts` тесты на handler должны быть зелёными. Если зелёные — баг где-то в wrapper'е, передать выше. Если красные — баг в handler'е |
 
 **Если smoke не идёт за разумное время** (30 мин diagnose) — **остановись** (НЕ продолжай к Task 7) и escalate user'у. Done criteria требует green smoke + green инвариант; merge без них не делаем.
 

@@ -175,7 +175,7 @@ export const getDefaultSymbolLayoutForTextLanguage = (
     d.isDefaultForTextLanguages.includes(textLanguage)
   );
   if (exact) return exact;
-  // Фолбэк по родителю (BCP 47): 'en-CA' → 'en'
+  // Запасной вариант по родителю (BCP 47): 'en-CA' → 'en'
   const parent = textLanguage.split('-').slice(0, -1).join('-');
   if (parent.length > 0) {
     return getDefaultSymbolLayoutForTextLanguage(parent as TextLanguage);

@@ -4,7 +4,7 @@
 
 **Goal:** Гарантировать, что пользователь получает только те drill'ы, символы которых физически набираются на выбранной им раскладке, через явную связку «язык текста ↔ раскладка» с иерархией BCP 47.
 
-**Architecture:** Вводится тип `TextLanguage` (BCP 47), отдельный от `InterfaceLanguage`. В `Drill` появляется поле `textLanguage`. В реестре раскладок каждая запись (`SymbolLayoutDescriptor`) хранит свой родной `textLanguage` и список языков, для которых она — выбор по умолчанию. Фильтр drill'ов идёт от языка раскладки (раскладка — ключевое физическое ограничение). Все валидируемые инварианты — Zod-схемы (`refine`/`superRefine`), используются и в production на старте, и в тестах.
+**Architecture:** Вводится тип `TextLanguage` (BCP 47), отдельный от `InterfaceLanguage`. В `Drill` появляется поле `textLanguage`. В реестре раскладок каждая запись (`SymbolLayoutDescriptor`) хранит свой родной `textLanguage` и список языков, для которых она — выбор по умолчанию. Фильтр drill'ов идёт от языка раскладки (раскладка — ключевое физическое ограничение). Все проверяемые инварианты — Zod-схемы (`refine`/`superRefine`), используются и в production на старте, и в тестах.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5 (runes), TypeScript strict, XState v5, Vitest, Zod, JSONL для корпуса (через Vite `?raw` импорт).
 
@@ -39,7 +39,7 @@
 - `src/lib/i18n.ts` — `$p.language` → `$p.interfaceLanguage`
 - `src/routes/+layout.svelte` — `$preferences.language` → `$preferences.interfaceLanguage`
 - `src/machines/app.machine.ts` — `startNewTrainingStream` использует corpus + filter
-- `src/machines/app.machine.test.ts` — детерминизировать через mock-corpus
+- `src/machines/app.machine.test.ts` — сделать воспроизводимым через mock-corpus
 - `src/machines/appActor.ts` — side-effect import `lib/integrity.ts`
 - `src/components/ui/UserPreferencesPage.svelte` — три select'а с динамическими опциями
 - `src/components/app/MainContent.svelte` (Props.dictionary) — расширить тип props под новые ключи
@@ -483,7 +483,7 @@ describe('symbol layout registry', () => {
   });
 
   it('getDefault для неизвестного диалекта откатывается к родителю', () => {
-    // 'en-CA' нет в реестре — фолбэк к 'en' → qwerty
+    // 'en-CA' нет в реестре — запасной вариант к 'en' → qwerty
     expect(getDefaultSymbolLayoutForTextLanguage('en-CA' as TextLanguage).symbolLayoutId)
       .toBe('qwerty');
   });
@@ -563,7 +563,7 @@ export const getDefaultSymbolLayoutForTextLanguage = (
     d => d.isDefaultForTextLanguages.includes(textLang)
   );
   if (exact) return exact;
-  // Фолбэк по родителю (BCP 47): 'en-CA' → 'en'
+  // Запасной вариант по родителю (BCP 47): 'en-CA' → 'en'
   const parent = textLang.split('-').slice(0, -1).join('-');
   if (parent.length > 0) {
     return getDefaultSymbolLayoutForTextLanguage(parent as TextLanguage);
@@ -821,7 +821,7 @@ DrillSchema gets textLanguage (Zod enum) + two refinements (no Latin in 'ru', no
 
 ---
 
-## Task 7: `drill-corpus.ts` — загрузка и парсинг JSONL в рантайме
+## Task 7: `drill-corpus.ts` — загрузка и парсинг JSONL во время выполнения
 
 **Files:**
 - Create: `src/lib/drill-corpus.ts`
@@ -1037,7 +1037,7 @@ import { filterDrillsBySymbolLayout } from '@/lib/drill-selection';
 /**
  * Cross-collection инвариант: для каждой раскладки в реестре в корпусе должен
  * быть хотя бы один совместимый drill. Без этой проверки `startNewTrainingStream`
- * мог бы выбросить в рантайме «no drills for layout=X» — ловим раньше, при загрузке.
+ * мог бы выбросить во время выполнения «no drills for layout=X» — ловим раньше, при загрузке.
  */
 const ApplicationDataSchema = z.object({
   registry: SymbolLayoutRegistrySchema,
@@ -1784,7 +1784,7 @@ UserPreferences.language is replaced by interfaceLanguage (UI) and textLanguage 
 **Files:**
 - Modify: `src/scripts/create-drills.ts`
 
-Этот скрипт — CLI-инструмент для пополнения корпуса. Изолирован от рантайма.
+Этот скрипт — CLI-инструмент для пополнения корпуса. Изолирован от времени выполнения.
 
 - [ ] **Step 1: Переписать скрипт**
 
