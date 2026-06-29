@@ -2,6 +2,7 @@ import { api, convex } from '@/lib/convex';
 import type { FunctionReturnType } from 'convex/server';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import type { SymbolLayoutId } from '@/interfaces/types';
+import { createAuthGatedQuery } from '@/lib/auth-gated-query.svelte';
 
 // Тип снимка берём из Convex-вывода функции (= RepertoireProgress | null),
 // БЕЗ импорта из shared/ — у src нет прецедента импорта shared, а Convex codegen
@@ -32,33 +33,23 @@ export function createRepertoireStore({
   authStore: AuthStore;
   symbolLayoutId: () => SymbolLayoutId;
 }) {
-  let snapshot = $state<RepertoireSnapshot>(null);
-  let startStep = $state<number | null>(null);
-
-  $effect(() => {
-    if (authStore.state.status !== 'authenticated') {
-      snapshot = null;
-      return;
-    }
-    const unsubscribe = convex.onUpdate(
-      api.drill.repertoireSnapshot,
-      { symbolLayoutId: symbolLayoutId() },
-      (result) => {
-        snapshot = result;
-      },
-    );
-    return () => unsubscribe();
+  const query = createAuthGatedQuery<RepertoireSnapshot>({
+    authStore,
+    unauthValue: null,
+    subscribe: (onResult) =>
+      convex.onUpdate(api.drill.repertoireSnapshot, { symbolLayoutId: symbolLayoutId() }, onResult),
   });
+  let startStep = $state<number | null>(null);
 
   return {
     get snapshot() {
-      return snapshot;
+      return query.value;
     },
     get grew() {
-      return didStepGrow({ startStep, currentStep: snapshot?.openedSteps ?? null });
+      return didStepGrow({ startStep, currentStep: query.value?.openedSteps ?? null });
     },
     markSessionStart() {
-      startStep = snapshot?.openedSteps ?? null;
+      startStep = query.value?.openedSteps ?? null;
     },
   };
 }

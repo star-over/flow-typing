@@ -1,6 +1,6 @@
 // src/lib/stats-calculator.test.ts
 import { describe, it, expect } from 'vitest';
-import { lessonStatsFromSummary } from './stats-calculator';
+import { accuracyPercent, lessonStatsFromSummary } from './stats-calculator';
 import type { SessionSummaryPayload } from './session-summarize';
 
 const summary = (over: Partial<SessionSummaryPayload> = {}): SessionSummaryPayload => ({
@@ -11,6 +11,16 @@ const summary = (over: Partial<SessionSummaryPayload> = {}): SessionSummaryPaylo
   latencyMedianMs: 0,
   confusions: [],
   ...over,
+});
+
+describe('accuracyPercent', () => {
+  it('доля чистых первого нажатия × 100', () => {
+    expect(accuracyPercent({ exposures: 200, clean: 191 })).toBeCloseTo(95.5, 5);
+  });
+
+  it('нулевые exposures → 0 (без деления на ноль)', () => {
+    expect(accuracyPercent({ exposures: 0, clean: 0 })).toBe(0);
+  });
 });
 
 describe('lessonStatsFromSummary', () => {
