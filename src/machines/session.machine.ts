@@ -21,16 +21,21 @@ import type {
   TypingStream,
 } from '@/interfaces/types';
 import { computeBudgetChars } from '@/lib/batch-budget';
-import { drillSummarize, type DrillSummary } from '@/lib/drill-summarize';
+import type { DrillSummary } from '@/lib/drill-summarize';
 import { createTypingStream } from '@/lib/typing-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
-  MIN_JOURNAL_EXPOSURES,
   REFILL_THRESHOLD_SYMBOLS,
   SESSION_DURATION_SECONDS,
   TICK_INTERVAL_MS,
 } from '@/lib/session-config';
-import { summarizeSession, type SessionSummaryPayload } from '@/lib/session-summarize';
+import { needsRefill as queueNeedsRefill, planCheckpoint } from '@/lib/session-queue';
+import {
+  shouldJournalSession,
+  summarizeSession,
+  type SessionSummaryPayload,
+} from '@/lib/session-summarize';
+import { commitSegment, isExpired as windowExpired, liveElapsed } from '@/lib/session-timer';
 import { trainingMachine } from './training.machine';
 
 export interface SessionInput {
@@ -50,7 +55,6 @@ export interface SessionContext {
   elapsedMs: number; // зафиксированный аккумулятор завершённых сегментов
   segmentStartedAt: number; // Date.now() на входе в timing (первое нажатие/resume)
   displayElapsedMs: number; // живое прошедшее для дисплея/истечения (тик), ≤ окна
-  summary: SessionSummaryPayload | null; // каноническая сводка сессии (сводится в done)
 }
 
 export type SessionEvent =
@@ -100,48 +104,62 @@ export const sessionMachine = setup({
     // время по построению не превышает бюджет, поэтому displayElapsedMs на done всегда
     // ровно ≤ SESSION_WINDOW_MS (никаких «61 с»). На паузе зажим — no-op (elapsed < окна).
     accumulateElapsed: assign(({ context }) => {
-      const raw = context.elapsedMs + (Date.now() - context.segmentStartedAt);
-      const committed = Math.min(raw, SESSION_WINDOW_MS);
+      const committed = commitSegment({
+        elapsedMs: context.elapsedMs,
+        segmentStartedAt: context.segmentStartedAt,
+        now: Date.now(),
+        windowMs: SESSION_WINDOW_MS,
+      });
       return { elapsedMs: committed, displayElapsedMs: committed };
     }),
     refreshDisplay: assign(({ context }) => ({
-      displayElapsedMs: context.elapsedMs + (Date.now() - context.segmentStartedAt),
+      displayElapsedMs: liveElapsed({
+        elapsedMs: context.elapsedMs,
+        segmentStartedAt: context.segmentStartedAt,
+        now: Date.now(),
+      }),
     })),
-    // Один вход: свести [previousCheckpoint .. completed.length), инициировать
-    // внедрённую запись и сдвинуть границу. drillSummarize — чистый;
-    // recordCheckpoint — провайдер (Convex/skip), вызывается через enqueue.
+    // Чекпоинт перед дозагрузкой: planCheckpoint — чистое решение «что свести и
+    // куда сдвинуть границу» (срез [previousCheckpoint .. completed.length),
+    // skip-if-empty), затем инициировать внедрённую запись. recordCheckpoint —
+    // провайдер (Convex/skip), вызывается через enqueue.
     checkpointAndRecord: enqueueActions(({ context, enqueue }) => {
-      const slice = context.completed.slice(context.previousCheckpoint);
-      if (slice.length === 0) return;
-      const summary = drillSummarize(slice);
+      const plan = planCheckpoint({ completed: context.completed, previousCheckpoint: context.previousCheckpoint });
+      if (plan === null) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      enqueue({ type: 'recordCheckpoint', params: { summary, symbolLayoutId: context.symbolLayoutId } } as any);
-      enqueue.assign({ previousCheckpoint: context.completed.length });
+      enqueue({ type: 'recordCheckpoint', params: { summary: plan.summary, symbolLayoutId: context.symbolLayoutId } } as any);
+      enqueue.assign({ previousCheckpoint: plan.nextCheckpoint });
     }),
-    // Каноническая сводка ВСЕЙ сессии — единый источник чисел и для журнала, И для
-    // экрана результатов. Берёт весь completed[] (не срез чекпоинта) и displayElapsedMs
-    // как длительность (активное время за вычетом пауз, ≤ окна). Считается ОДИН раз в
-    // done; дальше emitSessionSummary пишет в журнал, sendComplete несёт родителю — оба
-    // читают context.summary, расхождению взяться неоткуда.
-    finalizeSummary: assign(({ context }) => ({
-      summary: summarizeSession({ stream: context.completed, durationMs: context.displayElapsedMs }),
-    })),
-    // Запись в журнал sessionSummaries. Порядок в done.entry важен: emitSessionSummary
-    // идёт ПОСЛЕ checkpointAndRecord — обе мутации Convex от одного клиента (singleton
-    // src/lib/convex.ts) исполняются одной упорядоченной очередью по порядку вызова,
-    // значит drillRecord зафиксирует рост openedSteps раньше, чем sessions.record его
-    // прочитает. Короткие сессии (< MIN_JOURNAL_EXPOSURES) — шум, не журналируем (но на
-    // экране результатов всё равно показываем — sendComplete этого порога не знает).
-    emitSessionSummary: enqueueActions(({ context, enqueue }) => {
-      const summary = context.summary;
-      if (summary === null || summary.exposures < MIN_JOURNAL_EXPOSURES) return;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      enqueue({ type: 'recordSessionSummary', params: { payload: summary, symbolLayoutId: context.symbolLayoutId } } as any);
+    // Завершение сессии ОДНИМ шагом: порядок чекпоинт → сводка → журнал → родитель
+    // выражен СТРУКТУРОЙ этой функции, не порядком массива entry. Две load-bearing
+    // зависимости:
+    //  (a) summary посчитан до чтения — `summary` локаль; журнал и отправка
+    //      родителю её потребляют, сослаться раньше расчёта физически нечем.
+    //  (b) CQRS write-before-read — recordCheckpoint enqueue'ится РАНЬШЕ
+    //      recordSessionSummary. Обе мутации Convex от одного клиента (singleton
+    //      src/lib/convex.ts) исполняются одной упорядоченной очередью по порядку
+    //      вызова → drillRecord зафиксирует рост openedSteps раньше, чем
+    //      sessions.record его прочитает.
+    // Финальный чекпоинт — через тот же planCheckpoint, что и refill (одна точка
+    // истины «что попадает в чекпоинт»). Каноническая сводка — единый источник чисел
+    // и для журнала (recordSessionSummary), И для экрана результатов (SESSION.COMPLETE):
+    // берёт весь completed[] и displayElapsedMs (активное время за вычетом пауз, ≤ окна).
+    // Короткую сессию (shouldJournalSession=false) не журналируем, но родителю шлём —
+    // порог знает только журнал.
+    finalizeAndNotify: enqueueActions(({ context, enqueue }) => {
+      const plan = planCheckpoint({ completed: context.completed, previousCheckpoint: context.previousCheckpoint });
+      if (plan !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        enqueue({ type: 'recordCheckpoint', params: { summary: plan.summary, symbolLayoutId: context.symbolLayoutId } } as any);
+        enqueue.assign({ previousCheckpoint: plan.nextCheckpoint });
+      }
+      const summary = summarizeSession({ stream: context.completed, durationMs: context.displayElapsedMs });
+      if (shouldJournalSession(summary)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        enqueue({ type: 'recordSessionSummary', params: { payload: summary, symbolLayoutId: context.symbolLayoutId } } as any);
+      }
+      enqueue.sendTo(context.parentActor, { type: 'SESSION.COMPLETE', stream: context.completed, summary });
     }),
-    sendComplete: sendTo(
-      ({ context }) => context.parentActor,
-      ({ context }) => ({ type: 'SESSION.COMPLETE', stream: context.completed, summary: context.summary }),
-    ),
     forwardKeyPress: sendTo('training', ({ event }) => ({
       type: 'KEY_PRESS',
       keys: (event as { keys: KeyCapId[] }).keys,
@@ -165,9 +183,18 @@ export const sessionMachine = setup({
     // Живой расчёт (не по последнему тику): аккумулятор + текущий незакрытый сегмент.
     // Так истечение ловится ровно на окне, без лага «значение прошлого тика».
     isExpired: ({ context }) =>
-      context.elapsedMs + (Date.now() - context.segmentStartedAt) >= SESSION_WINDOW_MS,
+      windowExpired({
+        elapsedMs: context.elapsedMs,
+        segmentStartedAt: context.segmentStartedAt,
+        now: Date.now(),
+        windowMs: SESSION_WINDOW_MS,
+      }),
     needsRefill: ({ context }) =>
-      context.totalAppended - (context.completed.length + 1) <= REFILL_THRESHOLD_SYMBOLS,
+      queueNeedsRefill({
+        totalAppended: context.totalAppended,
+        completedCount: context.completed.length,
+        threshold: REFILL_THRESHOLD_SYMBOLS,
+      }),
   },
 }).createMachine({
   id: 'session',
@@ -183,7 +210,6 @@ export const sessionMachine = setup({
     elapsedMs: 0,
     segmentStartedAt: 0,
     displayElapsedMs: 0,
-    summary: null,
   }),
   states: {
     loading: {
@@ -309,10 +335,10 @@ export const sessionMachine = setup({
     },
 
     done: {
-      // Порядок жёсткий: checkpointAndRecord (фиксирует профиль) → finalizeSummary
-      // (сводит каноническую сводку из completed[] + displayElapsedMs) → emitSessionSummary
-      // (пишет в журнал, читает context.summary) → sendComplete (несёт ту же сводку родителю).
-      entry: ['checkpointAndRecord', 'finalizeSummary', 'emitSessionSummary', 'sendComplete'],
+      // Завершение — ОДНО действие: жёсткий порядок чекпоинт → сводка → журнал →
+      // родитель выражен структурой finalizeAndNotify (локаль summary + порядок
+      // enqueue), а не порядком этого массива. Инварианты (a)/(b) — у действия.
+      entry: 'finalizeAndNotify',
       type: 'final',
     },
   },

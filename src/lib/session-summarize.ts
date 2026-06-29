@@ -8,6 +8,7 @@
 import type { TypingStream } from '@/interfaces/types';
 import { foldDrillSummary } from './drill-summarize';
 import { readExposures } from './exposure-reading';
+import { MIN_JOURNAL_EXPOSURES } from './session-config';
 
 /** Сколько пар-путаниц максимум кладём в строку сессии (защита от роста). */
 export const MAX_CONFUSIONS = 20;
@@ -99,4 +100,14 @@ export function summarizeSession({
     // Опускаем при нехватке данных — `undefined` не шлём в Convex (optional-поле).
     ...(rhythm !== undefined ? { rhythm } : {}),
   };
+}
+
+/**
+ * Журналируем ли сессию: короткая (< MIN_JOURNAL_EXPOSURES предъявлений) — шум
+ * (мало данных, неустойчивый cpm/латентность), строку в sessionSummaries не пишем.
+ * На экране результатов короткую сессию всё равно показываем — этот порог знает
+ * только журнал (доставка сводки родителю его не проверяет).
+ */
+export function shouldJournalSession(summary: SessionSummaryPayload): boolean {
+  return summary.exposures >= MIN_JOURNAL_EXPOSURES;
 }

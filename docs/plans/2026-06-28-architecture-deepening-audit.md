@@ -1,8 +1,9 @@
 # Аудит архитектуры: возможности углубления модулей
 
-> Статус: **список кандидатов**, не execution-план. Кандидаты 1–5 реализованы
-> (2026-06-28…29, ветки `refactor/exposure-reading-seam`, `refactor/xstate-children-selectors`);
-> остальные ещё не спроектированы — каждый требует отдельной сессии проектирования
+> Статус: **список кандидатов**, не execution-план. Кандидаты 1–6 реализованы
+> (2026-06-28…29, ветки `refactor/exposure-reading-seam`, `refactor/xstate-children-selectors`,
+> `refactor/session-machine-lifecycle-seams`); остальные ещё не спроектированы — каждый требует
+> отдельной сессии проектирования
 > (grilling: что за швом, какой инвариант закрепляем, какие тесты выживают). Найдено
 > инструментом `improve-codebase-architecture` 2026-06-28.
 >
@@ -169,7 +170,7 @@ UI. Шов становится явным и проверяемым типом.
 
 ---
 
-### 6. `session.machine.ts` (319): решения заперты в actions/guards; порядок entry-действий `done` — скрытая зависимость — MEDIUM
+### 6. `session.machine.ts` (319): решения заперты в actions/guards; порядок entry-действий `done` — скрытая зависимость — MEDIUM · ✅ СДЕЛАНО
 
 **Файлы:** `src/machines/session.machine.ts` (узел `done` entry-цепочка ~312–315;
 чекпоинт/склейка/бюджет в actions и guards).
@@ -187,6 +188,23 @@ UI. Шов становится явным и проверяемым типом.
 
 **Выгода.** Швы для логики чекпоинта/завершения без драйва всей FSM; locality инварианта
 порядка. Связан с кандидатом 1 (та же зона сводок).
+
+**Сделано (2026-06-29).** Подход A (завершение одним шагом) + полный набор швов. Чистые решения
+жизненного цикла подняты за швы: `src/lib/session-timer.ts` (`liveElapsed` / `commitSegment` /
+`isExpired` — снят тройной повтор формулы `elapsedMs + (now − segmentStartedAt)`, ADR 0007 «один
+источник чисел времени» усилен); `src/lib/session-queue.ts` (`needsRefill` с `+1`-поправкой курсора
++ `planCheckpoint` — срез `[previousCheckpoint .. длина)` / skip-if-empty / сдвиг границы, одна точка
+истины «что попадает в чекпоинт» для refill и финала); `shouldJournalSession` в `session-summarize.ts`
+(порог журнала). Машина — тонкий оркестратор: actions/guards зовут чистые fn, `Date.now()` остаётся
+в машине. Порядок `done` выражен СТРУКТУРОЙ: три действия (`finalizeSummary` / `emitSessionSummary` /
+`sendComplete`) слиты в один `finalizeAndNotify` — (a) `summary` локаль, потребляется журналом и
+отправкой родителю (сослаться раньше расчёта физически нечем → компилятор держит); (b) CQRS
+write-before-read — `recordCheckpoint` enqueue'ится раньше `recordSessionSummary` в одном видимом
+месте + тест-замок. Поле-батон `context.summary` удалено (жило только для передачи между entry-действиями).
+ADR 0007 (иерархия трёх машин, `timing`-обёртка, нет `draining`) не тронут. Поведение-сохраняющий:
+прежний замок `session.machine.test.ts` зелёный (+2 теста на инварианты порядка `done`), новые
+модульные тесты на вынесенные fn; `make check-all` чистый (499 тестов). Ветка
+`refactor/session-machine-lifecycle-seams`.
 
 ---
 
