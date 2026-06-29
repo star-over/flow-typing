@@ -7,6 +7,9 @@
  * `drillNext` — этап 1 «Рабочая петля»: минимум без ума — жёсткий фильтр по
  * набору введённых букв (Repertoire) + случайный выбор + добор под бюджет.
  * Ранжирование, фокус и подстройка трудности — последующие этапы (ADR 0003/0004).
+ * `drillNext` **тотален** (ADR 0011): на контентный сбой (пустой пул / битые
+ * ссылки) сам подставляет дефолтный drill из символов открытых шагов, а не
+ * сигналит клиенту — клиентского корпуса для деградации больше нет.
  *
  * `drillNext` — **query** (ADR 0009): жёсткий фильтр исполняет агрегат
  * `drillIndex` (namespace=раскладка, bounds: stepLevel < openedSteps), случайный
@@ -31,7 +34,7 @@ import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { drillIndex } from './drillIndex';
 import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/random-pick.ts';
-import { getLayoutData } from './layoutData';
+import { getLayoutData, type LayoutData } from './layoutData';
 import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
 import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
@@ -65,15 +68,73 @@ export async function resolveOpenedSteps({
   return profile?.openedSteps ?? DEFAULT_OPENED_STEPS;
 }
 
+// Длина «слов» дефолтного drill'а: символы открытых шагов нарезаются на куски этой
+// длины, разделённые пробелом. Провизорно — дефолт это страховочная сетка, не
+// курируемый текст.
+const DEFAULT_DRILL_WORD_LENGTH = 5;
+
+/** Текст-страховка из набора символов: циклически нарезает буквы на «слова» до бюджета. */
+function buildDefaultDrillText({
+  symbols,
+  budgetChars,
+}: {
+  symbols: string[];
+  budgetChars: number;
+}): string {
+  const letters = symbols.filter((s) => s.trim().length > 0); // пробел добавляем сами как разделитель
+  if (letters.length === 0) return '';
+  const words: string[] = [];
+  let total = 0;
+  let cursor = 0;
+  while (total < budgetChars) {
+    let word = '';
+    for (let i = 0; i < DEFAULT_DRILL_WORD_LENGTH; i++) {
+      word += letters[cursor % letters.length];
+      cursor += 1;
+    }
+    total += word.length + (words.length > 0 ? 1 : 0); // +1 за пробел-разделитель
+    words.push(word);
+  }
+  return words.join(' ');
+}
+
+/**
+ * Дефолтный drill на контентный сбой: один drill из символов открытых шагов
+ * (steps 0..openedSteps-1) — это в точности символы, чьи drill'ы пропали. Чистая
+ * (без I/O), тестируется напрямую. Пустой набор символов (нет открытых шагов) →
+ * пустой массив. ADR 0011: сервер сам закрывает дыру (клиентского корпуса нет).
+ */
+export function buildDefaultDrills({
+  layoutData,
+  openedSteps,
+  budgetChars,
+}: {
+  layoutData: LayoutData;
+  openedSteps: number;
+  budgetChars: number;
+}): { text: string }[] {
+  const symbols = new Set<string>();
+  for (let step = 0; step < openedSteps; step++) {
+    for (const symbol of symbolsAtStep({ step, symbolLayout: layoutData.symbolLayout, ladder: layoutData.keyLadder })) {
+      symbols.add(symbol);
+    }
+  }
+  const text = buildDefaultDrillText({ symbols: [...symbols], budgetChars });
+  return text.length > 0 ? [{ text }] : [];
+}
+
 export const drillNext = query({
   args: {
     symbolLayoutId: v.string(),
     budgetChars: v.number(),
     seed: v.number(),
   },
+  // Тотальный контракт (ADR 0011): сервер всегда возвращает непустой `drills` для
+  // раскладки с серверными данными — на контентный сбой подставляет дефолт. Клиент
+  // читает только `.text`; `id`/`length` (внутренние, для отбора и бюджета) на провод
+  // не идут. Флага contentGap нет — дыра закрыта на сервере, сигналу некому слушать.
   returns: v.object({
-    contentGap: v.boolean(),
-    drills: v.array(v.object({ id: v.id('drills'), text: v.string(), length: v.number() })),
+    drills: v.array(v.object({ text: v.string() })),
   }),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -83,43 +144,42 @@ export const drillNext = query({
     const bounds = { upper: { key: openedSteps, inclusive: false } } as const;
     const count = await drillIndex.count(ctx, { namespace: args.symbolLayoutId, bounds });
 
-    // Ноль кандидатов — не деградация, а контентный сбой (дыра в корпусе либо
-    // нет таблицы отбора для раскладки). Сессию не блокируем: сигналим в лог,
-    // дефолтный drill домашнего ряда — задача клиента/следующего шага.
-    if (count === 0) {
-      console.warn(
-        `drillNext: пустой пул (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — контентный сбой`
-      );
-      return { contentGap: true, drills: [] };
+    if (count > 0) {
+      // Равномерный seeded-отбор distinct drill'ов под бюджет (поведение-сохраняющий v1).
+      // Свежесть — из seed (разный на каждый поход с клиента → разный ключ кэша query).
+      // Случайный доступ — count()+at() за O(log n); тексты тянем только у выбранных.
+      const rng = makeSeededRandom(args.seed);
+      const used = new Set<number>();
+      const drills: { text: string }[] = [];
+      let total = 0;
+      for (;;) {
+        if (drills.length > 0 && total >= args.budgetChars) break;
+        const offset = nextDistinctOffset({ rng, count, used });
+        if (offset === null) break;
+        const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: args.symbolLayoutId, bounds });
+        const row = await ctx.db.get(selectionId); // строка drillSelectionIndex
+        // Битая ссылка: offset уже помечен used в nextDistinctOffset и не выпадет
+        // снова. Пул сплошь из битых → недобор → выход в дефолт ниже (intent).
+        if (row === null) continue;
+        const drill = await ctx.db.get(row.drillId);
+        if (drill === null) continue;
+        drills.push({ text: drill.text });
+        total += drill.length;
+      }
+      if (drills.length > 0) return { drills };
+      // Пул не пуст (count>0), но все ссылки битые → контентный сбой → дефолт ниже.
     }
 
-    // Равномерный seeded-отбор distinct drill'ов под бюджет (поведение-сохраняющий v1).
-    // Свежесть — из seed (разный на каждый поход с клиента → разный ключ кэша query).
-    // Случайный доступ — count()+at() за O(log n); тексты тянем только у выбранных.
-    const rng = makeSeededRandom(args.seed);
-    const used = new Set<number>();
-    const drills: { id: Id<'drills'>; text: string; length: number }[] = [];
-    let total = 0;
-    for (;;) {
-      if (drills.length > 0 && total >= args.budgetChars) break;
-      const offset = nextDistinctOffset({ rng, count, used });
-      if (offset === null) break;
-      const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: args.symbolLayoutId, bounds });
-      const row = await ctx.db.get(selectionId); // строка drillSelectionIndex
-      // Битая ссылка: offset уже помечен used в nextDistinctOffset и не выпадет
-      // снова. Пул сплошь из битых → недобор → выход в post-loop contentGap (intent).
-      if (row === null) continue;
-      const drill = await ctx.db.get(row.drillId);
-      if (drill === null) continue;
-      drills.push({ id: drill._id, text: drill.text, length: drill.length });
-      total += drill.length;
-    }
-
-    // Пул не пуст (count>0), но все ссылки битые → это контентный сбой, а не
-    // «успех с нулём»: не врём contentGap:false (иначе session-impl примет пустой
-    // stream за валидный и не деградирует на корпус с правильным сигналом).
-    if (drills.length === 0) return { contentGap: true, drills: [] };
-    return { contentGap: false, drills };
+    // Контентный сбой: пустой пул (count===0) ИЛИ сплошь битые ссылки. Сервер сам
+    // закрывает дыру дефолтным drill'ом из символов открытых шагов — клиент всегда
+    // получает непустую порцию (клиентского корпуса для деградации больше нет, ADR
+    // 0011). Раскладка без серверных данных — config-баг: построить нечем → пусто.
+    console.warn(
+      `drillNext: контентный сбой (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — дефолтный drill`
+    );
+    const layoutData = getLayoutData(args.symbolLayoutId);
+    if (layoutData === null) return { drills: [] };
+    return { drills: buildDefaultDrills({ layoutData, openedSteps, budgetChars: args.budgetChars }) };
   },
 });
 

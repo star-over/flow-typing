@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { glueDrillsIntoStream, fetchLocalDrillStream, glueServerDrills } from './drill-stream';
+import { glueDrillsIntoStream, glueServerDrills, drillSeparatorStream, joinBatchToStream } from './drill-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 
 const qwerty = getSymbolLayoutDescriptor('qwerty').symbolLayout;
@@ -29,23 +29,25 @@ describe('glueServerDrills', () => {
     expect(stream.map((s) => s.targetSymbol)).toEqual(['a', 'b', ' ', 'c', 'd']);
   });
 
-  test('пустой ответ сервера → пустой поток (якорь contentGap-деградации)', () => {
+  test('пустой ответ сервера → пустой поток (раскладка без серверных данных)', () => {
     expect(glueServerDrills({ drills: [], symbolLayoutId: 'qwerty' })).toEqual([]);
   });
 });
 
-describe('fetchLocalDrillStream', () => {
-  test('набирает символов не меньше бюджета (пока корпус не исчерпан)', () => {
-    const stream = fetchLocalDrillStream({ symbolLayoutId: 'qwerty', budgetChars: 50 });
-    expect(stream.length).toBeGreaterThanOrEqual(50);
+describe('drillSeparatorStream', () => {
+  test('ровно один пробел-символ', () => {
+    expect(drillSeparatorStream(qwerty).map((s) => s.targetSymbol)).toEqual([' ']);
+  });
+});
+
+describe('joinBatchToStream', () => {
+  test('непустая порция → ведущий разделитель + порция (стык drill\'ов)', () => {
+    const batch = glueDrillsIntoStream({ drillTexts: ['ab'], symbolLayout: qwerty });
+    const joined = joinBatchToStream({ batch, symbolLayout: qwerty });
+    expect(joined.map((s) => s.targetSymbol)).toEqual([' ', 'a', 'b']);
   });
 
-  test('каждый элемент — валидный StreamSymbol с targetKeyCaps', () => {
-    const stream = fetchLocalDrillStream({ symbolLayoutId: 'qwerty', budgetChars: 20 });
-    expect(stream.length).toBeGreaterThan(0);
-    for (const s of stream) {
-      expect(Array.isArray(s.targetKeyCaps)).toBe(true);
-      expect(s.attempts).toEqual([]);
-    }
+  test('пустая порция → пустой поток (присоединять нечего)', () => {
+    expect(joinBatchToStream({ batch: [], symbolLayout: qwerty })).toEqual([]);
   });
 });

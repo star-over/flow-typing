@@ -1,13 +1,14 @@
 /**
  * @file Реальные провайдеры sessionMachine: сбор порции и запись чекпоинта.
- * Здесь живёт побочный эффект (корпус/Convex), машина session.machine.ts остаётся
- * чистой. Серверный fetch через drillNext, запись через drillRecord.
- * Гость/офлайн деградирует на локальный корпус без записи.
+ * Здесь живёт побочный эффект (Convex), машина session.machine.ts остаётся чистой.
+ * Серверный сбор через drillNext (тотален — всегда непустая порция для раскладки с
+ * серверными данными, ADR 0011), запись через drillRecord. Сервер недоступен →
+ * fetch бросает → sessionMachine уходит в done (офлайн не поддержан).
  */
 import { fromPromise } from 'xstate';
 
 import type { SymbolLayoutId, TypingStream } from '@/interfaces/types';
-import { fetchLocalDrillStream, glueServerDrills } from '@/lib/drill-stream';
+import { glueServerDrills } from '@/lib/drill-stream';
 import { convex, api } from '@/lib/convex';
 import { sessionMachine } from './session.machine';
 
@@ -47,23 +48,13 @@ async function fetchServerDrillStream({
 
 export const sessionService = sessionMachine.provide({
   actors: {
+    // drillNext тотален (ADR 0011): на контентный сбой сервер сам подставляет
+    // дефолтный drill — клиент всегда получает непустую порцию, ветки деградации на
+    // локальный корпус больше нет. Сервер недоступен → throw → onError → done.
     fetchDrills: fromPromise<
       TypingStream,
       { symbolLayoutId: SymbolLayoutId; budgetChars: number }
-    >(async ({ input }) => {
-      try {
-        const stream = await fetchServerDrillStream(input);
-        if (stream.length > 0) return stream;
-        // contentGap (пустой пул на сервере) приходит как успешный ответ
-        // `{ drills: [] }`, не throw — деградируем на корпус, чтобы не уйти в
-        // пустую сессию.
-        console.warn('fetchDrills: сервер вернул пусто (contentGap), локальный корпус');
-      } catch (err) {
-        // Офлайн/гость — деградируем на локальный корпус.
-        console.warn('fetchDrills: сервер недоступен, локальный корпус', err);
-      }
-      return fetchLocalDrillStream({ symbolLayoutId: input.symbolLayoutId, budgetChars: input.budgetChars });
-    }),
+    >(async ({ input }) => fetchServerDrillStream(input)),
   },
   actions: {
     // Fire-and-forget: запись профиля не блокирует сессию. Гость (не

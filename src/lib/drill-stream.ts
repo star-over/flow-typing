@@ -1,14 +1,21 @@
 /**
- * @file Сбор и склейка порции drill'ов в непрерывный TypingStream.
- * Склейка чистая; локальный сбор читает DRILL_CORPUS (детерминированно-воспроизводимый
- * по входу, кроме случайного выбора). Серверный fetch живёт в session-impl.ts
- * (с побочным эффектом, там же Convex).
+ * @file Склейка порции drill'ов в непрерывный TypingStream. Чистая. Серверный
+ * сбор живёт в session-impl.ts (там же Convex). Клиентского корпуса нет — источник
+ * drill'ов тотально серверный (ADR 0011), деградации на локальный набор не осталось.
  */
 import type { SymbolLayout, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { createTypingStream } from '@/lib/typing-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
-import { DRILL_CORPUS } from '@/lib/drill-corpus';
-import { filterDrillsBySymbolLayout, selectRandomDrill } from '@/lib/drill-selection';
+
+/**
+ * Разделитель между drill'ами в TypingStream — ровно один пробел-символ. Один дом
+ * правила «границы drill'ов невидимы, но разделены пробелом» (CONTEXT.md: пробел
+ * внутри неотличим от стыка): потребляется и склейкой внутри порции
+ * (glueDrillsIntoStream), и склейкой на стыке порций (joinBatchToStream).
+ */
+export function drillSeparatorStream(symbolLayout: SymbolLayout): TypingStream {
+  return createTypingStream({ drillText: ' ', symbolLayout });
+}
 
 /** Склеивает тексты drill'ов в один поток, разделяя ровно одним пробелом-символом. */
 export function glueDrillsIntoStream({
@@ -18,35 +25,28 @@ export function glueDrillsIntoStream({
   drillTexts: string[];
   symbolLayout: SymbolLayout;
 }): TypingStream {
-  const spaceStream = createTypingStream({ drillText: ' ', symbolLayout });
+  const separator = drillSeparatorStream(symbolLayout);
   return drillTexts.flatMap((text, index) => {
     const drillStream = createTypingStream({ drillText: text, symbolLayout });
-    return index === 0 ? drillStream : [...spaceStream, ...drillStream];
+    return index === 0 ? drillStream : [...separator, ...drillStream];
   });
 }
 
-/** Локальный сбор порции: случайные совместимые drill'ы до бюджета символов. */
-export function fetchLocalDrillStream({
-  symbolLayoutId,
-  budgetChars,
+/**
+ * Присоединяет уже склеенную порцию к идущей очереди через тот же разделитель-стык,
+ * что и внутри порции (один дом — drillSeparatorStream): иначе хвост старой порции
+ * слипается с началом новой. Пустую порцию пропускает (присоединять нечего). Дом
+ * стыка порций для appendFetched в session.machine.ts.
+ */
+export function joinBatchToStream({
+  batch,
+  symbolLayout,
 }: {
-  symbolLayoutId: SymbolLayoutId;
-  budgetChars: number;
+  batch: TypingStream;
+  symbolLayout: SymbolLayout;
 }): TypingStream {
-  const descriptor = getSymbolLayoutDescriptor(symbolLayoutId);
-  const compatible = filterDrillsBySymbolLayout({
-    allDrills: DRILL_CORPUS,
-    symbolLayoutDescriptor: descriptor,
-  });
-  const texts: string[] = [];
-  let total = 0;
-  while (total < budgetChars && compatible.length > 0) {
-    const drill = selectRandomDrill({ drills: compatible });
-    if (!drill) break;
-    texts.push(drill.text);
-    total += drill.text.length + (texts.length > 1 ? 1 : 0); // +1 пробел только между drill'ами
-  }
-  return glueDrillsIntoStream({ drillTexts: texts, symbolLayout: descriptor.symbolLayout });
+  if (batch.length === 0) return [];
+  return [...drillSeparatorStream(symbolLayout), ...batch];
 }
 
 /** Чистый маппинг ответа drillNext в склеенный поток. */
@@ -63,4 +63,3 @@ export function glueServerDrills({
     symbolLayout: descriptor.symbolLayout,
   });
 }
-

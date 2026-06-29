@@ -1,4 +1,3 @@
-import '@/lib/integrity'; // side-effect: ApplicationDataSchema.parse на старте
 import { createActor } from 'xstate';
 import { appMachine } from './app.machine';
 
