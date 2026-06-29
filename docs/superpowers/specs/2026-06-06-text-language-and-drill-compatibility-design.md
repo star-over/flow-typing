@@ -9,7 +9,7 @@
 
 В проекте есть символьная раскладка (`SymbolLayout`), которую пользователь выбирает в настройках (`UserPreferences.symbolLayoutId`). Сегодня доступны `qwerty` и `йцукен`.
 
-Параллельно есть корпус упражнений: `src/data/drills/drills.json` (~500 KB, ~сотни записей со статистиками: `unique_symbols`, `bigrams`, `trigrams`, …). На рантайме этот корпус **не подключён**: в `app.machine.ts` action `startNewTrainingStream` (`src/machines/app.machine.ts:43-51`) берёт случайный текст из жёстко заданного массива `defaultDrillTexts` (`src/lib/typing-stream.ts:4-9`, содержит одну русскую строку).
+Параллельно есть корпус упражнений: `src/data/drills/drills.json` (~500 KB, ~сотни записей со статистиками: `unique_symbols`, `bigrams`, `trigrams`, …). Во время выполнения этот корпус **не подключён**: в `app.machine.ts` action `startNewTrainingStream` (`src/machines/app.machine.ts:43-51`) берёт случайный текст из жёстко заданного массива `defaultDrillTexts` (`src/lib/typing-stream.ts:4-9`, содержит одну русскую строку).
 
 ### 1.2. Главная проблема
 
@@ -111,11 +111,11 @@ drill.textLanguage === layout.textLanguage
 - Читаемые git-diff'ы (изменение одной записи = одна строка в diff).
 - Append-only при пополнении корпуса.
 
-Zod в коде остаётся без изменений — он валидирует уже-распарсенные объекты независимо от формата файла.
+Zod в коде остаётся без изменений — он проверяет уже-распарсенные объекты независимо от формата файла.
 
 ### 2.9. Zod как единый движок инвариантов
 
-**Решение:** все валидируемые инварианты (включая cross-record в одной коллекции и cross-collection между корпусом и реестром) описываются через Zod `.refine()` / `.superRefine()`. Эти же схемы используются и в production (на старте), и в тестах.
+**Решение:** все проверяемые инварианты (включая cross-record в одной коллекции и cross-collection между корпусом и реестром) описываются через Zod `.refine()` / `.superRefine()`. Эти же схемы используются и в production (на старте), и в тестах.
 
 ## 3. Доменная модель
 
@@ -198,7 +198,7 @@ export type SymbolLayout = {
 }[];
 ```
 
-### 4.3. `SymbolLayoutDescriptor` — новый Zod-валидируемый тип
+### 4.3. `SymbolLayoutDescriptor` — новый Zod-проверяемый тип
 
 ```ts
 // src/interfaces/types.ts
@@ -328,7 +328,7 @@ export const getDefaultSymbolLayoutForTextLanguage = (
 ): SymbolLayoutDescriptor => {
   const exact = SYMBOL_LAYOUT_REGISTRY.find(d => d.isDefaultForTextLanguages.includes(textLang));
   if (exact) return exact;
-  // Фолбэк по родителю BCP 47 (для неизвестных диалектов вроде 'en-CA')
+  // Запасной вариант по родителю BCP 47 (для неизвестных диалектов вроде 'en-CA')
   const parent = textLang.split('-').slice(0, -1).join('-') as TextLanguage;
   if (parent) return getDefaultSymbolLayoutForTextLanguage(parent);
   throw new Error(`No default symbol layout for textLanguage: ${textLang}`);
@@ -364,7 +364,7 @@ export function isDrillCompatibleWithSymbolLayout({
 }
 ```
 
-## 5. Изменения в коде рантайма
+## 5. Изменения в коде времени выполнения
 
 ### 5.1. Загрузка корпуса через JSONL
 
@@ -566,7 +566,7 @@ function normalizePreferences(raw: unknown): UserPreferences {
 }
 ```
 
-Type-guards (`isTextLanguage`, `isInterfaceLanguage`, `isSymbolLayoutId`) валидируют против соответствующих констант-кортежей.
+Type-guards (`isTextLanguage`, `isInterfaceLanguage`, `isSymbolLayoutId`) проверяют против соответствующих констант-кортежей.
 
 **Никакого legacy-чтения старого поля `language`** — все существующие пользователи получают каскадные дефолты как новый пользователь.
 
@@ -682,7 +682,7 @@ textLanguageId.ru
 | `src/lib/text-language-utils.test.ts` (новый) | `isDrillCompatibleWithSymbolLayout` — таблица сочетаний с диалектами и без, оба направления (drill общее/равно/специфичнее раскладки, разные ветки) |
 | `src/lib/drill-selection.test.ts` (новый) | `filterDrillsBySymbolLayout` — язык подходит + все символы; язык не подходит; язык подходит, но символ отсутствует; пустой корпус. `selectRandomDrill` — null на пустом, элемент из непустого |
 | `src/lib/preferences.test.ts` (новый или расширение) | Таблица 6.3: пустой store, частичный новый формат, полный совместимый, полный несовместимый, старый формат (игнорируется) |
-| `src/data/layouts/symbol-layout-registry.test.ts` (новый) | Тонкий — парс реестра через `SymbolLayoutRegistrySchema` (значит, инварианты 1–4 ок), вызов `getDefaultSymbolLayoutForTextLanguage` для каждого `TEXT_LANGUAGES` без throw, фолбэк по родителю для неизвестного диалекта |
+| `src/data/layouts/symbol-layout-registry.test.ts` (новый) | Тонкий — парс реестра через `SymbolLayoutRegistrySchema` (значит, инварианты 1–4 ок), вызов `getDefaultSymbolLayoutForTextLanguage` для каждого `TEXT_LANGUAGES` без throw, запасной вариант по родителю для неизвестного диалекта |
 | `src/data/drills/drills.test.ts` (расширение) | Тонкий — парс корпуса через `parseCorpus` (инварианты 6, 7 ок) + парс через `ApplicationDataSchema` (инвариант 8) |
 | `src/machines/app.machine.test.ts` (расширение, если есть) | `startNewTrainingStream` выбирает совместимый drill; `currentSymbolLayoutId` обновляется; `lastTrainingStream` непустой |
 
@@ -727,6 +727,6 @@ textLanguageId.ru
 
 ## 10. Связь с долгосрочным видением
 
-- **Этап 2 из `docs/05` (Hybrid Local-First с бэкендом):** формат JSONL подготавливает корпус для прямого `COPY FROM` в БД; `SymbolLayoutDescriptor` как Zod-валидируемая сущность — для прямого сопоставления на таблицу.
-- **Адаптивная сложность (Dynamic Flow):** `Drill.textLanguage` плюс уже существующие `bigrams`/`trigrams`/`char_freq` дают всю информацию для интеллектуального подбора. Эта задача не реализует Dynamic Flow, но снимает блок «корпус не подключён к рантайму».
+- **Этап 2 из `docs/05` (Hybrid Local-First с бэкендом):** формат JSONL подготавливает корпус для прямого `COPY FROM` в БД; `SymbolLayoutDescriptor` как Zod-проверяемая сущность — для прямого сопоставления на таблицу.
+- **Адаптивная сложность (Dynamic Flow):** `Drill.textLanguage` плюс уже существующие `bigrams`/`trigrams`/`char_freq` дают всю информацию для интеллектуального подбора. Эта задача не реализует Dynamic Flow, но снимает блок «корпус не подключён к времени выполнения».
 - **Классификация контента (отдельная задача):** легко наращивается добавлением поля `topic` или `tags` в `DrillSchema` без затрагивания текущей фильтрации.

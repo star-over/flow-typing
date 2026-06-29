@@ -17,7 +17,7 @@
 - **Master HEAD:** `4fa23ce` (Phase 3 merge + post-merge minor findings cleanup)
 - **Backend:** `convex/auth.ts` — GitHub-провайдер, `createOrUpdateUserHandler` (provider-agnostic, тестируется в `convex/auth.test.ts`)
 - **Frontend:** `SignInScreen.svelte` — единственная кнопка GitHub, уже имеет `signingIn` с `finally`-reset под Google popup-flow
-- **Auth store:** `createAuthStore()` экспортирует `signIn(provider: string)` — без правок переиспользуется для Google
+- **Auth store:** `createAuthStore()` экспортирует `signIn(provider: string)` — без правок используется повторно для Google
 - **Layout:** `src/routes/+layout.svelte` — reactive `$effect` re-wires `convex.setAuth(auth.fetchAccessToken)` при изменении `auth.token` (ищи блок с комментарием «Work around convex-auth-svelte: wrapper calls client.setAuth(...) only ONCE»). **Это защищает и Google flow тоже** (race на post-OAuth PKCE exchange не provider-specific).
 - **Storybook:** `StorybookAuthFrame.svelte` — wrapper для stories с заглушкой `'auth'` context'а. `signIn: (_provider: string) => Promise.resolve()` уже принимает любой провайдер.
 - **Themes:** 4 темы (`light/dark/sepia/nord`) + `_template.css` декларируют 7 SignInScreen-токенов (`--sign-in-screen-{background,title-color,disclaimer-color,btn-github-{background,color,border,hover-background}}`).
@@ -418,7 +418,7 @@ make test 2>&1 | tail -5
 
 **Ожидаемо: всё зелёное.** Логика:
 - `contract.test.ts` итерирует токены из `THEME_CONTRACT` → проверяет, что каждый объявлен в темах. Контракт мы пока НЕ расширяли (Task 3 это сделает), так что contract-тест не видит ничего нового.
-- Компонент теперь ссылается на `var(--sign-in-screen-btn-google-*)`, которых в темах нет — но это **не валидируется тестами**. Браузер для unresolved CSS variable возвращает initial value (`unset`/inherited) — никаких ошибок, кнопка просто будет «голой» до Task 3.
+- Компонент теперь ссылается на `var(--sign-in-screen-btn-google-*)`, которых в темах нет — но это **не проверяется тестами**. Браузер для unresolved CSS variable возвращает initial value (`unset`/inherited) — никаких ошибок, кнопка просто будет «голой» до Task 3.
 - Component-level rendering tests на SignInScreen в Phase 3 не добавлялись (Storybook only).
 
 Если красное — `--filter contract` для изоляции; fix перед Task 3.
@@ -444,7 +444,7 @@ git commit -m "feat(auth-ui): refactor SignInScreen handler to accept provider a
 - Modify: `src/themes/sepia.css`
 - Modify: `src/themes/nord.css`
 
-**Цель:** добавить 4 Google-токена в контракт и заполнить значения во всех темах. После Task 3 `make check-all` зелёный, Google-кнопка визуально консистентна в каждой теме. `src/themes/contract.ts` НЕ трогаем — он spread'ит `SIGN_IN_SCREEN_CONTRACT` (`...SIGN_IN_SCREEN_CONTRACT` уже в `THEME_CONTRACT`), расширение контракта попадёт в агрегат автоматически.
+**Цель:** добавить 4 Google-токена в контракт и заполнить значения во всех темах. После Task 3 `make check-all` зелёный, Google-кнопка визуально единообразна в каждой теме. `src/themes/contract.ts` НЕ трогаем — он spread'ит `SIGN_IN_SCREEN_CONTRACT` (`...SIGN_IN_SCREEN_CONTRACT` уже в `THEME_CONTRACT`), расширение контракта попадёт в агрегат автоматически.
 
 > **Не DRY эти токены.** Соблазн извлечь общий `--sign-in-screen-btn-base-*` и оставить только differing tokens per provider — **отказались** в «Зафиксированные решения» выше. Phase 4 явно реплицирует GitHub-паттерн как есть. Refactor отложен до момента, когда появится третий-четвёртый провайдер и cost репликации перевесит cost абстракции (Phase 8+). `_template.css` — скелет, enforce'имый contract-тестом, чтобы новые темы не пропускали токены; держим его в синхроне через простую append-операцию, без хитрых иерархий.
 
@@ -611,7 +611,7 @@ git commit -m "feat(auth-ui): add Google button theme tokens across 4 themes"
 
 **Files:** ничего не меняется.
 
-**Цель:** глазами увидеть, что Google-кнопка отрисовалась во всех 4 темах согласованно с GitHub. Это не automated test — это глаз-проверка дизайн-консистентности. Если выглядит плохо — вернуться в Task 3 и подкрутить значения oklch.
+**Цель:** глазами увидеть, что Google-кнопка отрисовалась во всех 4 темах согласованно с GitHub. Это не automated test — это глаз-проверка дизайн-согласованности. Если выглядит плохо — вернуться в Task 3 и подкрутить значения oklch.
 
 - [ ] **Step 4.1: Запустить Storybook**
 
@@ -671,7 +671,7 @@ make dev
 
 Vite на `http://localhost:5173`.
 
-> **Watcher liveness не влияет на OAuth callback.** Google перенаправляет на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 1 и сейчас — `make check` и `make dev` работают на закэшированном `_generated/`, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — перезапусти watcher.
+> **Watcher liveness не влияет на OAuth callback.** Google перенаправляет на `wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google` — это **cloud deployment endpoint**, который держит Convex infrastructure независимо от твоего локального watcher'а. Watcher нужен только для type-codegen (`convex/_generated/`). Если watcher умер между Task 1 и сейчас — `make check` и `make dev` работают на `_generated/` в кэше, OAuth flow в браузере проходит как обычно. Если codegen стал устаревшим — перезапусти watcher.
 
 - [ ] **Step 5.2: Cold start — clear localStorage**
 
@@ -715,7 +715,7 @@ npx convex dashboard
 
 Это **business-critical assertion** (umbrella plan: «Связывание аккаунтов — NO link-by-email»).
 
-**Защита уровнем выше уже есть:** `convex/auth.test.ts` содержит unit-тест на `createOrUpdateUserHandler` который явно валидирует «один email через два разных `existingUserId=null`-вызова → две разные строки». Этот тест уже зелёный (Phase 2 baseline) и продолжит быть зелёным после Phase 4, потому что handler провайдер-agnostic. То есть **если `convex/auth.test.ts` зелёный — инвариант сохранён** независимо от того, удалось ли провести browser-level проверку.
+**Защита уровнем выше уже есть:** `convex/auth.test.ts` содержит unit-тест на `createOrUpdateUserHandler` который явно проверяет «один email через два разных `existingUserId=null`-вызова → две разные строки». Этот тест уже зелёный (Phase 2 baseline) и продолжит быть зелёным после Phase 4, потому что handler провайдер-agnostic. То есть **если `convex/auth.test.ts` зелёный — инвариант сохранён** независимо от того, удалось ли провести browser-level проверку.
 
 Step 5.5 — это **доп. подтверждение через реальный браузер**, не единственная gate. Делай тот вариант, который доступен:
 
@@ -723,7 +723,7 @@ Step 5.5 — это **доп. подтверждение через реальн
 Условие: твой Google-аккаунт и твой GitHub-аккаунт имеют **одинаковый primary email** (часто у разработчиков на личных аккаунтах).
 1. Sign out из текущей Google-сессии (клик на имя в Header → «Выйти») → Header показывает «Войти»
 2. DevTools → Application → Cookies: проверить **обе** записи: `localhost:5173` И `wandering-ocelot-9.eu-west-1.convex.site` (convex-auth-svelte хранит state cookies на backend domain). Удалить всё на обоих. Затем Application → Local Storage → `localhost:5173` → Clear.
-3. Sign in via GitHub на `/signin`. Если после OAuth flow ты сразу залогинен как Google-юзер (без выбора GitHub-account) — это может быть: (a) cookies на `.convex.site` остались, вернись к Шагу 2; (b) GitHub.com сам помнит тебя — открой `github.com` в той же вкладке и нажми Sign out; (c) refresh-token в `localStorage` не был почищен — DevTools → Application → Local Storage → Clear для `localhost:5173`.
+3. Sign in via GitHub на `/signin`. Если после OAuth flow ты сразу авторизован как Google-юзер (без выбора GitHub-account) — это может быть: (a) cookies на `.convex.site` остались, вернись к Шагу 2; (b) GitHub.com сам помнит тебя — открой `github.com` в той же вкладке и нажми Sign out; (c) refresh-token в `localStorage` не был почищен — DevTools → Application → Local Storage → Clear для `localhost:5173`.
 4. Открой Convex dashboard → таблица `users`: должны быть **ДВЕ строки** с одним email, разными `_id`
 
 **Вариант Б — опереться на unit-тест (полностью допустимая альтернатива)**
@@ -751,7 +751,7 @@ different provider yields two separate users".
 | Google `redirect_uri_mismatch` | URI в Google Cloud Console !== Convex callback URL | Cloud Console → Credentials → OAuth Client → Authorized redirect URIs: должно быть **ровно** `https://wandering-ocelot-9.eu-west-1.convex.site/api/auth/callback/google` |
 | Google «access_denied» | Email не в Test Users | Cloud Console → OAuth consent screen → Test users → Add Users |
 | Google «App has reached its user cap» (Testing mode) | В Testing mode лимит 100 test users — обычно никогда не достигается соло-разработчику | Cloud Console → Audience → проверить счётчик; если близко — почистить старых tests |
-| «Провайдер = аккаунт» инвариант сломан в browser smoke | createOrUpdateUserHandler ловит existingUserId по email | `convex/auth.test.ts` тесты на handler должны быть зелёными. Если зелёные — баг где-то в wrapper'е, эскалировать. Если красные — баг в handler'е |
+| «Провайдер = аккаунт» инвариант сломан в browser smoke | createOrUpdateUserHandler ловит existingUserId по email | `convex/auth.test.ts` тесты на handler должны быть зелёными. Если зелёные — баг где-то в wrapper'е, передать выше. Если красные — баг в handler'е |
 
 **Если smoke не идёт за разумное время** (30 мин diagnose) — **остановись** (НЕ продолжай к Task 6) и escalate user'у. Done criteria требует green smoke + green инвариант; merge без них не делаем.
 
@@ -961,7 +961,7 @@ Phase 4 трогает cloud dev deployment один раз — это **add-onl
 - **Два рабочих провайдера** через тот же auth-flow и тот же `users`-table. Phase 5 (settings sync) отличает юзеров через `userId` независимо от провайдера — никаких provider-aware bridges.
 - **Stable provider-agnostic shape** в auth-store. `signIn(provider: string)` — никаких изменений в Phase 5.
 - **Tested «провайдер = аккаунт» инвариант** — Phase 5 settings sync строится на этом: settings привязаны к **конкретному `users._id`**, не к email. Юзер вошёл через GitHub и через Google → две независимые settings строки. Это by design.
-- **THEME_CONTRACT extension pattern** утверждён повторно — для будущих UI-фаз (Stats UI в Phase 7, etc.) — паттерн «component contract spread'ится в агрегат» работает консистентно.
+- **THEME_CONTRACT extension pattern** утверждён повторно — для будущих UI-фаз (Stats UI в Phase 7, etc.) — паттерн «component contract spread'ится в агрегат» работает единообразно.
 
 ## Self-review notes
 

@@ -4,7 +4,7 @@
 
 **Goal:** Convex Auth backend настроен на cloud dev deployment с GitHub OAuth-провайдером и собственным `createOrUpdateUser` callback'ом (правило «провайдер = аккаунт»). Sign-in работает end-to-end. Юзеры записываются в `users` таблицу. Тесты на `createOrUpdateUser`. **Без UI** — UI в Phase 3.
 
-**Architecture:** Cloud dev Convex (`dev:wandering-ocelot-9`, EU-West-1) + `@convex-dev/auth` для backend-side OAuth flow. `@auth/core/providers/github` — GitHub-провайдер. Кастомный `createOrUpdateUserHandler` экспортируется отдельно, чтобы быть тестируемым через `convex-test`. Никакой link-by-email (явно): каждый OAuth account = отдельная запись в `users`.
+**Architecture:** Cloud dev Convex (`dev:wandering-ocelot-9`, EU-West-1) + `@convex-dev/auth` для backend-side OAuth flow. `@auth/core/providers/github` — GitHub-провайдер. Собственный `createOrUpdateUserHandler` экспортируется отдельно, чтобы быть тестируемым через `convex-test`. Никакой link-by-email (явно): каждый OAuth account = отдельная запись в `users`.
 
 **Tech Stack:** Convex 1.40 · `@convex-dev/auth` · `@auth/core` · `convex-test` (тесты функций) · Vitest (существующий) · SvelteKit-фронт (без изменений в Phase 2).
 
@@ -515,7 +515,7 @@ git commit -m "feat(auth): add GitHub provider with explicit provider=account cr
 **Files:**
 - Create: `convex/users.ts`
 
-**Цель:** query `users.viewer` возвращает текущего залогиненного юзера (документ из `users` таблицы) или `null` если не залогинен. Это base-точка для Phase 3 UI и Phase 5 settings sync.
+**Цель:** query `users.viewer` возвращает текущего авторизованного юзера (документ из `users` таблицы) или `null` если не авторизован. Это base-точка для Phase 3 UI и Phase 5 settings sync.
 
 - [ ] **Step 5.1: Написать users.ts**
 
@@ -738,7 +738,7 @@ git diff convex/health.ts  # пусто
 - `src/**/*.test.ts` → project `src`, node environment, обычная Svelte+TS-вселенная (auth-store, компоненты, контракты).
 - `convex/**/*.test.ts` → project `convex`, **`edge-runtime` environment**, `convex-test` для unit-тестов функций. Здесь `getAuthUserId`, `createOrUpdateUserHandler`, любая backend-логика, которая трогает `ctx.db`.
 
-`make test` запускает оба проекта одной командой. Vitest префиксит вывод `|src|` / `|convex|`.
+`make test` запускает оба проекта одной командой. Vitest предваряет вывод `|src|` / `|convex|`.
 
 **Куда писать тест:** правило простое — *где живёт код, там и тест*. UI/store-логика → `src/`. Backend-функции/callbacks → `convex/`. Cross-cutting интеграционные тесты (Phase 3+) — отдельный вопрос, обсуждать тогда.
 ```

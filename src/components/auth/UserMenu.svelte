@@ -152,7 +152,7 @@
     outline-offset: 2px;
   }
 
-  /* Длинное имя (в т.ч. кастомный displayName) обрезается, а не растягивает бар. */
+  /* Длинное имя (в т.ч. собственный displayName) обрезается, а не растягивает бар. */
   .user-menu__name {
     min-width: 0;
     overflow: hidden;

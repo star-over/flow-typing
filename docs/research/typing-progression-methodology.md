@@ -862,7 +862,7 @@ DMN позволяет агрегировать результаты Collect:
 - Правила хранятся как JSON-файлы в репозитории, например `convex/rules/repertoire-growth.json`.
 
 **Тонкости интеграции с Convex:**
-- `@gorules/zen-engine` — нативный napi-модуль. Дефолтный V8-рантайм Convex его не загружает, поэтому файл, который исполняет правила, должен использовать директиву `"use node"`.
+- `@gorules/zen-engine` — нативный napi-модуль. Дефолтное время выполнения V8 в Convex его не загружает, поэтому файл, который исполняет правила, должен использовать директиву `"use node"`.
 - В `convex.json` нужно добавить `@gorules/zen-engine` в `node.externalPackages`, чтобы esbuild не упаковывал `.node`-бинарники — Convex ставит пакет на своей стороне.
 - Тесты `convex/**/*.test.ts` идут в edge-runtime, где нативный движок не загрузится. Для тестирования правил Zen Engine нужен отдельный node-project в `vitest.config.ts` с glob `convex/rules/**`.
 

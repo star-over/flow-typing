@@ -102,7 +102,7 @@ export default tseslint.config(
 
 ### Правила для контроля сложности и архитектуры
 
-- `max-lines-per-function` / `sonarjs/cognitive-complexity` / `sonarjs/max-params` — агенты любят плодить длинные функции; ограничения заставляют декомпозировать.
+- `max-lines-per-function` / `sonarjs/cognitive-complexity` / `sonarjs/max-params` — агенты любят плодить длинные функции; ограничения заставляют разбить.
 - `no-restricted-syntax` — швейцарский нож: можно запретить конкретные паттерны (например, функции с 2+ позиционными параметрами).
 - `import/no-cycle`, `import/no-mutable-exports`, `import/no-duplicates`, `unused-imports/no-unused-imports` — гигиена импортов.
 - `no-restricted-imports` — механически запрещает импорт из запрещённых слоёв (например, `src/ui/**` не может импортировать `src/api/internal/**`).
@@ -126,7 +126,7 @@ AI пишет тесты быстро, но легко пишет *плохие*
 | **Behavior / scenario tests** | Тестируют сценарии и публичные API, а не внутренности. Переживают рефакторинг. |
 | **Affected tests first** | Запускать только тесты изменённых файлов (`vitest --changed`, `jest --findRelatedTests`) — быстрый feedback. |
 | **Property-based testing** (`fast-check`) | Проверяет инварианты на сотнях случайных входов. Ловит «plausible but wrong». |
-| **Mutation testing** (`Stryker`) | Вносит мутации в код и проверяет, ловят ли их тесты. Защищает от фейкового coverage. |
+| **Mutation testing** (`Stryker`) | Вносит мутации в код и проверяет, ловят ли их тесты. Защищает от поддельного coverage. |
 | **Contract tests** (`Pact`) | Проверяют, что API не меняет форму ответа для потребителей. |
 | **Snapshot tests** | Для UI/фикстур, но требуют человеческого review при обновлении. |
 | **E2E / Playwright** | Для критических пользовательских путей. |
@@ -172,7 +172,7 @@ AI пишет тесты быстро, но легко пишет *плохие*
 
 - **Prettier** — стандарт, но медленный.
 - **Biome** — быстрее в 10–25×, почти совместим с Prettier, включает свой линтер.
-- **Oxfmt** — новый Rust-форматер, стремится к 100% совместимости с Prettier.
+- **Oxfmt** — новое средство форматирования на Rust, стремится к 100% совместимости с Prettier.
 
 ### Git hooks и workflow
 
@@ -202,7 +202,7 @@ pre-push:
 
 ### Безопасность и supply chain
 
-- **Semgrep** / **CodeQL** — SAST, можно писать кастомные правила.
+- **Semgrep** / **CodeQL** — SAST, можно писать собственные правила.
 - **Snyk**, **Dependabot** — уязвимости зависимостей.
 - **Gitleaks** — утечка секретов в pre-commit.
 - **npm audit** / **`npm audit signatures`**.
@@ -215,7 +215,7 @@ pre-push:
 - **`GUARDRAILS.md`** — живой документ: каждый «Sign» = урок из реальной ошибки агента.
 - **Skills** (`SKILL.md`) — для повторяющихся задач (тестирование, XState, Zod и т.д.).
 - **Atlas Guardrails** — MCP-инструменты: `atlas_index`, `atlas_pack`, `atlas_find_duplicates`, `atlas check` — заставляют агента искать контекст и не дублировать код.
-- **Project Spine** — генерирует `AGENTS.md`, архитектурную карту, guardrails из brief + репо.
+- **Project Spine** — генерирует `AGENTS.md`, архитектурную карту, guardrails из brief + репозиторий.
 
 ### CI / review gates
 
@@ -323,7 +323,7 @@ Unused files (28)
   ...
 ```
 
-**Почему это важно:** мёртвый код — это когнитивная нагрузка и риск, что агент будет использовать устаревшие функции вместо актуальных. Например, `createAuthStore` и `createSessionsStore` экспортированы, но, по данным Knip, нигде не используются. Агент может начать строить фичу поверх них, а проект уже перешёл на другой подход.
+**Почему это важно:** мёртвый код — это когнитивная нагрузка и риск, что агент будет использовать устаревшие функции вместо актуальных. Например, `createAuthStore` и `createSessionsStore` экспортированы, но, по данным Knip, нигде не используются. Агент может начать строить функцию поверх них, а проект уже перешёл на другой подход.
 
 > **Что такое «baseline cleanup»?**
 >
@@ -335,7 +335,7 @@ Unused files (28)
 >
 > Иначе `knip` будет каждый раз показывать десятки находок, и агент (или человек) перестанет на него обращать внимание.
 
-#### 6.2.3. Нет форматтера
+#### 6.2.3. Нет средства форматирования
 
 В проекте отсутствуют:
 
@@ -395,7 +395,7 @@ src/lib/dev       |     2.4 |        0 |    5.71 |    2.94 |
 | Приоритет | Инструмент / действие | Почему максимальная польза | Усилие |
 |---|---|---|---|
 | **P0** | **Внедрить `knip` + baseline cleanup + Makefile target** | Уже найдено 31 unused export, 42 unused types, 28 unused files, 4 неиспользуемые зависимости. Очистит кодовую базу и предотвратит накопление мёртвого кода. | 1–2 часа |
-| **P0** | **Добавить форматтер (Prettier или Biome) + Makefile target** | Убирает форматный шум из diff, ускоряет review, не даёт агенту тратить токены на отступы. | 30 минут |
+| **P0** | **Добавить средство форматирования (Prettier или Biome) + Makefile target** | Убирает форматный шум из diff, ускоряет review, не даёт агенту тратить токены на отступы. | 30 минут |
 | **P0** | **Добавить `lefthook` (pre-commit + pre-push)** | Механически заставляет агента проходить `make lint-fix/format-check` и `make check-all`/`make knip` перед коммитом/push. | 30 минут |
 | **P1** | **Добавить GitHub Actions workflow** | Авторитетный CI gate: `make check-all` (lint, svelte-check, tests, spell) + `make knip` + `make format-check`. | 1 час |
 
@@ -452,7 +452,7 @@ P2 (неделя 3+):
 
 ## 9. Дополнительные ESLint-настройки с максимальным эффектом для `flow-typing`
 
-Текущий `eslint.config.mjs` уже хорош: flat config, `typescript-eslint` strict + stylistic, `projectService`, typed linting, Svelte-правила, кастомное `no-restricted-syntax` для object-literal параметров.
+Текущий `eslint.config.mjs` уже хорош: flat config, `typescript-eslint` strict + stylistic, `projectService`, typed linting, Svelte-правила, своё `no-restricted-syntax` для object-literal параметров.
 
 Чтобы найти наиболее эффективные дополнительные правила, были протестированы кандидаты на реальной кодовой базе.
 
@@ -539,7 +539,7 @@ import sonarjs from 'eslint-plugin-sonarjs';
   },
 },
 {
-  // В скриптах и dev-хелперах console.log — норма.
+  // В скриптах и dev-вспомогательных функциях console.log — норма.
   files: [
     'src/scripts/**/*.ts',
     'scripts/**/*.ts',

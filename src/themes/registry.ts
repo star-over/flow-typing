@@ -26,7 +26,7 @@ export type ColorScheme = 'light' | 'dark';
 
 /**
  * Значение поля `UserSettings.theme`. Включает sentinel-значение `'auto'`,
- * которое в рантайме преобразуется в конкретный `ThemeId` через
+ * которое во время выполнения преобразуется в конкретный `ThemeId` через
  * `prefers-color-scheme` (см. {@link resolveTheme}).
  */
 export type ThemeSetting = ThemeId | 'auto';

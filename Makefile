@@ -130,7 +130,7 @@ lint-fix: install
 # auto-gen, tmp/, build/, dist/) выключены через ignorePaths в cspell.json.
 spell: install
 	@echo "🔤 cspell..."
-	npx cspell --no-progress \
+	npx cspell --no-progress --show-suggestions\
 		'src/**/*.{svelte,ts,css}' \
 		'dictionaries/*.json' \
 		'static/*.html' \

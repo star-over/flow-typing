@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Настройки пользователя (interfaceLanguage, textLanguage, symbolLayoutId, theme) синхронизируются между устройствами через Convex для залогиненных юзеров. Гость продолжает работать с localStorage без cloud-вызовов. Стратегия: **«cloud wins при логине»** — если в cloud есть row, она перетирает локальную копию; если cloud пуст, локальная копия push'ится туда. После логина каждый локальный update пушится в cloud fire-and-forget (silent eventually-consistent при offline).
+**Goal:** Настройки пользователя (interfaceLanguage, textLanguage, symbolLayoutId, theme) синхронизируются между устройствами через Convex для авторизованных юзеров. Гость продолжает работать с localStorage без cloud-вызовов. Стратегия: **«cloud wins при логине»** — если в cloud есть row, она перетирает локальную копию; если cloud пуст, локальная копия push'ится туда. После логина каждый локальный update пушится в cloud fire-and-forget (silent eventually-consistent при offline).
 
 **Architecture:** Три слоя:
 1. **Backend** (`convex/schema.ts` + `convex/userSettings.ts`) — таблица `userSettings` с index `by_user`; `getMine` query (auth-required), `upsertMine` mutation (auth-required, insert-or-patch по `userId`). Логика вынесена в testable handlers (`getMineHandler` / `upsertMineHandler`) по паттерну Phase 2 `createOrUpdateUserHandler`. `updatedAt` ставит сам Convex (`Date.now()` на сервере).
@@ -44,7 +44,7 @@
 - **Без UI-индикатора sync-состояния.** Silent eventually-consistent. Если push fail (offline) — следующее изменение его повторит; при следующем pull cloud перетрёт. UI добавим позже, если придёт реальный запрос. Подтверждено user'ом.
 - **«Cloud wins при login».** При логине: cloud пуст → push local (first sync); cloud есть → pull cloud (overwrite local). Это **не** classic LWW (без явного `cloud.updatedAt` vs `local.updatedAt` сравнения) — простой и предсказуемый rule. Альтернатива (timestamp-based LWW) требовала бы хранить `local.updatedAt` в localStorage и обновлять его при каждом локальном edit — сложнее и не даёт реального value для одного-активного-юзера паттерна. Если потом понадобится — добавится в Phase 5.1.
 - **Push-on-update — fire-and-forget без debounce.** Каждый `settings.update`/`set` → один `upsertMine` вызов. User меняет настройки нечасто (1-2 раза за сессию); debounce пока не нужен. Если push fail (network) — silent catch, следующий update перешлёт. При offline → online настройки подтянутся со следующим изменением или с pull при следующем mount.
-- **Логика handler'ов — testable, auth-check — в обёртке.** Pattern Phase 2: `getMineHandler({ ctx, userId })` / `upsertMineHandler({ ctx, userId, settings })` принимают уже резолвленный `userId: Id<'users'>` → тестируются напрямую через `t.run(ctx)`. Query/mutation обёртка делает `getAuthUserId(ctx)`, query возвращает `null` при unauth, mutation throws. Это критично — `getAuthUserId` отсутствие в mutation = cross-user write backdoor (та же дыра что Phase 4 review поймал на dev-mutation).
+- **Логика handler'ов — testable, auth-check — в обёртке.** Pattern Phase 2: `getMineHandler({ ctx, userId })` / `upsertMineHandler({ ctx, userId, settings })` принимают уже разрешённый `userId: Id<'users'>` → тестируются напрямую через `t.run(ctx)`. Query/mutation обёртка делает `getAuthUserId(ctx)`, query возвращает `null` при unauth, mutation throws. Это критично — `getAuthUserId` отсутствие в mutation = cross-user write backdoor (та же дыра что Phase 4 review поймал на dev-mutation).
 - **Sync синхронизирует все 4 поля UserSettings.** `interfaceLanguage`, `textLanguage`, `symbolLayoutId`, `theme`. Сейчас это весь shape; других device-local-only полей нет. Если в будущем добавится device-only поле (e.g. `lastDrillId`) — оно живёт ВНЕ `UserSettings`, в отдельном storage.
 - **Хранение `theme: 'auto'` в cloud.** Cloud получает буквальное значение `theme` из store, включая `'auto'`. Кросс-устройство — если на A была `'auto'`, на B после pull тоже `'auto'` (= системная тема на B). Это разумно: `'auto'` — пользовательское предпочтение, не значение.
 - **При logout localStorage НЕ сбрасывается.** Текущие settings остаются, гость продолжает с тем что было. Альтернатива (reset to DEFAULT_USER_SETTINGS) — surprise factor для юзера. Подтверждённый паттерн: «logout — это локальный operation, не data wipe».
@@ -422,7 +422,7 @@ make test 2>&1 | tail -20
 import type { Id } from './_generated/dataModel';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 
-// Узкий, тестируемый helper. Принимает уже резолвленный userId — никакой auth ceremony.
+// Узкий, тестируемый helper. Принимает уже разрешённый userId — никакой auth ceremony.
 // Lib-обёртка (query getMine, см. Step 2.7) делает getAuthUserId и зовёт сюда.
 // Паттерн повторяет createOrUpdateUserHandler из convex/auth.ts.
 export async function getMineHandler({
@@ -1057,7 +1057,7 @@ export function attachCloudSync({
 **Сразу после `setContext('auth', authStore);`** добавь:
 
 ```svelte
-  // Phase 5: cross-device settings sync для залогиненных юзеров.
+  // Phase 5: cross-device settings sync для авторизованных юзеров.
   // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.
   const cloudSync = attachCloudSync({
     authStore,
@@ -1098,7 +1098,7 @@ make check 2>&1 | tail -5
 ```
 
 Zero errors. Проверь:
-- Импорт `attachCloudSync` резолвится — функция экспорт из `src/lib/settings.ts`.
+- Импорт `attachCloudSync` разрешается — функция экспорт из `src/lib/settings.ts`.
 - Импорт `api` — exported из `src/lib/convex.ts` (если нет — проверь Step 4.5 ниже).
 - Тип `(args: ReturnType<typeof settingsToCloudArgs>) => Promise<unknown>` совместим с `convex.mutation(api.userSettings.upsertMine, args)` (mutation возвращает `Promise<Id<'userSettings'>>`, которое assignable к `Promise<unknown>`).
 
@@ -1290,7 +1290,7 @@ grep -n "### Settings и i18n" CLAUDE.md
 - Метаданные настроек (тип, дефолты, опции) — `src/user-settings/user-settings.ts`.
 - i18n: `src/lib/i18n.ts` — derived store, словари `dictionaries/{en,ru}.json`.
 
-**Cross-device sync (Phase 5).** Для залогиненных юзеров настройки синхронизируются через Convex. Гость — только localStorage, никаких cloud-вызовов.
+**Cross-device sync (Phase 5).** Для авторизованных юзеров настройки синхронизируются через Convex. Гость — только localStorage, никаких cloud-вызовов.
 
 - **Стратегия:** «cloud wins при login». При transition authStore → `'authenticated'`: cloud пуст → push локальную копию в cloud (`upsertMine`); cloud есть → pull cloud → overwrite local (`settings.set`). При каждом локальном `update`/`set` во время authenticated → fire-and-forget `upsertMine` (silent eventually-consistent при offline).
 - **Pure pipeline:** `src/lib/settings-sync.ts` — `decideSyncOnLogin`, `cloudRowToSettings`, `settingsToCloudArgs`. Тестируется без заглушек (`src/lib/settings-sync.test.ts`).
@@ -1438,7 +1438,7 @@ Phase 5 трогает cloud dev deployment один раз — это **add-onl
 - **Готовый паттерн «testable handler + auth-guarded обёртка»** для Phase 6 `sessions` table.
 - **«Cloud wins» mental model** для cross-device: для sessions она проще (sessions append-only, не upsert) — но дизайн уже понятен.
 - **Phase 6 schema готов делать `sessions: defineTable({ userId: v.id('users'), ... })`** с тем же index-by-user паттерном как `userSettings.by_user`.
-- **`attachCloudSync` НЕ переиспользуется для sessions.** Sessions имеют другой жизненный цикл (event-driven append from training machine, не store-subscription). Phase 6 пишет свой orchestrator (рекомендуется отдельный `src/lib/sessions-cloud-sync.ts`).
+- **`attachCloudSync` НЕ используется повторно для sessions.** Sessions имеют другой жизненный цикл (event-driven append from training machine, не store-subscription). Phase 6 пишет свой orchestrator (рекомендуется отдельный `src/lib/sessions-cloud-sync.ts`).
 - **Тестовый baseline:** `convex-test` паттерн (handler-tests + auth-fail tests) проверен на двух модулях (`auth`, `userSettings`); Phase 6 повторит.
 
 ## Self-review notes
@@ -1464,7 +1464,7 @@ Phase 5 трогает cloud dev deployment один раз — это **add-onl
 
 4. **Известные риски:**
    - **`isInitialSubscribe` race:** если `attachCloudSync` вызывается после mount, `settings.subscribe` already-fired init callback мог пройти ещё для пред-existing subscribers (внутренних к settings.ts). Наш subscribe в attachCloudSync — отдельный listener, его first-call мы поймаем guard'ом. Safe.
-   - **`skipNextSubscribeCallback` race:** между `skipNextSubscribeCallback = true` и `settings.set(...)` ничего другого не должно вмешаться (single-threaded JS event loop защищает). Если в будущем `settings.set` станет async — flag нужно будет аудитировать.
+   - **`skipNextSubscribeCallback` race:** между `skipNextSubscribeCallback = true` и `settings.set(...)` ничего другого не должно вмешаться (single-threaded JS event loop защищает). Если в будущем `settings.set` станет async — flag нужно будет проверять.
    - **`currentSettingsSnapshot` через subscribe/unsubscribe:** Svelte writable.subscribe гарантирует sync call. Если когда-нибудь settings перейдёт на runes state — этот helper переписать на `$state.snapshot(...)` или просто хранить current value в attachCloudSync closure.
    - **Two-tab race в одном браузере:** обе вкладки делают свой pull/push независимо. Может быть transient inconsistency (A пушит X, B пушит Y, последний push wins на cloud, потом обе вкладки на следующем pull'е увидят Y). Out of scope Phase 5.
    - **Offline на login (retry semantics):** `pullCloud`/`pushCloud` throws в login-sync → catch ставит `hasSyncedThisSession = false` + console.warn в dev. **Retry НЕ автоматический в той же session** — `$effect` (`void authStore.state.status`) пересчитывается только когда `status` действительно меняется, а после failure status остаётся `'authenticated'`. Retry-trigger ы:

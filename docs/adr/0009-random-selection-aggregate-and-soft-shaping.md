@@ -24,7 +24,7 @@
 
 - Новый компонент + инвариант синхронизации: агрегат держится в синхроне с
   `drillSelectionIndex` на уровне оркестрации `rebuild` (единственный писатель таблицы):
-  `insertBatch` зеркалит вставку (`insertIfDoesNotExist`), а namespace сбрасывается одним
+  `insertBatch` отражает вставку (`insertIfDoesNotExist`), а namespace сбрасывается одним
   `clear()` в начале `rebuild` (`resetLayoutAggregate`). `clearLayoutPage` — только таблица.
   Операции идемпотентны (rebuild прогоняется повторно).
 - Контракт меняется: `drillNext(symbolLayoutId, budgetChars, seed)` — добавляется `seed`; функция перестаёт быть mutation. `session-impl.ts` зовёт `convex.query` со свежим seed на каждый поход вместо `convex.mutation`. Доменно `drillNext` остаётся читателем (ADR 0008) — теперь и технически.

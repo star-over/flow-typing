@@ -721,7 +721,7 @@ git branch -D feat/convex-bootstrap
    - `convex/_generated/` — авто, не правим ✓
    - `convex/schema.ts` — Task 2 ✓
    - `convex/health.ts` — Task 3 ✓
-   - `convex.json` — **отсутствует**, и это OK: `convex.json` опционален в обоих режимах (cloud и local) и нужен только для нестандартного конфига (кастомный `functions` path, components, и т.д.). Для текущего setup'а не требуется.
+   - `convex.json` — **отсутствует**, и это OK: `convex.json` опционален в обоих режимах (cloud и local) и нужен только для нестандартного конфига (собственный `functions` path, components, и т.д.). Для текущего setup'а не требуется.
    - `src/lib/convex.ts` — Task 4 ✓
    - `src/routes/dev/+page.svelte` — Task 5 ✓
    - `.env.example` — Task 1 ✓

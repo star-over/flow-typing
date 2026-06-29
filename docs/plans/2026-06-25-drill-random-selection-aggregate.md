@@ -59,7 +59,7 @@
 - **Производительность: k последовательных `at`+`db.get` против одного `.collect()`.** При широком `budgetChars` / мелких drill'ах k ~ десятки → ~3k обращений на поход (не O(pool), но больше round-trip'ов, чем текущий один `.collect()`). v1 оставляем последовательным (поведение-сохраняющий); Task 6 явно мерит `elapsedMs` и сравнивает с текущим. Оптимизация (`atBatch`/`countBatch` или денормализация `text`/`length` в индекс) — позже, при ИЗМЕРЕННОЙ проблеме, не сейчас.
 - **`convex-test` + компонент — исследование (Task 1).** `convex-test@0.0.53` умеет `registerComponent(path, schema, glob)`, но точные пути к schema/модулям компонента видны только после установки. Task 1 ставит компонент и зелёным smoke-тестом фиксирует регистрацию; дальше тесты `drillNext` опираются на неё. Если регистрация в 0.0.53 не заведётся — чистые тесты (Task 2) покрывают логику отбора, а проводку проверяем в dev (`npx convex run` / реальная сессия); это явный fallback, не тихий.
 - **`resolveOpenedSteps` теперь читатель.** Тип ctx расширяется до `QueryCtx | MutationCtx` (только читает) — вызывается из query `drillNext` и из тестов в `t.run`.
-- **Backfill = `rebuild`.** Отдельной миграции нет: `drillSelectionIndex` пишется только пересборкой; `rebuild` сбрасывает namespace агрегата и переинсертит — он же наполняет агрегат. **Порядок на prod:** агрегат наполнять ДО/одновременно с развёртыванием query-`drillNext`, иначе окно «пустой агрегат → `count===0` → `contentGap` → тихая деградация на локальный корпус». На cloud-dev (`wandering-ocelot-9`) окно приемлемо (никто не печатает во время работы).
+- **Backfill = `rebuild`.** Отдельной миграции нет: `drillSelectionIndex` пишется только пересборкой; `rebuild` сбрасывает namespace агрегата и вставляет заново — он же наполняет агрегат. **Порядок на prod:** агрегат наполнять ДО/одновременно с развёртыванием query-`drillNext`, иначе окно «пустой агрегат → `count===0` → `contentGap` → тихая деградация на локальный корпус». На cloud-dev (`wandering-ocelot-9`) окно приемлемо (никто не печатает во время работы).
 
 ---
 
@@ -526,7 +526,7 @@ test('drill\'ы в порции не повторяются (distinct)', async (
 - [ ] **Step 2: Запустить — убедиться, что падает**
 
 Run: `npx vitest run convex/drill.test.ts`
-Expected: FAIL — `t.query` на mutation `drillNext` не резолвится / нет аргумента `seed`.
+Expected: FAIL — `t.query` на mutation `drillNext` не разрешается / нет аргумента `seed`.
 
 - [ ] **Step 3: Переписать `drillNext` в `convex/drill.ts`**
 
@@ -697,7 +697,7 @@ Run (отдельный терминал — watcher, либо `--once`):
 npx convex dev --once
 make rebuild-selection-index
 ```
-> `make rebuild-selection-index` прогоняет `selectionIndex:rebuild` по раскладке(ам). После — namespace агрегата `йцукен` наполнен; повторный прогон идемпотентен (reset namespace → переинсертить).
+> `make rebuild-selection-index` прогоняет `selectionIndex:rebuild` по раскладке(ам). После — namespace агрегата `йцукен` наполнен; повторный прогон идемпотентен (reset namespace → вставить заново).
 
 - [ ] **Step 2: Проверить наполнение агрегата в прод-среде dev**
 

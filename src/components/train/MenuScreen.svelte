@@ -1,6 +1,6 @@
 <!--
   Tech-debt note: MenuScreen намеренно не имеет рядом MenuScreen.contract.ts.
-  Компонент пока тонкий и переиспользует существующие токены SettingsPage и
+  Компонент пока тонкий и повторно использует существующие токены SettingsPage и
   FooterActions. Когда он стабилизируется — выделить собственные `--menu-screen-*`
   токены и завести контракт на общих условиях (docs/06 §6.2).
   Запись в очереди: docs/backlog.md → «MenuScreen.contract.ts».

@@ -4,7 +4,7 @@
 
 **Goal:** Завести append-only журнал сессий `sessionSummaries` в Convex (тренды cpm/accuracy, хронология ступеней, пары-путаницы), не сохраняя сырые `attempts`.
 
-**Architecture:** Отдельная ответственность от `skillProfiles` (проекция для алгоритма). Чистый клиентский сводчик `summarizeSession` (переиспользует `drillSummarize` + добавляет confusion и cpm) → новое действие машины `emitSessionSummary` в `done.entry` → провайдер `recordSessionSummary` в `session-impl.ts` → fire-and-forget мутация `api.sessions.record`. `openedSteps` и `capturedAt` штампует сервер (как `updatedAt` в `userSettings`).
+**Architecture:** Отдельная ответственность от `skillProfiles` (проекция для алгоритма). Чистый клиентский сводчик `summarizeSession` (повторно использует `drillSummarize` + добавляет confusion и cpm) → новое действие машины `emitSessionSummary` в `done.entry` → провайдер `recordSessionSummary` в `session-impl.ts` → fire-and-forget мутация `api.sessions.record`. `openedSteps` и `capturedAt` штампует сервер (как `updatedAt` в `userSettings`).
 
 **Tech Stack:** SvelteKit 2 / Svelte 5, XState v5, Convex (mutation + `convex-test`, edge-runtime), Vitest. Тесты — по правилу «где код, там и тест»: pure/store/machine → `src/`, backend → `convex/`.
 
