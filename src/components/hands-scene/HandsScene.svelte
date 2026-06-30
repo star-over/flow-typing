@@ -151,7 +151,9 @@
     position: relative;
     width: 100%;
     height: 100%;
-    padding-top: 6rem;
+    /* Поднято на 30px (6rem → 4.5rem при 1rem=20px): кластер и руки ближе к
+       строке потока, меньше мёртвого воздуха между ритм-каналом и клавишами. */
+    padding-top: 4.5rem;
     box-sizing: border-box;
   }
 

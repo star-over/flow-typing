@@ -17,19 +17,23 @@
     inState({ snapshot: state, value: 'training' }) ||
     inState({ snapshot: state, value: 'sessionComplete' })
   );
+
+  // Пауза переехала в шапку (рядом с таймером): во время набора низ принадлежит
+  // рукам, без панели управления. Поэтому футер рисуем только когда есть что
+  // показать — иначе в `running` остался бы пустой sticky-бар у нижней кромки.
+  const hasActions = $derived(
+    state.can({ type: 'START_TRAINING', symbolLayoutId }) ||
+    state.can({ type: 'RESUME' }) ||
+    state.can({ type: 'TO_MENU' })
+  );
 </script>
 
-{#if isVisible}
+{#if isVisible && hasActions}
   <footer class="footer">
     <div class="actions">
       {#if state.can({ type: 'START_TRAINING', symbolLayoutId })}
         <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId })}>
           {dictionary.app.start_again}
-        </button>
-      {/if}
-      {#if state.can({ type: 'PAUSE' })}
-        <button type="button" class="btn warning" onclick={() => send({ type: 'PAUSE' })}>
-          {dictionary.app.pause}
         </button>
       {/if}
       {#if state.can({ type: 'RESUME' })}
@@ -54,6 +58,14 @@
     gap: var(--spacing-4);
     width: 100%;
     padding: var(--spacing-4) 0;
+    /* Сцена тренировки растягивается (flex:1) и прижимает футер к низу .main —
+       футер не должен сжиматься/обрезаться, иначе кнопки управления пропадут. */
+    flex-shrink: 0;
+    /* Руки сцены намеренно уходят за нижнюю кромку; на невысоких окнах это тянет
+       документ вниз и футер уехал бы под обрез. sticky держит управление у низа
+       видимой области (на высоком экране — no-op: футер и так в естественном низу). */
+    position: sticky;
+    bottom: 0;
   }
 
   .actions {
@@ -94,12 +106,6 @@
     background: var(--footer-actions-btn-success-background);
     color: var(--footer-actions-btn-success-color);
     border: var(--footer-actions-btn-success-border);
-  }
-
-  .btn.warning {
-    background: var(--footer-actions-btn-warning-background);
-    color: var(--footer-actions-btn-warning-color);
-    border: var(--footer-actions-btn-warning-border);
   }
 
   .btn.danger {
