@@ -75,6 +75,14 @@
 </script>
 
 <div class="training-scene">
+  {#if rhythmChannelEnabled}
+    <!-- Канал ритма над строкой: маркер ритма в той же вертикали внимания, что и
+         неподвижный курсор FlowLine («сейчас»), и ведёт взгляд сверху вниз к строке. -->
+    <div class="rhythm-slot">
+      <RhythmChannel beatIndex={currentIndex} ariaLabel={rhythmAriaLabel} />
+    </div>
+  {/if}
+
   <FlowLine
     symbols={enrichedSymbols}
     cursorPosition={currentIndex}
@@ -83,14 +91,6 @@
     {cursorMode}
     blink={cursorBlink}
   />
-
-  {#if rhythmChannelEnabled}
-    <!-- Канал ритма крепится прямо под строкой: неподвижный курсор FlowLine
-         читается как «сейчас», маркер ритма — в той же вертикали внимания. -->
-    <div class="rhythm-slot">
-      <RhythmChannel beatIndex={currentIndex} ariaLabel={rhythmAriaLabel} />
-    </div>
-  {/if}
 
   <div class="hands-slot">
     <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
@@ -113,10 +113,10 @@
   }
 
   /* Канал ритма подтягивается ближе к строке (перебивает часть scene-gap),
-     чтобы читаться «под FlowLine», а не висеть посреди сцены. */
+     чтобы читаться вплотную НАД FlowLine, а не висеть посреди сцены. */
   .rhythm-slot {
     width: 100%;
-    margin-top: calc(var(--spacing-2) - var(--spacing-6));
+    margin-bottom: calc(var(--spacing-2) - var(--spacing-6));
   }
 
   /* Руки забирают остаток высоты сцены: на высоких экранах лишний воздух уходит
