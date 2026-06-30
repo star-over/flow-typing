@@ -10,7 +10,6 @@
   import { getPressResult } from '@/lib/press-result-utils';
   import { getSymbolLayout } from '@/lib/layouts';
   import { enrichStreamSymbols } from '@/lib/stream-utils';
-  import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
 
   import FlowLine from '@/components/flow-line/FlowLine.svelte';
   import HandsScene from '@/components/hands-scene/HandsScene.svelte';
@@ -64,10 +63,6 @@
   const currentIndex = $derived(trainingSnap?.context.currentIndex ?? 0);
   const currentSymbolLayoutId = $derived(trainingSnap?.context.currentSymbolLayoutId ?? 'qwerty');
 
-  const remainingSeconds = $derived(
-    Math.max(0, SESSION_DURATION_SECONDS - Math.floor(sessionState.context.displayElapsedMs / 1000))
-  );
-
   const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
   const keyCoordinateMap = $derived(createKeyCoordinateMap(physicalLayout));
   const symbolLayout = $derived(getSymbolLayout(currentSymbolLayoutId));
@@ -80,7 +75,13 @@
 </script>
 
 <div class="training-scene">
-  <p class="timer">{remainingSeconds}s</p>
+  {#if rhythmChannelEnabled}
+    <!-- Канал ритма над строкой: маркер ритма в той же вертикали внимания, что и
+         неподвижный курсор FlowLine («сейчас»), и ведёт взгляд сверху вниз к строке. -->
+    <div class="rhythm-slot">
+      <RhythmChannel beatIndex={currentIndex} ariaLabel={rhythmAriaLabel} />
+    </div>
+  {/if}
 
   <FlowLine
     symbols={enrichedSymbols}
@@ -91,15 +92,9 @@
     blink={cursorBlink}
   />
 
-  {#if rhythmChannelEnabled}
-    <!-- Канал ритма крепится прямо под строкой: неподвижный курсор FlowLine
-         читается как «сейчас», маркер ритма — в той же вертикали внимания. -->
-    <div class="rhythm-slot">
-      <RhythmChannel beatIndex={currentIndex} ariaLabel={rhythmAriaLabel} />
-    </div>
-  {/if}
-
-  <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
+  <div class="hands-slot">
+    <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
+  </div>
 </div>
 
 <style>
@@ -109,20 +104,27 @@
     align-items: center;
     gap: var(--spacing-6);
     width: 100%;
-  }
-
-  /* Обратный отсчёт сессии: примитивы темы достаточно, выделенный токен не нужен
-     (визуальная чистка master убрала debug-токен TrainingScene). */
-  .timer {
-    font-family: var(--font-mono);
-    font-size: 1.25rem;
-    opacity: 0.7;
+    /* Сцена забирает всю высоту .main вместо центрирования всего стека: это
+       убирает пустой коридор над строкой (центрирование добавляло его симметрично
+       сверху) и пришпиливает футер к низу — раньше блок [сцена + футер] был выше
+       окна и футер уезжал под обрез. .main и прочие маршруты не тронуты. */
+    flex: 1;
+    min-height: 0;
   }
 
   /* Канал ритма подтягивается ближе к строке (перебивает часть scene-gap),
-     чтобы читаться «под FlowLine», а не висеть посреди сцены. */
+     чтобы читаться вплотную НАД FlowLine, а не висеть посреди сцены. */
   .rhythm-slot {
     width: 100%;
-    margin-top: calc(var(--spacing-2) - var(--spacing-6));
+    margin-bottom: calc(var(--spacing-2) - var(--spacing-6));
+  }
+
+  /* Руки забирают остаток высоты сцены: на высоких экранах лишний воздух уходит
+     ВНИЗ под руки (там невидим), а не зависает коридором над строкой; на низких —
+     слот ужимается (min-height:0), руки штатно уходят за нижнюю кромку. */
+  .hands-slot {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
   }
 </style>

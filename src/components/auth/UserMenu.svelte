@@ -58,7 +58,7 @@
         src={auth.state.user.image}
         name={displayName}
         email={auth.state.user.email}
-        size="1.75rem"
+        size="1.5rem"
       />
       <span class="user-menu__name">{displayName}</span>
     </summary>
@@ -95,8 +95,8 @@
   }
 
   .user-menu__skeleton-avatar {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
     flex-shrink: 0;
   }

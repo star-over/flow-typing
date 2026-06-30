@@ -7,6 +7,8 @@
   import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
   import { appActor } from '@/machines/appActor';
+  import { selectSessionActor } from '@/machines/selectors';
+  import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';
@@ -68,9 +70,13 @@
 
   const { children } = $props();
 
-  let state = $state(appActor.getSnapshot());
+  // Имя `appState`, а не `state`: в файле есть реальные `$store`-подписки
+  // ($settings, $dictionary), и svelte2tsx начинает путать руну `$state` с
+  // подпиской `$`+`state`, когда рядом живёт переменная `state` — ломает
+  // типизацию снимка. Имя без коллизии снимает неоднозначность.
+  let appState = $state(appActor.getSnapshot());
   const actorSub = appActor.subscribe((snapshot) => {
-    state = snapshot;
+    appState = snapshot;
   });
   onDestroy(() => actorSub.unsubscribe());
 
@@ -80,14 +86,41 @@
   // markSessionStart перезаписал бы стартовую отметку, скрыв «новую ступень».
   let wasTraining = false;
   $effect(() => {
-    const isTraining = inState({ snapshot: state, value: 'training' });
+    const isTraining = inState({ snapshot: appState, value: 'training' });
     if (isTraining && !wasTraining) repertoireStore.markSessionStart();
     wasTraining = isTraining;
   });
 
+  // Таймер сессии переехал из центра сцены сюда, на периферию-хром (тихо, сбоку).
+  // displayElapsedMs тикает ВНУТРИ session-актора и не всплывает в снимок appActor,
+  // поэтому подписываемся на него напрямую (как TrainingScene). timerSeconds = null
+  // вне тренировки → Header счётчик не рисует.
+  const sessionActor = $derived(selectSessionActor(appState));
+  let displayElapsedMs = $state(0);
+  $effect(() => {
+    const actor = sessionActor;
+    if (!actor) {
+      displayElapsedMs = 0;
+      return;
+    }
+    displayElapsedMs = actor.getSnapshot().context.displayElapsedMs;
+    const sub = actor.subscribe((s) => {
+      displayElapsedMs = s.context.displayElapsedMs;
+    });
+    return () => sub.unsubscribe();
+  });
+  const timerSeconds = $derived(
+    inState({ snapshot: appState, value: 'training' }) && sessionActor
+      ? Math.max(0, SESSION_DURATION_SECONDS - Math.floor(displayElapsedMs / 1000))
+      : null,
+  );
+
+  // Пауза в шапке (рядом с таймером): доступна только в активном наборе.
+  const canPause = $derived(appState.can({ type: 'PAUSE' }));
+
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
-    if (inState({ snapshot: state, value: 'training' }) && event.code === 'Space') {
+    if (inState({ snapshot: appState, value: 'training' }) && event.code === 'Space') {
       event.preventDefault();
     }
     appActor.send({ type: 'KEY_DOWN', keyCapId: event.code });
@@ -133,7 +166,13 @@
 />
 
 <div class="app-shell">
-  <Header title={$dictionary.app.title} />
+  <Header
+    title={$dictionary.app.title}
+    {timerSeconds}
+    {canPause}
+    pauseLabel={$dictionary.app.pause}
+    onPause={() => appActor.send({ type: 'PAUSE' })}
+  />
 
   <main class="main">
     {@render children()}
