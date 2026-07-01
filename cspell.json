@@ -41,7 +41,6 @@
     "*.trie.gz",
     "**/*.jsonl",
     ".agents/",
-    ".gemini/",
     "tmp/",
     "auto-flow/data/",
     "dist/",
