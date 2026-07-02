@@ -49,7 +49,7 @@
 
 ## A. Углубляющие кандидаты (shallow → deep)
 
-### 1. `drillNext`: ядро отбора заперто inline в замыкании query — единственный «жирный» handler, не вынесенный по паттерну проекта — HIGH · 🔲 НЕ НАЧАТО
+### 1. `drillNext`: ядро отбора заперто inline в замыкании query — единственный «жирный» handler, не вынесенный по паттерну проекта — HIGH · ✅ СДЕЛАНО
 
 **Файлы:** `convex/drill.ts:139–183` (seeded distinct-pick loop + добор под бюджет +
 broken-ref fallback) · вынесен только хвост `buildDefaultDrills` (`:107–124`) ·
@@ -80,6 +80,21 @@ handler-паттерн и ADR 0009.
 `shared/drill-selection`, который уже держит `random-pick`); что именно вход ядра (готовый
 пул строк из БД vs сама выборка из агрегата); не тащит ли ядро зависимость на `ctx.db`
 (тогда это не чистый шов, а II/O-handler). НЕ пересматривать ADR 0009/0011.
+
+**Сделано (2026-07-03).** Ветка `refactor/drill-next-selection-seam`. Ядро отбора
+извлечено как I/O-handler `selectDrillsHandler({ ctx, symbolLayoutId, openedSteps,
+budgetChars, seed }) → { drills }` (не чистый шов — тянет `drillIndex` + `ctx.db`, как и
+ожидалось в grilling'е). Обёртка `drillNext` теперь тонкая: `getAuthUserId` →
+`resolveOpenedSteps` → делегат (форма `repertoireSnapshotHandler`). Граница выбрана по
+`openedSteps`, не по `userId`: та же валюта, что у уже вынесенных `buildDefaultDrills` и
+`resolveOpenedSteps`, и она напрямую закрывает дыру `openedSteps > 1` без identity.
+Тотальность (ADR 0011) осталась локальной внутри ядра. Контракт `drillNext` на проводе не
+менялся — извлечение поведение-сохраняющее, сквозные query-тесты зелёные. **Закрыто
+покрытие:** два юнит-теста на шов — `openedSteps 2` (шаг 1 впущен, шаг 2 отсечён по bound
+`stepLevel < openedSteps`) и different-seed (разные seed → разная выборка). Полный путь
+через identity (`openedSteps > 1` в `drillNext`-query) остаётся за кандидатом 5
+(`withIdentity`). Проверено: `make check-all` (кроме spell — правится централизованно) +
+`npx convex dev --once` зелёные.
 
 ---
 
