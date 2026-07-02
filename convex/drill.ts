@@ -123,6 +123,70 @@ export function buildDefaultDrills({
   return text.length > 0 ? [{ text }] : [];
 }
 
+/**
+ * Ядро политики отбора (ADR 0009 — двухслойный отбор + seed; ADR 0006 — бюджет в
+ * символах; ADR 0011 — тотальность). Вход — уже резолвленный срез репертуара
+ * `openedSteps` (не userId: репертуар-резолюция — отдельный шов `resolveOpenedSteps`,
+ * дефолт-половина `buildDefaultDrills` тоже говорит в openedSteps). I/O-handler
+ * (тянет `drillIndex` + `ctx.db`), не чистая функция — потому тестируется через
+ * `convex-test` напрямую, минуя auth. Тотальность живёт здесь: на контентный сбой
+ * (пустой пул / сплошь битые ссылки) сам подставляет дефолт, а не отдаёт пустоту.
+ */
+export async function selectDrillsHandler({
+  ctx,
+  symbolLayoutId,
+  openedSteps,
+  budgetChars,
+  seed,
+}: {
+  ctx: QueryCtx;
+  symbolLayoutId: string;
+  openedSteps: number;
+  budgetChars: number;
+  seed: number;
+}): Promise<{ drills: { text: string }[] }> {
+  // Жёсткий фильтр (ADR 0009): namespace=раскладка, bounds: stepLevel < openedSteps.
+  const bounds = { upper: { key: openedSteps, inclusive: false } } as const;
+  const count = await drillIndex.count(ctx, { namespace: symbolLayoutId, bounds });
+
+  if (count > 0) {
+    // Равномерный seeded-отбор distinct drill'ов под бюджет (поведение-сохраняющий v1).
+    // Свежесть — из seed (разный на каждый поход с клиента → разный ключ кэша query).
+    // Случайный доступ — count()+at() за O(log n); тексты тянем только у выбранных.
+    const rng = makeSeededRandom(seed);
+    const used = new Set<number>();
+    const drills: { text: string }[] = [];
+    let total = 0;
+    for (;;) {
+      if (drills.length > 0 && total >= budgetChars) break;
+      const offset = nextDistinctOffset({ rng, count, used });
+      if (offset === null) break;
+      const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: symbolLayoutId, bounds });
+      const row = await ctx.db.get(selectionId); // строка drillSelectionIndex
+      // Битая ссылка: offset уже помечен used в nextDistinctOffset и не выпадет
+      // снова. Пул сплошь из битых → недобор → выход в дефолт ниже (intent).
+      if (row === null) continue;
+      const drill = await ctx.db.get(row.drillId);
+      if (drill === null) continue;
+      drills.push({ text: drill.text });
+      total += drill.length;
+    }
+    if (drills.length > 0) return { drills };
+    // Пул не пуст (count>0), но все ссылки битые → контентный сбой → дефолт ниже.
+  }
+
+  // Контентный сбой: пустой пул (count===0) ИЛИ сплошь битые ссылки. Сервер сам
+  // закрывает дыру дефолтным drill'ом из символов открытых шагов — клиент всегда
+  // получает непустую порцию (клиентского корпуса для деградации больше нет, ADR
+  // 0011). Раскладка без серверных данных — config-баг: построить нечем → пусто.
+  console.warn(
+    `drillNext: контентный сбой (раскладка ${symbolLayoutId}, openedSteps ${openedSteps}) — дефолтный drill`
+  );
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (layoutData === null) return { drills: [] };
+  return { drills: buildDefaultDrills({ layoutData, openedSteps, budgetChars }) };
+}
+
 export const drillNext = query({
   args: {
     symbolLayoutId: v.string(),
@@ -136,50 +200,19 @@ export const drillNext = query({
   returns: v.object({
     drills: v.array(v.object({ text: v.string() })),
   }),
+  // Обёртка резолвит identity → openedSteps и делегирует политику отбора ядру
+  // (паттерн repertoireSnapshotHandler / applyDrillSummaryHandler). openedSteps —
+  // через выделенный шов resolveOpenedSteps (user × раскладка, cold-start 1 для гостя).
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
-
-    // Жёсткий фильтр (ADR 0009): namespace=раскладка, bounds: stepLevel < openedSteps.
-    const bounds = { upper: { key: openedSteps, inclusive: false } } as const;
-    const count = await drillIndex.count(ctx, { namespace: args.symbolLayoutId, bounds });
-
-    if (count > 0) {
-      // Равномерный seeded-отбор distinct drill'ов под бюджет (поведение-сохраняющий v1).
-      // Свежесть — из seed (разный на каждый поход с клиента → разный ключ кэша query).
-      // Случайный доступ — count()+at() за O(log n); тексты тянем только у выбранных.
-      const rng = makeSeededRandom(args.seed);
-      const used = new Set<number>();
-      const drills: { text: string }[] = [];
-      let total = 0;
-      for (;;) {
-        if (drills.length > 0 && total >= args.budgetChars) break;
-        const offset = nextDistinctOffset({ rng, count, used });
-        if (offset === null) break;
-        const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: args.symbolLayoutId, bounds });
-        const row = await ctx.db.get(selectionId); // строка drillSelectionIndex
-        // Битая ссылка: offset уже помечен used в nextDistinctOffset и не выпадет
-        // снова. Пул сплошь из битых → недобор → выход в дефолт ниже (intent).
-        if (row === null) continue;
-        const drill = await ctx.db.get(row.drillId);
-        if (drill === null) continue;
-        drills.push({ text: drill.text });
-        total += drill.length;
-      }
-      if (drills.length > 0) return { drills };
-      // Пул не пуст (count>0), но все ссылки битые → контентный сбой → дефолт ниже.
-    }
-
-    // Контентный сбой: пустой пул (count===0) ИЛИ сплошь битые ссылки. Сервер сам
-    // закрывает дыру дефолтным drill'ом из символов открытых шагов — клиент всегда
-    // получает непустую порцию (клиентского корпуса для деградации больше нет, ADR
-    // 0011). Раскладка без серверных данных — config-баг: построить нечем → пусто.
-    console.warn(
-      `drillNext: контентный сбой (раскладка ${args.symbolLayoutId}, openedSteps ${openedSteps}) — дефолтный drill`
-    );
-    const layoutData = getLayoutData(args.symbolLayoutId);
-    if (layoutData === null) return { drills: [] };
-    return { drills: buildDefaultDrills({ layoutData, openedSteps, budgetChars: args.budgetChars }) };
+    return await selectDrillsHandler({
+      ctx,
+      symbolLayoutId: args.symbolLayoutId,
+      openedSteps,
+      budgetChars: args.budgetChars,
+      seed: args.seed,
+    });
   },
 });
 
