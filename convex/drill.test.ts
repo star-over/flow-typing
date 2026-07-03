@@ -1,6 +1,16 @@
 import { describe, expect, test, vi } from 'vitest';
 import { api } from './_generated/api';
-import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, progressionDetailHandler, resetMyProfileHandler, buildDefaultDrills, selectDrillsHandler } from './drill';
+import {
+  foldSummaryIntoCells,
+  applyDrillSummaryHandler,
+  resolveOpenedSteps,
+  repertoireSnapshotHandler,
+  progressionDetailHandler,
+  resetMyProfileHandler,
+  buildDefaultDrills,
+  selectDrillsHandler,
+  setMyLadderStepHandler,
+} from './drill';
 import { makeConvexTest, asUser, seedUser, seedDrill, seedProfile } from './test.helpers';
 import { getLayoutData } from './layoutData';
 import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
@@ -617,5 +627,146 @@ describe('resetMyProfile mutation — auth', () => {
   test('гость (без identity) → 0 удалённых, без throw', async () => {
     const t = makeConvexTest();
     expect(await t.mutation(api.drill.resetMyProfile, {})).toBe(0);
+  });
+});
+
+
+describe('setMyLadderStepHandler — установка ступени профиля', () => {
+  test('создаёт профиль, если его нет', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      const result = await setMyLadderStepHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        targetStep: 3,
+      });
+      expect(result.openedSteps).toBe(3);
+      expect(result.clamped).toBe(false);
+
+      const profile = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) =>
+          q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .unique();
+      expect(profile?.openedSteps).toBe(3);
+      expect(profile?.symbolCells).toEqual([]);
+    });
+  });
+
+  test('обновляет существующий профиль и сбрасывает ячейки', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      await seedProfile({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        openedSteps: 1,
+        symbolCells: [{ symbol: 'а', exposures: 10, clean: 9, latencyEwma: 150, latencySamples: 10 }],
+        updatedAt: 1,
+      });
+      const result = await setMyLadderStepHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        targetStep: 2,
+      });
+      expect(result.openedSteps).toBe(2);
+      expect(result.clamped).toBe(false);
+
+      const profile = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) =>
+          q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .unique();
+      expect(profile?.openedSteps).toBe(2);
+      expect(profile?.symbolCells).toEqual([]);
+    });
+  });
+
+  test('clamp вверх до максимально возможной ступени', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      const result = await setMyLadderStepHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        targetStep: 999,
+      });
+      expect(result.clamped).toBe(true);
+      expect(result.openedSteps).toBeGreaterThan(1);
+
+      const profile = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) =>
+          q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .unique();
+      expect(profile?.openedSteps).toBe(result.openedSteps);
+    });
+  });
+
+  test('clamp вниз до 1', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      const result = await setMyLadderStepHandler({
+        ctx,
+        userId,
+        symbolLayoutId: 'йцукен',
+        targetStep: 0,
+      });
+      expect(result.openedSteps).toBe(1);
+      expect(result.clamped).toBe(true);
+    });
+  });
+
+  test('гость (null userId) → throw Not authenticated', async () => {
+    const t = makeConvexTest();
+    await expect(
+      t.run(async (ctx) =>
+        setMyLadderStepHandler({ ctx, userId: null, symbolLayoutId: 'йцукен', targetStep: 2 })
+      )
+    ).rejects.toThrow(/not authenticated/i);
+  });
+
+  test('неизвестная раскладка → throw', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      await expect(
+        setMyLadderStepHandler({ ctx, userId, symbolLayoutId: 'unknown', targetStep: 2 })
+      ).rejects.toThrow(/unknown symbolLayoutId/i);
+    });
+  });
+});
+
+describe('setMyLadderStep mutation — auth', () => {
+  test('authenticated: устанавливает ступень текущего юзера', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => seedUser({ ctx }));
+    const result = await asUser({ t, userId }).mutation(api.drill.setMyLadderStep, {
+      symbolLayoutId: 'йцукен',
+      targetStep: 3,
+    });
+    expect(result.openedSteps).toBe(3);
+    expect(result.clamped).toBe(false);
+    await t.run(async (ctx) => {
+      const profile = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) =>
+          q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .unique();
+      expect(profile?.openedSteps).toBe(3);
+    });
+  });
+
+  test('гость (без identity) → throw Not authenticated', async () => {
+    const t = makeConvexTest();
+    await expect(
+      t.mutation(api.drill.setMyLadderStep, { symbolLayoutId: 'йцукен', targetStep: 2 })
+    ).rejects.toThrow(/not authenticated/i);
   });
 });
