@@ -512,14 +512,16 @@ export async function setMyLadderStepHandler({
   targetStep,
 }: {
   ctx: MutationCtx;
-  userId: Id<'users'> | null;
+  userId: Id<'users'>;
   symbolLayoutId: string;
   targetStep: number;
 }): Promise<{ openedSteps: number; clamped: boolean }> {
-  if (userId === null) throw new Error('Not authenticated');
-
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) throw new Error(`Unknown symbolLayoutId: ${symbolLayoutId}`);
+
+  if (!Number.isFinite(targetStep) || !Number.isInteger(targetStep)) {
+    throw new Error(`Invalid targetStep: ${targetStep}. Must be a finite integer.`);
+  }
 
   const maxStep = maxLadderStep(layoutData.keyLadder);
   const maxOpenedSteps = maxStep + 1;
@@ -563,6 +565,9 @@ export const setMyLadderStep = mutation({
   }),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error('Not authenticated');
+    }
     return await setMyLadderStepHandler({
       ctx,
       userId,
