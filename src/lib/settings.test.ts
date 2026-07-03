@@ -59,10 +59,17 @@ describe('normalizeSettings', () => {
     expect(normalizeSettings({}).rhythmChannelEnabled).toBe(false);
   });
 
-  it('валидный sessionDurationSeconds сохраняется, не-число → дефолт 300', () => {
-    expect(normalizeSettings({ sessionDurationSeconds: 600 }).sessionDurationSeconds).toBe(600);
-    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(300);
+  it('валидный sessionDurationSeconds сохраняется', () => {
+    expect(normalizeSettings({ sessionDurationSeconds: 60 }).sessionDurationSeconds).toBe(60);
+    expect(normalizeSettings({ sessionDurationSeconds: 300 }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 900 }).sessionDurationSeconds).toBe(900);
+  });
+
+  it('невалидный sessionDurationSeconds → дефолт 300', () => {
     expect(normalizeSettings({}).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 30 }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 120 }).sessionDurationSeconds).toBe(300);
   });
 
   it('displayName: любая строка проходит как есть', () => {

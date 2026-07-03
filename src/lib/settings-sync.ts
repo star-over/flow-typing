@@ -1,5 +1,4 @@
 import type { UserSettings } from '@/interfaces/user-settings';
-import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
 
 /**
  * Shape of userSettings row returned by Convex getMine.
@@ -18,6 +17,7 @@ export interface CloudSettings {
   // Optional на чтение: строки, записанные до появления поля, его не имеют.
   displayName?: string;
   rhythmChannelEnabled?: boolean;
+  sessionDurationSeconds?: number;
   updatedAt: number;
 }
 
@@ -70,8 +70,9 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     theme: cloud.theme,
     displayName: cloud.displayName ?? '',
     rhythmChannelEnabled: cloud.rhythmChannelEnabled,
-    // Cloud-ряды, созданные до добавления поля, не содержат его; заполняем дефолтом.
-    sessionDurationSeconds: DEFAULT_USER_SETTINGS.sessionDurationSeconds,
+    // Cloud-ряды, созданные до добавления поля, не содержат его; normalizeSettings
+    // исправит undefined на входе в store, но здесь пропускаем как есть (raw boundary).
+    sessionDurationSeconds: cloud.sessionDurationSeconds,
   } as UserSettings;
 }
 
@@ -89,6 +90,7 @@ export function settingsToCloudArgs(settings: UserSettings): {
   theme: string;
   displayName: string;
   rhythmChannelEnabled: boolean;
+  sessionDurationSeconds: number;
 } {
   return {
     interfaceLanguage: settings.interfaceLanguage,
@@ -99,6 +101,7 @@ export function settingsToCloudArgs(settings: UserSettings): {
     theme: settings.theme,
     displayName: settings.displayName,
     rhythmChannelEnabled: settings.rhythmChannelEnabled,
+    sessionDurationSeconds: settings.sessionDurationSeconds,
   };
 }
 

@@ -48,6 +48,15 @@ function isCursorType(v: unknown): v is FlowLineCursorType {
   return typeof v === 'string' && (FLOW_LINE_CURSOR_TYPES as readonly string[]).includes(v);
 }
 
+const SESSION_DURATION_OPTIONS = [60, 180, 300, 600, 900] as const;
+
+function isSessionDurationSeconds(v: unknown): v is number {
+  return typeof v === 'number'
+    && v >= 60
+    && v <= 900
+    && (SESSION_DURATION_OPTIONS as readonly number[]).includes(v);
+}
+
 function isSymbolLayoutCompatibleWithTextLanguage({
   symbolLayoutId,
   textLanguage,
@@ -105,8 +114,8 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.rhythmChannelEnabled
     : DEFAULT_USER_SETTINGS.rhythmChannelEnabled;
 
-  // Длительность таймерной сессии в секундах; не-число → дефолт (5 минут).
-  const sessionDurationSeconds = typeof stored.sessionDurationSeconds === 'number'
+  // Длительность таймерной сессии в секундах; не-число или недопустимое значение → дефолт (5 минут).
+  const sessionDurationSeconds = isSessionDurationSeconds(stored.sessionDurationSeconds)
     ? stored.sessionDurationSeconds
     : DEFAULT_USER_SETTINGS.sessionDurationSeconds;
 
