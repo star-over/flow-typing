@@ -4,13 +4,13 @@
 
 **Goal:** Снести неавторизованный доступ к тренировке (ADR 0012) — все `drill*`-функции auth-required, гость на `/train` видит приглашение войти — и дать ИИ-агентам/E2E инструментальный dev-вход (Password-провайдер за env-флагом), причём dev-вход поднимается раньше закрытия, чтобы прогоны агентов не ломались ни на минуту.
 
-**Architecture:** Порядок закреплён ADR 0012: сначала dev-вход (стоковый `Password` из `@convex-dev/auth`, регистрируется в `convex/auth.ts` только при env-флаге Convex — на production флага нет, провайдера физически не существует; кнопка на `/signin` за `PUBLIC_DEV_LOGIN*` из `.env.local`), затем барьер `/train` (приглашение по образцу `/stats`) и auth-required `drillNext` (extract `drillNextHandler` по канону handler-паттерна, обёртка бросает 'Not authenticated' симметрично `drillRecord`). Ветка `userId === null → DEFAULT_OPENED_STEPS` умирает; ветка `profile === null → DEFAULT_OPENED_STEPS` (cold start авторизованного) **остаётся**.
+**Architecture:** Порядок закреплён ADR 0012: сначала dev-вход (стоковый `Password` из `@convex-dev/auth`, регистрируется в `convex/auth.ts` только при env-флаге Convex — на production флага нет, провайдера физически не существует; кнопка на `/signin` за `PUBLIC_DEV_LOGIN*` из `.env.local`), затем барьер `/train` (приглашение по образцу `/stats`) и auth-required `drillNext` (ядро отбора уже за швом `selectDrillsHandler` — остаётся throw 'Not authenticated' в обёртке симметрично `drillRecord` и сужение `resolveOpenedSteps`). Ветка `userId === null → DEFAULT_OPENED_STEPS` умирает; ветка `profile === null → DEFAULT_OPENED_STEPS` (cold start авторизованного) **остаётся**.
 
 **Tech Stack:** Convex (`@convex-dev/auth` Password), SvelteKit 2 / Svelte 5 runes (`$env/dynamic/public`), XState v5 (не меняется), Vitest projects (`convex` edge-runtime, `src` node), convex-test.
 
 **Канон:** ADR 0012 (это решение), ADR 0013 (at-most-once — формулировки комментариев), ADR 0005/0008 (server-authoritative, cold start), CLAUDE.md (handler-паттерн, «где код — там тест», конвенции коммитов).
 
-**Ветка:** `feat/adr-0012-auth-required` от `master`. **Предусловие:** канон-правки сессии аудита (текущая ветка `ADR_Rethink` — ADR 0012/0013, README, статус-строки) должны попасть в `master` (commit + merge) раньше этой ветки.
+**Ветка:** `feat/adr-0012-auth-required` от `master`. **Предусловие (выполнено 2026-07-03):** канон закреплён в коммите на `ADR_Rethink` (`0da0cfd`), `master` влит в неё (`f6fde7f`, включая шов `selectDrillsHandler`); ветка исполнения создаётся от `ADR_Rethink`. В `master` вливаются последовательно: сначала `ADR_Rethink`, затем эта ветка.
 
 ---
 
@@ -341,10 +341,10 @@ git commit -m "feat(train): auth-барьер /train — гостю пригла
 ### Task 5: `drillNext` auth-required (гостевые ветки сервера умирают)
 
 **Files:**
-- Modify: `convex/drill.ts` (`resolveOpenedSteps` :54–69, `drillNext` :126–183, header-комментарий :27)
-- Test: `convex/drill.test.ts` (8 call sites `t.query(api.drill.drillNext, …)` + describe `resolveOpenedSteps` :415–445 + новый guest-тест)
+- Modify: `convex/drill.ts` (`resolveOpenedSteps` :54–69; обёртка `drillNext` :190–215; упоминания «cold-start 1 для гостя» в комментариях)
+- Test: `convex/drill.test.ts` (8 call sites `t.query(api.drill.drillNext, …)` :55–149 → ядро `selectDrillsHandler`; describe `resolveOpenedSteps` :458–486; новый guest-тест)
 
-Канон-паттерн проекта: логика в handler'е (тестируется с явным `userId`), auth-обёртка тонкая и покрыта одним guest-throw тестом (образец — `convex/sessions.test.ts` «гость (без identity) → throw Not authenticated»).
+Ядро отбора уже за швом `selectDrillsHandler({ ctx, symbolLayoutId, openedSteps, budgetChars, seed })` (рефакторинг `refactor/drill-next-selection-seam` на master) — политика тестируется напрямую, минуя auth. Остаётся: auth-барьер в обёртке (симметрично `drillRecord`, образец guest-throw теста — `convex/sessions.test.ts`), сужение `resolveOpenedSteps` до непустого `userId`, миграция гостевых тестов обёртки на ядро.
 
 - [ ] **Step 1: Написать падающий guest-тест** — в `convex/drill.test.ts`, в конец describe `drillNext`:
 
@@ -382,72 +382,53 @@ export async function resolveOpenedSteps({
 }
 ```
 
-- [ ] **Step 3: Извлечь `drillNextHandler` + auth-обёртка.** Тело текущего `handler` переезжает в экспортируемую функцию (внутри тела `args.symbolLayoutId`/`args.budgetChars`/`args.seed` → параметры `symbolLayoutId`/`budgetChars`/`seed`; строка `const userId = await getAuthUserId(ctx)` из тела удаляется):
+- [ ] **Step 3: Auth-барьер в обёртке `drillNext`** (`convex/drill.ts` :204–215) — ядро не трогается; заменить handler обёртки:
 
 ```ts
-/** Выдача порции (ADR 0009/0011). Handler отдельно от auth-обёртки — канон-паттерн. */
-export async function drillNextHandler({
-  ctx,
-  userId,
-  symbolLayoutId,
-  budgetChars,
-  seed,
-}: {
-  ctx: QueryCtx | MutationCtx;
-  userId: Id<'users'>;
-  symbolLayoutId: string;
-  budgetChars: number;
-  seed: number;
-}): Promise<{ drills: { text: string }[] }> {
-  const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId });
-  // … далее прежнее тело drillNext без изменений (bounds, count, цикл отбора,
-  // контентный сбой → buildDefaultDrills) …
-}
-
-export const drillNext = query({
-  args: {
-    symbolLayoutId: v.string(),
-    budgetChars: v.number(),
-    seed: v.number(),
-  },
-  returns: v.object({
-    drills: v.array(v.object({ text: v.string() })),
-  }),
+  // Обёртка разрешает identity → openedSteps и делегирует политику отбора ядру
+  // (паттерн repertoireSnapshotHandler / applyDrillSummaryHandler). Тренировка
+  // требует входа (ADR 0012) — симметрично drillRecord; cold start (профиля нет)
+  // разрешается в openedSteps = 1 внутри resolveOpenedSteps.
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
-      // ADR 0012: тренировка требует входа — симметрично drillRecord.
       throw new Error('Not authenticated');
     }
-    return await drillNextHandler({ ctx, userId, ...args });
-  },
-});
-```
-
-Header-комментарий `convex/drill.ts:27` (про cold start) уточнить: «cold start = авторизованный без профиля; гостевой ветки нет (ADR 0012)».
-
-- [ ] **Step 4: Мигрировать 8 существующих call sites** в `drill.test.ts`. Каждый `await t.query(api.drill.drillNext, {…})` становится вызовом handler'а с явным юзером внутри `t.run`. Образец (первый тест «бюджет ограничивает порцию»):
-
-```ts
-// шапка файла: добавить drillNextHandler в импорт из './drill'
-import { …, drillNextHandler } from './drill';
-```
-
-```ts
-    const res = await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { name: 'drill-test' });
-      return drillNextHandler({ ctx, userId, symbolLayoutId: 'test', budgetChars: 10, seed: 42 });
+    const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
+    return await selectDrillsHandler({
+      ctx,
+      symbolLayoutId: args.symbolLayoutId,
+      openedSteps,
+      budgetChars: args.budgetChars,
+      seed: args.seed,
     });
+  },
 ```
 
-Для теста детерминизма (`один seed → одна порция`, строки :125–126) юзер создаётся один раз, оба вызова handler'а — в одном `t.run` с тем же `userId` (иначе разные юзеры = одинаковый cold start, тест всё равно валиден, но одним юзером — честнее).
+Попутно убрать «для гостя» из упоминаний cold-start в комментариях `drill.ts` (header :27 и docstring `resolveOpenedSteps`): cold start = авторизованный без профиля; гостевого заслона нет (ADR 0012).
 
-- [ ] **Step 5: Переписать describe `resolveOpenedSteps`** (строки :415–445): первые три теста не меняются (уже зовут с настоящим `userId`); четвёртый (гостевой: `null userId` → cold-start 1) — **удалить** (компилятор больше не пропускает `null`; гостя закрывает guest-throw тест из Step 1).
+- [ ] **Step 4: Мигрировать 8 call sites** (`drill.test.ts` :55–149). Эти тесты всегда работали на cold-start `openedSteps = 1` (комментарий :159–161 это фиксирует) — сценарии сохраняются буквально, юзеры не нужны: каждый
+
+```ts
+    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 42 });
+```
+
+становится
+
+```ts
+    const res = await t.run(async (ctx) =>
+      selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 10, seed: 42 }),
+    );
+```
+
+(`selectDrillsHandler` уже в импорте шапки файла). Для пары детерминизма (:125–126) оба вызова — в одном `t.run`. Комментарий :159–161 («`t.query` всегда даёт null → cold-start 1…») переписать: обёртка гостя больше не пускает (ADR 0012), cold-start ветка ядра тестируется через `openedSteps: 1`.
+
+- [ ] **Step 5: Describe `resolveOpenedSteps`** (:458–486): первые три теста не меняются (уже зовут с настоящим `userId`); четвёртый (гостевой: `null userId` → cold-start 1, :483–486) — **удалить** (компилятор больше не пропускает `null`; гостя закрывает guest-throw тест из Step 1).
 
 - [ ] **Step 6: Прогнать тесты + типы**
 
 Run: `npx vitest run convex/drill.test.ts && make check`
-Expected: PASS все; 0 type errors (не забыть: `resolveOpenedSteps` больше нигде не зовётся с `null` — единственный прод-вызов внутри `drillNextHandler`).
+Expected: PASS все; 0 type errors (`resolveOpenedSteps` больше нигде не зовётся с `null` — единственный прод-вызов в обёртке `drillNext` после throw).
 
 - [ ] **Step 7: Проверить развёртывание**
 
