@@ -48,14 +48,10 @@ describe('drillNext — выдача порции (этап 1)', () => {
   test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
-      for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
-    });
 
-    const res = await t.query(api.drill.drillNext, {
-      symbolLayoutId: 'test',
-      budgetChars: 10,
-      seed: 1,
+    const res = await t.run(async (ctx) => {
+      for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
+      return selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 10, seed: 1 });
     });
 
     expect(res.drills).toHaveLength(2);
@@ -65,15 +61,11 @@ describe('drillNext — выдача порции (этап 1)', () => {
   test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
+
+    const res = await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
       await insertDrill(ctx, { text: 'zzzzz', step: 5, layout: 'test' });
-    });
-
-    const res = await t.query(api.drill.drillNext, {
-      symbolLayoutId: 'test',
-      budgetChars: 300,
-      seed: 1,
+      return selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 300, seed: 1 });
     });
 
     // Бюджет 300 знаков > всех step-0 (10×5=50): выдаются все 10, step-5 — никогда.
@@ -84,15 +76,11 @@ describe('drillNext — выдача порции (этап 1)', () => {
   test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
+
+    const res = await t.run(async (ctx) => {
       await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'test' });
       await insertDrill(ctx, { text: 'zzzzz', step: 0, layout: 'other' });
-    });
-
-    const res = await t.query(api.drill.drillNext, {
-      symbolLayoutId: 'test',
-      budgetChars: 300,
-      seed: 1,
+      return selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 300, seed: 1 });
     });
 
     expect(res.drills).toHaveLength(1);
@@ -104,11 +92,9 @@ describe('drillNext — выдача порции (этап 1)', () => {
     registerDrillIndex(t);
     // Раскладка с серверными данными (йцукен), но пул пуст → сервер строит дефолт,
     // а не возвращает пустоту (клиентского корпуса для деградации больше нет).
-    const res = await t.query(api.drill.drillNext, {
-      symbolLayoutId: 'йцукен',
-      budgetChars: 30,
-      seed: 1,
-    });
+    const res = await t.run(async (ctx) =>
+      selectDrillsHandler({ ctx, symbolLayoutId: 'йцукен', openedSteps: 1, budgetChars: 30, seed: 1 })
+    );
 
     expect(res.drills.length).toBeGreaterThan(0);
     const allowed = jcukenStep0Allowed();
@@ -119,46 +105,56 @@ describe('drillNext — выдача порции (этап 1)', () => {
   test('seed детерминирует выборку: один seed → одинаковые тексты', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
+    const [a, b] = await t.run(async (ctx) => {
       for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: `dr${i}xx`, step: 0, layout: 'test' });
+      const a = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 10, seed: 777 });
+      const b = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 10, seed: 777 });
+      return [a, b];
     });
-    const a = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
-    const b = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
     expect(a.drills.map((d) => d.text)).toEqual(b.drills.map((d) => d.text));
   });
 
   test('drill\'ы в порции не повторяются (distinct)', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
+    const res = await t.run(async (ctx) => {
       // Уникальные тексты: distinct по тексту ⟺ distinct по строкам (id на проводе нет).
       for (let i = 0; i < 20; i++) await insertDrill(ctx, { text: `dr${i}aa`, step: 0, layout: 'test' });
+      return selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 50, seed: 5 });
     });
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
     expect(new Set(res.drills.map((d) => d.text)).size).toBe(res.drills.length);
   });
 
   test('битые ссылки (drills удалён, индекс жив) → дефолтный drill, не пустота', async () => {
     const t = convexTest(schema, modules);
     registerDrillIndex(t);
-    await t.run(async (ctx) => {
+    const res = await t.run(async (ctx) => {
       // Индекс + агрегат живы (count>0), сам drill удалён → ссылка битая.
       const drillId = await insertDrill(ctx, { text: 'abcde', step: 0, layout: 'йцукен' });
       await ctx.db.delete(drillId);
+      return selectDrillsHandler({ ctx, symbolLayoutId: 'йцукен', openedSteps: 1, budgetChars: 30, seed: 1 });
     });
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 30, seed: 1 });
     expect(res.drills.length).toBeGreaterThan(0);
     const allowed = jcukenStep0Allowed();
     const text = res.drills.map((d) => d.text).join(' ');
     for (const ch of text) expect(allowed.has(ch)).toBe(true);
   });
+
+  test('гость (без identity) → throw Not authenticated (ADR 0012)', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await expect(
+      t.query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 10, seed: 1 })
+    ).rejects.toThrow('Not authenticated');
+  });
 });
 
-// Ядро политики отбора напрямую (шов на openedSteps, минуя auth): закрывает дыры,
-// которые query-уровень достать не мог — getAuthUserId в convex-test без identity
-// всегда даёт null → resolveOpenedSteps → cold-start 1, поэтому ветка openedSteps>1
-// через `t.query(drillNext)` не гоняется ни разу (полный путь через identity — это
-// отдельный кандидат withIdentity). Шов подаёт openedSteps напрямую.
+// Ядро политики отбора напрямую (шов на openedSteps, минуя auth): обёртка
+// `drillNext` теперь требует входа (ADR 0012) и в convex-test без identity сразу
+// throw'ит, поэтому happy-path сценарии отбора (в том числе cold-start openedSteps
+// 1, на котором работали happy-path тесты выше) и ветку openedSteps>1 тестируем
+// через прямой вызов `selectDrillsHandler`, минуя auth-барьер (полный путь через
+// identity — отдельный кандидат withIdentity). Шов подаёт openedSteps напрямую.
 describe('selectDrillsHandler — политика отбора (ADR 0009/0006/0011)', () => {
   test('openedSteps 2: drill шага 1 впущен, шага 2 отсечён (bound stepLevel < openedSteps)', async () => {
     const t = convexTest(schema, modules);
@@ -477,12 +473,6 @@ describe('resolveOpenedSteps — чтение репертуара из проф
     await t.run(async (ctx) => {
       const userId = await ctx.db.insert('users', { name: 'U' });
       expect(await resolveOpenedSteps({ ctx, userId, symbolLayoutId: 'йцукен' })).toBe(1);
-    });
-  });
-  test('null userId (неавторизован/гость) → cold-start 1', async () => {
-    const t = convexTest(schema, modules);
-    await t.run(async (ctx) => {
-      expect(await resolveOpenedSteps({ ctx, userId: null, symbolLayoutId: 'йцукен' })).toBe(1);
     });
   });
 });

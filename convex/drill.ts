@@ -25,7 +25,8 @@
  * Жёсткое требование одно: drill доступен ⟺ его `stepLevel` в таблице отбора
  * `< openedSteps` (ADR 0001) — сравнение через bounds агрегата `drillIndex`.
  * `openedSteps` читается из Skill Profile (ADR 0008): `resolveOpenedSteps` возвращает
- * значение профиля (user × раскладка) или cold-start 1 для гостя/нового профиля.
+ * значение профиля (user × раскладка) или cold-start 1 для нового профиля.
+ * Тренировка требует входа (ADR 0012) — гостевой ветки здесь больше нет.
  */
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { mutation, query } from './_generated/server';
@@ -50,17 +51,16 @@ import {
 // openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
 const DEFAULT_OPENED_STEPS = 1;
 
-/** Резолв репертуара: openedSteps из профиля (user × раскладка) или cold-start. */
+/** Репертуар из профиля (user × раскладка); нет профиля → cold start. */
 export async function resolveOpenedSteps({
   ctx,
   userId,
   symbolLayoutId,
 }: {
   ctx: QueryCtx | MutationCtx;
-  userId: Id<'users'> | null;
+  userId: Id<'users'>;
   symbolLayoutId: string;
 }): Promise<number> {
-  if (userId === null) return DEFAULT_OPENED_STEPS;
   const profile = await ctx.db
     .query('skillProfiles')
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
@@ -201,10 +201,14 @@ export const drillNext = query({
     drills: v.array(v.object({ text: v.string() })),
   }),
   // Обёртка резолвит identity → openedSteps и делегирует политику отбора ядру
-  // (паттерн repertoireSnapshotHandler / applyDrillSummaryHandler). openedSteps —
-  // через выделенный шов resolveOpenedSteps (user × раскладка, cold-start 1 для гостя).
+  // (паттерн repertoireSnapshotHandler / applyDrillSummaryHandler). Тренировка
+  // требует входа (ADR 0012) — throw симметрично drillRecord; cold start
+  // (профиля нет) резолвится в openedSteps = 1 внутри resolveOpenedSteps.
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error('Not authenticated');
+    }
     const openedSteps = await resolveOpenedSteps({ ctx, userId, symbolLayoutId: args.symbolLayoutId });
     return await selectDrillsHandler({
       ctx,
