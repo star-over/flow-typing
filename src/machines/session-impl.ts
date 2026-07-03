@@ -59,7 +59,7 @@ export const sessionService = sessionMachine.provide({
   actions: {
     // Fire-and-forget: запись профиля не блокирует сессию. Офлайн/сбой сети →
     // мутация бросает → молча гасим: доставка сводки best-effort at-most-once
-    // (ADR 0013), потеря дельты допустима. Гостя на тренировке нет (ADR 0012).
+    // (ADR 0015), потеря дельты допустима. Гостя на тренировке нет (ADR 0012).
     recordCheckpoint: (_, params) => {
       const { summary, symbolLayoutId } = params;
       const { exposures, clean, accuracy } = summary.overall;
@@ -70,10 +70,10 @@ export const sessionService = sessionMachine.provide({
       void convex
         .mutation(api.drill.drillRecord, { symbolLayoutId, summary })
         .then(() => logConvex(`drillRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
-        .catch((err) => console.warn('drillRecord пропущен (офлайн, at-most-once — ADR 0013)', err));
+        .catch((err) => console.warn('drillRecord пропущен (офлайн, at-most-once — ADR 0015)', err));
     },
     // Журнал сессии: fire-and-forget, как recordCheckpoint. capturedAt/openedSteps
-    // ставит сервер. Офлайн → молча гасим (at-most-once, ADR 0013).
+    // ставит сервер. Офлайн → молча гасим (at-most-once, ADR 0015).
     recordSessionSummary: (_, params) => {
       const { payload, symbolLayoutId } = params;
       logConvex(
@@ -83,7 +83,7 @@ export const sessionService = sessionMachine.provide({
       void convex
         .mutation(api.sessions.record, { symbolLayoutId, ...payload })
         .then(() => logConvex(`sessionRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
-        .catch((err) => console.warn('sessionSummary пропущен (офлайн, at-most-once — ADR 0013)', err));
+        .catch((err) => console.warn('sessionSummary пропущен (офлайн, at-most-once — ADR 0015)', err));
     },
   },
 });
