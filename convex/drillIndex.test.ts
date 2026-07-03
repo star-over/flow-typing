@@ -1,27 +1,13 @@
-import { convexTest } from 'convex-test';
 import { describe, expect, test } from 'vitest';
-import schema from './schema';
 import { drillIndex } from './drillIndex';
-import { registerDrillIndex } from './test.helpers';
-
-const modules = import.meta.glob('./**/*.ts');
+import { makeConvexTest, seedDrillDoc } from './test.helpers';
 
 describe('drillIndex — aggregate component в convex-test', () => {
   test('insert → count видит строку в namespace', async () => {
-    const t = convexTest(schema, modules);
-    registerDrillIndex(t);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
       const id = await ctx.db.insert('drillSelectionIndex', {
-        drillId: await ctx.db.insert('drills', {
-          text: 'a',
-          length: 1,
-          uniqueSymbols: ['a'],
-          wordCount: 1,
-          avgWordLength: 1,
-          maxWordLength: 1,
-          bigrams: [],
-          symbolFrequency: [],
-        }),
+        drillId: await seedDrillDoc({ ctx, text: 'a' }),
         symbolLayoutId: 'test',
         stepLevel: 0,
       });
