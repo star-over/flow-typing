@@ -24,6 +24,11 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   void import('@/lib/dev/profile-reset').then(({ attachProfileReset }) => {
     attachProfileReset();
   });
+  // Dev-only: window.__setLadderStep(step) — установить ступень KeyLadder текущего
+  // юзера для текущей раскладки (см. lib/dev/ladder-set).
+  void import('@/lib/dev/ladder-set').then(({ attachLadderStepSet }) => {
+    attachLadderStepSet();
+  });
 }
 
 if (import.meta.hot) {

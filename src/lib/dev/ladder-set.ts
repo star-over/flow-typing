@@ -2,7 +2,7 @@
  * @file Dev-only: установка ступени KeyLadder текущего юзера из консоли браузера.
  *
  * Выставляет `window.__setLadderStep(step)` → `convex.mutation(api.drill.setMyLadderStep)`.
- * Берёт текущую раскладку из `$settings.symbolLayoutId` на момент вызова, clamp'ит
+ * Берёт текущую раскладку из `settings.symbolLayoutId` на момент вызова, clamp'ит
  * ступень на сервере к допустимому диапазону и сбрасывает `symbolCells` профиля.
  *
  * Вызывать ТОЛЬКО из браузера авторизованным: mutation использует `getAuthUserId`.
