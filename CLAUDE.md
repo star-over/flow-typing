@@ -119,11 +119,13 @@ Backend для синхронизированных данных (auth с Phase 
 - Контракт-токены: `SIGN_IN_SCREEN_CONTRACT` + `USER_MENU_CONTRACT` агрегированы в `THEME_CONTRACT`.
 - Тесты: `auth-state.test.ts` покрывает `computeAuthState` pure-функцию (state derivation). Компоненты — Storybook stories.
 
-**Тесты — vitest projects split (с Phase 2):**
+**Тесты — vitest projects split (4 проекта, `vitest.config.ts`):**
 - `src/**/*.test.ts` → project `src`, node environment, обычная Svelte+TS-вселенная (auth-store, компоненты, контракты).
 - `convex/**/*.test.ts` → project `convex`, **`edge-runtime` environment**, `convex-test` для unit-тестов функций. Здесь `getAuthUserId`, `createOrUpdateUserHandler`, любая backend-логика, которая трогает `ctx.db`.
+- `shared/**/*.test.ts` → project `shared`, node environment. Рантайм-модель, общая с сервером и инструментами (символьная раскладка, repertoire/progress, key-ladder) — без I/O.
+- `auto-flow/**/*.test.ts` → project `auto-flow`, node environment. Инструментарий (сборка корпуса, загрузка раскладок с диска), в браузерную сборку не входит.
 
-`make test` запускает оба проекта одной командой. Vitest предваряет вывод `|src|` / `|convex|`.
+`make test` запускает все четыре проекта одной командой. Vitest предваряет вывод `|src|` / `|convex|` / `|shared|` / `|auto-flow|`.
 
 **Куда писать тест:** правило простое — *где живёт код, там и тест*. UI/store-логика → `src/`. Backend-функции/callbacks → `convex/`. Cross-cutting интеграционные тесты (Phase 3+) — отдельный вопрос, обсуждать тогда.
 
