@@ -42,7 +42,7 @@ help:
 	@echo "  make lint-fix         - eslint . --fix"
 	@echo "  make spell            - cspell на src + dictionaries + static + **/*.md (см. cspell.json)"
 	@echo "  make knip             - knip: аудит неиспользуемых файлов/экспортов/зависимостей (см. knip.json)"
-	@echo "  make check-all        - lint + check + test + spell"
+	@echo "  make check-all        - lint + check + test + spell + build + convex dev --once"
 	@echo ""
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
 	@echo "  make storybook-build  - storybook static build"
@@ -153,7 +153,8 @@ check-dev: install
 
 check-all: install
 	npx eslint . --max-warnings 0
-	$(MAKE) check test spell
+	$(MAKE) check test spell build
+	npx convex dev --once
 	@echo "✅ Все проверки завершены!"
 
 

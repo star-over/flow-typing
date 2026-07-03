@@ -5,7 +5,6 @@
   import type {
     KeyCapPressResult,
     FlowLineCursorType,
-    FlowLineCursorMode,
   } from '@/interfaces/types';
 
   interface Props {
@@ -13,7 +12,6 @@
     cursorPosition: number;
     pressResult?: KeyCapPressResult;
     cursorType?: FlowLineCursorType;
-    cursorMode?: FlowLineCursorMode;
     blink?: boolean;
   }
 
@@ -22,7 +20,6 @@
     cursorPosition,
     pressResult = 'NONE',
     cursorType,
-    cursorMode = 'HALF',
     blink = true,
   }: Props = $props();
 
@@ -37,7 +34,7 @@
   const pendingSymbols = $derived(symbols.slice(cursorPosition + 1, endPending));
 </script>
 
-<div class="flow-line {cursorMode} {pressResult}">
+<div class="flow-line HALF {pressResult}">
   <div class="completed-symbols">
     {#each completedSymbols as symbol, i (startCompleted + i)}
       <RegularSymbol symbol={symbol.char} symbolType={symbol.type} />
@@ -80,15 +77,9 @@
     overflow: hidden;
   }
 
-  /* Cursor mode variants */
+  /* Cursor mode: always HALF */
   .HALF .completed-symbols { width: 50%; }
   .HALF .pending-symbols { width: 50%; }
-  .THIRD .completed-symbols { width: 33.333%; }
-  .THIRD .pending-symbols { width: 66.666%; }
-  .QUARTER .completed-symbols { width: 25%; }
-  .QUARTER .pending-symbols { width: 75%; }
-  .DINAMIC .completed-symbols { min-width: 8.333%; }
-  .DINAMIC .pending-symbols { min-width: 50%; }
 
   /* Press result variants */
   .NONE { background: transparent; }

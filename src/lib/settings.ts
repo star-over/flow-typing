@@ -2,13 +2,11 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import {
   FINGER_LAYOUT_IDS,
-  FLOW_LINE_CURSOR_MODES,
   FLOW_LINE_CURSOR_TYPES,
   INTERFACE_LANGUAGES,
   SYMBOL_LAYOUT_IDS,
   TEXT_LANGUAGES,
   type FingerLayoutId,
-  type FlowLineCursorMode,
   type FlowLineCursorType,
   type InterfaceLanguage,
   type SymbolLayoutId,
@@ -48,9 +46,6 @@ function isFingerLayoutId(v: unknown): v is FingerLayoutId {
 }
 function isCursorType(v: unknown): v is FlowLineCursorType {
   return typeof v === 'string' && (FLOW_LINE_CURSOR_TYPES as readonly string[]).includes(v);
-}
-function isCursorMode(v: unknown): v is FlowLineCursorMode {
-  return typeof v === 'string' && (FLOW_LINE_CURSOR_MODES as readonly string[]).includes(v);
 }
 
 function isSymbolLayoutCompatibleWithTextLanguage({
@@ -96,10 +91,6 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.cursorType
     : DEFAULT_USER_SETTINGS.cursorType;
 
-  const cursorMode: FlowLineCursorMode = isCursorMode(stored.cursorMode)
-    ? stored.cursorMode
-    : DEFAULT_USER_SETTINGS.cursorMode;
-
   const theme: ThemeSetting = isThemeSetting(stored.theme)
     ? stored.theme
     : DEFAULT_USER_SETTINGS.theme;
@@ -120,7 +111,6 @@ export function normalizeSettings(raw: unknown): UserSettings {
     symbolLayoutId,
     fingerLayoutId,
     cursorType,
-    cursorMode,
     theme,
     displayName,
     rhythmChannelEnabled,

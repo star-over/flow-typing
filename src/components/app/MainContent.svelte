@@ -49,7 +49,6 @@
     {fingerLayout}
     physicalLayout={physicalLayoutANSI}
     cursorType={$settings.cursorType}
-    cursorMode={$settings.cursorMode}
     rhythmChannelEnabled={$settings.rhythmChannelEnabled}
     rhythmAriaLabel={dictionary.app.rhythm_channel_aria}
   />

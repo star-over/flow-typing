@@ -57,8 +57,6 @@
     "finger_layout_description": "Hand placement scheme (which finger presses each key).",
     "cursor_type_label": "Cursor Style",
     "cursor_type_description": "Shape of the cursor in the typing line.",
-    "cursor_mode_label": "Cursor Position",
-    "cursor_mode_description": "Where the cursor sits in the line (typed vs upcoming ratio).",
     "theme_label": "Theme",
     "theme_description": "Visual theme of the interface.",
     "rhythm_channel_label": "Rhythm channel",
@@ -169,12 +167,6 @@
       "RECTANGLE": "Block",
       "UNDERSCORE": "Underline",
       "VERTICAL": "Vertical bar"
-    },
-    "cursorModes": {
-      "HALF": "Center (1/2)",
-      "THIRD": "Third (1/3)",
-      "QUARTER": "Quarter (1/4)",
-      "DINAMIC": "Dynamic"
     },
     "rhythmChannel": {
       "on": "On",

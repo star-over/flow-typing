@@ -13,7 +13,6 @@ export interface CloudSettings {
   // На входе в store отсутствие догоняется normalizeSettings (→ дефолты).
   fingerLayoutId?: string;
   cursorType?: string;
-  cursorMode?: string;
   theme: string;
   // Optional на чтение: строки, записанные до появления поля, его не имеют.
   displayName?: string;
@@ -67,7 +66,6 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     symbolLayoutId: cloud.symbolLayoutId,
     fingerLayoutId: cloud.fingerLayoutId,
     cursorType: cloud.cursorType,
-    cursorMode: cloud.cursorMode,
     theme: cloud.theme,
     displayName: cloud.displayName ?? '',
     rhythmChannelEnabled: cloud.rhythmChannelEnabled,
@@ -85,7 +83,6 @@ export function settingsToCloudArgs(settings: UserSettings): {
   symbolLayoutId: string;
   fingerLayoutId: string;
   cursorType: string;
-  cursorMode: string;
   theme: string;
   displayName: string;
   rhythmChannelEnabled: boolean;
@@ -96,7 +93,6 @@ export function settingsToCloudArgs(settings: UserSettings): {
     symbolLayoutId: settings.symbolLayoutId,
     fingerLayoutId: settings.fingerLayoutId,
     cursorType: settings.cursorType,
-    cursorMode: settings.cursorMode,
     theme: settings.theme,
     displayName: settings.displayName,
     rhythmChannelEnabled: settings.rhythmChannelEnabled,

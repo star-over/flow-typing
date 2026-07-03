@@ -19,16 +19,12 @@
   import { on } from 'svelte/events';
   import {
     applyFall,
-    applyJump,
     BAND_WIDTH,
     forcesAt,
     initialRhythmState,
-    isBeatAccepted,
     MAX_LEVEL,
-    updateTempo,
+    registerBeatReducer,
     ZONE_CENTER,
-    zoneOf,
-    type RhythmZone,
   } from '@/lib/rhythm-channel';
 
   interface Props {
@@ -40,16 +36,13 @@
 
   const { beatIndex, ariaLabel }: Props = $props();
 
-  // Рендерится напрямую — реактивно.
-  let level = $state(ZONE_CENTER);
-  let tapZone = $state<RhythmZone>('in');
+  // Всё изменяемое состояние модели — в одном объекте. level/tapZone рендерятся;
+  // темп/разброс/started читаются в обработчике и rAF (вне tracking-контекста, лишних
+  // ре-рендеров нет). Реактивно через $state-прокси.
+  let rhythm = $state(initialRhythmState());
 
-  // Состояние модели вне рендера (читается в обработчике/rAF) — обычные let.
-  const seed = initialRhythmState();
-  let emaIntervalMs = seed.emaIntervalMs;
-  let varianceEma = seed.varianceEma;
+  // Часы удара — вне модели: редьюсер чист и берёт готовый intervalMs.
   let lastBeatAt = 0;
-  let started = false;
 
   let reduceMotion = $state(false);
 
@@ -60,28 +53,13 @@
   // Статичная зона — позиционные константы (доля шкалы → проценты).
   const zoneLeftPct = ((ZONE_CENTER - BAND_WIDTH / 2) / MAX_LEVEL) * 100;
   const zoneWidthPct = (BAND_WIDTH / MAX_LEVEL) * 100;
-  const markerPct = $derived(Math.max(0, Math.min(100, (level / MAX_LEVEL) * 100)));
+  const markerPct = $derived(Math.max(0, Math.min(100, (rhythm.level / MAX_LEVEL) * 100)));
 
   function registerBeat() {
     const now = performance.now();
-    if (started) {
-      const intervalMs = now - lastBeatAt;
-      // Reduced-motion: кромка не падает поэтапно — оседаем за прошедший интервал
-      // одним дискретным шагом перед чтением зоны (гравитация — та, что «действовала»).
-      if (reduceMotion) {
-        level = applyFall({ level, gravity: forcesAt(emaIntervalMs).gravity, seconds: intervalMs / 1000 });
-      }
-      if (isBeatAccepted({ intervalMs, emaIntervalMs })) {
-        const updated = updateTempo({ emaIntervalMs, varianceEma, intervalMs });
-        emaIntervalMs = updated.emaIntervalMs;
-        varianceEma = updated.varianceEma;
-      }
-    }
-    // Зона фиксируется по позиции ДО прыжка — это «куда нажал».
-    tapZone = zoneOf({ level });
-    level = applyJump({ level, jumpHeight: forcesAt(emaIntervalMs).jumpHeight });
+    // Порядок оседания/приёма/фиксации-зоны/прыжка — в чистом редьюсере модели.
+    rhythm = registerBeatReducer({ state: rhythm, intervalMs: now - lastBeatAt, reduceMotion });
     lastBeatAt = now;
-    started = true;
   }
 
   $effect(() => {
@@ -108,8 +86,8 @@
       prev = t;
       // Падение работает после первого удара (до него — покой в центре). При
       // reduced-motion поэтапное падение выключено: оседание дискретно на нажатие.
-      if (started && !reduceMotion) {
-        level = applyFall({ level, gravity: forcesAt(emaIntervalMs).gravity, seconds: dt });
+      if (rhythm.started && !reduceMotion) {
+        rhythm.level = applyFall({ level: rhythm.level, gravity: forcesAt(rhythm.emaIntervalMs).gravity, seconds: dt });
       }
       raf = requestAnimationFrame(tick);
     };
@@ -125,7 +103,7 @@
 <div class="rhythm-channel" role="img" aria-label={ariaLabel}>
   <div class="track">
     <div class="zone" style="left:{zoneLeftPct}%; width:{zoneWidthPct}%"></div>
-    <div class="marker z-{tapZone}" style="left:{markerPct}%"></div>
+    <div class="marker z-{rhythm.tapZone}" style="left:{markerPct}%"></div>
   </div>
 </div>
 

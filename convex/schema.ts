@@ -17,7 +17,6 @@ export default defineSchema({
     // догоняется дефолтом через normalizeSettings (клиент).
     fingerLayoutId: v.optional(v.string()),
     cursorType: v.optional(v.string()),
-    cursorMode: v.optional(v.string()),
     theme: v.string(),
     // Optional: строки, записанные до появления поля, его не имеют (back-compat).
     displayName: v.optional(v.string()),

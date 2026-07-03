@@ -113,8 +113,8 @@
     .flow-line.row-CORRECT { background-color: var(--color-symbol-correct-bg); }
     .flow-line.row-ERROR { background-color: var(--color-symbol-error-bg); }
     .cursor-symbol { position: relative; display: inline-block; padding: 0 2px; }
-    .cursor-symbol .bar { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; background-color: var(--color-cursor-bg); }
-    .cursor-symbol .char { color: var(--color-cursor-fg); mix-blend-mode: difference; position: relative; }
+    .cursor-symbol .bar { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; background-color: var(--color-cursor-bg); border-radius: var(--radius); }
+    .cursor-symbol .char { position: relative; z-index: 1; color: var(--color-cursor-fg); }
   </style>
 </head>
 <body>

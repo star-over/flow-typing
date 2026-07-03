@@ -1,11 +1,7 @@
-import { convexTest } from 'convex-test';
 import { describe, expect, test } from 'vitest';
 import { getMineHandler, upsertMineHandler } from './userSettings';
-import schema from './schema';
 import { api } from './_generated/api';
-
-// import.meta.glob нужен convex-test для регистрации функций (паттерн из convex/auth.test.ts)
-const modules = import.meta.glob('./**/*.ts');
+import { makeConvexTest, asUser, seedUser } from './test.helpers';
 
 const validSettings = {
   interfaceLanguage: 'en',
@@ -13,7 +9,6 @@ const validSettings = {
   symbolLayoutId: 'qwerty',
   fingerLayoutId: 'asdf',
   cursorType: 'RECTANGLE',
-  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
@@ -21,18 +16,18 @@ const validSettings = {
 
 describe('getMineHandler', () => {
   test('returns null when no row exists for user', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       const result = await getMineHandler({ ctx, userId });
       expect(result).toBeNull();
     });
   });
 
   test('returns row when one exists for user', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       await ctx.db.insert('userSettings', {
         userId,
         ...validSettings,
@@ -47,10 +42,10 @@ describe('getMineHandler', () => {
   });
 
   test('isolates rows between users (returns only own)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userA = await ctx.db.insert('users', { email: 'a@example.com' });
-      const userB = await ctx.db.insert('users', { email: 'b@example.com' });
+      const userA = await seedUser({ ctx, email: 'a@example.com' });
+      const userB = await seedUser({ ctx, email: 'b@example.com' });
       await ctx.db.insert('userSettings', { userId: userA, ...validSettings, theme: 'light', updatedAt: 1000 });
       await ctx.db.insert('userSettings', { userId: userB, ...validSettings, theme: 'dark', updatedAt: 2000 });
       const resultA = await getMineHandler({ ctx, userId: userA });
@@ -63,9 +58,9 @@ describe('getMineHandler', () => {
 
 describe('upsertMineHandler', () => {
   test('inserts new row when none exists', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       const id = await upsertMineHandler({ ctx, userId, settings: { ...validSettings, theme: 'dark' } });
       const row = await ctx.db.get(id);
       expect(row).not.toBeNull();
@@ -77,9 +72,9 @@ describe('upsertMineHandler', () => {
   });
 
   test('patches existing row in place when one exists (no duplicate)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       const firstId = await upsertMineHandler({ ctx, userId, settings: { ...validSettings, theme: 'light' } });
       const secondId = await upsertMineHandler({ ctx, userId, settings: { ...validSettings, theme: 'dark' } });
       expect(secondId).toBe(firstId);
@@ -90,9 +85,9 @@ describe('upsertMineHandler', () => {
   });
 
   test('updates updatedAt on patch', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       await upsertMineHandler({ ctx, userId, settings: validSettings });
       const firstRow = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       const firstUpdatedAt = firstRow!.updatedAt;
@@ -104,9 +99,9 @@ describe('upsertMineHandler', () => {
   });
 
   test('persists displayName through insert and patch', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       await upsertMineHandler({ ctx, userId, settings: { ...validSettings, displayName: 'Алиса' } });
       const inserted = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       expect(inserted?.displayName).toBe('Алиса');
@@ -117,9 +112,9 @@ describe('upsertMineHandler', () => {
   });
 
   test('persists rhythmChannelEnabled through insert and patch', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', { email: 'a@example.com' });
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
       await upsertMineHandler({ ctx, userId, settings: { ...validSettings, rhythmChannelEnabled: true } });
       const inserted = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       expect(inserted?.rhythmChannelEnabled).toBe(true);
@@ -130,10 +125,10 @@ describe('upsertMineHandler', () => {
   });
 
   test('isolates rows between users (upsert on A does not touch B)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userA = await ctx.db.insert('users', { email: 'a@example.com' });
-      const userB = await ctx.db.insert('users', { email: 'b@example.com' });
+      const userA = await seedUser({ ctx, email: 'a@example.com' });
+      const userB = await seedUser({ ctx, email: 'b@example.com' });
       await upsertMineHandler({ ctx, userId: userA, settings: { ...validSettings, theme: 'light' } });
       await upsertMineHandler({ ctx, userId: userB, settings: { ...validSettings, theme: 'dark' } });
       const all = await ctx.db.query('userSettings').collect();
@@ -148,7 +143,7 @@ describe('upsertMineHandler', () => {
 
 describe('getMine query — auth check', () => {
   test('returns null when no identity (unauthenticated caller)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     const result = await t.query(api.userSettings.getMine, {});
     expect(result).toBeNull();
   });
@@ -156,14 +151,14 @@ describe('getMine query — auth check', () => {
 
 describe('upsertMine mutation — auth check', () => {
   test('throws when no identity (unauthenticated caller)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await expect(
       t.mutation(api.userSettings.upsertMine, validSettings),
     ).rejects.toThrow(/not authenticated/i);
   });
 
   test('does NOT insert row when call fails on auth check', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
       const before = await ctx.db.query('userSettings').collect();
       expect(before).toHaveLength(0);
@@ -174,6 +169,37 @@ describe('upsertMine mutation — auth check', () => {
     await t.run(async (ctx) => {
       const after = await ctx.db.query('userSettings').collect();
       expect(after).toHaveLength(0);
+    });
+  });
+});
+
+// Authenticated-ветка обёрток через identity (asUser). До этого getAuthUserId без
+// identity всегда давал null → покрывался только гостевой путь (getMine → null,
+// upsertMine → throw). Здесь обёртка резолвит id и делегирует в handler.
+
+describe('getMine query — authenticated', () => {
+  test('возвращает строку текущего юзера', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => {
+      const uid = await seedUser({ ctx, email: 'g@example.com' });
+      await ctx.db.insert('userSettings', { userId: uid, ...validSettings, theme: 'nord', updatedAt: 1000 });
+      return uid;
+    });
+    const result = await asUser({ t, userId }).query(api.userSettings.getMine, {});
+    expect(result?.theme).toBe('nord');
+    expect(result?.userId).toBe(userId);
+  });
+});
+
+describe('upsertMine mutation — authenticated', () => {
+  test('вставляет строку для identity-юзера', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => seedUser({ ctx, email: 'u@example.com' }));
+    await asUser({ t, userId }).mutation(api.userSettings.upsertMine, { ...validSettings, theme: 'dark' });
+    await t.run(async (ctx) => {
+      const row = await ctx.db.query('userSettings').withIndex('by_user', (q) => q.eq('userId', userId)).unique();
+      expect(row?.theme).toBe('dark');
+      expect(row?.userId).toBe(userId);
     });
   });
 });
