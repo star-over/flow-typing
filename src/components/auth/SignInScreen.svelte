@@ -24,8 +24,13 @@
   }
 
   // Dev-вход (ADR 0012): кнопка существует только когда .env.local даёт все три
-  // флага (в prod-сборке их нет). Серверная половина — Password-провайдер за
-  // AUTH_DEV_LOGIN_ENABLED (convex/auth.ts) — на production отсутствует.
+  // флага. Гарантия «нет кнопки на production» держится на окружении: для
+  // adapter-static $env/dynamic/public подставляется на этапе vite build из
+  // наличного .env.local и записывается в статический build/_app/env.js. CI/prod
+  // собирает без этих флагов → кнопки нет; локальный make build с dev-.env.local
+  // их запечёт, но build/ gitignored и по сети не отдаётся. Серверная половина —
+  // Password-провайдер за AUTH_DEV_LOGIN_ENABLED (convex/auth.ts) — на production
+  // отсутствует.
   const devLoginAvailable =
     env.PUBLIC_DEV_LOGIN === 'true' &&
     Boolean(env.PUBLIC_DEV_LOGIN_EMAIL) &&
@@ -34,10 +39,10 @@
   async function handleDevSignIn() {
     error = null;
     signingIn = true;
-    const credentials = {
-      email: env.PUBLIC_DEV_LOGIN_EMAIL!,
-      password: env.PUBLIC_DEV_LOGIN_PASSWORD!,
-    };
+    const email = env.PUBLIC_DEV_LOGIN_EMAIL;
+    const password = env.PUBLIC_DEV_LOGIN_PASSWORD;
+    if (!email || !password) return; // недостижимо при devLoginAvailable, но безопасно для TS
+    const credentials = { email, password };
     try {
       try {
         await auth.signIn('password', { ...credentials, flow: 'signIn' });
