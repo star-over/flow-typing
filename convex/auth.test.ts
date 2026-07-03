@@ -1,20 +1,12 @@
-import { convexTest } from 'convex-test';
 import { describe, expect, test } from 'vitest';
 import { createOrUpdateUserHandler } from './auth';
-import schema from './schema';
-
-// import.meta.glob нужен convex-test для регистрации функций; без него `t.action`/`t.mutation`
-// падают, плюс импорт `./auth` исполняет `convexAuth(...)` side-effects.
-const modules = import.meta.glob('./**/*.ts');
+import { makeConvexTest, seedUser } from './test.helpers';
 
 describe('createOrUpdateUserHandler — provider = account', () => {
   test('returns existingUserId when provided (returning user via same provider)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
-      const userId = await ctx.db.insert('users', {
-        email: 'foo@example.com',
-        name: 'Foo',
-      });
+      const userId = await seedUser({ ctx, email: 'foo@example.com', name: 'Foo' });
       const result = await createOrUpdateUserHandler({
         ctx,
         existingUserId: userId,
@@ -27,7 +19,7 @@ describe('createOrUpdateUserHandler — provider = account', () => {
   });
 
   test('creates new user when existingUserId is null (new OAuth account)', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
       const result = await createOrUpdateUserHandler({
         ctx,
@@ -42,7 +34,7 @@ describe('createOrUpdateUserHandler — provider = account', () => {
   });
 
   test('does NOT link by email — same email through different provider yields two separate users', async () => {
-    const t = convexTest(schema, modules);
+    const t = makeConvexTest();
     await t.run(async (ctx) => {
       const firstUserId = await createOrUpdateUserHandler({
         ctx,

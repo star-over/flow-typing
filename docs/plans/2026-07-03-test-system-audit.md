@@ -220,7 +220,7 @@ keyboard-ребёнка не читает — события идут через
 
 ---
 
-### 4. Convex-сев без дома: `insert('users')` ×34, `insertDrill` ×4, `import.meta.glob` ×6 — MEDIUM-HIGH · 🔲 НЕ НАЧАТО
+### 4. Convex-сев без дома: `insert('users')` ×34, `insertDrill` ×4, `import.meta.glob` ×6 — MEDIUM-HIGH · ✅ СДЕЛАНО
 
 **Файлы:** `import.meta.glob('./**/*.ts')` скопирован в 6 тест-файлах · `convexTest(schema, modules)`
 инстанцируется per-test (25× в `drill.test.ts`) · `insert('users', …)` — 16× (`drill.test.ts`),
@@ -250,11 +250,28 @@ drill сам зеркалит в `drillIndex` — тогда `insertDrill` не 
 ли чтение результата через handler вместо `.withIndex` (снять привязку к именам индексов);
 объём обёртки над `convexTest` (только glob+schema vs ещё и identity).
 
+**Сделано (2026-07-03).** Ветка `refactor/convex-test-harness` (общая с кандидатом 5).
+Дом сева — в `convex/test.helpers.ts` (deploy-excluded: держит `convex-test` +
+`import.meta.glob`, Convex его не бандлит — проверено `npx convex dev --once`). Экспорты:
+`makeConvexTest()` (`convexTest(schema, modules)` + `register(drillIndex)`, владеет единым
+glob — снял 6 копий + per-test `registerDrillIndex`); `seedUser` / `seedDrillDoc` /
+`seedDrill` (зеркалит строку в агрегат — инвариант «таблица ↔ агрегат» инкапсулирован, не у
+вызывающего) / `seedProfile`; `asUser` (для кандидата 5). Мигрированы 6 файлов
+(`auth`/`drill`/`drillIndex`/`selectionIndex`/`sessions`/`userSettings`.test.ts;
+`layoutData.test.ts` — pure-fn, сева не имел). `registerDrillIndex` удалён (поглощён
+`makeConvexTest`). Число convex-тестов инвариантно (61 до/после миграции). `insertDrill`
+локальный + 4 копии 8-полевой вставки `drills` → `seedDrill`/`seedDrillDoc`.
+
+**Отложено (заметка, не в объёме).** Read-path decoupling: перечитки результата через имена
+индексов (`.withIndex('by_user')` ×6 в `userSettings.test.ts`, `by_user_and_layout` ×3 в
+`drill.test.ts`) оставлены как есть — это отдельная забота (read-path), тащить в дом сева
+(write-path) = scope creep. Отдельный кандидат при желании снять привязку к именам индексов.
+
 ---
 
 ## B. Дыры покрытия и достоверности (не углубление — по запросу «система тестирования»)
 
-### 5. Аутентифицированная ветка обёрток Convex не тестируется никогда: `t.withIdentity` не используется во всём репозитории — MEDIUM · 🔲 НЕ НАЧАТО
+### 5. Аутентифицированная ветка обёрток Convex не тестируется никогда: `t.withIdentity` не используется во всём репозитории — MEDIUM · ✅ СДЕЛАНО
 
 **Файлы:** grep `withIdentity` по репо — **0 вхождений**. У всех обёрток (`getMine`,
 `upsertMine`, `record`, `listMine`, `drillNext`, `drillRecord`, `repertoireSnapshot`,
@@ -274,6 +291,25 @@ authenticated-путь обёрток + нулевые зоны.
 **Перед исполнением (grilling).** Что реально проверяем в authenticated-ветке (что обёртка
 резолвит id и делегирует — vs дублировать проверки handler'а); порядок — сперва seed-дом
 (4), потом это.
+
+**Сделано (2026-07-03).** Форма identity — из исходника `@convex-dev/auth`:
+`getAuthUserId` = `identity.subject.split('|')[0]` (делитель `TOKEN_SUB_CLAIM_DIVIDER`);
+`asUser({ t, userId })` подаёт subject `` `${userId}|test-session` `` (реальная convex-auth-
+кодировка `userId|sessionId`) через `t.withIdentity`. +20 тестов authenticated-ветки
+(convex 61→81): `drillNext` `openedSteps>1` **через query** (профиль читается только под
+identity — закрыл дыру, помеченную ещё швом `selectDrillsHandler` `drill.test.ts:161`) +
+guest-контраст (cold-start 1); `drillRecord` (auth-запись + guest-throw — раньше не покрыт);
+`repertoireSnapshot` auth; `progressionDetailHandler` (4 ветки: guest/unknown/cold-start/
+готовый символ — было 0) + `progressionDetail` query (auth+guest); `resetMyProfile`
+(auth+guest); `getMine`/`upsertMine`/`record`/`listMine` authenticated (были только guest);
+`users.viewer` (auth+guest, новый `users.test.ts`). Проверка настоящая: тесты assert'ят
+конкретные значения (`openedSteps 2`, `theme 'nord'`, `viewer._id === userId`) — прошли бы
+только при реальной инъекции identity.
+
+**Отложено (заметка, не в объёме — не auth-тема).** Не-auth дыры `selectionIndex`:
+`rebuild` (internalAction, весь конвейер), `clearLayoutPage`, `drillsPage`, `ladderReport`
+(публичная query, не gated) — 0 покрытия, но это тема aggregate-sync/rebuild, не
+«authenticated-ветка обёрток». Отдельный кандидат.
 
 ---
 
