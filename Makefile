@@ -153,7 +153,8 @@ check-dev: install
 
 check-all: install
 	npx eslint . --max-warnings 0
-	$(MAKE) check test spell
+	$(MAKE) check test spell build
+	npx convex dev --once
 	@echo "✅ Все проверки завершены!"
 
 
