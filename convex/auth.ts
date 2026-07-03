@@ -37,13 +37,13 @@ export async function createOrUpdateUserHandler({
  * и E2E (ADR 0012): регистрируется ТОЛЬКО при env-флаге на dev-deployment; на
  * production флага нет — провайдера физически не существует. Не продуктовый режим.
  */
-export function buildProviders({ devLoginEnabled }: { devLoginEnabled: boolean }) {
+export function buildProviders(devLoginEnabled: boolean) {
   const oauth = [GitHub, Google, Yandex];
   return devLoginEnabled ? [...oauth, Password] : oauth;
 }
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: buildProviders({ devLoginEnabled: process.env.AUTH_DEV_LOGIN_ENABLED === 'true' }),
+  providers: buildProviders(process.env.AUTH_DEV_LOGIN_ENABLED === 'true'),
   callbacks: {
     // Передаём в helper только нужные поля, чтобы изолировать тесты от
     // полного callback args shape (`type`, `provider`, `shouldLink` и т.д. — не используем).
