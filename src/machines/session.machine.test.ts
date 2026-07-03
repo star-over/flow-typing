@@ -6,11 +6,11 @@ import { sym } from '@/fixtures/stream';
 import { makeCompletionSink, provideSession, trainingSnapshotOf } from '@/fixtures/machines';
 import {
   REFILL_THRESHOLD_SYMBOLS,
-  SESSION_DURATION_SECONDS,
   TICK_INTERVAL_MS,
 } from '@/lib/session-config';
 
-const SESSION_WINDOW_MS = SESSION_DURATION_SECONDS * 1000;
+const DURATION_SECONDS = 60;
+const SESSION_WINDOW_MS = DURATION_SECONDS * 1000;
 
 const TWO: TypingStream = [sym('a', 'KeyA'), sym('b', 'KeyB')];
 
@@ -18,7 +18,7 @@ const TWO: TypingStream = [sym('a', 'KeyA'), sym('b', 'KeyB')];
 // каждому INPUT нужен реальный ActorRef. Тестам, которым неважно SESSION.COMPLETE,
 // хватает пустой машины (событие просто игнорируется).
 const noopParent = createActor(createMachine({ id: 'noopParent' })).start();
-const INPUT = { symbolLayoutId: 'qwerty' as const, cpm: 200, parentActor: noopParent };
+const INPUT = { symbolLayoutId: 'qwerty' as const, cpm: 200, durationSeconds: DURATION_SECONDS, parentActor: noopParent };
 
 // Часы стоят до первого нажатия: после loading сессия ждёт в active.armed.
 const ARMED = { active: 'armed' } as const;
@@ -329,5 +329,30 @@ describe('sessionMachine', () => {
         vi.useRealTimers();
       }
     });
+  });
+});
+
+describe('sessionMachine duration parameterization', () => {
+  it.each([
+    { durationSeconds: 60, expectedMs: 60_000 },
+    { durationSeconds: 300, expectedMs: 300_000 },
+  ])('uses durationSeconds=$durationSeconds for window', async ({ durationSeconds, expectedMs }) => {
+    vi.useFakeTimers();
+    try {
+      const LONG: TypingStream = Array.from({ length: REFILL_THRESHOLD_SYMBOLS + 5 }, () => sym('a', 'KeyA'));
+      const actor = createActor(
+        provideSession({ fetchSequence: [LONG] }),
+        { input: { ...INPUT, durationSeconds } },
+      );
+      actor.start();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(actor.getSnapshot().context.durationSeconds).toBe(durationSeconds);
+
+      actor.send({ type: 'KEY_PRESS', keys: ['KeyA'] });
+      await vi.advanceTimersByTimeAsync(expectedMs + TICK_INTERVAL_MS);
+      expect(actor.getSnapshot().matches('done')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

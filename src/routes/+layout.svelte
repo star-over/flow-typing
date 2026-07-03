@@ -8,7 +8,6 @@
   import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor } from '@/machines/selectors';
-  import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';
@@ -111,7 +110,7 @@
   });
   const timerSeconds = $derived(
     inState({ snapshot: appState, value: 'training' }) && sessionActor
-      ? Math.max(0, SESSION_DURATION_SECONDS - Math.floor(displayElapsedMs / 1000))
+      ? Math.max(0, sessionActor.getSnapshot().context.durationSeconds - Math.floor(displayElapsedMs / 1000))
       : null,
   );
 

@@ -7,6 +7,7 @@ import { getPhysicalLayout } from "@/lib/layouts";
 
 const physicalLayoutANSI = getPhysicalLayout('ansi');
 import { DEFAULT_SESSION_CPM } from "@/lib/session-config";
+import { DEFAULT_USER_SETTINGS } from "@/user-settings/user-settings";
 
 import { keyboardMachine } from "./keyboard.machine";
 import { sessionService } from "./session-impl";
@@ -140,6 +141,7 @@ export const appMachine = setup({
         input: ({ context, self }) => ({
           symbolLayoutId: context.currentSymbolLayoutId,
           cpm: DEFAULT_SESSION_CPM,
+          durationSeconds: DEFAULT_USER_SETTINGS.sessionDurationSeconds,
           parentActor: self,
         }),
       },
