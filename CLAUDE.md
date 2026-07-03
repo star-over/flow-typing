@@ -39,7 +39,7 @@
 | `make lint` / `make lint-fix` | ESLint |
 | `make spell` | CSpell на коде + витрине + словарях (конфиг `cspell.json`, лексикон `.cspell/project-words.txt`) |
 | `make storybook` | Storybook на http://localhost:6006 |
-| `make check-all` | lint + check + test + spell + build (перед коммитом) |
+| `make check-all` | lint + check + test + spell (перед коммитом) |
 | `make check-dev` | быстрый цикл: eslint --quiet, svelte-check, vitest --dot |
 | `make create-drills` | компиляция и запуск `src/scripts/create-drills.ts` |
 
@@ -62,7 +62,7 @@
 
 ### UI entry points
 
-- Четыре роута: `/` (лендинг-placeholder с CTA на `/train`), `/train` (хост FSM-views — `MenuScreen` / тренировка / `sessionComplete`), `/settings` (приложение: язык UI + тема + имя), `/stats` (журнал сеансов `sessionSummaries` + прогресс ступени; гостю — приглашение войти). Плюс `/signin` для auth UI.
+- Четыре роута: `/` (лендинг-placeholder с CTA на `/train`), `/train` (auth-барьер ADR 0012: гостю — приглашение войти, авторизованному — хост FSM-views `MenuScreen` / тренировка / `sessionComplete`), `/settings` (приложение: язык UI + тема + имя), `/stats` (журнал сеансов `sessionSummaries` + прогресс ступени; гостю — приглашение войти). Плюс `/signin` для auth UI.
 - `src/routes/+layout.svelte` — размещает `appActor`, keyboard listener (`<svelte:window>` onkeydown/up/blur → `KEY_DOWN`/`KEY_UP`/`PAUSE`), theme effects и `Header` (nav-chrome с ссылками на `/settings` и `/stats`). При sibling-навигации layout не размонтируется — FSM состояние переживает навигацию.
 - `src/routes/+page.svelte` — лендинг с CTA «Начать тренировку» (`href="/train"`). Inline-placeholder, контракт темы не выделен (tech-debt note inline; запись в `docs/backlog.md`).
 - `src/routes/train/+page.svelte` → `src/components/app/App.svelte` — содержимое `/train`; рендерит `MainContent` (выбор по `state.matches(...)`) + `FooterActions` (process-controls, скрыт на `menu`).
@@ -97,6 +97,7 @@ Backend для синхронизированных данных (auth с Phase 
 - Issuer whitelist: `convex/auth.config.ts`.
 - HTTP routes: `convex/http.ts` (`auth.addHttpRoutes(http)`).
 - Текущие провайдеры: GitHub, Google, Yandex. Apple/SberID — Roadmap V2.
+- **Dev-вход (ADR 0012):** стоковый Password-провайдер за env-флагом `AUTH_DEV_LOGIN_ENABLED` (env Convex, только dev-deployment; на production флага нет — провайдера физически нет; собирается в `convex/auth.ts:buildProviders`). Кнопка на `/signin` — за клиентскими флагами `PUBLIC_DEV_LOGIN*` из `.env.local` (см. `.env.example`). Пара к нему — `resetMyProfile` («чистый лист» прогонов). Инструмент для ИИ-агентов/E2E (тренировка требует входа — `/train` и `drill*` auth-required), не продуктовый режим.
 
 **Add new OAuth provider:**
 1. Import из `@auth/core/providers/<name>` в `convex/auth.ts`.
