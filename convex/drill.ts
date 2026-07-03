@@ -496,3 +496,78 @@ export const resetMyProfile = mutation({
     return await resetMyProfileHandler({ ctx, userId });
   },
 });
+
+// ────────────────────────────────────────────────────────────────────────────
+// setMyLadderStep — DEV/TEST утилита: установить ступень KeyLadder текущего
+// юзера для указанной раскладки. Сбрасывает symbolCells, чтобы новая ступень
+// стартовала с чистой статистикой. Запрошенная ступень clamp'ится к диапазону
+// [1, maxStep + 1], где maxStep — последний шаг KeyLadder раскладки.
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Устанавливает openedSteps для профиля юзера (создаёт/обновляет) и сбрасывает ячейки. */
+export async function setMyLadderStepHandler({
+  ctx,
+  userId,
+  symbolLayoutId,
+  targetStep,
+}: {
+  ctx: MutationCtx;
+  userId: Id<'users'> | null;
+  symbolLayoutId: string;
+  targetStep: number;
+}): Promise<{ openedSteps: number; clamped: boolean }> {
+  if (userId === null) throw new Error('Not authenticated');
+
+  const layoutData = getLayoutData(symbolLayoutId);
+  if (!layoutData) throw new Error(`Unknown symbolLayoutId: ${symbolLayoutId}`);
+
+  const maxStep = maxLadderStep(layoutData.keyLadder);
+  const maxOpenedSteps = maxStep + 1;
+  const clampedStep = Math.max(1, Math.min(targetStep, maxOpenedSteps));
+
+  const existing = await ctx.db
+    .query('skillProfiles')
+    .withIndex('by_user_and_layout', (q) =>
+      q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId)
+    )
+    .unique();
+
+  const now = Date.now();
+  if (existing === null) {
+    await ctx.db.insert('skillProfiles', {
+      userId,
+      symbolLayoutId,
+      openedSteps: clampedStep,
+      symbolCells: [],
+      updatedAt: now,
+    });
+  } else {
+    await ctx.db.patch(existing._id, {
+      openedSteps: clampedStep,
+      symbolCells: [],
+      updatedAt: now,
+    });
+  }
+
+  return { openedSteps: clampedStep, clamped: clampedStep !== targetStep };
+}
+
+export const setMyLadderStep = mutation({
+  args: {
+    symbolLayoutId: v.string(),
+    targetStep: v.number(),
+  },
+  returns: v.object({
+    openedSteps: v.number(),
+    clamped: v.boolean(),
+  }),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    return await setMyLadderStepHandler({
+      ctx,
+      userId,
+      symbolLayoutId: args.symbolLayoutId,
+      targetStep: args.targetStep,
+    });
+  },
+});
