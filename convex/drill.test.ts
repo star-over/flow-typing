@@ -304,6 +304,21 @@ describe('applyDrillSummaryHandler — запись сводки в профил
   });
 });
 
+describe('drillRecord — auth', () => {
+  test('гость (без identity) → throw Not authenticated (ADR 0012)', async () => {
+    const t = convexTest(schema, modules);
+    await expect(
+      t.mutation(api.drill.drillRecord, {
+        symbolLayoutId: 'йцукен',
+        summary: {
+          perSymbol: [],
+          overall: { exposures: 0, clean: 0, accuracy: 0, latencyMedian: 0, latencySpread: 0 },
+        },
+      }),
+    ).rejects.toThrow(/not authenticated/i);
+  });
+});
+
 describe('applyDrillSummaryHandler — рост репертуара', () => {
   const STEP0 = ['а', 'к', 'е', 'п', 'м', 'и', 'н', 'г', 'р', 'о', 'т', 'ь', ' '];
 
