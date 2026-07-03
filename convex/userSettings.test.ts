@@ -13,7 +13,6 @@ const validSettings = {
   symbolLayoutId: 'qwerty',
   fingerLayoutId: 'asdf',
   cursorType: 'RECTANGLE',
-  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,

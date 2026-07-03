@@ -1,6 +1,5 @@
 import type {
   FingerLayoutId,
-  FlowLineCursorMode,
   FlowLineCursorType,
   InterfaceLanguage,
   SymbolLayoutId,
@@ -18,8 +17,6 @@ import type { ThemeSetting } from '@/themes/registry';
  *   Не зависит от языка/раскладки; дефолт — `asdf` (стандартный home-ряд).
  * - `cursorType` — форма курсора в FlowLine (RECTANGLE / UNDERSCORE / VERTICAL);
  *   дефолт — `RECTANGLE`.
- * - `cursorMode` — положение курсора в строке FlowLine, т.е. пропорция
- *   набранное/предстоящее (HALF / THIRD / QUARTER / DINAMIC); дефолт — `HALF`.
  * - `theme` — визуальная тема: либо конкретный `ThemeId`, либо `'auto'` (следует за системным
  *   `prefers-color-scheme`). Отражается отдельным ключом `flow-typing-theme` для FOUC-free bootstrap.
  * - `displayName` — имя, показываемое рядом с аватаром. Редактируемый слой поверх
@@ -34,7 +31,6 @@ export interface UserSettings {
   symbolLayoutId: SymbolLayoutId;
   fingerLayoutId: FingerLayoutId;
   cursorType: FlowLineCursorType;
-  cursorMode: FlowLineCursorMode;
   theme: ThemeSetting;
   displayName: string;
   rhythmChannelEnabled: boolean;

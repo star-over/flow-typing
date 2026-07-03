@@ -8,7 +8,6 @@
   const symbolLayoutQwerty = getSymbolLayout('qwerty');
   import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
   import {
-    FLOW_LINE_CURSOR_MODES,
     FLOW_LINE_CURSOR_TYPES,
     KEY_CAP_PRESS_RESULTS,
   } from '@/interfaces/types';
@@ -64,7 +63,6 @@
       cursorPosition: 0,
       pressResult: 'NONE',
       cursorType: 'RECTANGLE',
-      cursorMode: 'HALF',
       blink: true,
     },
     argTypes: {
@@ -73,7 +71,6 @@
       blink: { control: 'boolean' },
       cursorType: { options: FLOW_LINE_CURSOR_TYPES, control: 'inline-radio' },
       pressResult: { options: KEY_CAP_PRESS_RESULTS, control: 'inline-radio' },
-      cursorMode: { options: FLOW_LINE_CURSOR_MODES, control: 'inline-radio' },
     },
   });
 </script>

@@ -66,7 +66,7 @@
   --color-symbol-error-bg  : oklch(0.22 0.03 18);
 
   /* --- Domain · CursorSymbol block --- */
-  --color-cursor-bg: oklch(0.95 0 0);
+  --color-cursor-bg: oklch(0.77 0.16 70);
   --color-cursor-fg: oklch(0.14 0 0);
 
   /* --- Domain · KeyCap base --- */

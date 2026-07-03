@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Actor } from 'xstate';
   import type { sessionMachine } from '@/machines/session.machine';
-  import type { FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
+  import type { FingerLayout, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
 
   import { selectTrainingActor } from '@/machines/selectors';
   import { createKeyboardGraph } from '@/lib/pathfinding';
@@ -20,14 +20,13 @@
     fingerLayout: FingerLayout;
     physicalLayout: PhysicalLayout;
     cursorType: FlowLineCursorType;
-    cursorMode: FlowLineCursorMode;
     /** Показывать «канал ритма» (opt-in настройка). */
     rhythmChannelEnabled: boolean;
     /** Локализованное доступное имя канала ритма. */
     rhythmAriaLabel: string;
   }
 
-  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode, rhythmChannelEnabled, rhythmAriaLabel }: Props = $props();
+  const { sessionActor, fingerLayout, physicalLayout, cursorType, rhythmChannelEnabled, rhythmAriaLabel }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let sessionState = $state(sessionActor.getSnapshot());
@@ -88,7 +87,6 @@
     cursorPosition={currentIndex}
     {pressResult}
     {cursorType}
-    {cursorMode}
     blink={cursorBlink}
   />
 

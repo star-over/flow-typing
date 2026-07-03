@@ -18,7 +18,6 @@ const validLocal: UserSettings = {
   symbolLayoutId: 'qwerty',
   fingerLayoutId: 'asdf',
   cursorType: 'RECTANGLE',
-  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
@@ -30,7 +29,6 @@ const validCloud: CloudSettings = {
   symbolLayoutId: 'йцукен',
   fingerLayoutId: 'sdfv',
   cursorType: 'VERTICAL',
-  cursorMode: 'THIRD',
   theme: 'dark',
   rhythmChannelEnabled: true,
   updatedAt: 1000,
@@ -52,7 +50,6 @@ describe('decideSyncOnLogin', () => {
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
       cursorType: 'VERTICAL',
-      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
@@ -66,7 +63,6 @@ describe('decideSyncOnLogin', () => {
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
       cursorType: 'VERTICAL',
-      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
@@ -86,7 +82,6 @@ describe('cloudRowToSettings', () => {
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
       cursorType: 'VERTICAL',
-      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
@@ -96,7 +91,6 @@ describe('cloudRowToSettings', () => {
   test('strips _id / updatedAt / userId — только settings fields', () => {
     const result = cloudRowToSettings(validCloud);
     expect(Object.keys(result).sort()).toEqual([
-      'cursorMode',
       'cursorType',
       'displayName',
       'fingerLayoutId',
@@ -135,7 +129,6 @@ describe('settingsToCloudArgs', () => {
       symbolLayoutId: 'qwerty',
       fingerLayoutId: 'asdf',
       cursorType: 'RECTANGLE',
-      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
@@ -145,7 +138,6 @@ describe('settingsToCloudArgs', () => {
   test('does not include extra fields beyond the known settings', () => {
     const args = settingsToCloudArgs(validLocal);
     expect(Object.keys(args).sort()).toEqual([
-      'cursorMode',
       'cursorType',
       'displayName',
       'fingerLayoutId',

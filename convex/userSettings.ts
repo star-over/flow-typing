@@ -35,7 +35,6 @@ export async function upsertMineHandler({
     symbolLayoutId: string;
     fingerLayoutId: string;
     cursorType: string;
-    cursorMode: string;
     theme: string;
     displayName: string;
     rhythmChannelEnabled: boolean;
@@ -77,7 +76,6 @@ export const upsertMine = mutation({
     symbolLayoutId: v.string(),
     fingerLayoutId: v.string(),
     cursorType: v.string(),
-    cursorMode: v.string(),
     theme: v.string(),
     displayName: v.string(),
     rhythmChannelEnabled: v.boolean(),
