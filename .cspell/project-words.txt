@@ -81,9 +81,11 @@ csíkszentmihályi
 exandr
 iversen
 merriënboer
+nygard
 salthouse
 schoonover
 weerdenburg
+zimmermann
 
 # --- Прочие англоязычные термины ---
 asynchrony
@@ -242,6 +244,7 @@ prefs
 темизация
 темизируемыми
 темизируется
+темизировать
 темятся
 тестируемости
 тестируемость
