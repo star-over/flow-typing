@@ -14,11 +14,13 @@
 {#if auth.state.status === 'guest'}
   <div class="train-gate">
     <p class="muted">{t.guest}</p>
-    <a href={resolve('/signin')}>{t.sign_in}</a>
+    <a class="train-gate__sign-in" href={resolve('/signin')}>{t.sign_in}</a>
   </div>
 {:else if auth.state.status === 'authenticated'}
   <App />
 {/if}
+<!-- loading → ничего не рендерим, чтобы не мигать «пусто» (образец /stats) -->
+
 
 <style>
   .train-gate {
@@ -32,5 +34,15 @@
 
   .muted {
     color: var(--color-text-secondary);
+  }
+
+  .train-gate__sign-in {
+    color: var(--color-text-secondary);
+    text-decoration: underline;
+  }
+
+  .train-gate__sign-in:hover,
+  .train-gate__sign-in:focus-visible {
+    color: var(--color-text-primary);
   }
 </style>
