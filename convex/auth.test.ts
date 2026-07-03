@@ -1,6 +1,7 @@
+import { Password } from '@convex-dev/auth/providers/Password';
 import { convexTest } from 'convex-test';
 import { describe, expect, test } from 'vitest';
-import { createOrUpdateUserHandler } from './auth';
+import { buildProviders, createOrUpdateUserHandler } from './auth';
 import schema from './schema';
 
 // import.meta.glob нужен convex-test для регистрации функций; без него `t.action`/`t.mutation`
@@ -58,5 +59,19 @@ describe('createOrUpdateUserHandler — provider = account', () => {
       const all = await ctx.db.query('users').collect();
       expect(all).toHaveLength(2);
     });
+  });
+});
+
+describe('buildProviders — dev-вход за флагом (ADR 0012)', () => {
+  test('флаг выключен → только три OAuth-провайдера, Password отсутствует', () => {
+    const providers = buildProviders({ devLoginEnabled: false });
+    expect(providers).toHaveLength(3);
+    expect(providers).not.toContain(Password);
+  });
+
+  test('флаг включён → Password добавлен (dev-deployment)', () => {
+    const providers = buildProviders({ devLoginEnabled: true });
+    expect(providers).toHaveLength(4);
+    expect(providers).toContain(Password);
   });
 });
