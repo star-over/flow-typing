@@ -56,11 +56,21 @@ export interface RhythmState {
   emaIntervalMs: number;
   /** EWMA-дисперсия интервалов (та же τ) — для метрики ровности. */
   varianceEma: number;
+  /** Зона кромки в момент последнего тапа (фиксируется до прыжка) — красит маркер. */
+  tapZone: RhythmZone;
+  /** Был ли хотя бы один удар: первый лишь записывает старт, не считает интервал. */
+  started: boolean;
 }
 
 /** Покоящееся начальное состояние: кромка в центре, темп — стартовый, разброс нулевой. */
 export function initialRhythmState(): RhythmState {
-  return { level: ZONE_CENTER, emaIntervalMs: INITIAL_INTERVAL_MS, varianceEma: 0 };
+  return {
+    level: ZONE_CENTER,
+    emaIntervalMs: INITIAL_INTERVAL_MS,
+    varianceEma: 0,
+    tapZone: 'in',
+    started: false,
+  };
 }
 
 /**
@@ -143,4 +153,42 @@ export function zoneOf({ level }: { level: number }): RhythmZone {
   if (level > ZONE_CENTER + BAND_WIDTH / 2) return 'above';
   if (level < ZONE_CENTER - BAND_WIDTH / 2) return 'below';
   return 'in';
+}
+
+/**
+ * Один удар канала — чистый порядок-инвариант поверх примитивов выше. Порядок важен:
+ * при reduced-motion сперва оседание за прошедший интервал (гравитация — та, что
+ * «действовала»), затем приём в темп (`updateTempo`), затем **фиксация зоны ДО прыжка**
+ * (`tapZone` — «куда реально нажал»), и лишь потом сам прыжок. Первый удар
+ * (`state.started === false`) только записывает старт: интервала ещё нет, поэтому ни
+ * оседания, ни `updateTempo`.
+ *
+ * Часы — снаружи: компонент считает `intervalMs = now − lastBeatAt` и хранит `lastBeatAt`;
+ * редьюсер чист и берёт готовый `intervalMs`.
+ */
+export function registerBeatReducer({
+  state,
+  intervalMs,
+  reduceMotion,
+}: {
+  state: RhythmState;
+  intervalMs: number;
+  reduceMotion: boolean;
+}): RhythmState {
+  let { level, emaIntervalMs, varianceEma } = state;
+  if (state.started) {
+    // Reduced-motion: кромка не падает поэтапно в rAF — оседаем дискретно за интервал.
+    if (reduceMotion) {
+      level = applyFall({ level, gravity: forcesAt(emaIntervalMs).gravity, seconds: intervalMs / 1000 });
+    }
+    if (isBeatAccepted({ intervalMs, emaIntervalMs })) {
+      const updated = updateTempo({ emaIntervalMs, varianceEma, intervalMs });
+      emaIntervalMs = updated.emaIntervalMs;
+      varianceEma = updated.varianceEma;
+    }
+  }
+  // Зона фиксируется по позиции ДО прыжка — это «куда нажал».
+  const tapZone = zoneOf({ level });
+  level = applyJump({ level, jumpHeight: forcesAt(emaIntervalMs).jumpHeight });
+  return { level, emaIntervalMs, varianceEma, tapZone, started: true };
 }

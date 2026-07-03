@@ -9,6 +9,7 @@
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor } from '@/machines/selectors';
   import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
+  import { computeTimerSeconds } from '@/lib/timer-display';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';
@@ -110,9 +111,12 @@
     return () => sub.unsubscribe();
   });
   const timerSeconds = $derived(
-    inState({ snapshot: appState, value: 'training' }) && sessionActor
-      ? Math.max(0, SESSION_DURATION_SECONDS - Math.floor(displayElapsedMs / 1000))
-      : null,
+    computeTimerSeconds({
+      displayElapsedMs,
+      isTraining: inState({ snapshot: appState, value: 'training' }),
+      hasSession: sessionActor !== undefined,
+      durationSeconds: SESSION_DURATION_SECONDS,
+    }),
   );
 
   // Пауза в шапке (рядом с таймером): доступна только в активном наборе.

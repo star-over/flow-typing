@@ -358,7 +358,7 @@ CLAUDE.md (подсостояния `active` + описание истечени
 
 ---
 
-### 7. Runes-оркестрация в `+layout.svelte` (7 `$effect`) не вынесена и непокрыта — MEDIUM · 🔲 НЕ НАЧАТО
+### 7. Runes-оркестрация в `+layout.svelte` (7 `$effect`) не вынесена и непокрыта — MEDIUM · ✅ СДЕЛАНО
 
 **Файлы:** `+layout.svelte:35` (auth re-wire при ротации токена), `:63` (триггер
 cloud-sync), `:87–92` (**edge-triggered** `markSessionStart` — флаг `wasTraining`),
@@ -381,6 +381,28 @@ reduced-motion), запертые в компонентах и потому не
 — да; auth-rewire и DOM-побочки — вряд ли); стоит ли трогать `registerBeat` (модель здорова,
 но оркестрация в компоненте) или это отдельный кандидат; не раздуваем ли scope (это чистка
 множества мелких мест, а не один шов).
+
+**Сделано (2026-07-03).** Ветка `refactor/rune-pure-invariants`. Scope удержан узким — только
+две кристаллизации (grill подтвердил A+B, всё прочее оставлено тонкими рунами):
+- **A — формула обратного отсчёта.** Новый `src/lib/timer-display.ts` → чистая
+  `computeTimerSeconds({ displayElapsedMs, isTraining, hasSession, durationSeconds }) → number | null`;
+  `$derived` в `+layout.svelte` сведён к её вызову. Тест `timer-display.test.ts` (6 кейсов):
+  null вне тренировки / без сессии, floor до целой секунды, зажим `max(0,…)`, обратный отсчёт.
+- **B — порядок-редьюсер удара.** `RhythmState` дорос до `{ …физика, tapZone, started }`,
+  `initialRhythmState()` дополнен; добавлен чистый `registerBeatReducer({ state, intervalMs,
+  reduceMotion }) → RhythmState` (порядок: reduced-motion оседание → приём/`updateTempo` →
+  фиксация зоны ДО прыжка → прыжок; первый удар только записывает старт). `RhythmChannel.svelte`
+  свёл россыпь `$state`/`let` в один `let rhythm = $state(initialRhythmState())`; часы
+  (`performance.now`/`lastBeatAt`/rAF-падение) остались в компоненте. Тесты (4 кейса): первый
+  удар без оседания/updateTempo, fix-zone-before-jump, reduced-motion оседает до чтения зоны,
+  приём vs пауза.
+
+Вне объёма (тонкие руны, как решено на grill): edge-детект `markSessionStart`, idle/cursor
+blink, auth-rewire, cloud-sync триггер, подписка `displayElapsedMs`, DOM-эффекты, rAF-цикл.
+CONTEXT.md не тронут (ритм/таймер-display — не глоссарные термины), ADR не нужен (обратимо,
+сложившийся паттерн `runAuthGate`/`coordinateSync`). Тесты **527 → 537** (+10). Проверено:
+`make check-dev` зелёный; **живой прогон** — таймер тикает вниз в тренировке (подтверждено).
+`npx convex dev --once` не требовался (бэкенд не тронут).
 
 ---
 
