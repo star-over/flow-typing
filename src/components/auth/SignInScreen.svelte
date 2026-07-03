@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { env } from '$env/dynamic/public';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import type { OAuthProviderId } from '@/lib/auth/auth.types';
 
@@ -18,6 +19,35 @@
       // Reset even on success path: для OAuth providers с popup-flow (Google)
       // promise resolves без redirect'а — без finally кнопка зависнет в "Перенаправление…".
       // Для GitHub redirect-flow это безопасный no-op (страница уже размонтирована).
+      signingIn = false;
+    }
+  }
+
+  // Dev-вход (ADR 0012): кнопка существует только когда .env.local даёт все три
+  // флага (в prod-сборке их нет). Серверная половина — Password-провайдер за
+  // AUTH_DEV_LOGIN_ENABLED (convex/auth.ts) — на production отсутствует.
+  const devLoginAvailable =
+    env.PUBLIC_DEV_LOGIN === 'true' &&
+    Boolean(env.PUBLIC_DEV_LOGIN_EMAIL) &&
+    Boolean(env.PUBLIC_DEV_LOGIN_PASSWORD);
+
+  async function handleDevSignIn() {
+    error = null;
+    signingIn = true;
+    const credentials = {
+      email: env.PUBLIC_DEV_LOGIN_EMAIL!,
+      password: env.PUBLIC_DEV_LOGIN_PASSWORD!,
+    };
+    try {
+      try {
+        await auth.signIn('password', { ...credentials, flow: 'signIn' });
+      } catch {
+        // Первый прогон: юзера ещё нет — регистрируем тем же паролем.
+        await auth.signIn('password', { ...credentials, flow: 'signUp' });
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e);
+    } finally {
       signingIn = false;
     }
   }
@@ -56,6 +86,17 @@
   <p class="sign-in-screen__disclaimer">
     Используй тот же способ входа, что и раньше — твой прогресс привязан к нему.
   </p>
+
+  {#if devLoginAvailable}
+    <button
+      type="button"
+      class="sign-in-screen__btn-dev"
+      disabled={signingIn}
+      onclick={handleDevSignIn}
+    >
+      {signingIn ? 'Входим…' : 'Dev-вход (агент / E2E)'}
+    </button>
+  {/if}
 
   {#if error}
     <p class="sign-in-screen__error" role="alert">{error}</p>
@@ -141,6 +182,23 @@
   }
 
   .sign-in-screen__btn-yandex:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Dev-инструмент (ADR 0012): сознательно вне theme-контракта — кнопка живёт
+     только в dev-сборке за PUBLIC_DEV_LOGIN, темизировать нечего. */
+  .sign-in-screen__btn-dev {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px dashed var(--color-text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm, 0.25rem);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  .sign-in-screen__btn-dev:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
