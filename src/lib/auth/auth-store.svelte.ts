@@ -37,7 +37,9 @@ export function createAuthStore() {
     get state() {
       return state;
     },
-    signIn: (provider: string) => auth.signIn(provider),
+    // params — для password-провайдера dev-входа (ADR 0012): { email, password, flow }.
+    signIn: (provider: string, params?: FormData | Record<string, string>) =>
+      auth.signIn(provider, params),
     signOut: () => auth.signOut(),
   };
 }
