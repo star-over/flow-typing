@@ -1,4 +1,4 @@
-// Тест-харнесс XState-машин: типизированный доступ к снимку ребёнка через
+// Тест-обвязка XState-машин: типизированный доступ к снимку ребёнка через
 // продакшн-шов `selectors.ts`, провайдер сессии и сток-родитель.
 //
 // Здесь заперты три источника трения session-теста: (1) сырой `children.training`
@@ -47,8 +47,12 @@ export function trainingSnapshotOf(
  */
 export function provideSession({
   fetchSequence,
-  onCheckpoint = () => {},
-  onSession = () => {},
+  onCheckpoint = () => {
+    /* по умолчанию не наблюдаем */
+  },
+  onSession = () => {
+    /* по умолчанию не наблюдаем */
+  },
 }: {
   fetchSequence: TypingStream[];
   onCheckpoint?: (summary: DrillSummary) => void;
@@ -90,6 +94,7 @@ export function makeCompletionSink(): Actor<ReturnType<typeof buildCompletionSin
 
 function buildCompletionSinkMachine() {
   return createMachine({
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- идиома XState v5: `types: {} as …` задаёт тип контекста
     types: {} as { context: { completions: SessionCompletion[] } },
     context: { completions: [] },
     on: {

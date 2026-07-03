@@ -1,9 +1,10 @@
 /**
  * @file Журнал сессий (sessionSummaries): приём сводки ВСЕЙ сессии для аналитики
  * и коучинга. Отдельно от drillRecord (skillProfiles — проекция алгоритма).
- * openedSteps и capturedAt штампует сервер. Гость (не авторизован) → throw
- * 'Not authenticated' (клиент гасит молча, см. session-impl.ts). Handler вынесен
- * для теста без auth-обёртки (паттерн getMineHandler/upsertMineHandler).
+ * openedSteps и capturedAt штампует сервер. Неавторизованный вызов → throw
+ * 'Not authenticated' (тренировка требует входа — ADR 0012; клиент гасит молча
+ * как at-most-once, см. session-impl.ts). Handler вынесен для теста без
+ * auth-обёртки (паттерн getMineHandler/upsertMineHandler).
  */
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { v } from 'convex/values';

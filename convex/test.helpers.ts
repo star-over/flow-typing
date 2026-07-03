@@ -98,7 +98,8 @@ export async function seedDrill({
   const drillId = await seedDrillDoc({ ctx, text });
   const rowId = await ctx.db.insert('drillSelectionIndex', { drillId, symbolLayoutId: layout, stepLevel: step });
   const row = await ctx.db.get(rowId);
-  await drillIndex.insertIfDoesNotExist(ctx, row!);
+  if (row === null) throw new Error('seedDrill: строка drillSelectionIndex не найдена сразу после вставки');
+  await drillIndex.insertIfDoesNotExist(ctx, row);
   return drillId;
 }
 

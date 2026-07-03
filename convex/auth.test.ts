@@ -1,5 +1,9 @@
+import GitHub from '@auth/core/providers/github';
+import Google from '@auth/core/providers/google';
+import Yandex from '@auth/core/providers/yandex';
+import { Password } from '@convex-dev/auth/providers/Password';
 import { describe, expect, test } from 'vitest';
-import { createOrUpdateUserHandler } from './auth';
+import { buildProviders, createOrUpdateUserHandler } from './auth';
 import { makeConvexTest, seedUser } from './test.helpers';
 
 describe('createOrUpdateUserHandler — provider = account', () => {
@@ -50,5 +54,15 @@ describe('createOrUpdateUserHandler — provider = account', () => {
       const all = await ctx.db.query('users').collect();
       expect(all).toHaveLength(2);
     });
+  });
+});
+
+describe('buildProviders — dev-вход за флагом (ADR 0012)', () => {
+  test('флаг выключен → только три OAuth-провайдера, Password отсутствует', () => {
+    expect(buildProviders(false)).toEqual([GitHub, Google, Yandex]);
+  });
+
+  test('флаг включён → Password добавлен (dev-deployment)', () => {
+    expect(buildProviders(true)).toEqual([GitHub, Google, Yandex, Password]);
   });
 });

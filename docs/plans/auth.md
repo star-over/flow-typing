@@ -13,8 +13,8 @@ Umbrella-план интеграции аутентификации в FlowTypin
 | Phase 4 — Google-провайдер | ✅ done | merge `0f3b3ee` |
 | Phase 5 — Settings sync | ✅ done | merge `11fb2ca` |
 | Phase 8 — Yandex-провайдер | ✅ done | merge `4d4cb58` |
-| Phase 6 — Sessions tracking | 📋 backlog | `docs/backlog.md` |
-| Phase 7 — `/stats` с реальными данными | 📋 backlog | `docs/backlog.md` (driver = Phase 6) |
+| Phase 6 — Sessions tracking | ✅ done | реализовано иначе: журнал `sessionSummaries` (план `2026-06-24-session-summaries.md`) |
+| Phase 7 — `/stats` с реальными данными | ✅ done | таблица сеансов + прогресс ступени (план `2026-06-24-stats-sessions-table.md`) |
 | Phase 9 — Apple-провайдер | 📋 backlog | `docs/backlog.md` (driver = Apple Developer enrollment) |
 | Phase 10 — Account linking V2 | 📋 backlog | `docs/backlog.md` (driver = user request) |
 | Phase 11 — SberID | 📋 backlog | `docs/backlog.md` (driver = бизнес-need + ИП/ООО) |
@@ -33,7 +33,7 @@ Umbrella-план интеграции аутентификации в FlowTypin
 | Frontend-режим | **SvelteKit `adapter-static` + SPA-only auth** («гибрид») | соответствует текущей архитектуре, бесплатный хостинг, риски SPA-auth для typing-trainer'а пренебрежимы |
 | Связывание аккаунтов | **Провайдер = аккаунт** (NO link-by-email) | безопасность приоритетнее эргономики; цена — UX-ловушка «один и тот же email через GitHub и Google = два разных юзера», смягчаем явной коммуникацией в UI |
 | Scope резервной копии | **Settings + historical session stats** (без сырых attempts) | покрывает 95% задач «cross-device backup», экономно по storage |
-| Гостевой режим | **Поддерживается** | auth разблокирует sync, но не блокирует тренировку (принцип soft-progression) |
+| Гостевой режим | ~~Поддерживается~~ **Снят** (superseded ADR 0012, 2026-07-03) | полу-режим «печатает без роста профиля» нарушал soft-progression по построению; тренировка требует входа; возврат гостя — только анонимным профилем (ADR 0005/0012) |
 | MVP-провайдеры | **GitHub + Google** | минимально полезный путь, проверка всей обвязки на двух провайдерах |
 | Roadmap-провайдеры | Yandex → Apple → SberID | по возрастанию организационной сложности |
 

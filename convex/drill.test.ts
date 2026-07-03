@@ -15,14 +15,18 @@ function jcukenStep0Allowed(): Set<string> {
   ]);
 }
 
-describe('drillNext — выдача порции (этап 1)', () => {
+// drillNext требует входа (ADR 0012) → happy-path гоняем как authenticated
+// (asUser). Юзер без профиля → cold-start openedSteps 1, поэтому сценарии шага 0
+// сохраняются. Гостевой путь — throw (тест в конце describe).
+describe('drillNext — выдача порции (этап 1, authenticated)', () => {
   test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
+      return seedUser({ ctx });
     });
 
-    const res = await t.query(api.drill.drillNext, {
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 10,
       seed: 1,
@@ -34,30 +38,32 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
   test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
       await seedDrill({ ctx, text: 'zzzzz', step: 5, layout: 'test' });
+      return seedUser({ ctx });
     });
 
-    const res = await t.query(api.drill.drillNext, {
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 300,
       seed: 1,
     });
 
-    // Бюджет 300 знаков > всех step-0 (10×5=50): выдаются все 10, step-5 — никогда.
+    // Cold-start openedSteps 1: step-0 впущены (все 10), step-5 (≥ 1) — никогда.
     expect(res.drills).toHaveLength(10);
     expect(res.drills.some((d) => d.text === 'zzzzz')).toBe(false);
   });
 
   test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
       await seedDrill({ ctx, text: 'zzzzz', step: 0, layout: 'other' });
+      return seedUser({ ctx });
     });
 
-    const res = await t.query(api.drill.drillNext, {
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, {
       symbolLayoutId: 'test',
       budgetChars: 300,
       seed: 1,
@@ -71,7 +77,8 @@ describe('drillNext — выдача порции (этап 1)', () => {
     const t = makeConvexTest();
     // Раскладка с серверными данными (йцукен), но пул пуст → сервер строит дефолт,
     // а не возвращает пустоту (клиентского корпуса для деградации больше нет).
-    const res = await t.query(api.drill.drillNext, {
+    const userId = await t.run(async (ctx) => seedUser({ ctx }));
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, {
       symbolLayoutId: 'йцукен',
       budgetChars: 30,
       seed: 1,
@@ -85,36 +92,47 @@ describe('drillNext — выдача порции (этап 1)', () => {
 
   test('seed детерминирует выборку: один seed → одинаковые тексты', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}xx`, step: 0, layout: 'test' });
+      return seedUser({ ctx });
     });
-    const a = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
-    const b = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
+    const client = asUser({ t, userId });
+    const a = await client.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
+    const b = await client.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 10, seed: 777 });
     expect(a.drills.map((d) => d.text)).toEqual(b.drills.map((d) => d.text));
   });
 
   test('drill\'ы в порции не повторяются (distinct)', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       // Уникальные тексты: distinct по тексту ⟺ distinct по строкам (id на проводе нет).
       for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}aa`, step: 0, layout: 'test' });
+      return seedUser({ ctx });
     });
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
     expect(new Set(res.drills.map((d) => d.text)).size).toBe(res.drills.length);
   });
 
   test('битые ссылки (drills удалён, индекс жив) → дефолтный drill, не пустота', async () => {
     const t = makeConvexTest();
-    await t.run(async (ctx) => {
+    const userId = await t.run(async (ctx) => {
       // Индекс + агрегат живы (count>0), сам drill удалён → ссылка битая.
       const drillId = await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'йцукен' });
       await ctx.db.delete(drillId);
+      return seedUser({ ctx });
     });
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 30, seed: 1 });
+    const res = await asUser({ t, userId }).query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 30, seed: 1 });
     expect(res.drills.length).toBeGreaterThan(0);
     const allowed = jcukenStep0Allowed();
     const text = res.drills.map((d) => d.text).join(' ');
     for (const ch of text) expect(allowed.has(ch)).toBe(true);
+  });
+
+  test('гость (без identity) → throw Not authenticated (ADR 0012)', async () => {
+    const t = makeConvexTest();
+    await expect(
+      t.query(api.drill.drillNext, { symbolLayoutId: 'йцукен', budgetChars: 10, seed: 1 }),
+    ).rejects.toThrow(/not authenticated/i);
   });
 });
 
@@ -441,12 +459,8 @@ describe('resolveOpenedSteps — чтение репертуара из проф
       expect(await resolveOpenedSteps({ ctx, userId, symbolLayoutId: 'йцукен' })).toBe(1);
     });
   });
-  test('null userId (неавторизован/гость) → cold-start 1', async () => {
-    const t = makeConvexTest();
-    await t.run(async (ctx) => {
-      expect(await resolveOpenedSteps({ ctx, userId: null, symbolLayoutId: 'йцукен' })).toBe(1);
-    });
-  });
+  // Гостевой userId: null снят — resolveOpenedSteps сужен до non-null (ADR 0012,
+  // тренировка требует входа); гостевой путь drillNext закрыт throw-тестом выше.
 });
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -471,19 +485,9 @@ describe('drillNext query — authenticated (openedSteps из профиля)', 
     expect(res.drills.some((d) => d.text === 'ccccc')).toBe(false); // шаг 2 ≥ openedSteps → отсечён
   });
 
-  test('гость (без identity) с тем же профилем → cold-start 1 → только шаг 0', async () => {
-    const t = makeConvexTest();
-    await t.run(async (ctx) => {
-      const uid = await seedUser({ ctx });
-      await seedProfile({ ctx, userId: uid, symbolLayoutId: 'test', openedSteps: 2 });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'aaaaa', step: 0, layout: 'test' });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'bbbbb', step: 1, layout: 'test' });
-    });
-    // Нет identity → профиль не читается, openedSteps = cold-start 1 → шаг 1 недоступен.
-    const res = await t.query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 300, seed: 1 });
-    expect(res.drills.some((d) => d.text === 'aaaaa')).toBe(true);
-    expect(res.drills.some((d) => d.text === 'bbbbb')).toBe(false);
-  });
+  // Гостевой путь снят: drillNext требует входа (ADR 0012), гость → throw
+  // (см. тест в describe «drillNext — выдача порции»). Раньше здесь тест «гость →
+  // cold-start 1» проверял чтение профиля только под identity — теперь бессмыслен.
 });
 
 describe('drillRecord mutation — auth', () => {
