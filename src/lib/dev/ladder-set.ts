@@ -6,16 +6,30 @@
  * ступень на сервере к допустимому диапазону и сбрасывает `symbolCells` профиля.
  *
  * Вызывать ТОЛЬКО из браузера авторизованным: mutation использует `getAuthUserId`.
- * В прод-сборку не входит (динамический импорт под `import.meta.env.DEV`).
+ * Загружается только в dev-сборке через динамический импорт в `src/machines/appActor.ts`.
  */
 import { convex, api } from '@/lib/convex';
 import { settings } from '@/lib/settings';
 import type { SymbolLayoutId } from '@/interfaces/types';
 
-type SetLadderStepResult = { openedSteps: number; clamped: boolean };
+interface SetLadderStepResult {
+  openedSteps: number;
+  clamped: boolean;
+}
 type SetLadderStepConsoleApi = (step: number) => Promise<SetLadderStepResult>;
 
 let attached = false;
+
+function currentSymbolLayoutId(): SymbolLayoutId {
+  let symbolLayoutId: SymbolLayoutId | undefined;
+  settings.subscribe((s) => {
+    symbolLayoutId = s.symbolLayoutId;
+  })();
+  if (symbolLayoutId === undefined) {
+    throw new Error('[ladder-set] не удалось прочитать текущую раскладку из settings');
+  }
+  return symbolLayoutId;
+}
 
 /** Привязывает `window.__setLadderStep`. Идемпотентно. */
 export function attachLadderStepSet(): void {
@@ -23,10 +37,7 @@ export function attachLadderStepSet(): void {
   attached = true;
 
   (window as unknown as { __setLadderStep: SetLadderStepConsoleApi }).__setLadderStep = (step) => {
-    let symbolLayoutId!: SymbolLayoutId;
-    settings.subscribe((s) => {
-      symbolLayoutId = s.symbolLayoutId;
-    })();
+    const symbolLayoutId = currentSymbolLayoutId();
 
     return convex
       .mutation(api.drill.setMyLadderStep, {
