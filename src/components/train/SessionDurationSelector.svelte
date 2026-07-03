@@ -12,7 +12,7 @@
 <div class="duration-selector">
   <span class="label">{label}</span>
   <div class="segments" role="radiogroup" aria-label={label}>
-    {#each options as option}
+    {#each options as option (option.seconds)}
       <button
         type="button"
         role="radio"
