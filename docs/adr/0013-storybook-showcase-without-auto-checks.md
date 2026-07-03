@@ -1,6 +1,6 @@
 # Storybook — визуальная витрина без авто-проверок
 
-12 компонентов (`SignInScreen`, `UserMenu`, `FlowLine`, `Finger`, `HandsScene`, `KeyboardScene`, `KeyCap`, `NavArrow`, `RhythmChannel`, `LessonStatsDisplay`, `Avatar`, `Wordmark`) живут только в Storybook и не получают **никакой** автоматической проверки: нет `@storybook/test`/`test-runner`, ноль play-функций, `make check-all` Storybook не гоняет, a11y-аддон работает лишь в интерактивном UI. Позиция «компоненты = только Storybook» уже декларирована в `CLAUDE.md`; этот ADR фиксирует её как **осознанную**, чтобы будущие аудиты не пере-предлагали play-функции / browser-mode.
+12 компонентов (`SignInScreen`, `UserMenu`, `FlowLine`, `Finger`, `HandsScene`, `KeyboardScene`, `KeyCap`, `NavArrow`, `RhythmChannel`, `LessonStatsDisplay`, `Avatar`, `Wordmark`) живут только в Storybook и не получают **никакой** автоматической проверки: нет `@storybook/test`/`test-runner`, ноль play-функций, `make check-all` Storybook не гоняет, a11y-расширение работает лишь в интерактивном UI. Позиция «компоненты = только Storybook» уже декларирована в `CLAUDE.md`; этот ADR фиксирует её как **осознанную**, чтобы будущие аудиты не пере-предлагали play-функции / browser-mode.
 
 ## Решения
 
