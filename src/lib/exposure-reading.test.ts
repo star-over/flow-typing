@@ -1,14 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { readExposures, PAUSE_CAP_MS } from './exposure-reading';
-import type { StreamAttempt, StreamSymbol } from '@/interfaces/types';
-import type { KeyCapId } from '@/interfaces/key-cap-id';
-
-function press(keys: KeyCapId[], startAt?: number): StreamAttempt {
-  return { pressedKeyCaps: keys, startAt };
-}
-function streamSymbol(targetSymbol: string, target: KeyCapId[], attempts: StreamAttempt[]): StreamSymbol {
-  return { targetSymbol, targetKeyCaps: target, attempts };
-}
+import { press, streamSymbol } from '@/fixtures/stream';
 
 describe('readExposures', () => {
   test('чистое предъявление: первое нажатие верное → clean', () => {

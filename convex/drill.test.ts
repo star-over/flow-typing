@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { api } from './_generated/api';
 import schema from './schema';
 import type { MutationCtx } from './_generated/server';
-import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler, buildDefaultDrills } from './drill';
+import { foldSummaryIntoCells, applyDrillSummaryHandler, resolveOpenedSteps, repertoireSnapshotHandler, resetMyProfileHandler, buildDefaultDrills, selectDrillsHandler } from './drill';
 import { drillIndex } from './drillIndex';
 import { registerDrillIndex } from './test.helpers';
 import { getLayoutData } from './layoutData';
@@ -151,6 +151,49 @@ describe('drillNext — выдача порции (этап 1)', () => {
     const allowed = jcukenStep0Allowed();
     const text = res.drills.map((d) => d.text).join(' ');
     for (const ch of text) expect(allowed.has(ch)).toBe(true);
+  });
+});
+
+// Ядро политики отбора напрямую (шов на openedSteps, минуя auth): закрывает дыры,
+// которые query-уровень достать не мог — getAuthUserId в convex-test без identity
+// всегда даёт null → resolveOpenedSteps → cold-start 1, поэтому ветка openedSteps>1
+// через `t.query(drillNext)` не гоняется ни разу (полный путь через identity — это
+// отдельный кандидат withIdentity). Шов подаёт openedSteps напрямую.
+describe('selectDrillsHandler — политика отбора (ADR 0009/0006/0011)', () => {
+  test('openedSteps 2: drill шага 1 впущен, шага 2 отсечён (bound stepLevel < openedSteps)', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await t.run(async (ctx) => {
+      for (let i = 0; i < 5; i++) await insertDrill(ctx, { text: 'aaaaa', step: 0, layout: 'test' });
+      for (let i = 0; i < 5; i++) await insertDrill(ctx, { text: 'bbbbb', step: 1, layout: 'test' });
+      for (let i = 0; i < 5; i++) await insertDrill(ctx, { text: 'ccccc', step: 2, layout: 'test' });
+
+      const res = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 2, budgetChars: 300, seed: 1 });
+
+      // Бюджет 300 > шаги 0+1 (10×5=50): выдаются все 10; шаг 2 (== openedSteps) — никогда.
+      expect(res.drills).toHaveLength(10);
+      expect(res.drills.some((d) => d.text === 'bbbbb')).toBe(true); // шаг 1 (< openedSteps) впущен
+      expect(res.drills.some((d) => d.text === 'ccccc')).toBe(false); // шаг 2 (≥ openedSteps) отсечён
+    });
+  });
+
+  test('разные seed → разная выборка (seed управляет отбором, не только детерминирует)', async () => {
+    const t = convexTest(schema, modules);
+    registerDrillIndex(t);
+    await t.run(async (ctx) => {
+      // 20 уникальных текстов ровно по 5 символов; бюджет 5 = один drill из пула → seed
+      // выбирает, какой именно. distinct по тексту ⟺ distinct по строкам (id на проводе нет).
+      for (let i = 0; i < 20; i++) {
+        await insertDrill(ctx, { text: `w${String(i).padStart(3, '0')}z`, step: 0, layout: 'test' });
+      }
+      const pick = async (seed: number) => {
+        const res = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 5, seed });
+        return res.drills.map((d) => d.text).join('|');
+      };
+      const picks = await Promise.all([1, 2, 3, 4, 5, 6].map(pick));
+
+      expect(new Set(picks).size).toBeGreaterThan(1); // не все seed дают один и тот же drill
+    });
   });
 });
 
