@@ -10,7 +10,6 @@ describe('normalizeSettings', () => {
       symbolLayoutId: 'qwerty',
       fingerLayoutId: 'asdf',
       cursorType: 'RECTANGLE',
-      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
@@ -24,7 +23,6 @@ describe('normalizeSettings', () => {
       symbolLayoutId: 'qwerty',
       fingerLayoutId: 'asdf',
       cursorType: 'RECTANGLE',
-      cursorMode: 'HALF',
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
@@ -45,7 +43,6 @@ describe('normalizeSettings', () => {
       symbolLayoutId: 'йцукен',
       fingerLayoutId: 'sdfv',
       cursorType: 'VERTICAL',
-      cursorMode: 'THIRD',
       theme: 'dark',
       displayName: 'Custom Name',
       rhythmChannelEnabled: true,
@@ -86,12 +83,6 @@ describe('normalizeSettings', () => {
     expect(normalizeSettings({}).cursorType).toBe('RECTANGLE');
   });
 
-  it('валидный cursorMode сохраняется, мусор → дефолт HALF', () => {
-    expect(normalizeSettings({ cursorMode: 'QUARTER' }).cursorMode).toBe('QUARTER');
-    expect(normalizeSettings({ cursorMode: 'FULL' }).cursorMode).toBe('HALF');
-    expect(normalizeSettings({}).cursorMode).toBe('HALF');
-  });
-
   it('несовместимая пара textLanguage=ru + symbolLayoutId=qwerty → сброс раскладки', () => {
     const result = normalizeSettings({
       interfaceLanguage: 'ru',
@@ -110,7 +101,6 @@ describe('normalizeSettings', () => {
     expect(result.textLanguage).toBe('en');
     expect(result.symbolLayoutId).toBe('qwerty');
   });
-
   it('мусор в textLanguage игнорируется и подставляется дефолт', () => {
     const result = normalizeSettings({ textLanguage: 'de' });
     expect(result.textLanguage).toBe('en');

@@ -1242,7 +1242,7 @@ git commit -m "feat(app): training invoke'ит sessionService; выбор drill'
 
 ```svelte
 {#if inState({ snapshot: state, value: { training: 'running' } }) && sessionActor}
-  <TrainingScene {sessionActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} cursorMode={$settings.cursorMode} {dictionary} />
+  <TrainingScene {sessionActor} {fingerLayout} physicalLayout={physicalLayoutANSI} cursorType={$settings.cursorType} {dictionary} />
 ```
 
 (Удалить импорт `trainingMachine` если не используется.)
@@ -1256,7 +1256,7 @@ git commit -m "feat(app): training invoke'ит sessionService; выбор drill'
   import type { Actor } from 'xstate';
   import type { sessionMachine } from '@/machines/session.machine';
   import type { trainingMachine } from '@/machines/training.machine';
-  import type { Dictionary, FingerLayout, FlowLineCursorMode, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
+  import type { Dictionary, FingerLayout, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
 
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
@@ -1274,11 +1274,10 @@ git commit -m "feat(app): training invoke'ит sessionService; выбор drill'
     fingerLayout: FingerLayout;
     physicalLayout: PhysicalLayout;
     cursorType: FlowLineCursorType;
-    cursorMode: FlowLineCursorMode;
     dictionary: Dictionary;
   }
 
-  const { sessionActor, fingerLayout, physicalLayout, cursorType, cursorMode, dictionary }: Props = $props();
+  const { sessionActor, fingerLayout, physicalLayout, cursorType, dictionary }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let sessionState = $state(sessionActor.getSnapshot());

@@ -14,7 +14,7 @@ colors:
   ink-muted: "oklch(0.56 0 0)"
   amber-target: "oklch(0.77 0.16 70)"
   indigo-path: "oklch(0.62 0.19 260)"
-  cursor-slate: "oklch(0.28 0.03 257)"
+  cursor-amber: "oklch(0.77 0.16 70)"
   finger-thumb-amber: "oklch(0.86 0.17 92)"
   finger-index-orange: "oklch(0.76 0.16 56)"
   finger-middle-green: "oklch(0.80 0.18 152)"

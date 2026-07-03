@@ -134,10 +134,6 @@ export const FLOW_LINE_SYMBOL_TYPES = [
 ] as const;
 export type FlowLineSymbolType = typeof FLOW_LINE_SYMBOL_TYPES[number];
 
-/** Режим отображения курсора в FlowLine. */
-export const FLOW_LINE_CURSOR_MODES = ["HALF", "THIRD", "QUARTER", "DINAMIC"] as const;
-export type FlowLineCursorMode = typeof FLOW_LINE_CURSOR_MODES[number];
-
 // --- Typing Stream and Attempts ---
 
 /**

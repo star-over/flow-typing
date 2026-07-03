@@ -41,6 +41,7 @@
     left: 0;
     bottom: 0;
     background: var(--cursor-symbol-background);
+    border-radius: var(--radius);
     opacity: 0;
     transition: opacity 0.1s;
   }
@@ -65,7 +66,8 @@
   }
 
   .char {
+    position: relative;
+    z-index: 1;
     color: var(--cursor-symbol-color);
-    mix-blend-mode: difference;
   }
 </style>
