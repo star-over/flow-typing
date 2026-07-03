@@ -12,6 +12,7 @@ const validSettings = {
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
+  sessionDurationSeconds: 300,
 };
 
 describe('getMineHandler', () => {
@@ -121,6 +122,20 @@ describe('upsertMineHandler', () => {
       await upsertMineHandler({ ctx, userId, settings: { ...validSettings, rhythmChannelEnabled: false } });
       const patched = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
       expect(patched?.rhythmChannelEnabled).toBe(false);
+    });
+  });
+
+  test('persists sessionDurationSeconds through insert and patch', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx, email: 'a@example.com' });
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, sessionDurationSeconds: 60 } });
+      const inserted = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(inserted?.sessionDurationSeconds).toBe(60);
+
+      await upsertMineHandler({ ctx, userId, settings: { ...validSettings, sessionDurationSeconds: 900 } });
+      const patched = await ctx.db.query('userSettings').withIndex('by_user', q => q.eq('userId', userId)).unique();
+      expect(patched?.sessionDurationSeconds).toBe(900);
     });
   });
 

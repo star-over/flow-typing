@@ -38,6 +38,7 @@ export async function upsertMineHandler({
     theme: string;
     displayName: string;
     rhythmChannelEnabled: boolean;
+    sessionDurationSeconds: number;
   };
 }): Promise<Id<'userSettings'>> {
   const existing = await ctx.db
@@ -79,6 +80,7 @@ export const upsertMine = mutation({
     theme: v.string(),
     displayName: v.string(),
     rhythmChannelEnabled: v.boolean(),
+    sessionDurationSeconds: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
