@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createActor, createMachine } from 'xstate';
 
 import type { TypingStream } from '@/interfaces/types';
+import { sym } from '@/fixtures/stream';
 
 import { appMachine } from './app.machine';
 
@@ -143,9 +144,7 @@ describe('appMachine', () => {
       actor.start();
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
 
-      const finalStream: TypingStream = [
-        { targetSymbol: 'x', targetKeyCaps: ['KeyX'], attempts: [] },
-      ];
+      const finalStream: TypingStream = [sym('x', 'KeyX')];
       const finalSummary = {
         exposures: 1,
         clean: 1,

@@ -9,15 +9,8 @@ import {
   type SessionSummaryPayload,
 } from './session-summarize';
 import { MIN_JOURNAL_EXPOSURES } from './session-config';
-import type { StreamAttempt, StreamSymbol } from '@/interfaces/types';
-import type { KeyCapId } from '@/interfaces/key-cap-id';
-
-function press(keys: KeyCapId[], startAt?: number): StreamAttempt {
-  return { pressedKeyCaps: keys, startAt };
-}
-function streamSymbol(targetSymbol: string, target: KeyCapId[], attempts: StreamAttempt[]): StreamSymbol {
-  return { targetSymbol, targetKeyCaps: target, attempts };
-}
+import type { StreamSymbol } from '@/interfaces/types';
+import { press, streamSymbol } from '@/fixtures/stream';
 
 describe('summarizeSession', () => {
   test('confusion: первый промах учитывается с направлением (target → pressed)', () => {

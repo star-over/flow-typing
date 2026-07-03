@@ -3,6 +3,7 @@ import { assign, createActor, createMachine, sendTo, type SnapshotFrom } from 'x
 
 import type { KeyCapId, StreamSymbol, TypingStream } from '@/interfaces/types';
 import type { UserSettings } from '@/interfaces/user-settings';
+import { sym } from '@/fixtures/stream';
 
 import { trainingMachine } from './training.machine';
 
@@ -48,12 +49,6 @@ function makeTestParent(
 function getChild(actor: ReturnType<typeof createActor>): TrainingSnapshot {
   return actor.getSnapshot().children.training!.getSnapshot() as TrainingSnapshot;
 }
-
-const sym = (targetSymbol: string, key: KeyCapId): StreamSymbol => ({
-  targetSymbol,
-  targetKeyCaps: [key],
-  attempts: [],
-});
 
 describe('trainingMachine (непрерывный)', () => {
   it('correct input: продвигает индекс, пишет attempt, шлёт TYPING.ADVANCED с завершённым символом', () => {

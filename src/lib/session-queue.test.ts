@@ -1,14 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { KeyCapId, StreamSymbol, TypingStream } from '@/interfaces/types';
+import type { TypingStream } from '@/interfaces/types';
+import { sym } from '@/fixtures/stream';
 import { drillSummarize } from './drill-summarize';
 import { needsRefill, planCheckpoint } from './session-queue';
-
-const sym = (targetSymbol: string, key: KeyCapId): StreamSymbol => ({
-  targetSymbol,
-  targetKeyCaps: [key],
-  attempts: [],
-});
 
 const THRESHOLD = 40;
 
