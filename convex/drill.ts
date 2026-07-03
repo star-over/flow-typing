@@ -493,6 +493,11 @@ export async function resetMyProfileHandler({
   return profiles.length;
 }
 
+/**
+ * Инструмент «чистого листа» для dev-прогонов агентов и E2E (ADR 0012):
+ * сбрасывает профили текущего юзера перед детерминированным прогоном.
+ * Не продуктовая функция — пара к dev-входу (Password за env-флагом).
+ */
 export const resetMyProfile = mutation({
   args: {},
   handler: async (ctx) => {
