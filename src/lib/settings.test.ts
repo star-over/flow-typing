@@ -13,6 +13,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -26,6 +27,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -46,6 +48,7 @@ describe('normalizeSettings', () => {
       theme: 'dark',
       displayName: 'Custom Name',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 600,
     };
     expect(normalizeSettings(input)).toEqual(input);
   });
@@ -54,6 +57,12 @@ describe('normalizeSettings', () => {
     expect(normalizeSettings({ rhythmChannelEnabled: true }).rhythmChannelEnabled).toBe(true);
     expect(normalizeSettings({ rhythmChannelEnabled: 'yes' }).rhythmChannelEnabled).toBe(false);
     expect(normalizeSettings({}).rhythmChannelEnabled).toBe(false);
+  });
+
+  it('валидный sessionDurationSeconds сохраняется, не-число → дефолт 300', () => {
+    expect(normalizeSettings({ sessionDurationSeconds: 600 }).sessionDurationSeconds).toBe(600);
+    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({}).sessionDurationSeconds).toBe(300);
   });
 
   it('displayName: любая строка проходит как есть', () => {

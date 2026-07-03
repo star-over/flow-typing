@@ -21,6 +21,7 @@ const validLocal: UserSettings = {
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
+  sessionDurationSeconds: 300,
 };
 
 const validCloud: CloudSettings = {
@@ -53,6 +54,7 @@ describe('decideSyncOnLogin', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -66,6 +68,7 @@ describe('decideSyncOnLogin', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 300,
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
     expect(decision.action).toBe('pull');
@@ -85,6 +88,7 @@ describe('cloudRowToSettings', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -96,6 +100,7 @@ describe('cloudRowToSettings', () => {
       'fingerLayoutId',
       'interfaceLanguage',
       'rhythmChannelEnabled',
+      'sessionDurationSeconds',
       'symbolLayoutId',
       'textLanguage',
       'theme',

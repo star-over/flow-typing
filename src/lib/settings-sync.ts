@@ -1,4 +1,5 @@
 import type { UserSettings } from '@/interfaces/user-settings';
+import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
 
 /**
  * Shape of userSettings row returned by Convex getMine.
@@ -69,6 +70,8 @@ export function cloudRowToSettings(cloud: CloudSettings): UserSettings {
     theme: cloud.theme,
     displayName: cloud.displayName ?? '',
     rhythmChannelEnabled: cloud.rhythmChannelEnabled,
+    // Cloud-ряды, созданные до добавления поля, не содержат его; заполняем дефолтом.
+    sessionDurationSeconds: DEFAULT_USER_SETTINGS.sessionDurationSeconds,
   } as UserSettings;
 }
 

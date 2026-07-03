@@ -105,6 +105,11 @@ export function normalizeSettings(raw: unknown): UserSettings {
     ? stored.rhythmChannelEnabled
     : DEFAULT_USER_SETTINGS.rhythmChannelEnabled;
 
+  // Длительность таймерной сессии в секундах; не-число → дефолт (5 минут).
+  const sessionDurationSeconds = typeof stored.sessionDurationSeconds === 'number'
+    ? stored.sessionDurationSeconds
+    : DEFAULT_USER_SETTINGS.sessionDurationSeconds;
+
   return {
     interfaceLanguage,
     textLanguage,
@@ -114,6 +119,7 @@ export function normalizeSettings(raw: unknown): UserSettings {
     theme,
     displayName,
     rhythmChannelEnabled,
+    sessionDurationSeconds,
   };
 }
 
