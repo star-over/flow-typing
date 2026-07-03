@@ -1,18 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { assign, createActor, createMachine, fromPromise, type SnapshotFrom } from 'xstate';
 
-import type { KeyCapId, StreamSymbol, TypingStream } from '@/interfaces/types';
+import type { StreamSymbol, TypingStream } from '@/interfaces/types';
+import { sym } from '@/fixtures/stream';
 import { REFILL_THRESHOLD_SYMBOLS } from '@/lib/session-config';
 import { sessionMachine } from './session.machine';
 import type { trainingMachine } from './training.machine';
 
 type SessionSnapshot = SnapshotFrom<typeof sessionMachine>;
-
-const sym = (targetSymbol: string, key: KeyCapId): StreamSymbol => ({
-  targetSymbol,
-  targetKeyCaps: [key],
-  attempts: [],
-});
 
 const TWO: TypingStream = [sym('a', 'KeyA'), sym('b', 'KeyB')];
 
