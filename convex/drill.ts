@@ -512,10 +512,14 @@ export async function setMyLadderStepHandler({
   targetStep,
 }: {
   ctx: MutationCtx;
-  userId: Id<'users'>;
+  userId: Id<'users'> | null;
   symbolLayoutId: string;
   targetStep: number;
 }): Promise<{ openedSteps: number; clamped: boolean }> {
+  if (userId === null) {
+    throw new Error('Not authenticated');
+  }
+
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) throw new Error(`Unknown symbolLayoutId: ${symbolLayoutId}`);
 
