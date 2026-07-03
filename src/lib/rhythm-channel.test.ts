@@ -3,10 +3,12 @@ import {
   applyFall,
   applyJump,
   forcesAt,
+  initialRhythmState,
   isBeatAccepted,
   MAX_INTERVAL_MS,
   MAX_LEVEL,
   MIN_INTERVAL_MS,
+  registerBeatReducer,
   updateTempo,
   ZONE_CENTER,
   BAND_WIDTH,
@@ -114,5 +116,43 @@ describe('zoneOf', () => {
 
   test('ниже нижней кромки зоны — below (тормозишь)', () => {
     expect(zoneOf({ level: ZONE_CENTER - BAND_WIDTH / 2 - 0.01 })).toBe('below');
+  });
+});
+
+describe('registerBeatReducer', () => {
+  test('первый удар только записывает старт: без оседания и без updateTempo', () => {
+    const seed = initialRhythmState();
+    // Интервал заведомо огромный (как now − lastBeatAt=0): первый удар обязан его игнорировать.
+    const next = registerBeatReducer({ state: seed, intervalMs: 999_999, reduceMotion: true });
+    expect(next.started).toBe(true);
+    expect(next.emaIntervalMs).toBe(seed.emaIntervalMs); // темп не тронут
+    expect(next.varianceEma).toBe(0);
+    expect(next.tapZone).toBe('in'); // зона центра до прыжка
+    expect(next.level).toBeGreaterThan(ZONE_CENTER); // прыжок случился
+  });
+
+  test('зона фиксируется ДО прыжка: тап в центре → tapZone «in», хотя кромка улетает «above»', () => {
+    const state = { ...initialRhythmState(), started: true, level: ZONE_CENTER };
+    const next = registerBeatReducer({ state, intervalMs: state.emaIntervalMs, reduceMotion: false });
+    expect(next.tapZone).toBe('in'); // «куда нажал» — центр
+    expect(zoneOf({ level: next.level })).toBe('above'); // но после прыжка кромка уже выше зоны
+  });
+
+  test('reduced-motion оседает ДО чтения зоны: та же высокая кромка даёт разную зону тапа', () => {
+    const high = { ...initialRhythmState(), started: true, level: 0.9 };
+    // Без reduced-motion падения нет — зона читается с исходных 0.9 (above).
+    const stepped = registerBeatReducer({ state: high, intervalMs: 600, reduceMotion: false });
+    expect(stepped.tapZone).toBe('above');
+    // С reduced-motion кромка сперва оседает за 600 мс — зона тапа уже не «above».
+    const settled = registerBeatReducer({ state: high, intervalMs: 600, reduceMotion: true });
+    expect(settled.tapZone).not.toBe('above');
+  });
+
+  test('принятый удар обновляет темп; пауза (off-task) — нет', () => {
+    const state = { ...initialRhythmState(), started: true };
+    const accepted = registerBeatReducer({ state, intervalMs: 500, reduceMotion: false });
+    expect(accepted.emaIntervalMs).toBeGreaterThan(state.emaIntervalMs); // 500 > μ → μ поднялся
+    const paused = registerBeatReducer({ state, intervalMs: 5000, reduceMotion: false });
+    expect(paused.emaIntervalMs).toBe(state.emaIntervalMs); // пауза отброшена — μ не тронут
   });
 });
