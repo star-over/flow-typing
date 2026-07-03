@@ -295,8 +295,8 @@ describe('sessionMachine', () => {
       try {
         const actor = createActor(provideSession({ fetchSequence: [LONG] }), { input: INPUT });
         actor.start();
-        // fetchDrills — fromPromise: резолвится микротаском; advanceTimersByTimeAsync
-        // сплющивает очередь микротасков → loading → active.armed.
+        // fetchDrills — fromPromise: разрешается микрозадачей; advanceTimersByTimeAsync
+        // сплющивает очередь микрозадач → loading → active.armed.
         await vi.advanceTimersByTimeAsync(0);
         expect(actor.getSnapshot().matches(ARMED)).toBe(true);
 
