@@ -155,7 +155,7 @@ target, attempts)`. Гранулярность — набор мелких (не
 
 ---
 
-### 3. Харнесс XState-машин: тесты обходят собственный шов `selectors.ts`, тип снапшота протекает, тест-родитель переизобретён 4× — HIGH · 🔲 НЕ НАЧАТО
+### 3. Харнесс XState-машин: тесты обходят собственный шов `selectors.ts`, тип снапшота протекает, тест-родитель переизобретён 4× — HIGH · ✅ СДЕЛАНО
 
 **Файлы:** `getTraining()` — `session.machine.test.ts:47` и близнец `getChild()` —
 `training.machine.test.ts:48` (оба `actor.getSnapshot().children.training!.getSnapshot() as …`) ·
@@ -194,6 +194,29 @@ reusable «тест-родитель/sink» билдер, общий фейк-п
 ли `selectors.ts` в тесты напрямую или дать тест-обёртку над ним; сводить ли 4
 тест-родителя в один параметрический билдер (риск — потерять читаемость каждого стыка).
 Иерархию трёх машин (ADR 0007) не трогаем. Пара к кандидату 6 (fake timers).
+
+**Сделано (2026-07-03).** Ветка `refactor/machine-test-harness`. Дом харнесса —
+`src/fixtures/machines.ts` (сосед `stream.ts`, alias `@/fixtures/*`): `trainingSnapshotOf`
+(поверх продакшн-шва `selectTrainingActor` — тест пересекает **тот же** шов, что UI;
+переименование invoke-id внутри машин больше не рушит тест), `provideSession({
+fetchSequence, onCheckpoint, onSession })` (свёл 6 встроенных `.provide` + локальный
+`makeSession`; `fetchSequence: TypingStream[]` заменил ручной `let call = 0` — `[X]` =
+«первый вызов X, дальше пусто», `[X, Y]` = «X, затем Y»), `makeCompletionSink` (свёл два
+ad-hoc сток-родителя `SESSION.COMPLETE`). **Корень протечки уточнён эмпирически** (probe
+под `svelte-check`): 34 `as SessionSnapshot` — избыточный шум, а не отсутствие хелпера —
+`createActor(provideSession(...))` уже возвращает типизированного актора, касты просто
+удалены; каст **реально нужен только у ребёнка** (`children.training` типизирован как
+объединение снимков всех детей) — его снял шов `selectTrainingActor`. **Объём сознательно
+сужен по гриллу (Опция B — против пере-абстракции):** 4 тест-родителя в один
+параметрический **не** сводились (каждый документирует контракт своей машины); keyboard-тест
+**не тронут** (самый слабый выигрыш при 11 местах churn); `getChild` training-теста оставлен
+(его рукодельный родитель — не `sessionMachine`, шов `selectTrainingActor` его снимок по
+типам не примет); `selectKeyboardActor` в прод `selectors.ts` **не добавлен** (UI
+keyboard-ребёнка не читает — события идут через window-listeners; прод-функция без
+прод-вызывающих = запах). Итог: **прод-код не тронут вовсе**, даже `selectors.ts`.
+Поведение-сохраняюще — 12 исходных session-тестов целы, все 54 файла зелёные (**504
+инвариант рефактора**). Проверено: `make check-dev` (eslint/svelte-check чисты);
+`npx convex dev --once` не требовался — тронут только тест-слой.
 
 ---
 
@@ -254,7 +277,7 @@ authenticated-путь обёрток + нулевые зоны.
 
 ---
 
-### 6. Таймерный путь машины (`TICK`/`isExpired`/`ticker`) не гоняется — истечение подделывается ручным `TIMER_EXPIRED`; fake timers не используются нигде — MEDIUM · 🔲 НЕ НАЧАТО
+### 6. Таймерный путь машины (`TICK`/`isExpired`/`ticker`) не гоняется — истечение подделывается ручным `TIMER_EXPIRED`; fake timers не используются нигде — MEDIUM · ✅ СДЕЛАНО
 
 **Файлы:** реальный `setInterval`-ticker (`session.machine.ts:84`) и guard
 `isExpired`/`TICK` (`:184–190,288–291`) — в тестах не покрыты; во всех кейсах истечение
@@ -275,6 +298,27 @@ isExpired→done) стал тестовой поверхностью, а не о
 покрывать реальный `TICK` или достаточно `isExpired`-юнита (тот уже покрыт как чистая fn в
 `session-timer.ts` — прошлый аудит, кандидат 6); только фиделити или ещё развязка от
 `REFILL_THRESHOLD_SYMBOLS`. Пара к кандидату 3.
+
+**Сделано (2026-07-03).** Ветка `refactor/machine-test-harness` (общая с кандидатом 3).
+**Добавлены 2 точечных fake-timer теста** реального пути `ticker (setInterval) → TICK →
+isExpired → done` (`session.machine.test.ts`, блок «реальный путь истечения»): (1) истечение
+через ход часов → `done` **без** ручного `TIMER_EXPIRED`; (2) `TICK` до истечения обновляет
+`displayElapsedMs` (ветка `refreshDisplay`). Прежде **обе** ветки `TICK` не гонялись —
+ручной `TIMER_EXPIRED` перепрыгивал тикер целиком. **Ловушка fake-timers × `fromPromise`
+обойдена** (подтверждено с первого прогона): `vi.useFakeTimers()` → `advanceTimersByTimeAsync(0)`
+сплющивает микротаск `fetchDrills` до `armed` → `KEY_PRESS` (старт тикера) →
+`advanceTimersByTimeAsync(> окна)` → `done`; `vi.waitFor` в этих тестах **не** используется
+(детерминированный адванс вместо polling'а — конфликт с фейковыми таймерами исключён).
+5 существующих `TIMER_EXPIRED`-тестов **оставлены** (быстрые, документируют контракт «истёк →
+сразу done») — №6 их дополняет, не заменяет. **Развязка от `REFILL_THRESHOLD_SYMBOLS`:**
+добавлен страж-инвариант `expect(6).toBeLessThan(REFILL_THRESHOLD_SYMBOLS)` — при падении
+константы ≤ 6 `longStreamSession` молча начал бы дозагружать на 6 нажатиях и оба done-теста
+потеряли бы «чекпоинт ровно один»; страж падает громко. Более крупную развязку не тащили
+(scope). **Заодно (grill-with-docs) снят док-дрейф удалённой фазы `draining`:** CONTEXT.md
+(`Session` без `draining`; термин `Draining` помечен похороненным со ссылкой на ADR 0007) и
+CLAUDE.md (подсостояния `active` + описание истечения). Число тестов: **504 → 507** (+1 страж,
++2 таймерных). Проверено: `make check-dev` зелёный; `npx convex dev --once` не требовался —
+тронуты только тест-слой + доки.
 
 ---
 
