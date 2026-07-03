@@ -141,6 +141,10 @@
     "blockers_speed": "needs speed",
     "guest_invite": "Sign in to save step progress"
   },
+  "train_gate": {
+    "guest": "Training requires signing in — your profile and progress live on the server.",
+    "sign_in": "Sign in"
+  },
   "debug": {
     "state_title": "State"
   },
