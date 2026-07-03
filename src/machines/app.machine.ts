@@ -18,10 +18,12 @@ export interface AppContext {
   // (те же время/cpm/точность, что в журнале /stats). Приходит в SESSION.COMPLETE.
   lastSessionSummary: SessionSummaryPayload | null;
   currentSymbolLayoutId: SymbolLayoutId;
+  /** Длительность сессии, выбранная в меню перед стартом. */
+  sessionDurationSeconds: number;
 }
 
 export type AppEvent =
-  | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId }
+  | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId; durationSeconds: number }
   | { type: 'TO_MENU' }
   | { type: 'TRAINER_OPENED' }
   | { type: 'PAUSE' }
@@ -48,9 +50,10 @@ export const appMachine = setup({
   },
   actions: {
     // Выбор drill'ов и построение потока уехали в sessionMachine (session-impl).
-    // На корне — только зафиксировать раскладку для будущей сессии.
-    setSymbolLayout: assign((_, params: { symbolLayoutId: SymbolLayoutId }) => ({
+    // На корне — только зафиксировать раскладку и длительность для будущей сессии.
+    setTrainingParams: assign((_, params: { symbolLayoutId: SymbolLayoutId; durationSeconds: number }) => ({
       currentSymbolLayoutId: params.symbolLayoutId,
+      sessionDurationSeconds: params.durationSeconds,
     })),
     storeSessionResult: assign(
       (_, params: { stream: TypingStream; summary: SessionSummaryPayload | null }) => ({
@@ -80,6 +83,7 @@ export const appMachine = setup({
     lastTrainingStream: null,
     lastSessionSummary: null,
     currentSymbolLayoutId: 'qwerty',
+    sessionDurationSeconds: DEFAULT_USER_SETTINGS.sessionDurationSeconds,
   },
   on: {
     KEY_DOWN: {
@@ -117,8 +121,11 @@ export const appMachine = setup({
           target: 'trainingStart',
           reenter: true,
           actions: {
-            type: 'setSymbolLayout',
-            params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
+            type: 'setTrainingParams',
+            params: ({ event }) => ({
+              symbolLayoutId: event.symbolLayoutId,
+              durationSeconds: event.durationSeconds,
+            }),
           },
         },
         // Enter в menu = нажать «Начать тренировку». Машина не стартует напрямую:
@@ -141,7 +148,7 @@ export const appMachine = setup({
         input: ({ context, self }) => ({
           symbolLayoutId: context.currentSymbolLayoutId,
           cpm: DEFAULT_SESSION_CPM,
-          durationSeconds: DEFAULT_USER_SETTINGS.sessionDurationSeconds,
+          durationSeconds: context.sessionDurationSeconds,
           parentActor: self,
         }),
       },
@@ -198,8 +205,11 @@ export const appMachine = setup({
           target: 'trainingStart',
           reenter: true,
           actions: {
-            type: 'setSymbolLayout',
-            params: ({ event }) => ({ symbolLayoutId: event.symbolLayoutId }),
+            type: 'setTrainingParams',
+            params: ({ event }) => ({
+              symbolLayoutId: event.symbolLayoutId,
+              durationSeconds: event.durationSeconds,
+            }),
           },
         },
         'KEYBOARD.NAVIGATION_KEY': [
@@ -207,8 +217,11 @@ export const appMachine = setup({
             guard: 'isEnter',
             target: 'trainingStart',
             actions: {
-              type: 'setSymbolLayout',
-              params: ({ context }) => ({ symbolLayoutId: context.currentSymbolLayoutId }),
+              type: 'setTrainingParams',
+              params: ({ context }) => ({
+                symbolLayoutId: context.currentSymbolLayoutId,
+                durationSeconds: context.sessionDurationSeconds,
+              }),
             },
           },
           // Esc дублирует кнопку «В меню» (TO_MENU): та же навигация с клавиатуры.
