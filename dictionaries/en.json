@@ -61,6 +61,7 @@
     "theme_description": "Visual theme of the interface.",
     "rhythm_channel_label": "Rhythm channel",
     "rhythm_channel_description": "Show a rhythm guide under the typing line during training.",
+    "session_duration_label": "Session duration",
     "theme_group_light": "Light themes",
     "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
@@ -167,6 +168,13 @@
     "rhythmChannel": {
       "on": "On",
       "off": "Off"
+    },
+    "sessionDurations": {
+      "60": "1 min",
+      "180": "3 min",
+      "300": "5 min",
+      "600": "10 min",
+      "900": "15 min"
     },
     "themes": {
       "auto": "Auto (system)",

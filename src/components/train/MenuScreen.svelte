@@ -8,6 +8,7 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
   import Select from '@/components/ui/Select.svelte';
+  import SessionDurationSelector from '@/components/train/SessionDurationSelector.svelte';
   import type {
     Dictionary,
     FingerLayoutId,
@@ -19,10 +20,18 @@
 
   interface Props {
     dictionary: Dictionary;
-    onStart: (params: { symbolLayoutId: SymbolLayoutId }) => void;
+    onStart: (params: { symbolLayoutId: SymbolLayoutId; durationSeconds: number }) => void;
   }
 
   const { dictionary, onStart }: Props = $props();
+
+  const sessionDurationOptions = $derived([
+    { seconds: 60, label: dictionary.options.sessionDurations['60'] },
+    { seconds: 180, label: dictionary.options.sessionDurations['180'] },
+    { seconds: 300, label: dictionary.options.sessionDurations['300'] },
+    { seconds: 600, label: dictionary.options.sessionDurations['600'] },
+    { seconds: 900, label: dictionary.options.sessionDurations['900'] },
+  ]);
 
   const textLanguages = $derived([
     { value: 'en' as const, label: dictionary.options.textLanguages.en },
@@ -112,10 +121,17 @@
     </label>
   </div>
 
+  <SessionDurationSelector
+    label={dictionary.settings.session_duration_label}
+    value={$settings.sessionDurationSeconds}
+    options={sessionDurationOptions}
+    onChange={(v) => updateSettings({ sessionDurationSeconds: v })}
+  />
+
   <button
     type="button"
     class="start-btn"
-    onclick={() => onStart({ symbolLayoutId: $settings.symbolLayoutId })}
+    onclick={() => onStart({ symbolLayoutId: $settings.symbolLayoutId, durationSeconds: $settings.sessionDurationSeconds })}
   >
     {dictionary.app.start_training}
   </button>

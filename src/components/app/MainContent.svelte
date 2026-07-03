@@ -66,7 +66,7 @@
 {:else if inState({ snapshot: state, value: 'menu' })}
   <MenuScreen
     {dictionary}
-    onStart={({ symbolLayoutId }) => send({ type: 'START_TRAINING', symbolLayoutId })}
+    onStart={({ symbolLayoutId }) => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds: $settings.sessionDurationSeconds })}
   />
 {/if}
 

@@ -32,7 +32,7 @@
   // тренировку». Слушатель живёт только на /train (App монтируется лишь тут),
   // поэтому Enter на других маршрутах тренировку не запускает.
   const startSub = appActor.on('MENU_START_REQUESTED', () => {
-    appActor.send({ type: 'START_TRAINING', symbolLayoutId: $settings.symbolLayoutId });
+    appActor.send({ type: 'START_TRAINING', symbolLayoutId: $settings.symbolLayoutId, durationSeconds: $settings.sessionDurationSeconds });
   });
   onDestroy(() => startSub.unsubscribe());
 
@@ -51,4 +51,5 @@
   send={appActor.send.bind(appActor)}
   dictionary={$dictionary}
   symbolLayoutId={$settings.symbolLayoutId}
+  durationSeconds={$settings.sessionDurationSeconds}
 />

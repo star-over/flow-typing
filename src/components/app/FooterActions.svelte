@@ -9,9 +9,10 @@
     send: (event: AppEvent) => void;
     dictionary: Dictionary;
     symbolLayoutId: SymbolLayoutId;
+    durationSeconds: number;
   }
 
-  const { state, send, dictionary, symbolLayoutId }: Props = $props();
+  const { state, send, dictionary, symbolLayoutId, durationSeconds }: Props = $props();
 
   const isVisible = $derived(
     inState({ snapshot: state, value: 'training' }) ||
@@ -22,7 +23,7 @@
   // рукам, без панели управления. Поэтому футер рисуем только когда есть что
   // показать — иначе в `running` остался бы пустой sticky-бар у нижней кромки.
   const hasActions = $derived(
-    state.can({ type: 'START_TRAINING', symbolLayoutId }) ||
+    state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds }) ||
     state.can({ type: 'RESUME' }) ||
     state.can({ type: 'TO_MENU' })
   );
@@ -31,8 +32,8 @@
 {#if isVisible && hasActions}
   <footer class="footer">
     <div class="actions">
-      {#if state.can({ type: 'START_TRAINING', symbolLayoutId })}
-        <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId })}>
+      {#if state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
+        <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}>
           {dictionary.app.start_again}
         </button>
       {/if}
