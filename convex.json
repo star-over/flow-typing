@@ -1,5 +1,5 @@
 {
   "node": {
-    "externalPackages": ["@gorules/zen-engine"]
+    "externalPackages": []
   }
 }
