@@ -26,7 +26,6 @@ import { joinBatchToStream } from '@/lib/drill-stream';
 import { getSymbolLayoutDescriptor } from '@/lib/layouts';
 import {
   REFILL_THRESHOLD_SYMBOLS,
-  SESSION_DURATION_SECONDS,
   TICK_INTERVAL_MS,
 } from '@/lib/session-config';
 import { needsRefill as queueNeedsRefill, planCheckpoint } from '@/lib/session-queue';
@@ -41,12 +40,14 @@ import { trainingMachine } from './training.machine';
 export interface SessionInput {
   symbolLayoutId: SymbolLayoutId;
   cpm: number;
+  durationSeconds: number;
   parentActor: ParentActor;
 }
 
 export interface SessionContext {
   symbolLayoutId: SymbolLayoutId;
   cpm: number;
+  durationSeconds: number;
   parentActor: ParentActor;
   pendingStream: TypingStream; // результат первого fetch до invoke training
   completed: StreamSymbol[]; // проекция набранных символов (из TYPING.ADVANCED)
@@ -65,7 +66,9 @@ export type SessionEvent =
   | { type: 'TICK' } // от тикера
   | { type: 'TIMER_EXPIRED' }; // от тикера (или теста) при выходе окна
 
-const SESSION_WINDOW_MS = SESSION_DURATION_SECONDS * 1000;
+function getSessionWindowMs(context: SessionContext): number {
+  return context.durationSeconds * 1000;
+}
 
 export const sessionMachine = setup({
   types: {
@@ -101,14 +104,14 @@ export const sessionMachine = setup({
     })),
     markSegmentStart: assign({ segmentStartedAt: () => Date.now() }),
     // Коммит сегмента на выходе из timing (→ paused или → done). Зажим в окно: активное
-    // время по построению не превышает бюджет, поэтому displayElapsedMs на done всегда
-    // ровно ≤ SESSION_WINDOW_MS (никаких «61 с»). На паузе зажим — no-op (elapsed < окна).
+    // время по построению не превышает durationSeconds, поэтому displayElapsedMs на done всегда
+    // ровно ≤ durationSeconds * 1000 мс (никаких «61 с»). На паузе зажим — no-op (elapsed < окна).
     accumulateElapsed: assign(({ context }) => {
       const committed = commitSegment({
         elapsedMs: context.elapsedMs,
         segmentStartedAt: context.segmentStartedAt,
         now: Date.now(),
-        windowMs: SESSION_WINDOW_MS,
+        windowMs: getSessionWindowMs(context),
       });
       return { elapsedMs: committed, displayElapsedMs: committed };
     }),
@@ -186,7 +189,7 @@ export const sessionMachine = setup({
         elapsedMs: context.elapsedMs,
         segmentStartedAt: context.segmentStartedAt,
         now: Date.now(),
-        windowMs: SESSION_WINDOW_MS,
+        windowMs: getSessionWindowMs(context),
       }),
     needsRefill: ({ context }) =>
       queueNeedsRefill({
@@ -201,6 +204,7 @@ export const sessionMachine = setup({
   context: ({ input }) => ({
     symbolLayoutId: input.symbolLayoutId,
     cpm: input.cpm,
+    durationSeconds: input.durationSeconds,
     parentActor: input.parentActor,
     pendingStream: [],
     completed: [],
@@ -217,7 +221,7 @@ export const sessionMachine = setup({
         src: 'fetchDrills',
         input: ({ context }) => ({
           symbolLayoutId: context.symbolLayoutId,
-          budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
+          budgetChars: computeBudgetChars({ secondsRemaining: context.durationSeconds, cpm: context.cpm }),
         }),
         onDone: {
           target: 'active',
@@ -308,7 +312,7 @@ export const sessionMachine = setup({
                 src: 'fetchDrills',
                 input: ({ context }) => ({
                   symbolLayoutId: context.symbolLayoutId,
-                  budgetChars: computeBudgetChars({ secondsRemaining: SESSION_DURATION_SECONDS, cpm: context.cpm }),
+                  budgetChars: computeBudgetChars({ secondsRemaining: context.durationSeconds, cpm: context.cpm }),
                 }),
                 onDone: { target: 'running', actions: 'appendFetched' },
                 onError: { target: 'running' }, // не удалось добрать — продолжаем тем, что есть

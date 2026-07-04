@@ -8,8 +8,8 @@
   import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor } from '@/machines/selectors';
-  import { SESSION_DURATION_SECONDS } from '@/lib/session-config';
   import { computeTimerSeconds } from '@/lib/timer-display';
+  import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';
@@ -115,7 +115,7 @@
       displayElapsedMs,
       isTraining: inState({ snapshot: appState, value: 'training' }),
       hasSession: sessionActor !== undefined,
-      durationSeconds: SESSION_DURATION_SECONDS,
+      durationSeconds: sessionActor?.getSnapshot().context.durationSeconds ?? DEFAULT_USER_SETTINGS.sessionDurationSeconds,
     }),
   );
 

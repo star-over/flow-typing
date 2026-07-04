@@ -21,6 +21,7 @@ const validLocal: UserSettings = {
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
+  sessionDurationSeconds: 300,
 };
 
 const validCloud: CloudSettings = {
@@ -31,6 +32,7 @@ const validCloud: CloudSettings = {
   cursorType: 'VERTICAL',
   theme: 'dark',
   rhythmChannelEnabled: true,
+  sessionDurationSeconds: 600,
   updatedAt: 1000,
 };
 
@@ -53,6 +55,7 @@ describe('decideSyncOnLogin', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 600,
     });
   });
 
@@ -66,6 +69,7 @@ describe('decideSyncOnLogin', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 600,
     };
     const decision = decideSyncOnLogin({ cloudRow: validCloud, localSettings: sameAsCloud });
     expect(decision.action).toBe('pull');
@@ -85,6 +89,7 @@ describe('cloudRowToSettings', () => {
       theme: 'dark',
       displayName: '',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 600,
     });
   });
 
@@ -96,10 +101,16 @@ describe('cloudRowToSettings', () => {
       'fingerLayoutId',
       'interfaceLanguage',
       'rhythmChannelEnabled',
+      'sessionDurationSeconds',
       'symbolLayoutId',
       'textLanguage',
       'theme',
     ]);
+  });
+
+  test('sessionDurationSeconds: present → проходит; absent (legacy row) → undefined', () => {
+    expect(cloudRowToSettings(validCloud).sessionDurationSeconds).toBe(600);
+    expect(cloudRowToSettings({ ...validCloud, sessionDurationSeconds: undefined }).sessionDurationSeconds).toBeUndefined();
   });
 
   test('displayName: present → проходит; absent (legacy row) → дефолт пустая строка', () => {
@@ -132,6 +143,7 @@ describe('settingsToCloudArgs', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -143,6 +155,7 @@ describe('settingsToCloudArgs', () => {
       'fingerLayoutId',
       'interfaceLanguage',
       'rhythmChannelEnabled',
+      'sessionDurationSeconds',
       'symbolLayoutId',
       'textLanguage',
       'theme',

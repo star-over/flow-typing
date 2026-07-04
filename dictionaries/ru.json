@@ -61,6 +61,7 @@
     "theme_description": "Визуальная тема интерфейса.",
     "rhythm_channel_label": "Канал ритма",
     "rhythm_channel_description": "Показывать ритм-гид под строкой набора во время тренировки.",
+    "session_duration_label": "Длительность сессии",
     "theme_group_light": "Светлые темы",
     "theme_group_dark": "Тёмные темы",
     "language_placeholder": "Выберите язык",
@@ -171,6 +172,13 @@
     "rhythmChannel": {
       "on": "Вкл",
       "off": "Выкл"
+    },
+    "sessionDurations": {
+      "60": "1 мин",
+      "180": "3 мин",
+      "300": "5 мин",
+      "600": "10 мин",
+      "900": "15 мин"
     },
     "themes": {
       "auto": "Авто (по системе)",

@@ -13,6 +13,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -26,6 +27,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
+      sessionDurationSeconds: 300,
     });
   });
 
@@ -46,6 +48,7 @@ describe('normalizeSettings', () => {
       theme: 'dark',
       displayName: 'Custom Name',
       rhythmChannelEnabled: true,
+      sessionDurationSeconds: 600,
     };
     expect(normalizeSettings(input)).toEqual(input);
   });
@@ -54,6 +57,19 @@ describe('normalizeSettings', () => {
     expect(normalizeSettings({ rhythmChannelEnabled: true }).rhythmChannelEnabled).toBe(true);
     expect(normalizeSettings({ rhythmChannelEnabled: 'yes' }).rhythmChannelEnabled).toBe(false);
     expect(normalizeSettings({}).rhythmChannelEnabled).toBe(false);
+  });
+
+  it('валидный sessionDurationSeconds сохраняется', () => {
+    expect(normalizeSettings({ sessionDurationSeconds: 60 }).sessionDurationSeconds).toBe(60);
+    expect(normalizeSettings({ sessionDurationSeconds: 300 }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 900 }).sessionDurationSeconds).toBe(900);
+  });
+
+  it('невалидный sessionDurationSeconds → дефолт 300', () => {
+    expect(normalizeSettings({}).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 30 }).sessionDurationSeconds).toBe(300);
+    expect(normalizeSettings({ sessionDurationSeconds: 120 }).sessionDurationSeconds).toBe(300);
   });
 
   it('displayName: любая строка проходит как есть', () => {

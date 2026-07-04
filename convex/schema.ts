@@ -21,6 +21,7 @@ export default defineSchema({
     // Optional: строки, записанные до появления поля, его не имеют (back-compat).
     displayName: v.optional(v.string()),
     rhythmChannelEnabled: v.optional(v.boolean()),
+    sessionDurationSeconds: v.optional(v.number()),
     updatedAt: v.number(),
   }).index('by_user', ['userId']),
   // Корпус упражнений. Вся мета — чистая функция текста и нейтральна к

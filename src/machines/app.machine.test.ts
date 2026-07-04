@@ -59,7 +59,7 @@ describe('appMachine', () => {
     it('from menu: enters training.running, stores symbolLayoutId, spawns sessionService', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
 
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
@@ -70,8 +70,18 @@ describe('appMachine', () => {
     it('stores currentSymbolLayoutId = qwerty when started with qwerty', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty', durationSeconds: 300 });
       expect(actor.getSnapshot().context.currentSymbolLayoutId).toBe('qwerty');
+    });
+
+    it('stores sessionDurationSeconds in context and passes it to sessionService input', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty', durationSeconds: 600 });
+
+      const snap = actor.getSnapshot();
+      expect(snap.context.sessionDurationSeconds).toBe(600);
+      expect(snap.children.sessionService).toBeDefined();
     });
   });
 
@@ -79,7 +89,7 @@ describe('appMachine', () => {
     it('PAUSE → paused; RESUME → running', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
 
       actor.send({ type: 'PAUSE' });
@@ -92,7 +102,7 @@ describe('appMachine', () => {
     it('Escape in training.running → paused', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
       expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
@@ -101,7 +111,7 @@ describe('appMachine', () => {
     it('Escape in training.paused → menu', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
@@ -111,7 +121,7 @@ describe('appMachine', () => {
     it('Enter in training.paused → resumes training.running', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
@@ -121,7 +131,7 @@ describe('appMachine', () => {
     it('TO_MENU from training.paused → menu', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       actor.send({ type: 'PAUSE' });
 
       actor.send({ type: 'TO_MENU' });
@@ -131,7 +141,7 @@ describe('appMachine', () => {
     it('NAVIGATION_KEY other than Escape/Enter does not transition from running', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
 
       actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Tab' });
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
@@ -142,7 +152,7 @@ describe('appMachine', () => {
     it('moves to sessionComplete and stores final stream + canonical summary', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
 
       const finalStream: TypingStream = [sym('x', 'KeyX')];
       const finalSummary = {
@@ -166,7 +176,7 @@ describe('appMachine', () => {
     function arriveInSessionComplete(layout: 'qwerty' | 'йцукен' = 'йцукен') {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: layout });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: layout, durationSeconds: 300 });
       actor.send({ type: 'SESSION.COMPLETE', stream: [], summary: null });
       return actor;
     }
@@ -175,7 +185,7 @@ describe('appMachine', () => {
       const actor = arriveInSessionComplete('qwerty');
       expect(actor.getSnapshot().value).toBe('sessionComplete');
 
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
@@ -226,7 +236,7 @@ describe('appMachine', () => {
     it('from sessionComplete → menu (the reported bug: stale stats screen)', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       actor.send({ type: 'SESSION.COMPLETE', stream: [], summary: null });
       expect(actor.getSnapshot().value).toBe('sessionComplete');
 
@@ -237,7 +247,7 @@ describe('appMachine', () => {
     it('from training.running → menu (abandoned, never-paused session)', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
 
       actor.send({ type: 'TRAINER_OPENED' });
@@ -247,7 +257,7 @@ describe('appMachine', () => {
     it('from training.paused → menu (paused session is not resurrected across nav)', () => {
       const actor = createActor(appMachineForTest);
       actor.start();
-      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен' });
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       actor.send({ type: 'PAUSE' });
       expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
 

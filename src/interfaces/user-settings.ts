@@ -24,6 +24,7 @@ import type { ThemeSetting } from '@/themes/registry';
  *   строка = использовать имя провайдера; «сброс к оригиналу» = очистить поле.
  * - `rhythmChannelEnabled` — показывать ли «канал ритма» (визуальный ритм-гид) во
  *   время тренировки; дефолт — `false` (сцена по умолчанию тихая, гид — opt-in).
+ * - `sessionDurationSeconds` — длительность таймерной сессии в секундах.
  */
 export interface UserSettings {
   interfaceLanguage: InterfaceLanguage;
@@ -34,4 +35,6 @@ export interface UserSettings {
   theme: ThemeSetting;
   displayName: string;
   rhythmChannelEnabled: boolean;
+  /** Длительность таймерной сессии в секундах. */
+  sessionDurationSeconds: number;
 }
