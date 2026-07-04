@@ -26,6 +26,7 @@ export type AppEvent =
   | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId; durationSeconds: number }
   | { type: 'TO_MENU' }
   | { type: 'TRAINER_OPENED' }
+  | { type: 'TRAINER_CLOSED' }
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
   | { type: 'SESSION.COMPLETE'; stream: TypingStream; summary: SessionSummaryPayload | null }
@@ -109,6 +110,13 @@ export const appMachine = setup({
     // при входе на /train из любого активного состояния → возврат в `menu`.
     // Пауза/возобновление ВНУТРИ /train не задеты: внутренние переходы не размонтируют App.
     TRAINER_OPENED: { target: '#app.menu' },
+    // Зеркало TRAINER_OPENED на ВЫХОД: App.svelte шлёт при размонтировании (уход
+    // с /train — клик по логотипу, Settings, Stats). appActor переживает
+    // навигацию, а Header в +layout читает таймер/паузу из живого FSM, поэтому
+    // без сброса брошенная сессия тикает «в фоне»: обратный отсчёт не
+    // останавливается, кнопка «Пауза» висит в шапке. Возврат в menu завершает
+    // invoked-sessionService (гасит его таймер) → Header очищается.
+    TRAINER_CLOSED: { target: '#app.menu' },
   },
   states: {
     initializing: {

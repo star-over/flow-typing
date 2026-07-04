@@ -27,6 +27,18 @@
     }
   });
 
+  // Уход с /train (клик по логотипу, Settings, Stats) размонтирует App, но
+  // appActor — singleton и переживает навигацию (ADR 0007). Без сброса брошенная
+  // сессия продолжает жить: Header в +layout читает таймер/паузу из живого FSM,
+  // обратный отсчёт тикает «в фоне», кнопка «Пауза» висит в шапке. Зеркально
+  // TRAINER_OPENED возвращаем тренажёр в menu → invoked-sessionService
+  // завершается вместе с таймером, Header очищается.
+  onDestroy(() => {
+    if (!appActor.getSnapshot().matches('menu')) {
+      appActor.send({ type: 'TRAINER_CLOSED' });
+    }
+  });
+
   // Enter в menu: машина шлёт MENU_START_REQUESTED через `emit`, а старт здесь —
   // тем же событием и с той же $settings-раскладкой, что и кнопка «Начать
   // тренировку». Слушатель живёт только на /train (App монтируется лишь тут),

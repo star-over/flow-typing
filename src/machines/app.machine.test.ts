@@ -265,4 +265,44 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toBe('menu');
     });
   });
+
+  // Уход с /train (App.svelte unmount) завершает тренажёр: без сброса брошенная
+  // сессия тикает «в фоне» (Header в +layout читает таймер/паузу из живого FSM —
+  // обратный отсчёт не останавливается, «Пауза» висит в шапке). Возврат в menu
+  // завершает invoked-sessionService вместе с его таймером.
+  describe('TRAINER_CLOSED (leaving /train terminates the trainer)', () => {
+    it('from training.running → menu, and stops sessionService (background timer)', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
+      expect(actor.getSnapshot().children.sessionService).toBeDefined();
+
+      actor.send({ type: 'TRAINER_CLOSED' });
+      const snap = actor.getSnapshot();
+      expect(snap.value).toBe('menu');
+      expect(snap.children.sessionService).toBeUndefined();
+    });
+
+    it('from training.paused → menu', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
+      actor.send({ type: 'PAUSE' });
+      expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
+
+      actor.send({ type: 'TRAINER_CLOSED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('from sessionComplete → menu', () => {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
+      actor.send({ type: 'SESSION.COMPLETE', stream: [], summary: null });
+      expect(actor.getSnapshot().value).toBe('sessionComplete');
+
+      actor.send({ type: 'TRAINER_CLOSED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+  });
 });
