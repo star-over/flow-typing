@@ -39,8 +39,10 @@ bigrams
 colemak
 dubeolsik
 grav
+gstatic
 jcuken
 keycap
+keycaps
 nord
 pathfinding
 qwertz
@@ -74,6 +76,7 @@ typiing
 # --- Продукты-ориентиры ---
 amphetype
 duolingo
+habr
 instapaper
 keybr
 monkeytype
@@ -98,6 +101,7 @@ zimmermann
 
 # --- Прочие англоязычные термины ---
 asynchrony
+blob
 statista
 
 # --- Латиница — без категории ---
@@ -116,6 +120,8 @@ prefs
 биграмма
 биграммах
 биграммы
+блоб
+блоба
 бэкенд
 бэкенда
 бэкенде
@@ -265,6 +271,9 @@ prefs
 темизируется
 темизировать
 темятся
+тестировщик
+тестировщика
+тестировщиками
 тестируемости
 тестируемость
 типографики
