@@ -5,9 +5,11 @@
   interface Props {
     keyboardScene: KeyboardSceneViewModel;
     keyLabels: Record<KeyCapId, string>;
+    /** Скрыть дискретные стрелки навигации (их заменяет анимация `MovementPath`). */
+    hideNavArrows?: boolean;
   }
 
-  const { keyboardScene, keyLabels }: Props = $props();
+  const { keyboardScene, keyLabels, hideNavArrows = false }: Props = $props();
 </script>
 
 <div class="keyboard">
@@ -25,7 +27,7 @@
           homeKeyMarker={sceneKey.homeKeyMarker}
           home={sceneKey.home}
           navigationRole={sceneKey.navigationRole}
-          navigationArrow={sceneKey.navigationArrow}
+          navigationArrow={hideNavArrows ? 'NONE' : sceneKey.navigationArrow}
         />
       {/each}
     </div>

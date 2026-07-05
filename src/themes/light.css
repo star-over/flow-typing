@@ -219,6 +219,20 @@
   /* HandsScene */
   --hands-center-point-fill: var(--color-path-highlight);
 
+  /* MovementPath — движение по спектру пальцев; путь = индиго; тап = кольцо+пульс */
+  --movement-path-guide      : var(--color-path-highlight);
+  --movement-path-l1-marker  : var(--color-finger-1);
+  --movement-path-r1-marker  : var(--color-finger-1);
+  --movement-path-l2-marker  : var(--color-finger-2);
+  --movement-path-r2-marker  : var(--color-finger-2);
+  --movement-path-l3-marker  : var(--color-finger-3);
+  --movement-path-r3-marker  : var(--color-finger-3);
+  --movement-path-l4-marker  : var(--color-finger-4);
+  --movement-path-r4-marker  : var(--color-finger-4);
+  --movement-path-l5-marker  : var(--color-finger-5);
+  --movement-path-r5-marker  : var(--color-finger-5);
+  --movement-path-marker-edge: oklch(0 0 0 / 0.35);
+
   /* FlowLine */
   --flow-line-border            : 2px solid var(--color-cursor-border);
   --flow-line-correct-background: var(--color-symbol-correct-bg);

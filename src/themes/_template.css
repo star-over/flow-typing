@@ -163,6 +163,20 @@
   /* HandsScene */
   --hands-center-point-fill: unset;
 
+  /* MovementPath */
+  --movement-path-guide      : unset;
+  --movement-path-l1-marker  : unset;
+  --movement-path-r1-marker  : unset;
+  --movement-path-l2-marker  : unset;
+  --movement-path-r2-marker  : unset;
+  --movement-path-l3-marker  : unset;
+  --movement-path-r3-marker  : unset;
+  --movement-path-l4-marker  : unset;
+  --movement-path-r4-marker  : unset;
+  --movement-path-l5-marker  : unset;
+  --movement-path-r5-marker  : unset;
+  --movement-path-marker-edge: unset;
+
   /* FlowLine */
   --flow-line-border            : unset;
   --flow-line-correct-background: unset;

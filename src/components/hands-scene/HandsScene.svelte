@@ -4,6 +4,7 @@
     FingerLayout,
     FingerNavigationRole,
     HandsSceneViewModel,
+    KeyCapId,
     PhysicalLayout,
     SymbolLayout,
     Visibility,
@@ -17,9 +18,12 @@
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
   import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
   import { createKeyLabelMap } from '@/lib/symbol-utils';
+  import { getHomeKeyForFinger } from '@/lib/hand-utils';
+  import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import Finger from './Finger.svelte';
   import KeyboardScene from './KeyboardScene.svelte';
+  import MovementPath from './MovementPath.svelte';
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -68,6 +72,22 @@
   // Готовая map надписей клавиш — KeyboardScene не вызывает getLabel в template,
   // а читает уже посчитанные значения.
   const keyLabels = $derived(createKeyLabelMap({ physicalLayout, symbolLayout }));
+
+  // Граф геометрии — для восстановления упорядоченного пути дом→цель в слое рендера
+  // (тот же `findOptimalPath`, что использует ViewModel). Контракт ViewModel не трогаем.
+  const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
+
+  /** Упорядоченный путь дом→…→цель для целевого пальца (для анимации `MovementPath`). */
+  function movementPathFor(fingerId: FingerId): KeyCapId[] {
+    const finger = handsScene[fingerId];
+    if (finger.navigationRole !== 'TARGET') return [];
+    const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
+    const targetKey = (Object.keys(finger.keyCapStates) as KeyCapId[]).find(
+      (k) => finger.keyCapStates[k]?.navigationRole === 'TARGET'
+    );
+    if (!homeKey || !targetKey) return [];
+    return findOptimalPath({ startKey: homeKey, endKey: targetKey, graph: keyboardGraph });
+  }
 
   $effect(() => {
     // Reactive reads to retrigger when the scene changes
@@ -132,6 +152,7 @@
       {#if handsScene[fingerId].navigationRole === 'TARGET'}
         {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
         {@const t = clusterTranslations[fingerId]}
+        {@const movementPath = movementPathFor(fingerId)}
         <div
           bind:this={clusterRefs[fingerId]}
           data-cluster-id={fingerId}
@@ -139,7 +160,10 @@
           style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
           style:visibility={t ? 'visible' : 'hidden'}
         >
-          <KeyboardScene {keyboardScene} {keyLabels} />
+          <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
+          {#if movementPath.length >= 1}
+            <MovementPath path={movementPath} {fingerId} />
+          {/if}
         </div>
       {/if}
     {/each}
