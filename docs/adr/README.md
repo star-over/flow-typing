@@ -51,6 +51,7 @@
 | [0016](0016-layout-layer-boundary-and-plural-physical.md) | Граница слоёв раскладки; физические множественны, lettering (QWERTZ/AZERTY/ЙЦУКЕН) — символьный слой | принят 2026-07-04 | граница — в коде; >1 физ. раскладки — не начата |
 | [0017](0017-diacritics-via-dead-key-sequence-target.md) | Диакритика через dead-key — цель набора как последовательность аккордов | предложен 2026-07-04 | — |
 | [0018](0018-progression-rules-as-decision-tables.md) | Правила прогрессии — редактирование GoRules JDM → компиляция в TS → сверка с Zen; движка правил в момент выполнения нет; граница: только `decisionTable`+First, без function-нод | принят 2026-07-05 | не начата (JsonLogic-зонд к сворачиванию) |
+| [0019](0019-raw-capture-research-channel.md) | Сырьё печати — отдельный opt-out research-канал (gzip-блоб на сессию в File Storage + тонкая мета), не через профиль, time-boxed; поправляет 0005 | предложен 2026-07-05 | — |
 
 Известные дыры канона и кандидаты на следующие ADR — аудит
 [`2026-07-03-adr-canon-audit.md`](../plans/2026-07-03-adr-canon-audit.md) §4:
