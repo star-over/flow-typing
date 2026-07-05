@@ -16,27 +16,36 @@
 
 # --- Convex / auth / backend ---
 appleid
+bopomofo
 callsites
+coep
 datamodel
 ewma
 misconfig
 mmailaender
+moddle
 paas
 pkce
 privaterelay
 psuid
+quickjs
 yapic
+zhuyin
 
 # --- Клавиатура и предметная область печати ---
+azerty
 backquote
 bigrams
 colemak
+dubeolsik
 grav
 jcuken
 keycap
 nord
 pathfinding
+qwertz
 qwertyuiop
+romaji
 sdfv
 spacebar
 strikeline
@@ -89,11 +98,14 @@ zimmermann
 
 # --- Прочие англоязычные термины ---
 asynchrony
+statista
 
 # --- Латиница — без категории ---
 prefs
 
 # --- Русские технические термины и словоформы (пробелы ru_ru) ---
+недетерминизм
+недопредставленность
 автогенерация
 автогенерируется
 автодетектором
@@ -338,7 +350,14 @@ prefs
 харнесс
 харнесса
 хелпера
+хангыль
 хелперов
+ханьцзы
+кандзи
+чамо
 юнит
 юнита
 юнитом
+изолят
+изолятах
+масштабируются

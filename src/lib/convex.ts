@@ -11,7 +11,7 @@ if (!PUBLIC_CONVEX_URL) {
 // с летящей мутацией или refresh'ем токена, и защитные beforeunload-гарды Convex
 // и convex-auth показывают «Reload site?». Терять в dev нечего — регистрируем свой
 // обработчик первым (до создания клиента) и обрываем цепочку до их preventDefault.
-// В проде dev === false, и весь блок вырезается tree-shaking'ом — страховка остаётся.
+// На production dev === false, и весь блок вырезается tree-shaking'ом — страховка остаётся.
 if (dev && typeof window !== 'undefined') {
   window.addEventListener('beforeunload', (event) => event.stopImmediatePropagation(), true);
 }
