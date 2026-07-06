@@ -272,7 +272,7 @@
   }
 
   .hand-spacer {
-    width: 3rem;
+    width: 6rem;
   }
 
   .cluster-container {
