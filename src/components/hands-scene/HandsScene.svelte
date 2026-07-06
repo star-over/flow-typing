@@ -84,15 +84,37 @@
     return on(mq, 'change', () => { reduceMotion = mq.matches; });
   });
 
+  // Палец, которому принадлежит гаснущий призрак (цель в outgoingHandsScene).
+  const ghostFingerId = $derived(
+    outgoingHandsScene
+      ? (FINGER_IDS_FOR_RENDER.find((id) => outgoingHandsScene[id].navigationRole === 'TARGET') ?? null)
+      : null
+  );
+
+  // Пока призрак гаснет — снимаем подсветку с пальца под ним. Иначе насыщенный цвет
+  // пальца просвечивает сквозь полупрозрачную зелёную (CORRECT) клавишу и мутит отклик
+  // по-разному: при СМЕНЕ пальца прежний уже нейтрален (зелёный чист), БЕЗ смены — палец
+  // всё ещё TARGET (зелёный мутнеет). Нейтрализация уравнивает фон → одинаковый fade-out.
+  let ghostActive = $state(false);
+  $effect(() => {
+    void advanceKey; // зависимость: каждое верное продвижение перезапускает гашение
+    if (reduceMotion || !outgoingHandsScene) { ghostActive = false; return; }
+    ghostActive = true;
+    const timer = setTimeout(() => { ghostActive = false; }, CLUSTER_FADE_OUT_MS);
+    return () => clearTimeout(timer);
+  });
+
   // Per-finger derived states for the <Finger> components
-  const fingerNavigationRoles = $derived(
-    Object.fromEntries(
+  const fingerNavigationRoles = $derived.by(() => {
+    const roles = Object.fromEntries(
       Object.entries(handsScene).map(([fingerId, fingerSceneState]) => [
         fingerId,
         (fingerSceneState as { navigationRole: FingerNavigationRole }).navigationRole,
       ])
-    ) as Record<FingerId, FingerNavigationRole>
-  );
+    ) as Record<FingerId, FingerNavigationRole>;
+    if (ghostActive && ghostFingerId) roles[ghostFingerId] = 'NONE';
+    return roles;
+  });
 
   // Refs (keyed by FingerId). All FingerIds are pre-initialized to null so that
   // `bind:` on a not-yet-mounted element doesn't trip Svelte's
