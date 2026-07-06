@@ -23,16 +23,18 @@
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
   import { onMount } from 'svelte';
   import { on } from 'svelte/events';
-  import { fade } from 'svelte/transition';
+  import { fade, scale } from 'svelte/transition';
   import Finger from './Finger.svelte';
   import KeyboardScene from './KeyboardScene.svelte';
   import MovementPath from './MovementPath.svelte';
 
-  // Появление/исчезновение кластера — быстрый последовательный fade (положительная
-  // обратная связь на КАЖДОЕ верное продвижение, в т.ч. на повторной букве). Значения
-  // подобраны «еле заметно, но видно глазу»; при prefers-reduced-motion — мгновенно.
-  const CLUSTER_FADE_OUT_MS = 90;
-  const CLUSTER_FADE_IN_MS = 110;
+  // Появление/исчезновение кластера — положительная обратная связь на КАЖДОЕ верное
+  // продвижение (в т.ч. на повторной букве). Последовательно: старый кластер гаснет
+  // (opacity), новый «предъявляется» лёгким scale+fade. При prefers-reduced-motion —
+  // мгновенно. Значения — «видно глазу, но не навязчиво».
+  const CLUSTER_FADE_OUT_MS = 110;
+  const CLUSTER_FADE_IN_MS = 150;
+  const CLUSTER_SCALE_FROM = 0.92; // стартовый масштаб «предъявления» нового кластера
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -185,13 +187,24 @@
             class="cluster-container"
             style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
             style:visibility={t ? 'visible' : 'hidden'}
-            in:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS, delay: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}
             out:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}
           >
-            <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
-            {#if movementPath.length >= 1}
-              <MovementPath path={movementPath} {fingerId} />
-            {/if}
+            <!-- Внутренняя обёртка несёт scale «предъявления» отдельно от transform:translate
+                 контейнера (иначе они бы конфликтовали за одно свойство transform). -->
+            <div
+              class="cluster-inner"
+              in:scale={{
+                start: reduceMotion ? 1 : CLUSTER_SCALE_FROM,
+                opacity: 0,
+                duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
+                delay: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS,
+              }}
+            >
+              <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
+              {#if movementPath.length >= 1}
+                <MovementPath path={movementPath} {fingerId} />
+              {/if}
+            </div>
           </div>
         {/key}
       {/if}
@@ -232,6 +245,16 @@
     position: absolute;
     top: 0;
     left: 0;
+  }
+
+  /* Обёртка scale-«предъявления». Позиционированная (MovementPath-оверлей inset:0
+     привязывается к ней). transform-origin у домашнего ряда: scale растёт от дома
+     наружу и почти не смещает домашнюю клавишу — выверенное позиционирование кластера
+     (по ней центрируется) не сбивается. */
+  .cluster-inner {
+    position: relative;
+    display: inline-block;
+    transform-origin: 50% 65%;
   }
 
   /* Drive the finger-center-point fill via a custom property on the ancestor.
