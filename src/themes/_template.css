@@ -148,7 +148,7 @@
   --keycap-r5-target-background: unset; --keycap-r5-target-color: unset; --keycap-r5-target-ring: unset;
 
   /* KeyCap — press result */
-  --keycap-correct-background: unset; --keycap-correct-color: unset; --keycap-correct-border: unset;
+  --keycap-correct-background: unset; --keycap-correct-color: unset; --keycap-correct-border: unset; --keycap-correct-ring: unset;
   --keycap-error-background  : unset; --keycap-error-color  : unset; --keycap-error-border  : unset;
 
   /* Finger */

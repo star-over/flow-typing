@@ -52,6 +52,7 @@ export const KEYCAP_CONTRACT = [
   '--keycap-correct-background',
   '--keycap-correct-color',
   '--keycap-correct-border',
+  '--keycap-correct-ring', // box-shadow: кольцо CORRECT-клавиши зелёное (перекрывает target-ring)
 
   // --- Press result ERROR (общий, перекрывает позицию) ---
   '--keycap-error-background',
