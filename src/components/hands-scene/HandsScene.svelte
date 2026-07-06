@@ -28,17 +28,12 @@
   import KeyboardScene from './KeyboardScene.svelte';
   import MovementPath from './MovementPath.svelte';
 
-  // Появление/исчезновение кластера — положительная обратная связь на КАЖДОЕ верное
-  // продвижение. Уходящий («призрак») кластер показывает CORRECT (зелёный отклик) и
-  // гаснет; новый «предъявляется» лёгким scale+fade. При prefers-reduced-motion —
-  // мгновенно. Fade-out сейчас нарочно длинный — оценить анимацию (длительности уточним).
-  const CLUSTER_FADE_OUT_MS = 5000; // ВРЕМЕННО (диагностика): длинное гашение для скриншотов
+  // Положительная обратная связь на КАЖДОЕ верное продвижение: завершённый («призрак»)
+  // кластер показывает CORRECT (зелёный) и гаснет ПОВЕРХ текущего кластера; текущий
+  // (живой) предъявляется лёгким scale+fade. При prefers-reduced-motion — мгновенно.
+  const CLUSTER_FADE_OUT_MS = 600; // гашение отработанного (CORRECT) кластера (подстраиваемо)
   const CLUSTER_FADE_IN_MS = 200; // предъявление нового
   const CLUSTER_SCALE_FROM = 0.92; // стартовый масштаб «предъявления» нового кластера
-  // Новый предъявляется СТРОГО ПОСЛЕ полного гашения призрака (delay = fade-out). Это даёт
-  // одинаковую анимацию и при смене пальца (позиции разные), и без смены (та же позиция):
-  // на одной позиции нет наложения двух кластеров, поведение идентично.
-  const CLUSTER_IN_DELAY_MS = CLUSTER_FADE_OUT_MS;
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -84,37 +79,15 @@
     return on(mq, 'change', () => { reduceMotion = mq.matches; });
   });
 
-  // Палец, которому принадлежит гаснущий призрак (цель в outgoingHandsScene).
-  const ghostFingerId = $derived(
-    outgoingHandsScene
-      ? (FINGER_IDS_FOR_RENDER.find((id) => outgoingHandsScene[id].navigationRole === 'TARGET') ?? null)
-      : null
-  );
-
-  // Пока призрак гаснет — снимаем подсветку с пальца под ним. Иначе насыщенный цвет
-  // пальца просвечивает сквозь полупрозрачную зелёную (CORRECT) клавишу и мутит отклик
-  // по-разному: при СМЕНЕ пальца прежний уже нейтрален (зелёный чист), БЕЗ смены — палец
-  // всё ещё TARGET (зелёный мутнеет). Нейтрализация уравнивает фон → одинаковый fade-out.
-  let ghostActive = $state(false);
-  $effect(() => {
-    void advanceKey; // зависимость: каждое верное продвижение перезапускает гашение
-    if (reduceMotion || !outgoingHandsScene) { ghostActive = false; return; }
-    ghostActive = true;
-    const timer = setTimeout(() => { ghostActive = false; }, CLUSTER_FADE_OUT_MS);
-    return () => clearTimeout(timer);
-  });
-
   // Per-finger derived states for the <Finger> components
-  const fingerNavigationRoles = $derived.by(() => {
-    const roles = Object.fromEntries(
+  const fingerNavigationRoles = $derived(
+    Object.fromEntries(
       Object.entries(handsScene).map(([fingerId, fingerSceneState]) => [
         fingerId,
         (fingerSceneState as { navigationRole: FingerNavigationRole }).navigationRole,
       ])
-    ) as Record<FingerId, FingerNavigationRole>;
-    if (ghostActive && ghostFingerId) roles[ghostFingerId] = 'NONE';
-    return roles;
-  });
+    ) as Record<FingerId, FingerNavigationRole>
+  );
 
   // Refs (keyed by FingerId). All FingerIds are pre-initialized to null so that
   // `bind:` on a not-yet-mounted element doesn't trip Svelte's
@@ -205,35 +178,7 @@
       {/each}
     </svg>
 
-    <!-- ПРИЗРАК: только что завершённый кластер с CORRECT (зелёный отклик), гаснет.
-         Гашение — CSS-анимацией на монтировании (гасит именно новый = завершённый блок;
-         Svelte out: гасил бы контент ПРЕДЫДУЩЕГО ключа — сдвиг на шаг). Позиция — из кэша
-         пальца (он только что был целью); без ref/MovementPath (кластер отработан). -->
-    {#if outgoingHandsScene}
-      {#key advanceKey}
-        <div
-          class="cluster-group cluster-ghost"
-          class:reduced={reduceMotion}
-          style:--cluster-ghost-duration="{CLUSTER_FADE_OUT_MS}ms"
-        >
-          {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
-            {#if outgoingHandsScene[fingerId].navigationRole === 'TARGET'}
-              {@const gt = clusterTranslations[fingerId]}
-              {#if gt}
-                {@const ghostScene = createKeyboardSceneForFinger({ fingerId, handsScene: outgoingHandsScene, fingerLayout, physicalLayout })}
-                <div class="cluster-container" style:transform={`translate(${gt.dx}px, ${gt.dy}px)`}>
-                  <div class="cluster-inner">
-                    <KeyboardScene keyboardScene={ghostScene} {keyLabels} hideNavArrows />
-                  </div>
-                </div>
-              {/if}
-            {/if}
-          {/each}
-        </div>
-      {/key}
-    {/if}
-
-    <!-- ТЕКУЩИЙ кластер: предъявляется scale+fade (появляется, пока призрак ещё гаснет).
+    <!-- ТЕКУЩИЙ кластер (живой, всегда виден): предъявляется лёгким scale+fade.
          Ключ на уровне группы — новый набор монтируется целиком, даже при смене пальца. -->
     {#key advanceKey}
       <div class="cluster-group">
@@ -257,7 +202,6 @@
                   start: reduceMotion ? 1 : CLUSTER_SCALE_FROM,
                   opacity: 0,
                   duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
-                  delay: reduceMotion ? 0 : CLUSTER_IN_DELAY_MS,
                 }}
               >
                 <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
@@ -270,6 +214,35 @@
         {/each}
       </div>
     {/key}
+
+    <!-- ПРИЗРАК завершённого кластера — ПОВЕРХ текущего: показывает CORRECT (зелёный отклик)
+         и гаснет CSS-анимацией на монтировании. Именно ПОВЕРХ: иначе (под текущим кластером)
+         в «том же кластере» полупрозрачные клавиши текущего накрывают зелёный, и он читается
+         мутным / «просвечивает из-под» (ревью владельца). Позиция — из кэша пальца (он только
+         что был целью); без ref/MovementPath, pointer-events:none (кластер отработан). -->
+    {#if outgoingHandsScene}
+      {#key advanceKey}
+        <div
+          class="cluster-group cluster-ghost"
+          class:reduced={reduceMotion}
+          style:--cluster-ghost-duration="{CLUSTER_FADE_OUT_MS}ms"
+        >
+          {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
+            {#if outgoingHandsScene[fingerId].navigationRole === 'TARGET'}
+              {@const gt = clusterTranslations[fingerId]}
+              {#if gt}
+                {@const ghostScene = createKeyboardSceneForFinger({ fingerId, handsScene: outgoingHandsScene, fingerLayout, physicalLayout })}
+                <div class="cluster-container" style:transform={`translate(${gt.dx}px, ${gt.dy}px)`}>
+                  <div class="cluster-inner">
+                    <KeyboardScene keyboardScene={ghostScene} {keyLabels} hideNavArrows />
+                  </div>
+                </div>
+              {/if}
+            {/if}
+          {/each}
+        </div>
+      {/key}
+    {/if}
   </div>
 </div>
 
