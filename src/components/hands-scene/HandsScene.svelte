@@ -34,8 +34,11 @@
   // мгновенно. Fade-out сейчас нарочно длинный — оценить анимацию (длительности уточним).
   const CLUSTER_FADE_OUT_MS = 400; // гашение отработанного (CORRECT) кластера
   const CLUSTER_FADE_IN_MS = 200; // предъявление нового
-  const CLUSTER_IN_DELAY_MS = 90; // новый появляется, пока «призрак» ещё гаснет (перекрытие)
   const CLUSTER_SCALE_FROM = 0.92; // стартовый масштаб «предъявления» нового кластера
+  // Новый предъявляется СТРОГО ПОСЛЕ полного гашения призрака (delay = fade-out). Это даёт
+  // одинаковую анимацию и при смене пальца (позиции разные), и без смены (та же позиция):
+  // на одной позиции нет наложения двух кластеров, поведение идентично.
+  const CLUSTER_IN_DELAY_MS = CLUSTER_FADE_OUT_MS;
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
