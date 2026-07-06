@@ -28,7 +28,9 @@
  *     on fingers to show what the user *should* do.
  *
  * 4.  **`buildVisibleClusters`**: For each `TARGET` finger, it makes the
- *     entire cluster of keys associated with that finger `VISIBLE`.
+ *     cluster of keys associated with that finger `VISIBLE`, hiding non-symbol
+ *     noise (modifiers/system keys absent from the current `SymbolLayout`) while
+ *     always keeping the chord's target keys.
  *
  * 5.  **`applyNavigationPaths`**: Calculates the optimal path and sets
  *     navigation roles and arrows, completing the "target" view.
@@ -59,6 +61,7 @@ import {
   RIGHT_HAND_BASE,
   RIGHT_HAND_FINGERS,
   type StreamSymbol,
+  type SymbolLayout,
 } from "@/interfaces/types";
 
 import {
@@ -68,7 +71,7 @@ import {
 } from "./hand-utils";
 import type { KeyCoordinateMap } from "./layout-utils";
 import { type AdjacencyList, findOptimalPath } from "./pathfinding";
-import { areKeyCapIdArraysEqual, getFingerByKeyCap } from "./symbol-utils";
+import { areKeyCapIdArraysEqual, getFingerByKeyCap, keyCapHasSymbol } from "./symbol-utils";
 
 /**
  * Черновая (не запечатанная) модель сцены рук — рабочий тип конвейера сборки.
@@ -245,9 +248,13 @@ function applyTargetNavigationRoles({
 function buildVisibleClusters({
   viewModel,
   fingerLayout,
+  symbolLayout,
+  targetKeyCaps,
 }: {
   viewModel: HandsSceneViewModelDraft;
   fingerLayout: FingerLayout;
+  symbolLayout: SymbolLayout;
+  targetKeyCaps: KeyCapId[];
 }): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
 
@@ -258,14 +265,24 @@ function buildVisibleClusters({
     const keyCapStates: Partial<Record<KeyCapId, KeySceneState>> = {};
     const keyCluster = getFingerKeys({ fingerId, fingerLayout });
 
-    keyCluster.forEach((keyId) => {
-      keyCapStates[keyId] = {
-        visibility: "VISIBLE",
-        navigationRole: "NONE",
-        pressResult: "NONE",
-        navigationArrow: "NONE",
-      };
-    });
+    keyCluster
+      // Прячем визуальный шум мизинца: клавиши без символа в текущей SymbolLayout
+      // (Tab, CapsLock, модификаторы, Enter…). Целевые клавиши аккорда оставляем
+      // всегда — при Shift-символе сама цель мизинца ЕСТЬ модификатор
+      // (ShiftLeft/ShiftRight), и без этого исключения фильтр спрятал бы Shift-цель.
+      .filter(
+        (keyId) =>
+          keyCapHasSymbol({ keyCapId: keyId, symbolLayout }) ||
+          targetKeyCaps.includes(keyId),
+      )
+      .forEach((keyId) => {
+        keyCapStates[keyId] = {
+          visibility: "VISIBLE",
+          navigationRole: "NONE",
+          pressResult: "NONE",
+          navigationArrow: "NONE",
+        };
+      });
 
     fingerData.keyCapStates = keyCapStates;
   }
@@ -437,11 +454,13 @@ function applyKeyPressResults({
 export function createHandsSceneViewModel({
   currentStreamSymbol,
   fingerLayout,
+  symbolLayout,
   keyboardGraph,
   keyCoordinateMap,
 }: {
   currentStreamSymbol: StreamSymbol | undefined;
   fingerLayout: FingerLayout;
+  symbolLayout: SymbolLayout;
   keyboardGraph: AdjacencyList;
   keyCoordinateMap: KeyCoordinateMap;
 }): HandsSceneViewModel {
@@ -462,7 +481,12 @@ export function createHandsSceneViewModel({
   draft = applyTargetNavigationRoles({ viewModel: draft, typingContext });
 
   // Stage 2: Build initial visible clusters for active fingers
-  draft = buildVisibleClusters({ viewModel: draft, fingerLayout });
+  draft = buildVisibleClusters({
+    viewModel: draft,
+    fingerLayout,
+    symbolLayout,
+    targetKeyCaps: typingContext.targetKeyCaps,
+  });
 
   // Stage 3: Apply navigation paths and roles to visible clusters
   draft = applyNavigationPaths({

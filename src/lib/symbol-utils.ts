@@ -142,6 +142,25 @@ export function getKeyCapIdsForChar({
   return entry?.keyCaps;
 }
 
+/**
+ * Проверяет, несёт ли клавиша базовый символ в данной символьной раскладке —
+ * т.е. существует ли entry, где клавиша нажимается в одиночку (`keyCaps.length === 1`).
+ * Клавиши, встречающиеся ТОЛЬКО как член Shift-аккорда (`['ShiftRight', 'KeyX']`) или
+ * отсутствующие в раскладке (Tab, CapsLock, сами модификаторы), символ не несут.
+ * Тот же предикат «есть базовый символ», что различает `baseSymbol` в {@link getLabel}.
+ */
+export function keyCapHasSymbol({
+  keyCapId,
+  symbolLayout,
+}: {
+  keyCapId: KeyCapId;
+  symbolLayout: SymbolLayout;
+}): boolean {
+  return symbolLayout.some(
+    (entry) => entry.keyCaps.length === 1 && entry.keyCaps[0] === keyCapId,
+  );
+}
+
 /** Получает `fingerId` для заданного `KeyCapId` из пальцевого макета. */
 export function getFingerByKeyCap({
   keyCapId,

@@ -67,14 +67,14 @@
   const symbolLayout = $derived(getSymbolLayout(currentSymbolLayoutId));
   const currentSymbol = $derived(stream[currentIndex]);
   const handsScene = $derived(
-    createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
+    createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, symbolLayout, keyboardGraph, keyCoordinateMap })
   );
   // Только что завершённый символ (предыдущий): его ViewModel несёт CORRECT на цели
   // (последняя попытка верна) → HandsScene рисует «призрак» уходящего кластера зелёным.
   const previousSymbol = $derived(currentIndex > 0 ? stream[currentIndex - 1] : undefined);
   const outgoingHandsScene = $derived(
     previousSymbol
-      ? createHandsSceneViewModel({ currentStreamSymbol: previousSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
+      ? createHandsSceneViewModel({ currentStreamSymbol: previousSymbol, fingerLayout, symbolLayout, keyboardGraph, keyCoordinateMap })
       : undefined
   );
   const pressResult = $derived(getPressResult(currentSymbol));

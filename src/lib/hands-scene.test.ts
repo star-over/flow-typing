@@ -6,6 +6,7 @@ import {
   keyboardGraph,
   keyCoordinateMap,
   simple_k,
+  symbolLayout,
 } from '@/fixtures/hands-scene';
 
 import { createHandsSceneViewModel, sealHandsSceneViewModel } from './hands-scene';
@@ -16,6 +17,7 @@ describe('createHandsSceneViewModel', () => {
     const viewModel = createHandsSceneViewModel({
       currentStreamSymbol: fixture.input,
       fingerLayout,
+      symbolLayout,
       keyboardGraph,
       keyCoordinateMap,
     });
@@ -30,6 +32,7 @@ describe('createHandsSceneViewModel', () => {
         attempts: [{ pressedKeyCaps: ['KeyK'], startAt: 0, endAt: 0 }],
       },
       fingerLayout,
+      symbolLayout,
       keyboardGraph,
       keyCoordinateMap,
     });
@@ -38,6 +41,50 @@ describe('createHandsSceneViewModel', () => {
     if (r3.navigationRole === 'TARGET') {
       expect(r3.keyCapStates.KeyK?.pressResult).toBe('CORRECT');
     }
+  });
+});
+
+describe('buildVisibleClusters — фильтр не-символьных клавиш (шум мизинца)', () => {
+  it('прячет модификаторы/системные клавиши в кластере мизинца, оставляя символьные', () => {
+    // Цель «q» → L5 TARGET. Кластер L5 содержит Tab/CapsLock/ShiftLeft/Control/Meta/Alt —
+    // визуальный шум без символа в раскладке.
+    const viewModel = createHandsSceneViewModel({
+      currentStreamSymbol: { targetSymbol: 'q', targetKeyCaps: ['KeyQ'], attempts: [] },
+      fingerLayout,
+      symbolLayout,
+      keyboardGraph,
+      keyCoordinateMap,
+    });
+    const l5 = viewModel.L5;
+    if (l5.navigationRole !== 'TARGET') throw new Error('expected L5 to be TARGET');
+    expect(Object.keys(l5.keyCapStates).sort()).toEqual(
+      ['Backquote', 'Digit1', 'KeyQ', 'KeyA', 'KeyZ'].sort(),
+    );
+    for (const noise of ['Tab', 'CapsLock', 'ShiftLeft', 'ControlLeft', 'MetaLeft', 'AltLeft']) {
+      expect(l5.keyCapStates).not.toHaveProperty(noise);
+    }
+    // Целевая клавиша остаётся видимой.
+    expect(l5.keyCapStates.KeyQ?.navigationRole).toBe('TARGET');
+  });
+
+  it('оставляет целевую клавишу-модификатор на мизинце (Shift-аккорд)', () => {
+    // «F» = KeyF + ShiftRight. На R5 сама ЦЕЛЬ — модификатор ShiftRight (символа не несёт),
+    // фильтр обязан её сохранить; прочий шум R5 (Enter, Backspace, Control…) прячется.
+    const viewModel = createHandsSceneViewModel({
+      currentStreamSymbol: { targetSymbol: 'F', targetKeyCaps: ['KeyF', 'ShiftRight'], attempts: [] },
+      fingerLayout,
+      symbolLayout,
+      keyboardGraph,
+      keyCoordinateMap,
+    });
+    const r5 = viewModel.R5;
+    if (r5.navigationRole !== 'TARGET') throw new Error('expected R5 to be TARGET');
+    expect(r5.keyCapStates.ShiftRight?.navigationRole).toBe('TARGET');
+    for (const noise of ['Backspace', 'Enter', 'ControlRight', 'MetaRight', 'AltRight', 'Fn', 'ContextMenu']) {
+      expect(r5.keyCapStates).not.toHaveProperty(noise);
+    }
+    // Символьная клавиша кластера сохраняется.
+    expect(r5.keyCapStates.Semicolon).toBeDefined();
   });
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
-import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey } from './symbol-utils';
+import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey, keyCapHasSymbol } from './symbol-utils';
 
 const symbolLayoutQwerty = getSymbolLayout('qwerty');
 const fingerLayoutASDF = getFingerLayout('asdf');
@@ -105,6 +105,28 @@ describe('getFingerByKeyCap', () => {
 
   it('should return undefined for a KeyCapId not in the finger layout', () => {
     expect(getFingerByKeyCap({ keyCapId: 'Unknown', fingerLayout: fingerLayoutASDF })).toBeUndefined();
+  });
+});
+
+describe('keyCapHasSymbol', () => {
+  it('should return true for a key that carries a base symbol', () => {
+    expect(keyCapHasSymbol({ keyCapId: 'KeyQ', symbolLayout: symbolLayoutQwerty })).toBe(true);
+    expect(keyCapHasSymbol({ keyCapId: 'KeyA', symbolLayout: symbolLayoutQwerty })).toBe(true);
+    expect(keyCapHasSymbol({ keyCapId: 'Digit1', symbolLayout: symbolLayoutQwerty })).toBe(true);
+  });
+
+  it('should return false for a modifier that appears only inside Shift chords', () => {
+    // ShiftLeft/ShiftRight существуют в раскладке лишь как член пары (`['ShiftRight', 'KeyX']`),
+    // одиночного entry у них нет — базовый символ не несут.
+    expect(keyCapHasSymbol({ keyCapId: 'ShiftLeft', symbolLayout: symbolLayoutQwerty })).toBe(false);
+    expect(keyCapHasSymbol({ keyCapId: 'ShiftRight', symbolLayout: symbolLayoutQwerty })).toBe(false);
+  });
+
+  it('should return false for system keys absent from the layout', () => {
+    expect(keyCapHasSymbol({ keyCapId: 'Tab', symbolLayout: symbolLayoutQwerty })).toBe(false);
+    expect(keyCapHasSymbol({ keyCapId: 'CapsLock', symbolLayout: symbolLayoutQwerty })).toBe(false);
+    expect(keyCapHasSymbol({ keyCapId: 'Enter', symbolLayout: symbolLayoutQwerty })).toBe(false);
+    expect(keyCapHasSymbol({ keyCapId: 'Backspace', symbolLayout: symbolLayoutQwerty })).toBe(false);
   });
 });
 

@@ -21,7 +21,7 @@ import { simple_r_error_simple_f } from './simple_r_error_simple_f';
 import { simple_space } from './simple_space';
 import { simple_t } from './simple_t';
 
-export { fingerLayout, keyboardGraph, keyCoordinateMap } from './test-data';
+export { fingerLayout, keyboardGraph, keyCoordinateMap, symbolLayout } from './test-data';
 
 export {
   idle,
