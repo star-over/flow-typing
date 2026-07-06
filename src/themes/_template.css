@@ -175,7 +175,7 @@
   --movement-path-r4-marker  : unset;
   --movement-path-l5-marker  : unset;
   --movement-path-r5-marker  : unset;
-  --movement-path-marker-edge: unset;
+  --movement-path-marker-core: unset;
 
   /* FlowLine */
   --flow-line-border            : unset;

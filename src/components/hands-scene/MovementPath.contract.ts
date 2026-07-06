@@ -11,9 +11,10 @@
  *
  * - `--movement-path-guide` — цвет тусклой линии-маршрута дом→цель (индиго пути).
  * - `--movement-path-<pos>-marker` — цвет движения для пальца `<pos>` (L1…R5): им
- *   красятся след, точка-кончик и кольцо тапа. Спектр пальцев (DESIGN).
- * - `--movement-path-marker-edge` — контур точки (highlight), тема-зависимый: держит
- *   край точки поверх заливки клавиши на любой теме.
+ *   красятся след, кольцо тапа, гало и ободок точки. Спектр пальцев (DESIGN).
+ * - `--movement-path-marker-core` — заливка ядра бегущей точки. Высоко-контрастный
+ *   НЕЙТРАЛ (тёмный на светлых темах, светлый на тёмных): движение должно быть заметно
+ *   на фоне цветов пальцев и цели, поэтому ядро точки НЕ в гамме пальца, а контрастно ей.
  */
 export const MOVEMENT_PATH_CONTRACT = [
   '--movement-path-guide',
@@ -27,7 +28,7 @@ export const MOVEMENT_PATH_CONTRACT = [
   '--movement-path-r4-marker',
   '--movement-path-l5-marker',
   '--movement-path-r5-marker',
-  '--movement-path-marker-edge',
+  '--movement-path-marker-core',
 ] as const satisfies readonly `--${string}`[];
 
 export type MovementPathContractToken = (typeof MOVEMENT_PATH_CONTRACT)[number];

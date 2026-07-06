@@ -83,24 +83,11 @@ export const RUNWAY_TIMING = {
 
 export type RunwayPhase = 'reach' | 'hold' | 'return' | 'gap';
 
-export interface RunwayState {
+/** Кадр цикла: фаза + прогресс внутри неё 0..1. */
+export interface RunwayFrame {
   phase: RunwayPhase;
-  /** Прошло в текущей фазе (мс). */
-  phaseElapsedMs: number;
-  /** Монотонный таймер (сек) — для непрерывных эффектов, если понадобятся. */
-  flowSeconds: number;
+  progress: number;
 }
-
-export function initialRunwayState(): RunwayState {
-  return { phase: 'gap', phaseElapsedMs: 0, flowSeconds: 0 };
-}
-
-const NEXT_PHASE: Record<RunwayPhase, RunwayPhase> = {
-  reach: 'hold',
-  hold: 'return',
-  return: 'gap',
-  gap: 'reach',
-};
 
 export function phaseDurationMs({ phase, speed }: { phase: RunwayPhase; speed: number }): number {
   const s = Math.max(0.1, speed);
@@ -110,44 +97,47 @@ export function phaseDurationMs({ phase, speed }: { phase: RunwayPhase; speed: n
   return RUNWAY_TIMING.gapMs / s;
 }
 
-/** Продвигает цикл на `dtMs` (чистая функция). Перекатывает фазы при переполнении. */
-export function advanceRunway({
-  state,
-  dtMs,
-  speed,
-}: {
-  state: RunwayState;
-  dtMs: number;
-  speed: number;
-}): RunwayState {
-  let phase = state.phase;
-  let elapsed = state.phaseElapsedMs + Math.max(0, dtMs);
-  let guard = 0;
-  while (elapsed >= phaseDurationMs({ phase, speed }) && guard++ < 8) {
-    elapsed -= phaseDurationMs({ phase, speed });
-    phase = NEXT_PHASE[phase];
-  }
-  return { phase, phaseElapsedMs: elapsed, flowSeconds: state.flowSeconds + Math.max(0, dtMs) / 1000 };
+/** Полная длительность цикла (мс) при заданном темпе. */
+export function cycleDurationMs(speed: number): number {
+  const s = Math.max(0.1, speed);
+  return (RUNWAY_TIMING.reachMs + RUNWAY_TIMING.holdMs + RUNWAY_TIMING.returnMs + RUNWAY_TIMING.gapMs) / s;
 }
 
-/** Прогресс текущей фазы 0..1 (сырой). */
-export function phaseProgress({ state, speed }: { state: RunwayState; speed: number }): number {
-  return Math.min(1, state.phaseElapsedMs / phaseDurationMs({ phase: state.phase, speed }));
+/**
+ * Фаза цикла-runway в АБСОЛЮТНЫЙ момент времени `timeMs` — чистая функция общих часов.
+ * Ключ синхронности: все экземпляры `MovementPath` читают одну и ту же метку времени кадра
+ * (`requestAnimationFrame(t)` / `performance.now()`), поэтому вычисляют одну фазу и
+ * движутся синхронно (язык анимации: пальцы идут вместе), без per-instance аккумулятора.
+ */
+export function runwayAtTime({ timeMs, speed }: { timeMs: number; speed: number }): RunwayFrame {
+  const cycle = cycleDurationMs(speed);
+  let e = ((timeMs % cycle) + cycle) % cycle; // фаза цикла, всегда ∈ [0, cycle)
+  const reach = phaseDurationMs({ phase: 'reach', speed });
+  const hold = phaseDurationMs({ phase: 'hold', speed });
+  const back = phaseDurationMs({ phase: 'return', speed });
+  const gap = phaseDurationMs({ phase: 'gap', speed });
+  if (e < reach) return { phase: 'reach', progress: e / reach };
+  e -= reach;
+  if (e < hold) return { phase: 'hold', progress: e / hold };
+  e -= hold;
+  if (e < back) return { phase: 'return', progress: e / back };
+  e -= back;
+  return { phase: 'gap', progress: gap > 0 ? e / gap : 0 };
 }
 
 /**
  * Доля пройденного пути 0..1 для «дотяга/удержания/возврата»:
  * reach — ease-out нарастание; hold — у цели (1); return — быстрый спад к дому; gap — дома (0).
  */
-export function reachFraction({ state, speed }: { state: RunwayState; speed: number }): number {
-  const p = phaseProgress({ state, speed });
-  if (state.phase === 'reach') return easeOutQuint(p);
-  if (state.phase === 'hold') return 1;
-  if (state.phase === 'return') return 1 - easeInQuad(p);
+export function reachFraction(frame: RunwayFrame): number {
+  const p = Math.min(1, Math.max(0, frame.progress));
+  if (frame.phase === 'reach') return easeOutQuint(p);
+  if (frame.phase === 'hold') return 1;
+  if (frame.phase === 'return') return 1 - easeInQuad(p);
   return 0;
 }
 
 /** Интенсивность тапа 0..1 (только на удержании; иначе 0). Пик — у цели. */
-export function tapIntensity({ state, speed }: { state: RunwayState; speed: number }): number {
-  return state.phase === 'hold' ? easeOutQuint(phaseProgress({ state, speed })) : 0;
+export function tapIntensity(frame: RunwayFrame): number {
+  return frame.phase === 'hold' ? easeOutQuint(Math.min(1, Math.max(0, frame.progress))) : 0;
 }

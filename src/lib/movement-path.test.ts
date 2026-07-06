@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  advanceRunway,
+  cycleDurationMs,
   easeInQuad,
   easeOutQuint,
-  initialRunwayState,
   phaseDurationMs,
   type Point,
   pointAlong,
   polylinePath,
   reachFraction,
+  runwayAtTime,
   RUNWAY_TIMING,
   tapIntensity,
   totalLength,
@@ -61,50 +61,54 @@ describe('easing', () => {
   });
 });
 
-describe('runway timing', () => {
-  it('phaseDurationMs масштабируется темпом', () => {
+describe('runway timing (time-based, синхронно через общие часы)', () => {
+  it('phaseDurationMs / cycleDurationMs зависят от темпа', () => {
+    const sum = RUNWAY_TIMING.reachMs + RUNWAY_TIMING.holdMs + RUNWAY_TIMING.returnMs + RUNWAY_TIMING.gapMs;
     expect(phaseDurationMs({ phase: 'reach', speed: 1 })).toBe(RUNWAY_TIMING.reachMs);
     expect(phaseDurationMs({ phase: 'reach', speed: 2 })).toBe(RUNWAY_TIMING.reachMs / 2);
+    expect(cycleDurationMs(1)).toBe(sum);
+    expect(cycleDurationMs(2)).toBe(sum / 2);
   });
 
-  it('advanceRunway перекатывает фазу при переполнении', () => {
-    const start = { phase: 'gap' as const, phaseElapsedMs: 0, flowSeconds: 0 };
-    // Ровно длительность gap → переход в reach с нулём остатка.
-    const next = advanceRunway({ state: start, dtMs: RUNWAY_TIMING.gapMs, speed: 1 });
-    expect(next.phase).toBe('reach');
-    expect(next.phaseElapsedMs).toBeCloseTo(0);
+  it('runwayAtTime: границы фаз', () => {
+    const { reachMs, holdMs, returnMs } = RUNWAY_TIMING;
+    expect(runwayAtTime({ timeMs: 0, speed: 1 })).toEqual({ phase: 'reach', progress: 0 });
+    expect(runwayAtTime({ timeMs: reachMs, speed: 1 }).phase).toBe('hold');
+    expect(runwayAtTime({ timeMs: reachMs + holdMs, speed: 1 }).phase).toBe('return');
+    expect(runwayAtTime({ timeMs: reachMs + holdMs + returnMs, speed: 1 }).phase).toBe('gap');
   });
 
-  it('advanceRunway перекатывает несколько фаз за большой dt', () => {
-    const start = initialRunwayState(); // gap
-    const big = RUNWAY_TIMING.gapMs + RUNWAY_TIMING.reachMs + 10;
-    const next = advanceRunway({ state: start, dtMs: big, speed: 1 });
-    expect(next.phase).toBe('hold');
-    expect(next.phaseElapsedMs).toBeCloseTo(10);
+  it('одинаковое время → одинаковый кадр (гарантия синхронности экземпляров)', () => {
+    expect(runwayAtTime({ timeMs: 517, speed: 1 })).toEqual(runwayAtTime({ timeMs: 517, speed: 1 }));
   });
 
-  it('flowSeconds монотонно растёт', () => {
-    const a = advanceRunway({ state: initialRunwayState(), dtMs: 100, speed: 1 });
-    expect(a.flowSeconds).toBeCloseTo(0.1);
+  it('runwayAtTime зациклен (период = cycle)', () => {
+    const cycle = cycleDurationMs(1);
+    expect(runwayAtTime({ timeMs: 123 + cycle, speed: 1 })).toEqual(runwayAtTime({ timeMs: 123, speed: 1 }));
+  });
+
+  it('runwayAtTime: отрицательное время нормируется в [0,cycle)', () => {
+    const cycle = cycleDurationMs(1);
+    expect(runwayAtTime({ timeMs: -10, speed: 1 })).toEqual(runwayAtTime({ timeMs: cycle - 10, speed: 1 }));
   });
 });
 
 describe('reachFraction / tapIntensity', () => {
   it('reachFraction: gap=0, hold=1, reach в (0,1), return убывает', () => {
-    expect(reachFraction({ state: { phase: 'gap', phaseElapsedMs: 50, flowSeconds: 0 }, speed: 1 })).toBe(0);
-    expect(reachFraction({ state: { phase: 'hold', phaseElapsedMs: 50, flowSeconds: 0 }, speed: 1 })).toBe(1);
-    const reach = reachFraction({ state: { phase: 'reach', phaseElapsedMs: 95, flowSeconds: 0 }, speed: 1 });
+    expect(reachFraction({ phase: 'gap', progress: 0.5 })).toBe(0);
+    expect(reachFraction({ phase: 'hold', progress: 0.5 })).toBe(1);
+    const reach = reachFraction({ phase: 'reach', progress: 0.5 });
     expect(reach).toBeGreaterThan(0);
     expect(reach).toBeLessThan(1);
-    const early = reachFraction({ state: { phase: 'return', phaseElapsedMs: 10, flowSeconds: 0 }, speed: 1 });
-    const late = reachFraction({ state: { phase: 'return', phaseElapsedMs: 80, flowSeconds: 0 }, speed: 1 });
+    const early = reachFraction({ phase: 'return', progress: 0.1 });
+    const late = reachFraction({ phase: 'return', progress: 0.8 });
     expect(late).toBeLessThan(early); // возврат к дому — убывание доли пути
   });
 
   it('tapIntensity: 0 вне hold, растёт на hold', () => {
-    expect(tapIntensity({ state: { phase: 'reach', phaseElapsedMs: 50, flowSeconds: 0 }, speed: 1 })).toBe(0);
-    expect(tapIntensity({ state: { phase: 'gap', phaseElapsedMs: 50, flowSeconds: 0 }, speed: 1 })).toBe(0);
-    const mid = tapIntensity({ state: { phase: 'hold', phaseElapsedMs: 120, flowSeconds: 0 }, speed: 1 });
+    expect(tapIntensity({ phase: 'reach', progress: 0.5 })).toBe(0);
+    expect(tapIntensity({ phase: 'gap', progress: 0.5 })).toBe(0);
+    const mid = tapIntensity({ phase: 'hold', progress: 0.5 });
     expect(mid).toBeGreaterThan(0);
     expect(mid).toBeLessThanOrEqual(1);
   });
