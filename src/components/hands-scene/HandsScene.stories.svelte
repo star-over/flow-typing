@@ -36,6 +36,7 @@
       physicalLayout: physicalLayoutANSI,
       symbolLayout,
       centerPointVisibility: 'INVISIBLE',
+      advanceKey: 0,
     },
     argTypes: {
       handsScene: { table: { disable: true } },
@@ -43,6 +44,9 @@
       physicalLayout: { table: { disable: true } },
       symbolLayout: { table: { disable: true } },
       centerPointVisibility: { options: VISIBILITY_STATES, control: 'inline-radio' },
+      // Меняй это число в панели Controls, чтобы увидеть fade кластера (появление/
+      // исчезновение) — в т.ч. «повтор буквы»: тот же кластер, но с обратной связью.
+      advanceKey: { control: 'number' },
     },
     parameters: {
       layout: 'fullscreen',

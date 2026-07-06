@@ -91,7 +91,7 @@
   />
 
   <div class="hands-slot">
-    <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} />
+    <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} advanceKey={currentIndex} />
   </div>
 </div>
 

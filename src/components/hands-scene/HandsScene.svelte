@@ -21,9 +21,18 @@
   import { getHomeKeyForFinger } from '@/lib/hand-utils';
   import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
   import { HAND_VIEW_BOX } from '@/data/finger-paths';
+  import { onMount } from 'svelte';
+  import { on } from 'svelte/events';
+  import { fade } from 'svelte/transition';
   import Finger from './Finger.svelte';
   import KeyboardScene from './KeyboardScene.svelte';
   import MovementPath from './MovementPath.svelte';
+
+  // Появление/исчезновение кластера — быстрый последовательный fade (положительная
+  // обратная связь на КАЖДОЕ верное продвижение, в т.ч. на повторной букве). Значения
+  // подобраны «еле заметно, но видно глазу»; при prefers-reduced-motion — мгновенно.
+  const CLUSTER_FADE_OUT_MS = 90;
+  const CLUSTER_FADE_IN_MS = 110;
 
   const LEFT_HAND_IDS: FingerId[] = [...LEFT_HAND_FINGERS, LEFT_HAND_BASE];
   const RIGHT_HAND_IDS: FingerId[] = [...RIGHT_HAND_FINGERS, RIGHT_HAND_BASE];
@@ -39,6 +48,12 @@
     physicalLayout: PhysicalLayout;
     symbolLayout: SymbolLayout;
     centerPointVisibility?: Visibility;
+    /**
+     * Ключ продвижения (индекс курсора потока). Меняется на каждом ВЕРНОМ продвижении —
+     * им заводится fade кластера, чтобы обратная связь была видна даже когда следующий
+     * символ совпадает с предыдущим (повтор буквы). Ошибка ключ не меняет → без fade.
+     */
+    advanceKey?: number;
   }
 
   const {
@@ -47,7 +62,15 @@
     physicalLayout,
     symbolLayout,
     centerPointVisibility = 'INVISIBLE',
+    advanceKey = 0,
   }: Props = $props();
+
+  let reduceMotion = $state(false);
+  onMount(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    reduceMotion = mq.matches;
+    return on(mq, 'change', () => { reduceMotion = mq.matches; });
+  });
 
   // Per-finger derived states for the <Finger> components
   const fingerNavigationRoles = $derived(
@@ -150,21 +173,27 @@
 
     {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
       {#if handsScene[fingerId].navigationRole === 'TARGET'}
-        {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
-        {@const t = clusterTranslations[fingerId]}
-        {@const movementPath = movementPathFor(fingerId)}
-        <div
-          bind:this={clusterRefs[fingerId]}
-          data-cluster-id={fingerId}
-          class="cluster-container"
-          style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
-          style:visibility={t ? 'visible' : 'hidden'}
-        >
-          <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
-          {#if movementPath.length >= 1}
-            <MovementPath path={movementPath} {fingerId} />
-          {/if}
-        </div>
+        <!-- Ключ по продвижению курсора: на каждом верном шаге кластер перемонтируется,
+             поэтому fade-out старого / fade-in нового виден даже при повторе буквы. -->
+        {#key advanceKey}
+          {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
+          {@const t = clusterTranslations[fingerId]}
+          {@const movementPath = movementPathFor(fingerId)}
+          <div
+            bind:this={clusterRefs[fingerId]}
+            data-cluster-id={fingerId}
+            class="cluster-container"
+            style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
+            style:visibility={t ? 'visible' : 'hidden'}
+            in:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS, delay: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}
+            out:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}
+          >
+            <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
+            {#if movementPath.length >= 1}
+              <MovementPath path={movementPath} {fingerId} />
+            {/if}
+          </div>
+        {/key}
       {/if}
     {/each}
   </div>
