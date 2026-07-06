@@ -173,42 +173,46 @@
       {/each}
     </svg>
 
-    {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
-      {#if handsScene[fingerId].navigationRole === 'TARGET'}
-        <!-- Ключ по продвижению курсора: на каждом верном шаге кластер перемонтируется,
-             поэтому fade-out старого / fade-in нового виден даже при повторе буквы. -->
-        {#key advanceKey}
-          {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
-          {@const t = clusterTranslations[fingerId]}
-          {@const movementPath = movementPathFor(fingerId)}
-          <div
-            bind:this={clusterRefs[fingerId]}
-            data-cluster-id={fingerId}
-            class="cluster-container"
-            style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
-            style:visibility={t ? 'visible' : 'hidden'}
-            out:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}
-          >
-            <!-- Внутренняя обёртка несёт scale «предъявления» отдельно от transform:translate
-                 контейнера (иначе они бы конфликтовали за одно свойство transform). -->
+    <!-- Ключ по продвижению на уровне ГРУППЫ кластеров: на каждом верном шаге весь
+         старый набор гаснет как единое целое (out:fade), даже при смене пальца. Иначе
+         per-finger {#if} убирал бы отработанный кластер мгновенно, и fade-out был бы не
+         виден (виден только при смене клавиши в пределах одного кластера). Содержимое
+         уходящей группы «заморожено» — старый кластер держится, пока идёт fade-out. -->
+    {#key advanceKey}
+      <div class="cluster-group" out:fade={{ duration: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS }}>
+        {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
+          {#if handsScene[fingerId].navigationRole === 'TARGET'}
+            {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
+            {@const t = clusterTranslations[fingerId]}
+            {@const movementPath = movementPathFor(fingerId)}
             <div
-              class="cluster-inner"
-              in:scale={{
-                start: reduceMotion ? 1 : CLUSTER_SCALE_FROM,
-                opacity: 0,
-                duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
-                delay: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS,
-              }}
+              bind:this={clusterRefs[fingerId]}
+              data-cluster-id={fingerId}
+              class="cluster-container"
+              style:transform={t ? `translate(${t.dx}px, ${t.dy}px)` : undefined}
+              style:visibility={t ? 'visible' : 'hidden'}
             >
-              <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
-              {#if movementPath.length >= 1}
-                <MovementPath path={movementPath} {fingerId} />
-              {/if}
+              <!-- Внутренняя обёртка несёт scale «предъявления» отдельно от transform:translate
+                   контейнера (иначе конфликт за одно свойство transform). -->
+              <div
+                class="cluster-inner"
+                in:scale={{
+                  start: reduceMotion ? 1 : CLUSTER_SCALE_FROM,
+                  opacity: 0,
+                  duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
+                  delay: reduceMotion ? 0 : CLUSTER_FADE_OUT_MS,
+                }}
+              >
+                <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
+                {#if movementPath.length >= 1}
+                  <MovementPath path={movementPath} {fingerId} />
+                {/if}
+              </div>
             </div>
-          </div>
-        {/key}
-      {/if}
-    {/each}
+          {/if}
+        {/each}
+      </div>
+    {/key}
   </div>
 </div>
 
