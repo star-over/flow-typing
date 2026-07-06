@@ -21,6 +21,24 @@ describe('createHandsSceneViewModel', () => {
     });
     expect(viewModel).toEqual(fixture.expectedOutput);
   });
+
+  it('красит цель в CORRECT после ВЕРНОГО нажатия (для «призрака» завершённого кластера)', () => {
+    const viewModel = createHandsSceneViewModel({
+      currentStreamSymbol: {
+        targetSymbol: 'k',
+        targetKeyCaps: ['KeyK'],
+        attempts: [{ pressedKeyCaps: ['KeyK'], startAt: 0, endAt: 0 }],
+      },
+      fingerLayout,
+      keyboardGraph,
+      keyCoordinateMap,
+    });
+    const r3 = viewModel.R3;
+    expect(r3.navigationRole).toBe('TARGET');
+    if (r3.navigationRole === 'TARGET') {
+      expect(r3.keyCapStates.KeyK?.pressResult).toBe('CORRECT');
+    }
+  });
 });
 
 describe('sealHandsSceneViewModel (правило «Полного Кластера»)', () => {

@@ -69,6 +69,14 @@
   const handsScene = $derived(
     createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
   );
+  // Только что завершённый символ (предыдущий): его ViewModel несёт CORRECT на цели
+  // (последняя попытка верна) → HandsScene рисует «призрак» уходящего кластера зелёным.
+  const previousSymbol = $derived(currentIndex > 0 ? stream[currentIndex - 1] : undefined);
+  const outgoingHandsScene = $derived(
+    previousSymbol
+      ? createHandsSceneViewModel({ currentStreamSymbol: previousSymbol, fingerLayout, keyboardGraph, keyCoordinateMap })
+      : undefined
+  );
   const pressResult = $derived(getPressResult(currentSymbol));
   const enrichedSymbols = $derived(enrichStreamSymbols(stream));
 </script>
@@ -91,7 +99,7 @@
   />
 
   <div class="hands-slot">
-    <HandsScene {handsScene} {fingerLayout} {physicalLayout} {symbolLayout} advanceKey={currentIndex} />
+    <HandsScene {handsScene} {outgoingHandsScene} {fingerLayout} {physicalLayout} {symbolLayout} advanceKey={currentIndex} />
   </div>
 </div>
 
