@@ -390,9 +390,13 @@ function applyKeyPressResults({
   typingContext: TypingContext;
 }): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
-  const { lastAttempt, targetKeyCaps, wasAttemptIncorrect } = typingContext;
+  const { lastAttempt, targetKeyCaps } = typingContext;
 
-  if (!wasAttemptIncorrect || !lastAttempt) return newViewModel;
+  // Красим по последней попытке — и ошибочной (ERROR на чужих клавишах), и ВЕРНОЙ
+  // (CORRECT на целевых). Для текущего символа верная попытка не встречается (продвижение
+  // атомарно), но собранный отдельно ViewModel завершённого символа получает CORRECT —
+  // им UI показывает зелёный отклик уходящего кластера.
+  if (!lastAttempt) return newViewModel;
 
   // Apply press results to keys
   const pressedSet = new Set(lastAttempt.pressedKeyCaps);
