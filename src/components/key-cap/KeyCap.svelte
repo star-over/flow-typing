@@ -214,18 +214,19 @@
     font-weight: 900;
   }
 
-  /* --- Press result (заливка перекрывает navigation role; ring цели остаётся) ---
+  /* --- Press result (заливка + кольцо перекрывают navigation role) ---
      Класс продублирован (`.CORRECT.CORRECT`) намеренно: поднимает specificity
      до (0,3,0), чтобы перебить per-position-target
      `.keycap[data-finger-id="…"].role-target` (тоже 0,3,0) по заливке / цвету /
      границе — result объявлен ниже по исходнику и выигрывает.
-     `box-shadow` здесь НЕ трогаем: target-ring (та же (0,3,0), объявлен выше)
-     переживает result и рисуется поверх заливки. Так клавиша-цель в момент
-     нажатия показывает оба состояния разом: цвет результата + кольцо цели. */
+     CORRECT перекрывает и `box-shadow`: кольцо становится зелёным в тон заливке
+     (единый зелёный отклик), а не остаётся янтарным target-ring. ERROR ниже
+     `box-shadow` не трогает — там target-ring цели осознанно переживает результат. */
   .keycap.CORRECT.CORRECT {
     background: var(--keycap-correct-background);
     color: var(--keycap-correct-color);
     border: var(--keycap-correct-border);
+    box-shadow: var(--keycap-correct-ring);
     font-weight: 800;
   }
 
