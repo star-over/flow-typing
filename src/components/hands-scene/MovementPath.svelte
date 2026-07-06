@@ -15,19 +15,18 @@
   («откуда→куда» без анимации, PRODUCT §Accessibility).
 
   Цвет — контракт темы: путь `--movement-path-guide` (индиго), движение по пальцу
-  `--movement-path-<pos>-marker` (спектр), контур точки `--movement-path-marker-edge`.
+  `--movement-path-<pos>-marker` (спектр), нейтральное ядро точки `--movement-path-marker-core`.
 -->
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { on } from 'svelte/events';
   import type { FingerId, KeyCapId } from '@/interfaces/types';
   import {
-    advanceRunway,
-    initialRunwayState,
     type Point,
     pointAlong,
     polylinePath,
     reachFraction,
+    runwayAtTime,
     tapIntensity,
     totalLength,
   } from '@/lib/movement-path';
@@ -42,13 +41,16 @@
   const { path, fingerId }: Props = $props();
 
   const markerColor = $derived(`var(--movement-path-${fingerId.toLowerCase()}-marker, currentColor)`);
+  // Ядро точки — контрастный нейтрал (не гамма пальца), чтобы движение было заметно.
+  const coreColor = 'var(--movement-path-marker-core)';
 
   let svgEl = $state<SVGSVGElement | null>(null);
 
   let points = $state<Point[]>([]);
   let box = $state({ w: 0, h: 0 });
   let keySize = $state({ w: 40, h: 34 });
-  let runway = $state(initialRunwayState());
+  // Общая rAF-метка времени: один и тот же `t` во всех обработчиках кадра → синхронные кластеры.
+  let now = $state(0);
   let reduceMotion = $state(false);
 
   // --- Измерение ломаной по центрам клавиш пути (в системе координат svg) ---
@@ -94,12 +96,8 @@
     const offMq = on(mq, 'change', () => { reduceMotion = mq.matches; });
 
     let raf = 0;
-    let prev: number | undefined;
     const tickFrame = (t: number) => {
-      if (prev === undefined) prev = t;
-      const dt = Math.min(100, t - prev);
-      prev = t;
-      if (!reduceMotion) runway = advanceRunway({ state: runway, dtMs: dt, speed: 1 });
+      if (!reduceMotion) now = t;
       raf = requestAnimationFrame(tickFrame);
     };
     raf = requestAnimationFrame(tickFrame);
@@ -109,14 +107,19 @@
 
   // --- Производные для рендера ---
   const hasPath = $derived(points.length >= 2);
+  const frame = $derived(runwayAtTime({ timeMs: now, speed: 1 }));
   // reduced-motion: статичная линия дом→цель + точка у цели (frac=1, без тапа).
-  const frac = $derived(reduceMotion ? 1 : reachFraction({ state: runway, speed: 1 }));
-  const tapT = $derived(reduceMotion ? 0 : tapIntensity({ state: runway, speed: 1 }));
+  const frac = $derived(reduceMotion ? 1 : reachFraction(frame));
+  const tapT = $derived(reduceMotion ? 0 : tapIntensity(frame));
 
-  const len = $derived(totalLength(points));
-  const guidePath = $derived(polylinePath(points));
-  const targetPoint = $derived<Point>(points[points.length - 1] ?? { x: 0, y: 0 });
-  const dotPoint = $derived(pointAlong({ points, t: frac }));
+  // Вся геометрия движения смещается вниз от центра клавиши, чтобы не перекрывать label
+  // (label центрирован в верхней части, движение идёт по нижней).
+  const drop = $derived(keySize.h * 0.3);
+  const renderPoints = $derived(points.map((p) => ({ x: p.x, y: p.y + drop })));
+  const len = $derived(totalLength(renderPoints));
+  const guidePath = $derived(polylinePath(renderPoints));
+  const targetPoint = $derived<Point>(renderPoints[renderPoints.length - 1] ?? { x: 0, y: 0 });
+  const dotPoint = $derived(pointAlong({ points: renderPoints, t: frac }));
 
   // Тап = «кольцо + пульс»: точка раздувается + кольцо расходится.
   const dotScale = $derived(1 + 0.4 * Math.sin(Math.PI * tapT));
@@ -159,9 +162,17 @@
       />
     {/if}
 
-    <!-- Кончик пальца: чуть прозрачная заливка (символ клавиши просвечивает). -->
+    <!-- Кончик пальца: контрастное нейтральное ядро (заметно на фоне пальца/цели) +
+         пальцевый ободок и гало (идентичность). Ниже центра клавиши — не прячет label. -->
     <circle class="halo" cx={dotPoint.x} cy={dotPoint.y} r={keySize.h * 0.42} style:fill={markerColor} />
-    <circle class="dot" cx={dotPoint.x} cy={dotPoint.y} r={dotRadius} style:fill={markerColor} />
+    <circle
+      class="dot"
+      cx={dotPoint.x}
+      cy={dotPoint.y}
+      r={dotRadius}
+      style:fill={coreColor}
+      style:stroke={markerColor}
+    />
   {/if}
 </svg>
 
@@ -204,10 +215,10 @@
 
   .halo { opacity: 0.22; }
 
-  /* Точка-кончик: полупрозрачная заливка + контур (тема-зависимый highlight). */
+  /* Точка-кончик: контрастное нейтральное ядро (fill inline) + пальцевый ободок
+     (stroke inline). Ободок несёт идентичность пальца, ядро — заметность движения. */
   .dot {
-    fill-opacity: 0.82;
-    stroke: var(--movement-path-marker-edge);
-    stroke-width: 1.25;
+    fill-opacity: 0.9;
+    stroke-width: 2;
   }
 </style>

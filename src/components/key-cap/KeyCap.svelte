@@ -86,9 +86,9 @@
   }
 
   /* --- Symbol size --- */
-  .size-MD .keycap-label { font-size: 0.8125rem; }
-  .size-SM .keycap-label { font-size: 0.6875rem; }
-  .size-XS .keycap-label { font-size: 0.5625rem; }
+  .size-MD .keycap-label { font-size: 0.9375rem; }
+  .size-SM .keycap-label { font-size: 0.8125rem; }
+  .size-XS .keycap-label { font-size: 0.6875rem; }
 
   /* --- Per-position fill/border/color --- */
   .keycap[data-finger-id="L1"] {
