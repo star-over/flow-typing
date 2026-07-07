@@ -6,6 +6,7 @@
 # auto-flow: тексты-источники и сгенерированный корпус (большие, регенерируемые)
 /auto-flow/data/*
 !/auto-flow/data/.gitkeep
+!/auto-flow/data/en/RESEARCH.md
 # dependencies
 /node_modules
 /.pnp
