@@ -10,7 +10,7 @@
  * Заливка в Convex — `make import-corpus` (convex import + пересчёт индекса).
  *
  * Раскладка — параметр: набор её символов читается из
- * `src/data/layouts/symbol-layout-<id>.json` (данные приложения). Относительные
+ * `src/layouts/symbol-layout-<id>.json` (данные приложения). Относительные
  * импорты с расширением `.ts` — требование Node-ESM.
  */
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';

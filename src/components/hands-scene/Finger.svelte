@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FingerId, FingerNavigationRole } from '@/interfaces/types';
-  import { FINGER_CENTER_POINTS, FINGER_PATHS } from '@/data/finger-paths';
+  import { FINGER_CENTER_POINTS, FINGER_PATHS } from './finger-paths';
 
   interface Props {
     fingerId: FingerId;

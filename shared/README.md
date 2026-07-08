@@ -17,4 +17,4 @@ shared/
 └── symbol-layout.ts   чистые помощники раскладки: тип записи, символ→клавиши
 ```
 
-Термины — [`CONTEXT.md`](../CONTEXT.md): **KeyLadder**, **Repertoire** (`openedSteps`), **`stepLevel`**. Данные раскладок (источник) — `src/data/layouts/*.json`.
+Термины — [`CONTEXT.md`](../CONTEXT.md): **KeyLadder**, **Repertoire** (`openedSteps`), **`stepLevel`**. Данные раскладок (источник) — `src/layouts/*.json`.

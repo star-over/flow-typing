@@ -6,8 +6,8 @@
  * Неизвестная раскладка → null, потребитель деградирует без throw.
  */
 import type { SymbolEntry } from '../shared/symbol-layout.ts';
-import symbolLayoutJcuken from '../src/data/layouts/symbol-layout-jcuken.json';
-import symbolLayoutQwerty from '../src/data/layouts/symbol-layout-qwerty.json';
+import symbolLayoutJcuken from '../src/layouts/symbol-layout-jcuken.json';
+import symbolLayoutQwerty from '../src/layouts/symbol-layout-qwerty.json';
 
 export interface LayoutData {
   symbolLayout: SymbolEntry[];

@@ -41,7 +41,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text'],
       include: ['src/**/*.{ts,svelte}', 'convex/**/*.ts', 'auto-flow/**/*.ts', 'shared/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/lib/dev/**', 'src/fixtures/**', 'src/scripts/**', 'src/data/**', 'src/**/*.contract.ts', 'convex/_generated/**', 'convex/**/*.test.ts', 'auto-flow/**/*.test.ts', 'auto-flow/scripts/**', 'shared/**/*.test.ts'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.stories.svelte', 'src/lib/dev/**', 'src/fixtures/**', 'src/scripts/**', 'src/layouts/**', 'src/**/*.contract.ts', 'convex/_generated/**', 'convex/**/*.test.ts', 'auto-flow/**/*.test.ts', 'auto-flow/scripts/**', 'shared/**/*.test.ts'],
     },
   },
 });

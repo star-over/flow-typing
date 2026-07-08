@@ -186,7 +186,7 @@ import-corpus:
 	@$(MAKE) rebuild-selection-index LAYOUT=$(LAYOUT)
 
 # Auto-Flow: таблица отбора считается на сервере (drills не уезжают из Convex).
-# Серверный rebuild берёт раскладку с шагами (src/data/layouts/*.json, ladderStep)
+# Серверный rebuild берёт раскладку с шагами (src/layouts/*.json, ladderStep)
 # напрямую, листает drills постранично и пишет drillSelectionIndex.
 rebuild-selection-index:
 	@echo "☁️  Пересборка drillSelectionIndex на сервере ($(LAYOUT))..."

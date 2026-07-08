@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { allSymbolsInLayout, computeStepLevel } from './compute.ts';
 import { symbolToStep } from '../symbol-layout.ts';
-import jcukenLayout from '../../src/data/layouts/symbol-layout-jcuken.json';
-import qwertyLayout from '../../src/data/layouts/symbol-layout-qwerty.json';
+import jcukenLayout from '../../src/layouts/symbol-layout-jcuken.json';
+import qwertyLayout from '../../src/layouts/symbol-layout-qwerty.json';
 
 describe('computeStepLevel (синтетическая карта символ→шаг)', () => {
   // Шаг живёт на символе (ADR 0020): заглавная несёт свой шаг напрямую (аккорд

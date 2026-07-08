@@ -8,8 +8,8 @@ import {
   validateSymbolLadder,
   type SymbolEntry,
 } from './symbol-layout.ts';
-import jcukenLayout from '../src/data/layouts/symbol-layout-jcuken.json';
-import qwertyLayout from '../src/data/layouts/symbol-layout-qwerty.json';
+import jcukenLayout from '../src/layouts/symbol-layout-jcuken.json';
+import qwertyLayout from '../src/layouts/symbol-layout-qwerty.json';
 
 const SYNTH: SymbolEntry[] = [
   { symbol: ' ', keyCaps: ['Space'], ladderStep: 0 },

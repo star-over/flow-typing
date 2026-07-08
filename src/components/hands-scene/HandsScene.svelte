@@ -20,7 +20,7 @@
   import { createKeyLabelMap } from '@/lib/symbol-utils';
   import { getHomeKeyForFinger } from '@/lib/hand-utils';
   import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
-  import { HAND_VIEW_BOX } from '@/data/finger-paths';
+  import { HAND_VIEW_BOX } from './finger-paths';
   import { onMount } from 'svelte';
   import { on } from 'svelte/events';
   import { scale } from 'svelte/transition';

@@ -2,9 +2,9 @@
  * Единая точка входа для всех слоёв раскладок.
  *
  * Источники истины:
- * - `src/data/layouts/physical-layout-*.json`
- * - `src/data/layouts/symbol-layout-*.json`
- * - `src/data/layouts/finger-layout-*.json`
+ * - `src/layouts/physical-layout-*.json`
+ * - `src/layouts/symbol-layout-*.json`
+ * - `src/layouts/finger-layout-*.json`
  *
  * Файлы импортируются как JSON, проверяются Zod-схемами,
  * собираются в три module-level Map'а. Каждая раскладка — атомарная единица:
@@ -33,11 +33,11 @@ import type {
   TextLanguage,
 } from '@/interfaces/types';
 
-import physicalAnsi from '@/data/layouts/physical-layout-ansi.json';
-import symbolQwerty from '@/data/layouts/symbol-layout-qwerty.json';
-import symbolJcuken from '@/data/layouts/symbol-layout-jcuken.json';
-import fingerAsdf from '@/data/layouts/finger-layout-asdf.json';
-import fingerSdfv from '@/data/layouts/finger-layout-sdfv.json';
+import physicalAnsi from '@/layouts/physical-layout-ansi.json';
+import symbolQwerty from '@/layouts/symbol-layout-qwerty.json';
+import symbolJcuken from '@/layouts/symbol-layout-jcuken.json';
+import fingerAsdf from '@/layouts/finger-layout-asdf.json';
+import fingerSdfv from '@/layouts/finger-layout-sdfv.json';
 
 // ---------- Zod-схемы для записей раскладок ----------
 

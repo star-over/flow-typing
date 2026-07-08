@@ -1,6 +1,6 @@
 /**
  * @file fs-загрузчик символьной раскладки для офлайн-инструментов мастерской.
- * Читает json по пути (данные приложения, src/data/layouts); чистые помощники и
+ * Читает json по пути (данные приложения, src/layouts); чистые помощники и
  * тип — в `shared/symbol-layout.ts` (рантайм-модель, общая с сервером).
  */
 import { readFileSync } from 'node:fs';
@@ -18,6 +18,6 @@ export function loadSymbolLayout(symbolLayoutId: string): SymbolEntry[] {
   if (!file) {
     throw new Error(`Неизвестная раскладка: ${symbolLayoutId}. Доступны: ${Object.keys(LAYOUT_FILE).join(', ')}`);
   }
-  const raw = readFileSync(join(process.cwd(), 'src/data/layouts', file), 'utf-8');
+  const raw = readFileSync(join(process.cwd(), 'src/layouts', file), 'utf-8');
   return JSON.parse(raw) as SymbolEntry[];
 }
