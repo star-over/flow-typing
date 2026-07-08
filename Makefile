@@ -8,7 +8,7 @@
 SHELL := /bin/bash
 
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
-        spell knip storybook storybook-build check-all compile-drills create-drills \
+        spell knip storybook storybook-build check-all \
         corpus-process build-corpus import-corpus rebuild-selection-index ladder-report \
         next-batch reinstall-gemini-cli convex
 
@@ -47,7 +47,6 @@ help:
 	@echo "  make storybook        - storybook dev (http://localhost:6006)"
 	@echo "  make storybook-build  - storybook static build"
 	@echo ""
-	@echo "  make create-drills    - Сгенерировать данные упражнений"
 	@echo "  make corpus-process   - Auto-Flow: весь цикл — сборка + заливка + пересчёт таблицы отбора"
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
@@ -161,14 +160,6 @@ check-all: install
 # ==============================================================================
 # DATA GENERATION
 # ==============================================================================
-
-compile-drills: install
-	@echo "📄 Компиляция скрипта генерации упражнений..."
-	npx tsc --project tsconfig.scripts.json
-
-create-drills: compile-drills
-	@echo "📝 Генерация данных упражнений..."
-	node dist/src/scripts/create-drills.js
 
 # Auto-Flow: конвейер корпуса (Node нативно запускает .ts, без tsc/dist).
 # INPUT — каталог со всеми *.txt (или один файл). LAYOUT/INPUT/OUTPUT переопределяемы.
