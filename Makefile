@@ -49,7 +49,7 @@ help:
 	@echo ""
 	@echo "  make corpus-process   - Auto-Flow: весь цикл — сборка + заливка + пересчёт таблицы отбора"
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
-	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
+	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (append) + пересчёт таблицы отбора"
 	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (после правки нарезки ladderStep)"
 	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням лестницы"
 	@echo "  make next-batch       - Auto-Flow: дымовой вызов выдачи порции (LAYOUT/BUDGET_CHARS/SEED)"
@@ -164,8 +164,8 @@ check-all: install
 # Auto-Flow: конвейер корпуса (Node нативно запускает .ts, без tsc/dist).
 # INPUT — каталог со всеми *.txt (или один файл). LAYOUT/INPUT/OUTPUT переопределяемы.
 LAYOUT ?= йцукен
-INPUT ?= auto-flow/data
-OUTPUT ?= auto-flow/data/drills.jsonl
+INPUT ?= auto-flow/corpus
+OUTPUT ?= auto-flow/corpus/drills.jsonl
 
 # Весь цикл одной командой: сборка корпуса → заливка → пересчёт таблицы отбора.
 corpus-process:

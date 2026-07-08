@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildDrills, DEFAULT_BUILD_OPTIONS } from './pipeline.ts';
-import { loadSymbolLayout } from '../symbol-layout.ts';
+import { loadSymbolLayout } from './symbol-layout.ts';
 
 function parseArgs(argv: string[]): Record<string, string> {
   const args: Record<string, string> = {};
@@ -53,8 +53,8 @@ function readTexts(inputPath: string): string[] {
 function main(): void {
   const args = parseArgs(process.argv.slice(2));
   const layout = args.layout ?? 'йцукен';
-  const input = args.input ?? 'auto-flow/data';
-  const output = args.output ?? 'auto-flow/data/drills.jsonl';
+  const input = args.input ?? 'auto-flow/corpus';
+  const output = args.output ?? 'auto-flow/corpus/drills.jsonl';
 
   const symbolSet = new Set(loadSymbolLayout(layout).map((entry) => entry.symbol));
   const texts = readTexts(input);

@@ -110,7 +110,7 @@
    - Showerthoughts / short-jokes — для юмора.
    - Project Gutenberg (Aesop's Fables + несколько коротких книг) — для лёгких текстов.
 
-2. **Загрузить в `auto-flow/data/en/raw/`**:
+2. **Загрузить в `auto-flow/corpus/en/raw/`**:
    - Сохранить исходные файлы как есть.
    - Для каждого источника написать скрипт `auto-flow/scripts/import-<source>.ts`.
 
@@ -123,10 +123,10 @@
 
 4. **Дедупликация**:
    - Нормализовать (lower case, trim, collapse spaces).
-   - Хэш SHA-1 текста → уникальный `id` (как уже сделано в `src/data/drills/drills.jsonl`).
+   - Хэш SHA-1 текста → уникальный `id`.
 
 5. **Генерация меты**:
-   - Использовать существующие функции из `auto-flow/corpus/meta.ts`/`coverage.ts`.
+   - Использовать существующие функции из `auto-flow/scripts/meta.ts`/`coverage.ts`.
    - Добавить поле `source` (для трассировки).
    - Убрать/не добавлять `textLanguage` — согласно ADR 0001 и плану, подбор идёт по раскладке.
 
@@ -134,7 +134,7 @@
    - Проверить, что для каждого шага KeyLadder есть достаточно drill'ов.
    - Если покрытие слабое — добавить короткие слова/биграммы из частотных списков.
 
-7. **Выгрузка в `src/data/drills/drills.jsonl`** и импорт в Convex.
+7. **Выгрузка в `auto-flow/corpus/<lang>/jsonl/`** и импорт в Convex.
 
 ## 4. Сводная таблица приоритетов
 
@@ -162,6 +162,6 @@
 Возможные дальнейшие действия:
 
 1. Написать `auto-flow/scripts/import-tatoeba.ts` и `import-wikiquote.ts`.
-2. Создать единый `auto-flow/data/en/raw/.gitignore` и Makefile target.
+2. Создать единый `auto-flow/corpus/en/raw/.gitignore` и Makefile target.
 3. Собрать первую партию из ~10 000 английских drill'ов.
 4. Проверить покрытие KeyLadder для QWERTY и JCUKEN.

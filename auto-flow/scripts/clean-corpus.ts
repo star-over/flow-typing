@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { buildDrills, DEFAULT_BUILD_OPTIONS } from './pipeline.ts';
-import { loadSymbolLayout } from '../symbol-layout.ts';
+import { loadSymbolLayout } from './symbol-layout.ts';
 
 const DEFAULT_LAYOUT = 'qwerty';
 
@@ -57,7 +57,7 @@ function main(): void {
   const args = parseArgs(process.argv.slice(2));
   const input = args.input;
   if (!input) {
-    console.error('Нужен --input <txt|dir>. Пример: --input auto-flow/data/en/derived/funjokes.txt');
+    console.error('Нужен --input <txt|dir>. Пример: --input auto-flow/corpus/en/derived/funjokes.txt');
     process.exit(1);
   }
   const layout = args.layout ?? DEFAULT_LAYOUT;

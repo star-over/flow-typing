@@ -5,7 +5,7 @@
  * пробелы и табы → обычный, схлопывание пробелов, нет пробела перед пунктуацией,
  * trim краёв.
  */
-import { normalizeString } from '../string-normalization.ts';
+import { normalizeString } from './string-normalization.ts';
 
 export function clean(text: string): string {
   return normalizeString({ text });

@@ -42,7 +42,7 @@
     "**/*.jsonl",
     ".agents/",
     "tmp/",
-    "auto-flow/data/",
+    "auto-flow/corpus/",
     "dist/",
     "coverage/",
     "convex/README.md",

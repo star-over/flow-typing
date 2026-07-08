@@ -8,13 +8,13 @@
  *
  * Запуск (Node ≥ 22, нативный TS — без tsc/dist):
  *   node auto-flow/scripts/jokes-csv-to-text.ts --input <csv|dir> [--output <dir>] [--max-len 120]
- * По умолчанию output — `auto-flow/data/en/derived`.
+ * По умолчанию output — `auto-flow/corpus/en/derived`.
  */
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 const DEFAULT_MAX_LEN = 120;
-const DEFAULT_OUTPUT_DIR = 'auto-flow/data/en/derived';
+const DEFAULT_OUTPUT_DIR = 'auto-flow/corpus/en/derived';
 
 /**
  * Диалоговые / лейбл-строки: начинаются на «спикер:» (1–3 слова перед двоеточием —
@@ -123,7 +123,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const input = args.input;
   if (!input) {
-    console.error('Нужен --input <csv|dir>. Пример: --input auto-flow/data/en/raw/short-jokes-dataset/funjokes.csv');
+    console.error('Нужен --input <csv|dir>. Пример: --input auto-flow/corpus/en/raw/short-jokes-dataset/funjokes.csv');
     process.exit(1);
   }
   const outputDir = args.output ?? DEFAULT_OUTPUT_DIR;

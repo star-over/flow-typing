@@ -5,7 +5,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { SymbolEntry } from '../shared/symbol-layout.ts';
+import type { SymbolEntry } from '../../shared/symbol-layout.ts';
 
 /** symbolLayoutId → имя файла раскладки. */
 const LAYOUT_FILE: Record<string, string> = {

@@ -8,16 +8,16 @@
 
 ```
 auto-flow/
-├── scripts/                   CLI-скрипты очистки + модули конвейера + тесты
+├── scripts/                   весь код мастерской: CLI + модули конвейера + помощники + тесты
 │   ├── jokes-csv-to-text.ts   CSV шуток → чистый текст (извлечь + фильтр + дедупликация)
 │   ├── clean-corpus.ts        текст → очищенный текст (нормализация + фильтры + дедупликация)
 │   ├── build-corpus.ts        очищенный текст → drills.jsonl + отчёт покрытия
 │   ├── pipeline.ts            конвейер buildDrills: clean → segment → фильтры → дедупликация → meta → coverage
 │   ├── clean.ts segment.ts filters.ts meta.ts coverage.ts types.ts   шаги конвейера (чистые)
+│   ├── symbol-layout.ts       fs-загрузчик раскладки (чистые помощники — в shared/)
+│   ├── string-normalization.ts  нормализация текста (+ .test.ts)
 │   └── corpus.test.ts
-├── symbol-layout.ts           fs-загрузчик раскладки (чистые помощники — в shared/)
-├── string-normalization.ts    нормализация текста (+ string-normalization.test.ts)
-├── data/                      источники и выгрузка корпуса — gitignored
+├── corpus/                    источники и выгрузка корпуса — gitignored
 │   └── en/
 │       ├── raw/               источники: oxford/ (PDF), short-jokes-dataset/ (CSV)
 │       ├── derived/           очищенный текст (*.txt)
@@ -31,7 +31,7 @@ auto-flow/
 - **Данные раскладок** — `src/data/layouts/*.json` (единый источник: грузит приложение, читает мастерская, импортирует сервер).
 - **Схема и серверные функции** — `convex/` (таблицы `drills`/`drillSelectionIndex`, выдача порции, серверный пересчёт таблицы отбора).
 - **Клиент времени выполнения тренировки** — `src/` (SvelteKit).
-- **Данные корпуса** (`auto-flow/data/**`) — **gitignored** (большие, регенерируемые). В git только скрипты.
+- **Данные корпуса** (`auto-flow/corpus/**`) — **gitignored** (большие, регенерируемые). В git только скрипты.
 
 ## Конвейер корпуса
 
@@ -50,7 +50,7 @@ raw CSV/PDF ──jokes-csv-to-text──▶ derived/*.txt ──clean-corpus─
 node auto-flow/scripts/jokes-csv-to-text.ts --input <csv|каталог> [--output <каталог>] [--max-len 120]
 ```
 - **Порядок:** извлечь → отбросить диалог/метки (`Q:`, `Teacher:`, `First witch:` — 1–3 слова + `:`, а также `Q.`/`A.`) → отбросить длинные (> `--max-len`, дефолт 120 символов) → **дедупликация (последним)**.
-- `--input` — файл или каталог (тогда каждый `*.csv` → свой `.txt`). `--output` — каталог (дефолт `data/en/derived`), имя = `<basename>.txt`.
+- `--input` — файл или каталог (тогда каждый `*.csv` → свой `.txt`). `--output` — каталог (дефолт `corpus/en/derived`), имя = `<basename>.txt`.
 
 ### 2. `clean-corpus.ts` — текст → очищенный текст (без drills.jsonl)
 Прогоняет через штатный конвейер и пишет только очищенные строки.
