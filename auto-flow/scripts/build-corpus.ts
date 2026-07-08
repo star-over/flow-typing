@@ -15,7 +15,7 @@
  */
 import { readFileSync, writeFileSync, statSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildDrills, DEFAULT_BUILD_OPTIONS } from '../corpus/pipeline.ts';
+import { buildDrills, DEFAULT_BUILD_OPTIONS } from './pipeline.ts';
 import { loadSymbolLayout } from '../symbol-layout.ts';
 
 function parseArgs(argv: string[]): Record<string, string> {
