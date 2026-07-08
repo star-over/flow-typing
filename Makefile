@@ -185,9 +185,13 @@ build-corpus:
 	@echo "🏗️  Сборка корпуса из $(INPUT) под раскладку $(LAYOUT)..."
 	node auto-flow/scripts/build-corpus.ts --layout "$(LAYOUT)" --input "$(INPUT)" --output "$(OUTPUT)"
 
+# Заливка — APPEND (не replace): таблица drills общая для всех раскладок (билингва),
+# --replace стёр бы чужую раскладку. rebuild берёт только свои drill'ы (membership,
+# selectionIndex). ВНИМАНИЕ: append ДОБАВЛЯЕТ — повторная заливка ТОЙ ЖЕ раскладки
+# дублирует drill'ы; при ре-курировании раскладку надо сперва очистить вручную.
 import-corpus:
-	@echo "☁️  Заливка $(OUTPUT) в drills (replace) + пересчёт таблицы отбора..."
-	npx convex import --table drills --replace --yes "$(OUTPUT)"
+	@echo "☁️  Заливка $(OUTPUT) в drills (append) + пересчёт таблицы отбора ($(LAYOUT))..."
+	npx convex import --table drills --append --format jsonLines --yes "$(OUTPUT)"
 	@$(MAKE) rebuild-selection-index LAYOUT=$(LAYOUT)
 
 # Auto-Flow: таблица отбора считается на сервере (drills не уезжают из Convex).
