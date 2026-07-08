@@ -7,6 +7,7 @@
  */
 import type { SymbolEntry } from '../shared/symbol-layout.ts';
 import symbolLayoutJcuken from '../src/data/layouts/symbol-layout-jcuken.json';
+import symbolLayoutQwerty from '../src/data/layouts/symbol-layout-qwerty.json';
 
 export interface LayoutData {
   symbolLayout: SymbolEntry[];
@@ -14,6 +15,7 @@ export interface LayoutData {
 
 const LAYOUTS: Record<string, LayoutData> = {
   'йцукен': { symbolLayout: symbolLayoutJcuken },
+  qwerty: { symbolLayout: symbolLayoutQwerty },
 };
 
 export function getLayoutData(symbolLayoutId: string): LayoutData | null {

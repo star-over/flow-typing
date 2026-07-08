@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { computeStepLevel } from './compute.ts';
+import { allSymbolsInLayout, computeStepLevel } from './compute.ts';
 import { symbolToStep } from '../symbol-layout.ts';
 import jcukenLayout from '../../src/data/layouts/symbol-layout-jcuken.json';
+import qwertyLayout from '../../src/data/layouts/symbol-layout-qwerty.json';
 
 describe('computeStepLevel (синтетическая карта символ→шаг)', () => {
   // Шаг живёт на символе (ADR 0020): заглавная несёт свой шаг напрямую (аккорд
@@ -36,5 +37,26 @@ describe('computeStepLevel (реальные шаги йцукен из раск
   });
   it('точка тянет правый мизинец ближний (шаг 5)', () => {
     expect(at(['т', 'о', 'р', '.'])).toBe(5);
+  });
+});
+
+describe('allSymbolsInLayout (членство drill\'а в раскладке — билингва)', () => {
+  const jcuken = symbolToStep(jcukenLayout);
+  const qwerty = symbolToStep(qwertyLayout);
+
+  it('русский drill совместим с йцукен', () => {
+    expect(allSymbolsInLayout({ uniqueSymbols: ['т', 'о', 'р'], symbolToStep: jcuken })).toBe(true);
+  });
+  it('русский drill НЕ совместим с qwerty (чужой) — пропускается, не throw', () => {
+    expect(allSymbolsInLayout({ uniqueSymbols: ['т', 'о', 'р'], symbolToStep: qwerty })).toBe(false);
+  });
+  it('английский drill совместим с qwerty', () => {
+    expect(allSymbolsInLayout({ uniqueSymbols: ['c', 'a', 't', ' '], symbolToStep: qwerty })).toBe(true);
+  });
+  it('английский drill НЕ совместим с йцукен (чужой)', () => {
+    expect(allSymbolsInLayout({ uniqueSymbols: ['c', 'a', 't'], symbolToStep: jcuken })).toBe(false);
+  });
+  it('один чужой символ делает весь drill несовместимым', () => {
+    expect(allSymbolsInLayout({ uniqueSymbols: ['c', 'a', 'т'], symbolToStep: qwerty })).toBe(false);
   });
 });

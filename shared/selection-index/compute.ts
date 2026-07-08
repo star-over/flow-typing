@@ -24,3 +24,21 @@ export function computeStepLevel({
   }
   return stepLevel;
 }
+
+/**
+ * Все символы drill'а типизируемы в раскладке (у каждого есть `ladderStep`).
+ * Таблица `drills` — общая для всех раскладок (нет колонки раскладки); drill
+ * «чужой» (кириллица под qwerty и наоборот), если хоть один символ не в
+ * раскладке. Предикат отфильтровывает такие ДО {@link computeStepLevel} —
+ * тогда её throw остаётся инвариантом (вызывается только на своих drill'ах),
+ * а таблица отбора одной раскладки индексирует только совместимые drill'ы.
+ */
+export function allSymbolsInLayout({
+  uniqueSymbols,
+  symbolToStep,
+}: {
+  uniqueSymbols: string[];
+  symbolToStep: ReadonlyMap<string, number>;
+}): boolean {
+  return uniqueSymbols.every((symbol) => symbolToStep.has(symbol));
+}

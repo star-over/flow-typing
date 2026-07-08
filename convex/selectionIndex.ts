@@ -13,7 +13,7 @@ import { internalAction, internalMutation, internalQuery, query } from './_gener
 import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
-import { computeStepLevel } from '../shared/selection-index/compute.ts';
+import { allSymbolsInLayout, computeStepLevel } from '../shared/selection-index/compute.ts';
 import { symbolToStep } from '../shared/symbol-layout.ts';
 import { getLayoutData } from './layoutData';
 import { drillIndex } from './drillIndex';
@@ -100,7 +100,7 @@ export const resetLayoutAggregate = internalMutation({
 /** Пересобрать таблицу отбора для раскладки: очистить → посчитать → записать. */
 export const rebuild = internalAction({
   args: { symbolLayoutId: v.string() },
-  handler: async (ctx, args): Promise<{ cleared: number; inserted: number }> => {
+  handler: async (ctx, args): Promise<{ cleared: number; inserted: number; skipped: number }> => {
     const layoutData = getLayoutData(args.symbolLayoutId);
     if (!layoutData) throw new Error(`нет данных раскладки: ${args.symbolLayoutId}`);
     const stepBySymbol = symbolToStep(layoutData.symbolLayout);
@@ -121,6 +121,7 @@ export const rebuild = internalAction({
 
     let cursor: string | null = null;
     let inserted = 0;
+    let skipped = 0;
     let isDone = false;
     while (!isDone) {
       const result: {
@@ -128,7 +129,13 @@ export const rebuild = internalAction({
         continueCursor: string;
         isDone: boolean;
       } = await ctx.runQuery(internal.selectionIndex.drillsPage, { cursor, numItems: 500 });
-      const rows = result.page.map((drill) => ({
+      // Таблица drills общая для всех раскладок — индексируем только совместимые
+      // (все символы в этой раскладке); чужие (другая раскладка) пропускаем, а не throw.
+      const compatible = result.page.filter((drill) =>
+        allSymbolsInLayout({ uniqueSymbols: drill.uniqueSymbols, symbolToStep: stepBySymbol }),
+      );
+      skipped += result.page.length - compatible.length;
+      const rows = compatible.map((drill) => ({
         drillId: drill.drillId,
         symbolLayoutId: args.symbolLayoutId,
         stepLevel: computeStepLevel({ uniqueSymbols: drill.uniqueSymbols, symbolToStep: stepBySymbol }),
@@ -139,6 +146,6 @@ export const rebuild = internalAction({
       cursor = result.continueCursor;
     }
 
-    return { cleared, inserted };
+    return { cleared, inserted, skipped };
   },
 });
