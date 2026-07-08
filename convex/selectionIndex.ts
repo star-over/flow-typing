@@ -2,8 +2,9 @@
  * @file Серверная пересборка таблицы отбора `drillSelectionIndex`. drills не
  * уезжают из Convex: action листает их постранично, считает `stepLevel` и пишет
  * строки. Данные раскладки берём из единого источника напрямую — символьная
- * раскладка (`src/data/layouts/*.json`) + KeyLadder (`auto-flow`), без
- * генерируемых копий. `symbolLayoutId` лишь выбирает нужную пару.
+ * раскладка (`src/data/layouts/*.json`) несёт и клавиши, и шаг открытия символа
+ * (`ladderStep`, ADR 0020), без генерируемых копий. `symbolLayoutId` лишь выбирает
+ * нужную раскладку.
  *
  * Запуск: `npx convex run selectionIndex:rebuild '{"symbolLayoutId":"йцукен"}'`
  * (см. `make rebuild-selection-index`).
@@ -13,11 +14,12 @@ import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
 import { v } from 'convex/values';
 import { computeStepLevel } from '../shared/selection-index/compute.ts';
+import { symbolToStep } from '../shared/symbol-layout.ts';
 import { getLayoutData } from './layoutData';
 import { drillIndex } from './drillIndex';
 
 /**
- * Контентный радар: распределение корпуса по ступеням KeyLadder для раскладки.
+ * Контентный радар: распределение корпуса по ступеням лестницы для раскладки.
  * На каждый шаг — сколько drill'ов открывается именно на нём (`count`) и сколько
  * доступно всего к этому шагу (`available` = накопительно, drill'ы со
  * `stepLevel ≤ step`). Показывает дыры: где для шага мало упражнений.
@@ -101,13 +103,7 @@ export const rebuild = internalAction({
   handler: async (ctx, args): Promise<{ cleared: number; inserted: number }> => {
     const layoutData = getLayoutData(args.symbolLayoutId);
     if (!layoutData) throw new Error(`нет данных раскладки: ${args.symbolLayoutId}`);
-    const { symbolLayout, keyLadder } = layoutData;
-    const symbolToKeyCaps = new Map<string, string[]>(
-      symbolLayout.map((entry) => [entry.symbol, entry.keyCaps])
-    );
-    const keyToStep = new Map<string, number>(
-      keyLadder.keys.map((entry) => [entry.keyCapId, entry.step])
-    );
+    const stepBySymbol = symbolToStep(layoutData.symbolLayout);
 
     let cleared = 0;
     for (;;) {
@@ -135,7 +131,7 @@ export const rebuild = internalAction({
       const rows = result.page.map((drill) => ({
         drillId: drill.drillId,
         symbolLayoutId: args.symbolLayoutId,
-        stepLevel: computeStepLevel({ uniqueSymbols: drill.uniqueSymbols, symbolToKeyCaps, keyToStep }),
+        stepLevel: computeStepLevel({ uniqueSymbols: drill.uniqueSymbols, symbolToStep: stepBySymbol }),
       }));
       if (rows.length > 0) await ctx.runMutation(internal.selectionIndex.insertBatch, { rows });
       inserted += rows.length;

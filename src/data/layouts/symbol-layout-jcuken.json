@@ -1,619 +1,97 @@
 [
-  {
-    "symbol": " ",
-    "keyCaps": [
-      "Space"
-    ]
-  },
-  {
-    "symbol": "ё",
-    "keyCaps": [
-      "Backquote"
-    ]
-  },
-  {
-    "symbol": "1",
-    "keyCaps": [
-      "Digit1"
-    ]
-  },
-  {
-    "symbol": "2",
-    "keyCaps": [
-      "Digit2"
-    ]
-  },
-  {
-    "symbol": "3",
-    "keyCaps": [
-      "Digit3"
-    ]
-  },
-  {
-    "symbol": "4",
-    "keyCaps": [
-      "Digit4"
-    ]
-  },
-  {
-    "symbol": "5",
-    "keyCaps": [
-      "Digit5"
-    ]
-  },
-  {
-    "symbol": "6",
-    "keyCaps": [
-      "Digit6"
-    ]
-  },
-  {
-    "symbol": "7",
-    "keyCaps": [
-      "Digit7"
-    ]
-  },
-  {
-    "symbol": "8",
-    "keyCaps": [
-      "Digit8"
-    ]
-  },
-  {
-    "symbol": "9",
-    "keyCaps": [
-      "Digit9"
-    ]
-  },
-  {
-    "symbol": "0",
-    "keyCaps": [
-      "Digit0"
-    ]
-  },
-  {
-    "symbol": "-",
-    "keyCaps": [
-      "Minus"
-    ]
-  },
-  {
-    "symbol": "=",
-    "keyCaps": [
-      "Equal"
-    ]
-  },
-  {
-    "symbol": "й",
-    "keyCaps": [
-      "KeyQ"
-    ]
-  },
-  {
-    "symbol": "ц",
-    "keyCaps": [
-      "KeyW"
-    ]
-  },
-  {
-    "symbol": "у",
-    "keyCaps": [
-      "KeyE"
-    ]
-  },
-  {
-    "symbol": "к",
-    "keyCaps": [
-      "KeyR"
-    ]
-  },
-  {
-    "symbol": "е",
-    "keyCaps": [
-      "KeyT"
-    ]
-  },
-  {
-    "symbol": "н",
-    "keyCaps": [
-      "KeyY"
-    ]
-  },
-  {
-    "symbol": "г",
-    "keyCaps": [
-      "KeyU"
-    ]
-  },
-  {
-    "symbol": "ш",
-    "keyCaps": [
-      "KeyI"
-    ]
-  },
-  {
-    "symbol": "щ",
-    "keyCaps": [
-      "KeyO"
-    ]
-  },
-  {
-    "symbol": "з",
-    "keyCaps": [
-      "KeyP"
-    ]
-  },
-  {
-    "symbol": "х",
-    "keyCaps": [
-      "BracketLeft"
-    ]
-  },
-  {
-    "symbol": "ъ",
-    "keyCaps": [
-      "BracketRight"
-    ]
-  },
-  {
-    "symbol": "\\",
-    "keyCaps": [
-      "Backslash"
-    ]
-  },
-  {
-    "symbol": "ф",
-    "keyCaps": [
-      "KeyA"
-    ]
-  },
-  {
-    "symbol": "ы",
-    "keyCaps": [
-      "KeyS"
-    ]
-  },
-  {
-    "symbol": "в",
-    "keyCaps": [
-      "KeyD"
-    ]
-  },
-  {
-    "symbol": "а",
-    "keyCaps": [
-      "KeyF"
-    ]
-  },
-  {
-    "symbol": "п",
-    "keyCaps": [
-      "KeyG"
-    ]
-  },
-  {
-    "symbol": "р",
-    "keyCaps": [
-      "KeyH"
-    ]
-  },
-  {
-    "symbol": "о",
-    "keyCaps": [
-      "KeyJ"
-    ]
-  },
-  {
-    "symbol": "л",
-    "keyCaps": [
-      "KeyK"
-    ]
-  },
-  {
-    "symbol": "д",
-    "keyCaps": [
-      "KeyL"
-    ]
-  },
-  {
-    "symbol": "ж",
-    "keyCaps": [
-      "Semicolon"
-    ]
-  },
-  {
-    "symbol": "э",
-    "keyCaps": [
-      "Quote"
-    ]
-  },
-  {
-    "symbol": "я",
-    "keyCaps": [
-      "KeyZ"
-    ]
-  },
-  {
-    "symbol": "ч",
-    "keyCaps": [
-      "KeyX"
-    ]
-  },
-  {
-    "symbol": "с",
-    "keyCaps": [
-      "KeyC"
-    ]
-  },
-  {
-    "symbol": "м",
-    "keyCaps": [
-      "KeyV"
-    ]
-  },
-  {
-    "symbol": "и",
-    "keyCaps": [
-      "KeyB"
-    ]
-  },
-  {
-    "symbol": "т",
-    "keyCaps": [
-      "KeyN"
-    ]
-  },
-  {
-    "symbol": "ь",
-    "keyCaps": [
-      "KeyM"
-    ]
-  },
-  {
-    "symbol": "б",
-    "keyCaps": [
-      "Comma"
-    ]
-  },
-  {
-    "symbol": "ю",
-    "keyCaps": [
-      "Period"
-    ]
-  },
-  {
-    "symbol": ".",
-    "keyCaps": [
-      "Slash"
-    ]
-  },
-  {
-    "symbol": "Ё",
-    "keyCaps": [
-      "Backquote",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "!",
-    "keyCaps": [
-      "Digit1",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "\"",
-    "keyCaps": [
-      "Digit2",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "№",
-    "keyCaps": [
-      "Digit3",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": ";",
-    "keyCaps": [
-      "Digit4",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "%",
-    "keyCaps": [
-      "Digit5",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": ":",
-    "keyCaps": [
-      "Digit6",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "?",
-    "keyCaps": [
-      "Digit7",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "*",
-    "keyCaps": [
-      "Digit8",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "(",
-    "keyCaps": [
-      "Digit9",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": ")",
-    "keyCaps": [
-      "Digit0",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "_",
-    "keyCaps": [
-      "Minus",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "+",
-    "keyCaps": [
-      "Equal",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Й",
-    "keyCaps": [
-      "KeyQ",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Ц",
-    "keyCaps": [
-      "KeyW",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "У",
-    "keyCaps": [
-      "KeyE",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "К",
-    "keyCaps": [
-      "KeyR",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Е",
-    "keyCaps": [
-      "KeyT",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Н",
-    "keyCaps": [
-      "KeyY",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Г",
-    "keyCaps": [
-      "KeyU",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ш",
-    "keyCaps": [
-      "KeyI",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Щ",
-    "keyCaps": [
-      "KeyO",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "З",
-    "keyCaps": [
-      "KeyP",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Х",
-    "keyCaps": [
-      "BracketLeft",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ъ",
-    "keyCaps": [
-      "BracketRight",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "/",
-    "keyCaps": [
-      "Backslash",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ф",
-    "keyCaps": [
-      "KeyA",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Ы",
-    "keyCaps": [
-      "KeyS",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "В",
-    "keyCaps": [
-      "KeyD",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "А",
-    "keyCaps": [
-      "KeyF",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "П",
-    "keyCaps": [
-      "KeyG",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Р",
-    "keyCaps": [
-      "KeyH",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "О",
-    "keyCaps": [
-      "KeyJ",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Л",
-    "keyCaps": [
-      "KeyK",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Д",
-    "keyCaps": [
-      "KeyL",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ж",
-    "keyCaps": [
-      "Semicolon",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Э",
-    "keyCaps": [
-      "Quote",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Я",
-    "keyCaps": [
-      "KeyZ",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Ч",
-    "keyCaps": [
-      "KeyX",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "С",
-    "keyCaps": [
-      "KeyC",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "М",
-    "keyCaps": [
-      "KeyV",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "И",
-    "keyCaps": [
-      "KeyB",
-      "ShiftRight"
-    ]
-  },
-  {
-    "symbol": "Т",
-    "keyCaps": [
-      "KeyN",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ь",
-    "keyCaps": [
-      "KeyM",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Б",
-    "keyCaps": [
-      "Comma",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": "Ю",
-    "keyCaps": [
-      "Period",
-      "ShiftLeft"
-    ]
-  },
-  {
-    "symbol": ",",
-    "keyCaps": [
-      "Slash",
-      "ShiftLeft"
-    ]
-  }
+  { "symbol": " ", "keyCaps": ["Space"], "ladderStep": 0 },
+  { "symbol": "ё", "keyCaps": ["Backquote"], "ladderStep": 9 },
+  { "symbol": "1", "keyCaps": ["Digit1"], "ladderStep": 8 },
+  { "symbol": "2", "keyCaps": ["Digit2"], "ladderStep": 8 },
+  { "symbol": "3", "keyCaps": ["Digit3"], "ladderStep": 8 },
+  { "symbol": "4", "keyCaps": ["Digit4"], "ladderStep": 8 },
+  { "symbol": "5", "keyCaps": ["Digit5"], "ladderStep": 8 },
+  { "symbol": "6", "keyCaps": ["Digit6"], "ladderStep": 8 },
+  { "symbol": "7", "keyCaps": ["Digit7"], "ladderStep": 8 },
+  { "symbol": "8", "keyCaps": ["Digit8"], "ladderStep": 8 },
+  { "symbol": "9", "keyCaps": ["Digit9"], "ladderStep": 8 },
+  { "symbol": "0", "keyCaps": ["Digit0"], "ladderStep": 8 },
+  { "symbol": "-", "keyCaps": ["Minus"], "ladderStep": 8 },
+  { "symbol": "=", "keyCaps": ["Equal"], "ladderStep": 8 },
+  { "symbol": "й", "keyCaps": ["KeyQ"], "ladderStep": 4 },
+  { "symbol": "ц", "keyCaps": ["KeyW"], "ladderStep": 2 },
+  { "symbol": "у", "keyCaps": ["KeyE"], "ladderStep": 1 },
+  { "symbol": "к", "keyCaps": ["KeyR"], "ladderStep": 0 },
+  { "symbol": "е", "keyCaps": ["KeyT"], "ladderStep": 0 },
+  { "symbol": "н", "keyCaps": ["KeyY"], "ladderStep": 0 },
+  { "symbol": "г", "keyCaps": ["KeyU"], "ladderStep": 0 },
+  { "symbol": "ш", "keyCaps": ["KeyI"], "ladderStep": 1 },
+  { "symbol": "щ", "keyCaps": ["KeyO"], "ladderStep": 3 },
+  { "symbol": "з", "keyCaps": ["KeyP"], "ladderStep": 5 },
+  { "symbol": "х", "keyCaps": ["BracketLeft"], "ladderStep": 7 },
+  { "symbol": "ъ", "keyCaps": ["BracketRight"], "ladderStep": 7 },
+  { "symbol": "\\", "keyCaps": ["Backslash"], "ladderStep": 7 },
+  { "symbol": "ф", "keyCaps": ["KeyA"], "ladderStep": 4 },
+  { "symbol": "ы", "keyCaps": ["KeyS"], "ladderStep": 2 },
+  { "symbol": "в", "keyCaps": ["KeyD"], "ladderStep": 1 },
+  { "symbol": "а", "keyCaps": ["KeyF"], "ladderStep": 0 },
+  { "symbol": "п", "keyCaps": ["KeyG"], "ladderStep": 0 },
+  { "symbol": "р", "keyCaps": ["KeyH"], "ladderStep": 0 },
+  { "symbol": "о", "keyCaps": ["KeyJ"], "ladderStep": 0 },
+  { "symbol": "л", "keyCaps": ["KeyK"], "ladderStep": 1 },
+  { "symbol": "д", "keyCaps": ["KeyL"], "ladderStep": 3 },
+  { "symbol": "ж", "keyCaps": ["Semicolon"], "ladderStep": 5 },
+  { "symbol": "э", "keyCaps": ["Quote"], "ladderStep": 7 },
+  { "symbol": "я", "keyCaps": ["KeyZ"], "ladderStep": 4 },
+  { "symbol": "ч", "keyCaps": ["KeyX"], "ladderStep": 2 },
+  { "symbol": "с", "keyCaps": ["KeyC"], "ladderStep": 1 },
+  { "symbol": "м", "keyCaps": ["KeyV"], "ladderStep": 0 },
+  { "symbol": "и", "keyCaps": ["KeyB"], "ladderStep": 0 },
+  { "symbol": "т", "keyCaps": ["KeyN"], "ladderStep": 0 },
+  { "symbol": "ь", "keyCaps": ["KeyM"], "ladderStep": 0 },
+  { "symbol": "б", "keyCaps": ["Comma"], "ladderStep": 1 },
+  { "symbol": "ю", "keyCaps": ["Period"], "ladderStep": 3 },
+  { "symbol": ".", "keyCaps": ["Slash"], "ladderStep": 5 },
+  { "symbol": "Ё", "keyCaps": ["Backquote", "ShiftRight"], "ladderStep": 9 },
+  { "symbol": "!", "keyCaps": ["Digit1", "ShiftRight"], "ladderStep": 8 },
+  { "symbol": "\"", "keyCaps": ["Digit2", "ShiftRight"], "ladderStep": 8 },
+  { "symbol": "№", "keyCaps": ["Digit3", "ShiftRight"], "ladderStep": 8 },
+  { "symbol": ";", "keyCaps": ["Digit4", "ShiftRight"], "ladderStep": 8 },
+  { "symbol": "%", "keyCaps": ["Digit5", "ShiftRight"], "ladderStep": 8 },
+  { "symbol": ":", "keyCaps": ["Digit6", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "?", "keyCaps": ["Digit7", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "*", "keyCaps": ["Digit8", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "(", "keyCaps": ["Digit9", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": ")", "keyCaps": ["Digit0", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "_", "keyCaps": ["Minus", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "+", "keyCaps": ["Equal", "ShiftLeft"], "ladderStep": 8 },
+  { "symbol": "Й", "keyCaps": ["KeyQ", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Ц", "keyCaps": ["KeyW", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "У", "keyCaps": ["KeyE", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "К", "keyCaps": ["KeyR", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Е", "keyCaps": ["KeyT", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Н", "keyCaps": ["KeyY", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Г", "keyCaps": ["KeyU", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Ш", "keyCaps": ["KeyI", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Щ", "keyCaps": ["KeyO", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "З", "keyCaps": ["KeyP", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Х", "keyCaps": ["BracketLeft", "ShiftLeft"], "ladderStep": 7 },
+  { "symbol": "Ъ", "keyCaps": ["BracketRight", "ShiftLeft"], "ladderStep": 7 },
+  { "symbol": "/", "keyCaps": ["Backslash", "ShiftLeft"], "ladderStep": 7 },
+  { "symbol": "Ф", "keyCaps": ["KeyA", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Ы", "keyCaps": ["KeyS", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "В", "keyCaps": ["KeyD", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "А", "keyCaps": ["KeyF", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "П", "keyCaps": ["KeyG", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Р", "keyCaps": ["KeyH", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "О", "keyCaps": ["KeyJ", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Л", "keyCaps": ["KeyK", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Д", "keyCaps": ["KeyL", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Ж", "keyCaps": ["Semicolon", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Э", "keyCaps": ["Quote", "ShiftLeft"], "ladderStep": 7 },
+  { "symbol": "Я", "keyCaps": ["KeyZ", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Ч", "keyCaps": ["KeyX", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "С", "keyCaps": ["KeyC", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "М", "keyCaps": ["KeyV", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "И", "keyCaps": ["KeyB", "ShiftRight"], "ladderStep": 6 },
+  { "symbol": "Т", "keyCaps": ["KeyN", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Ь", "keyCaps": ["KeyM", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Б", "keyCaps": ["Comma", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": "Ю", "keyCaps": ["Period", "ShiftLeft"], "ladderStep": 6 },
+  { "symbol": ",", "keyCaps": ["Slash", "ShiftLeft"], "ladderStep": 6 }
 ]

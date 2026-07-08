@@ -36,8 +36,7 @@ import type { Id } from './_generated/dataModel';
 import { drillIndex } from './drillIndex';
 import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/random-pick.ts';
 import { getLayoutData, type LayoutData } from './layoutData';
-import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
-import { maxLadderStep } from '../shared/key-ladder/key-step-map.ts';
+import { symbolsAtStep, maxLadderStep } from '../shared/symbol-layout.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
 import {
@@ -47,7 +46,7 @@ import {
   type ProgressionDetail,
 } from '../shared/repertoire/progress.ts';
 
-// Cold start: новый профиль = стартовый шаг KeyLadder (открыт только шаг 0 →
+// Cold start: новый профиль = стартовый шаг лестницы (открыт только шаг 0 →
 // openedSteps = 1). Рост шагами — этап «Рост набора букв» (Readiness).
 const DEFAULT_OPENED_STEPS = 1;
 
@@ -115,7 +114,7 @@ export function buildDefaultDrills({
 }): { text: string }[] {
   const symbols = new Set<string>();
   for (let step = 0; step < openedSteps; step++) {
-    for (const symbol of symbolsAtStep({ step, symbolLayout: layoutData.symbolLayout, ladder: layoutData.keyLadder })) {
+    for (const symbol of symbolsAtStep({ step, symbolLayout: layoutData.symbolLayout })) {
       symbols.add(symbol);
     }
   }
@@ -259,11 +258,11 @@ function grownOpenedSteps({
     console.warn(`grownOpenedSteps: нет данных раскладки ${symbolLayoutId} — рост пропущен`);
     return openedSteps;
   }
-  const { symbolLayout, keyLadder } = layoutData;
+  const { symbolLayout } = layoutData;
   return decideOpenedSteps({
     openedSteps,
-    maxStep: maxLadderStep(keyLadder),
-    currentStepSymbols: symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder }),
+    maxStep: maxLadderStep(symbolLayout),
+    currentStepSymbols: symbolsAtStep({ step: openedSteps - 1, symbolLayout }),
     cells,
     params: READINESS_PARAMS,
     debtLimit: REPERTOIRE_DEBT_LIMIT,
@@ -418,7 +417,6 @@ export async function repertoireSnapshotHandler({
     openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
     symbolCells: profile?.symbolCells ?? [],
     symbolLayout: layoutData.symbolLayout,
-    keyLadder: layoutData.keyLadder,
   });
 }
 
@@ -456,7 +454,6 @@ export async function progressionDetailHandler({
     openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
     symbolCells: profile?.symbolCells ?? [],
     symbolLayout: layoutData.symbolLayout,
-    keyLadder: layoutData.keyLadder,
   });
 }
 
@@ -507,10 +504,10 @@ export const resetMyProfile = mutation({
 });
 
 // ────────────────────────────────────────────────────────────────────────────
-// setMyLadderStep — DEV/TEST утилита: установить ступень KeyLadder текущего
+// setMyLadderStep — DEV/TEST утилита: установить ступень лестницы текущего
 // юзера для указанной раскладки. Сбрасывает symbolCells, чтобы новая ступень
 // стартовала с чистой статистикой. Запрошенная ступень clamp'ится к диапазону
-// [1, maxStep + 1], где maxStep — последний шаг KeyLadder раскладки.
+// [1, maxStep + 1], где maxStep — последний шаг лестницы раскладки.
 // ────────────────────────────────────────────────────────────────────────────
 
 /** Устанавливает openedSteps для профиля юзера (создаёт/обновляет) и сбрасывает ячейки. */
@@ -536,7 +533,7 @@ export async function setMyLadderStepHandler({
     throw new Error(`Invalid targetStep: ${targetStep}. Must be a finite integer.`);
   }
 
-  const maxStep = maxLadderStep(layoutData.keyLadder);
+  const maxStep = maxLadderStep(layoutData.symbolLayout);
   const maxOpenedSteps = maxStep + 1;
   const clampedStep = Math.max(1, Math.min(targetStep, maxOpenedSteps));
 

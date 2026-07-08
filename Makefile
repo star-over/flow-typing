@@ -51,8 +51,8 @@ help:
 	@echo "  make corpus-process   - Auto-Flow: весь цикл — сборка + заливка + пересчёт таблицы отбора"
 	@echo "  make build-corpus     - Auto-Flow: собрать drills.jsonl из корпуса (LAYOUT/INPUT/OUTPUT)"
 	@echo "  make import-corpus    - Auto-Flow: залить drills.jsonl (replace) + пересчёт таблицы отбора"
-	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (для правки KeyLadder)"
-	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням KeyLadder"
+	@echo "  make rebuild-selection-index - Auto-Flow: пересобрать drillSelectionIndex (после правки нарезки ladderStep)"
+	@echo "  make ladder-report    - Auto-Flow: распределение корпуса по ступеням лестницы"
 	@echo "  make next-batch       - Auto-Flow: дымовой вызов выдачи порции (LAYOUT/BUDGET_CHARS/SEED)"
 	@echo "------------------------------------------------------------------"
 
@@ -191,13 +191,13 @@ import-corpus:
 	@$(MAKE) rebuild-selection-index LAYOUT=$(LAYOUT)
 
 # Auto-Flow: таблица отбора считается на сервере (drills не уезжают из Convex).
-# Серверный rebuild берёт раскладку (src/data/layouts/*.json) + KeyLadder
+# Серверный rebuild берёт раскладку с шагами (src/data/layouts/*.json, ladderStep)
 # напрямую, листает drills постранично и пишет drillSelectionIndex.
 rebuild-selection-index:
 	@echo "☁️  Пересборка drillSelectionIndex на сервере ($(LAYOUT))..."
 	npx convex run selectionIndex:rebuild '{"symbolLayoutId":"$(LAYOUT)"}'
 
-# Контентный радар: распределение корпуса по ступеням KeyLadder.
+# Контентный радар: распределение корпуса по ступеням лестницы.
 ladder-report:
 	@npx convex run selectionIndex:ladderReport '{"symbolLayoutId":"$(LAYOUT)"}'
 

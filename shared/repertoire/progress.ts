@@ -3,10 +3,7 @@
  * готовность символов текущего шага + что тормозит. Переиспользует Readiness
  * этапа репертуара (ADR 0008). Витринная производная — в подборе не участвует.
  */
-import type { KeyLadder } from '../key-ladder/types.ts';
-import { maxLadderStep } from '../key-ladder/key-step-map.ts';
-import { symbolsAtStep } from '../key-ladder/step-symbols.ts';
-import type { SymbolEntry } from '../symbol-layout.ts';
+import { maxLadderStep, symbolsAtStep, type SymbolEntry } from '../symbol-layout.ts';
 import { readinessGaps, repertoireMedianLatency, type ProfileCell, type ReadinessGaps } from './readiness.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from './config.ts';
 
@@ -23,14 +20,12 @@ export function computeRepertoireProgress({
   openedSteps,
   symbolCells,
   symbolLayout,
-  keyLadder,
 }: {
   openedSteps: number;
   symbolCells: readonly ProfileCell[];
   symbolLayout: SymbolEntry[];
-  keyLadder: KeyLadder;
 }): RepertoireProgress {
-  const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder });
+  const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout });
   const median = repertoireMedianLatency(symbolCells);
   const bySymbol = new Map(symbolCells.map((c) => [c.symbol, c]));
   const blockers = { exposure: 0, accuracy: 0, latency: 0 };
@@ -48,7 +43,7 @@ export function computeRepertoireProgress({
   const notReady = currentStepSymbols.length - readyCount;
   return {
     openedSteps,
-    totalSteps: maxLadderStep(keyLadder) + 1, // индекс макс. шага → количество ступеней
+    totalSteps: maxLadderStep(symbolLayout) + 1, // индекс макс. шага → количество ступеней
     totalOnStep: currentStepSymbols.length,
     readyCount,
     maturingNeeded: Math.max(0, notReady - REPERTOIRE_DEBT_LIMIT),
@@ -98,14 +93,12 @@ export function computeProgressionDetail({
   openedSteps,
   symbolCells,
   symbolLayout,
-  keyLadder,
 }: {
   openedSteps: number;
   symbolCells: readonly ProfileCell[];
   symbolLayout: SymbolEntry[];
-  keyLadder: KeyLadder;
 }): ProgressionDetail {
-  const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout, ladder: keyLadder });
+  const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout });
   const median = repertoireMedianLatency(symbolCells);
   const bySymbol = new Map(symbolCells.map((c) => [c.symbol, c]));
   let readyCount = 0;
@@ -129,7 +122,7 @@ export function computeProgressionDetail({
   const notReady = currentStepSymbols.length - readyCount;
   return {
     openedSteps,
-    totalSteps: maxLadderStep(keyLadder) + 1,
+    totalSteps: maxLadderStep(symbolLayout) + 1,
     totalOnStep: currentStepSymbols.length,
     readyCount,
     maturingNeeded: Math.max(0, notReady - REPERTOIRE_DEBT_LIMIT),

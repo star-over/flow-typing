@@ -13,14 +13,14 @@ import {
 } from './drill';
 import { makeConvexTest, asUser, seedUser, seedDrill, seedProfile } from './test.helpers';
 import { getLayoutData } from './layoutData';
-import { symbolsAtStep } from '../shared/key-ladder/step-symbols.ts';
+import { symbolsAtStep } from '../shared/symbol-layout.ts';
 
 // Дефолт строится только для раскладок с серверными данными (getLayoutData).
 // На сервере это сейчас йцукен — на нём и проверяем контентный сбой.
 function jcukenStep0Allowed(): Set<string> {
   const layoutData = getLayoutData('йцукен')!;
   return new Set([
-    ...symbolsAtStep({ step: 0, symbolLayout: layoutData.symbolLayout, ladder: layoutData.keyLadder }),
+    ...symbolsAtStep({ step: 0, symbolLayout: layoutData.symbolLayout }),
     ' ',
   ]);
 }

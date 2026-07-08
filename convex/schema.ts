@@ -41,9 +41,9 @@ export default defineSchema({
     symbolFrequency: v.array(v.object({ symbol: v.string(), count: v.number() })),
   }),
   // Таблица отбора (производная, per Layout Context): на каждый (drill × раскладка)
-  // — stepLevel = макс. шаг KeyLadder среди клавиш drill'а. drill доступен ⟺
-  // stepLevel < openedSteps (ADR 0001). Пересчитывается при смене KeyLadder;
-  // заполняется офлайн-скриптом из auto-flow.
+  // — stepLevel = макс. ladderStep среди символов drill'а (шаг живёт на символе,
+  // ADR 0020). drill доступен ⟺ stepLevel < openedSteps (ADR 0001). Пересчитывается
+  // при правке нарезки (ladderStep); заполняется серверным selectionIndex:rebuild.
   drillSelectionIndex: defineTable({
     drillId: v.id('drills'),
     symbolLayoutId: v.string(),
@@ -52,7 +52,7 @@ export default defineSchema({
   // Skill Profile: всё знание системы о пользователе в одном Layout Context
   // (пара user × раскладка). Server-authoritative (ADR 0005). Наполняется
   // drillRecord (apply сводки с затуханием); на этапе 1 ещё ничего не выбирает.
-  // openedSteps — Repertoire (число открытых шагов KeyLadder, ADR 0001).
+  // openedSteps — Repertoire (число открытых шагов лестницы, ADR 0001).
   // symbolCells — ячейки per-символ массивом: ключи-символы не-ASCII, Convex
   // запрещает их в именах полей (как symbolFrequency в drills). per-биграмма —
   // на этапе «Фокус». updatedAt ставит сервер.

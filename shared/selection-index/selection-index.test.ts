@@ -1,41 +1,31 @@
 import { describe, it, expect } from 'vitest';
 import { computeStepLevel } from './compute.ts';
-import { keyStepMap } from '../key-ladder/key-step-map.ts';
-import { jcukenKeyLadder } from '../key-ladder/jcuken.ts';
-import { symbolToKeyCaps } from '../symbol-layout.ts';
+import { symbolToStep } from '../symbol-layout.ts';
 import jcukenLayout from '../../src/data/layouts/symbol-layout-jcuken.json';
 
-describe('computeStepLevel (синтетические карты)', () => {
-  const symKeys = new Map([
-    [' ', ['Space']],
-    ['а', ['KeyF']],
-    ['А', ['KeyF', 'ShiftRight']],
-  ]);
-  const keySteps = new Map([
-    ['Space', 0],
-    ['KeyF', 0],
-    ['ShiftRight', 6],
+describe('computeStepLevel (синтетическая карта символ→шаг)', () => {
+  // Шаг живёт на символе (ADR 0020): заглавная несёт свой шаг напрямую (аккорд
+  // Shift уже учтён при 1:1-переносе), отдельной карты клавиш нет.
+  const symbolToStepMap = new Map([
+    [' ', 0],
+    ['а', 0],
+    ['А', 6], // заглавная: max(шаг буквы, шаг Shift) = 6, зашито в ladderStep
   ]);
 
-  it('макс. шаг среди клавиш символов', () => {
-    expect(computeStepLevel({ uniqueSymbols: [' ', 'а'], symbolToKeyCaps: symKeys, keyToStep: keySteps })).toBe(0);
+  it('макс. шаг среди символов drill\'а', () => {
+    expect(computeStepLevel({ uniqueSymbols: [' ', 'а'], symbolToStep: symbolToStepMap })).toBe(0);
   });
-  it('заглавная тянет шаг Shift через аккорд', () => {
-    expect(computeStepLevel({ uniqueSymbols: ['А', 'а'], symbolToKeyCaps: symKeys, keyToStep: keySteps })).toBe(6);
+  it('заглавная тянет шаг вверх', () => {
+    expect(computeStepLevel({ uniqueSymbols: ['А', 'а'], symbolToStep: symbolToStepMap })).toBe(6);
   });
-  it('символ вне раскладки — ошибка', () => {
-    expect(() => computeStepLevel({ uniqueSymbols: ['z'], symbolToKeyCaps: symKeys, keyToStep: keySteps })).toThrow();
-  });
-  it('клавиша вне KeyLadder — ошибка', () => {
-    const partial = new Map([['щ', ['KeyO']]]);
-    expect(() => computeStepLevel({ uniqueSymbols: ['щ'], symbolToKeyCaps: partial, keyToStep: keySteps })).toThrow();
+  it('символ вне раскладки / без шага — ошибка', () => {
+    expect(() => computeStepLevel({ uniqueSymbols: ['z'], symbolToStep: symbolToStepMap })).toThrow();
   });
 });
 
-describe('computeStepLevel (реальные йцукен + KeyLadder)', () => {
-  const s2k = symbolToKeyCaps(jcukenLayout);
-  const k2s = keyStepMap(jcukenKeyLadder);
-  const at = (symbols: string[]) => computeStepLevel({ uniqueSymbols: symbols, symbolToKeyCaps: s2k, keyToStep: k2s });
+describe('computeStepLevel (реальные шаги йцукен из раскладки)', () => {
+  const s2s = symbolToStep(jcukenLayout);
+  const at = (symbols: string[]) => computeStepLevel({ uniqueSymbols: symbols, symbolToStep: s2s });
 
   it('слово только из указательных → шаг 0', () => {
     // т(KeyN) о(KeyJ) р(KeyH) — все указательные
