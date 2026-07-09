@@ -1,7 +1,6 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
   import Select from './Select.svelte';
-  import type { UserSettings } from '@/interfaces/user-settings';
   import type { Dictionary } from '@/interfaces/types';
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
 
@@ -16,11 +15,6 @@
   }
 
   const { onBack, dictionary, accountName = null }: Props = $props();
-
-  const interfaceLanguages = $derived([
-    { value: 'en' as const, label: dictionary.options.interfaceLanguages.en },
-    { value: 'ru' as const, label: dictionary.options.interfaceLanguages.ru },
-  ]);
 
   const themeOptions = $derived.by(() => {
     const lightThemes = THEMES
@@ -54,15 +48,6 @@
       <span class="hint">{dictionary.settings.display_name_description}</span>
     </label>
   {/if}
-
-  <label class="field">
-    <span class="label-text">{dictionary.settings.interface_language_label}</span>
-    <Select
-      value={$settings.interfaceLanguage}
-      options={interfaceLanguages}
-      onChange={(v) => updateSettings({ interfaceLanguage: v as UserSettings['interfaceLanguage'] })}
-    />
-  </label>
 
   <label class="field">
     <span class="label-text">{dictionary.settings.theme_label}</span>
