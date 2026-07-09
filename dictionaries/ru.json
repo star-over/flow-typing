@@ -144,6 +144,21 @@
     "guest": "Для тренировки нужен вход — профиль и прогресс живут на сервере.",
     "sign_in": "Войти"
   },
+  "sign_in": {
+    "title": "Войти в FlowTyping",
+    "github": "Войти через GitHub",
+    "google": "Войти через Google",
+    "yandex": "Войти через Yandex",
+    "redirecting": "Перенаправление…",
+    "disclaimer": "Используй тот же способ входа, что и раньше — твой прогресс привязан к нему.",
+    "dev_login": "Dev-вход (агент / E2E)",
+    "dev_login_pending": "Входим…"
+  },
+  "user_menu": {
+    "loading": "Загрузка…",
+    "sign_in": "Войти",
+    "sign_out": "Выйти"
+  },
   "debug": {
     "state_title": "Состояние"
   },

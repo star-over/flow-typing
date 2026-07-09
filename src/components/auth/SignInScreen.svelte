@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import { env } from '$env/dynamic/public';
+  import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import type { OAuthProviderId } from '@/lib/auth/auth.types';
 
@@ -59,7 +60,7 @@
 </script>
 
 <section class="sign-in-screen">
-  <h1 class="sign-in-screen__title">Войти в FlowTyping</h1>
+  <h1 class="sign-in-screen__title">{$dictionary.sign_in.title}</h1>
 
   <button
     type="button"
@@ -67,7 +68,7 @@
     disabled={signingIn}
     onclick={() => handleSignIn('github')}
   >
-    {signingIn ? 'Перенаправление…' : 'Войти через GitHub'}
+    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.github}
   </button>
 
   <button
@@ -76,7 +77,7 @@
     disabled={signingIn}
     onclick={() => handleSignIn('google')}
   >
-    {signingIn ? 'Перенаправление…' : 'Войти через Google'}
+    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.google}
   </button>
 
   <button
@@ -85,11 +86,11 @@
     disabled={signingIn}
     onclick={() => handleSignIn('yandex')}
   >
-    {signingIn ? 'Перенаправление…' : 'Войти через Yandex'}
+    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.yandex}
   </button>
 
   <p class="sign-in-screen__disclaimer">
-    Используй тот же способ входа, что и раньше — твой прогресс привязан к нему.
+    {$dictionary.sign_in.disclaimer}
   </p>
 
   {#if devLoginAvailable}
@@ -99,7 +100,7 @@
       disabled={signingIn}
       onclick={handleDevSignIn}
     >
-      {signingIn ? 'Входим…' : 'Dev-вход (агент / E2E)'}
+      {signingIn ? $dictionary.sign_in.dev_login_pending : $dictionary.sign_in.dev_login}
     </button>
   {/if}
 

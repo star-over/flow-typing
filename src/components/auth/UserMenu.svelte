@@ -47,10 +47,10 @@
   <span class="user-menu user-menu--loading" aria-busy="true">
     <span class="user-menu__skeleton user-menu__skeleton-avatar"></span>
     <span class="user-menu__skeleton user-menu__skeleton-name"></span>
-    <span class="sr-only">Загрузка…</span>
+    <span class="sr-only">{$dictionary.user_menu.loading}</span>
   </span>
 {:else if auth.state.status === 'guest'}
-  <a class="user-menu user-menu--guest-link" href={resolve('/signin')}>Войти</a>
+  <a class="user-menu user-menu--guest-link" href={resolve('/signin')}>{$dictionary.user_menu.sign_in}</a>
 {:else}
   <details class="user-menu user-menu--authenticated" bind:this={menuEl} bind:open>
     <summary class="user-menu__summary">
@@ -71,7 +71,7 @@
       </a>
       <hr class="user-menu__divider" />
       <button type="button" class="user-menu__item" onclick={handleSignOut}>
-        Выйти
+        {$dictionary.user_menu.sign_out}
       </button>
     </div>
   </details>
