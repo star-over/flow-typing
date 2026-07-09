@@ -5,6 +5,7 @@ import { Password } from '@convex-dev/auth/providers/Password';
 import { convexAuth } from '@convex-dev/auth/server';
 import type { Id } from './_generated/dataModel';
 import type { MutationCtx } from './_generated/server';
+import { isProduction } from './lib/env';
 
 // Узкий, тестируемый helper. Получает только то, что нам реально нужно
 // из callback'а Convex Auth. Lib-обёртка (ниже, в convexAuth(...)) передаёт
@@ -34,16 +35,27 @@ export async function createOrUpdateUserHandler({
 
 /**
  * Список auth-провайдеров. Password — инструментальный dev-вход для ИИ-агентов
- * и E2E (ADR 0012): регистрируется ТОЛЬКО при env-флаге на dev-deployment; на
- * production флага нет — провайдера физически не существует. Не продуктовый режим.
+ * и E2E (ADR 0012): регистрируется ТОЛЬКО при env-флаге И на не-production деплое.
+ * Двойной предохранитель (P0-3, ADR 0023): даже ошибочно выставленный на prod
+ * `AUTH_DEV_LOGIN_ENABLED` провайдер не поднимет — `isProduction()` (fail-closed)
+ * его гасит. Не продуктовый режим.
  */
-export function buildProviders(devLoginEnabled: boolean) {
+export function buildProviders({
+  devLoginEnabled,
+  production,
+}: {
+  devLoginEnabled: boolean;
+  production: boolean;
+}) {
   const oauth = [GitHub, Google, Yandex];
-  return devLoginEnabled ? [...oauth, Password] : oauth;
+  return devLoginEnabled && !production ? [...oauth, Password] : oauth;
 }
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: buildProviders(process.env.AUTH_DEV_LOGIN_ENABLED === 'true'),
+  providers: buildProviders({
+    devLoginEnabled: process.env.AUTH_DEV_LOGIN_ENABLED === 'true',
+    production: isProduction(),
+  }),
   callbacks: {
     // Передаём в helper только нужные поля, чтобы изолировать тесты от
     // полного callback args shape (`type`, `provider`, `shouldLink` и т.д. — не используем).

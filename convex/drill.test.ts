@@ -628,6 +628,31 @@ describe('resetMyProfile mutation — auth', () => {
     const t = makeConvexTest();
     expect(await t.mutation(api.drill.resetMyProfile, {})).toBe(0);
   });
+
+  test('на production → throw, профиль не тронут (dev-гейт P0-3)', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => {
+      const uid = await seedUser({ ctx });
+      await seedProfile({ ctx, userId: uid, symbolLayoutId: 'йцукен', openedSteps: 5 });
+      return uid;
+    });
+    vi.stubEnv('DEPLOY_ENV', 'production');
+    try {
+      await expect(
+        asUser({ t, userId }).mutation(api.drill.resetMyProfile, {})
+      ).rejects.toThrow(/production/i);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+    // профиль на месте — гейт сработал до удаления
+    await t.run(async (ctx) => {
+      const left = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', userId))
+        .collect();
+      expect(left).toHaveLength(1);
+    });
+  });
 });
 
 
@@ -768,5 +793,30 @@ describe('setMyLadderStep mutation — auth', () => {
     await expect(
       t.mutation(api.drill.setMyLadderStep, { symbolLayoutId: 'йцукен', targetStep: 2 })
     ).rejects.toThrow(/not authenticated/i);
+  });
+
+  test('на production → throw, ступень не установлена (dev-гейт P0-3)', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => seedUser({ ctx }));
+    vi.stubEnv('DEPLOY_ENV', 'production');
+    try {
+      await expect(
+        asUser({ t, userId }).mutation(api.drill.setMyLadderStep, {
+          symbolLayoutId: 'йцукен',
+          targetStep: 3,
+        })
+      ).rejects.toThrow(/production/i);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+    // профиль не создан — гейт сработал до записи
+    await t.run(async (ctx) => {
+      const profile = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) =>
+          q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .unique();
+      expect(profile).toBeNull();
+    });
   });
 });

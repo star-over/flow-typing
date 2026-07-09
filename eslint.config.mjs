@@ -39,6 +39,7 @@ export default [
             '.storybook/*.ts',
             'scripts/*.ts',
             'convex/*.test.ts',
+            'convex/lib/*.test.ts',
           ],
           // Кап default-project у typescript-eslint по умолчанию 8, а под
           // allowDefaultProject подпадает 11 файлов (configs + .storybook +
@@ -203,6 +204,7 @@ export default [
             '.storybook/*.ts',
             'scripts/*.ts',
             'convex/*.test.ts',
+            'convex/lib/*.test.ts',
           ],
           // Кап default-project у typescript-eslint по умолчанию 8, а под
           // allowDefaultProject подпадает 11 файлов (configs + .storybook +

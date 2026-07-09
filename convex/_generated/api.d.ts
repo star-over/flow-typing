@@ -13,6 +13,7 @@ import type * as drill from "../drill.js";
 import type * as drillIndex from "../drillIndex.js";
 import type * as http from "../http.js";
 import type * as layoutData from "../layoutData.js";
+import type * as lib_env from "../lib/env.js";
 import type * as selectionIndex from "../selectionIndex.js";
 import type * as sessions from "../sessions.js";
 import type * as userSettings from "../userSettings.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   drillIndex: typeof drillIndex;
   http: typeof http;
   layoutData: typeof layoutData;
+  "lib/env": typeof lib_env;
   selectionIndex: typeof selectionIndex;
   sessions: typeof sessions;
   userSettings: typeof userSettings;

@@ -33,7 +33,7 @@
 | **Обучающее ядро** | 🟢 достаточно для MVP | Этапы 1–2 (рабочая петля + рост репертуара) дают реальную ценность на йцукен. Этапы 3–4 (фокус, термостат) отложены **by design**. |
 | **Контент** | 🟡 йцукен ок · en-трек построен, курирование | ~496 ru-drill'ов, шаги KeyLadder 0–9 покрыты. **EN qwerty-трек построен** (лестница через `ladderStep`, ADR 0020; qwerty зарегистрирована; корпус ~13.8k залит на dev; билингва в общей таблице `drills` работает). Остаётся **курирование** (тонкий шаг 0 у qwerty; полировка ru-текстов). |
 | **Инфраструктура / развёртывание** | 🔴 нет | Ноль артефактов деплоя (нет CI, netlify/vercel/wrangler/Dockerfile). Живёт на cloud **dev**-deployment. |
-| **Безопасность** | 🔴 дыры | Dev-барьер только на env-дисциплине (без code-guard); dev-мутации в public API; нет rate limiting; нет валидации диапазонов входных чисел. |
+| **Безопасность** | 🟡 dev-двери закрыты | ~~Dev-барьер только на env-дисциплине; dev-мутации в public API~~ — ✅ code-guard `assertNonProd()` + fail-closed `DEPLOY_ENV` (P0-3, ADR 0023). Открыто: нет rate limiting; нет валидации диапазонов входных чисел (P0-10). |
 | **Приватность / юр.** | 🔴 нет | EU-deployment (GDPR), но нет удаления/экспорта аккаунта, политики приватности, согласия. Google Fonts утекают IP. |
 | **Наблюдаемость** | 🔴 нет | Ноль product-аналитики, error-tracking, каналов обратной связи. При этом `sessionSummaries` в Convex — готовый пост-аутентификационный event-log. |
 | **SEO / маркетинг-готовность** | 🔴 нет | Нет `<title>`, meta description, OG/Twitter-тегов, robots.txt, sitemap, web manifest. |
@@ -66,13 +66,23 @@
 Полный физический путь до боевого запуска (детали и env-матрица — §4):
 1. Создать **production** Convex deployment (отдельный от `dev:wandering-ocelot-9`).
 2. Сгенерировать **свежие** `JWT_PRIVATE_KEY` + `JWKS` на prod (`npx @convex-dev/auth`; из dev переносить нельзя).
-3. Прописать в prod-env OAuth-ключи доступа заново; выставить `SITE_URL` = боевой домен фронта; **не ставить** `AUTH_DEV_LOGIN_ENABLED`.
+3. Прописать в prod-env OAuth-ключи доступа заново; выставить `SITE_URL` = боевой домен фронта; **не ставить** `AUTH_DEV_LOGIN_ENABLED`; **не ставить** `DEPLOY_ENV=development` (fail-closed: без него deployment уже трактуется как prod — ADR 0023; можно явно `DEPLOY_ENV=production` для читаемости).
 4. Залить контент в prod: `make import-corpus` + `make rebuild-selection-index`.
 5. Зарегистрировать prod callback URL `https://<prod>.convex.site/api/auth/callback/{github,google,yandex}` в консолях провайдеров.
 6. Собрать статику с prod-`.env.local` (`PUBLIC_CONVEX_URL`/`PUBLIC_CONVEX_SITE_URL` → prod, без `PUBLIC_DEV_LOGIN*`), разместить `build/` с SPA-fallback на `index.html`.
 7. CI (GitHub Actions): `npx convex deploy --cmd "make build"` с `CONVEX_DEPLOY_KEY`.
 
 ### P0-3 · Убрать dev-двери из prod · **M**
+> ✅ **СДЕЛАНО (2026-07-09).** Гейт — **внутри handler'а через `throw`** (`assertNonProd()`),
+> тип функции остаётся `mutation`. Исходный план «→ `internalMutation`» оказался неверен: эти
+> мутации зовёт клиент через `window.__*` (dev-инструментарий ADR 0012) → `internalMutation` их ломает,
+> а выбирать тип функции по env Convex запрещает. Признак окружения — явная **`DEPLOY_ENV`**,
+> **fail-closed** (`convex/lib/env.ts` → `isProduction()`/`assertNonProd()`; **ADR 0023**):
+> отсутствие/забытое значение = prod (закрыто). Обе dev-мутации зовут `assertNonProd()` в обёртке
+> (чистые handler'ы нетронуты); Password — за двумя предохранителями `AUTH_DEV_LOGIN_ENABLED && !isProduction()`.
+> Клиентские `PUBLIC_DEV_LOGIN*` / `window.__*` уже за `import.meta.env.DEV` — в prod-сборку не
+> входят (верифицировано). NB: на dev-deployment задан `DEPLOY_ENV=development`; env-матрица §4 дополнена.
+
 - `resetMyProfile` (`convex/drill.ts:501`) и `setMyLadderStep` (`convex/drill.ts:570`) — **public** мутации, существуют на prod независимо от dev-флага. `setMyLadderStep` = дыра целостности (любой авторизованный юзер прыгает на произвольную ступень). → перевести в `internalMutation`.
 - Password-провайдер включается одной переменной `AUTH_DEV_LOGIN_ENABLED` на любом deployment (`convex/auth.ts:40-46`), без проверки «это dev». → добавить code-guard (например, требовать признак не-prod), не полагаться только на дисциплину env.
 - Убедиться, что `PUBLIC_DEV_LOGIN*` не запечены в prod-build (`SignInScreen.svelte:34-58`).
@@ -171,6 +181,7 @@ CONVEX_DEPLOY_KEY=<prod key>  npx convex deploy --cmd "make build"
 | `JWT_PRIVATE_KEY` + `JWKS` (Convex env) | dev-ключи | **свежие** prod-ключи |
 | `AUTH_{GITHUB,GOOGLE,YANDEX}_ID/SECRET` (Convex env) | dev OAuth-app | prod OAuth-app (или добавить prod redirect) |
 | `AUTH_DEV_LOGIN_ENABLED` (Convex env) | `true` | **не ставить** |
+| `DEPLOY_ENV` (Convex env) | `development` | **не ставить** (fail-closed → prod; ADR 0023) |
 | `PUBLIC_DEV_LOGIN*` (`.env.local`) | опц. | **отсутствуют** |
 | OAuth callback | `...wandering-ocelot-9...convex.site/...` | `https://<prod>.convex.site/api/auth/callback/<provider>` |
 

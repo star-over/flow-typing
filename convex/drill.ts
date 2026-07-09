@@ -36,6 +36,7 @@ import type { Id } from './_generated/dataModel';
 import { drillIndex } from './drillIndex';
 import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/random-pick.ts';
 import { getLayoutData, type LayoutData } from './layoutData';
+import { assertNonProd } from './lib/env';
 import { symbolsAtStep, maxLadderStep } from '../shared/symbol-layout.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
@@ -498,6 +499,7 @@ export async function resetMyProfileHandler({
 export const resetMyProfile = mutation({
   args: {},
   handler: async (ctx) => {
+    assertNonProd(); // dev-инструмент (ADR 0012): недоступен на production (P0-3).
     const userId = await getAuthUserId(ctx);
     return await resetMyProfileHandler({ ctx, userId });
   },
@@ -574,6 +576,7 @@ export const setMyLadderStep = mutation({
     clamped: v.boolean(),
   }),
   handler: async (ctx, args) => {
+    assertNonProd(); // dev-инструмент (ADR 0012): недоступен на production (P0-3).
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
       throw new Error('Not authenticated');

@@ -57,12 +57,29 @@ describe('createOrUpdateUserHandler — provider = account', () => {
   });
 });
 
-describe('buildProviders — dev-вход за флагом (ADR 0012)', () => {
+describe('buildProviders — dev-вход за флагом (ADR 0012) + prod-гард (P0-3)', () => {
   test('флаг выключен → только три OAuth-провайдера, Password отсутствует', () => {
-    expect(buildProviders(false)).toEqual([GitHub, Google, Yandex]);
+    expect(buildProviders({ devLoginEnabled: false, production: false })).toEqual([
+      GitHub,
+      Google,
+      Yandex,
+    ]);
   });
 
-  test('флаг включён → Password добавлен (dev-deployment)', () => {
-    expect(buildProviders(true)).toEqual([GitHub, Google, Yandex, Password]);
+  test('флаг включён на dev → Password добавлен', () => {
+    expect(buildProviders({ devLoginEnabled: true, production: false })).toEqual([
+      GitHub,
+      Google,
+      Yandex,
+      Password,
+    ]);
+  });
+
+  test('на production Password отсутствует даже при включённом флаге (defense-in-depth)', () => {
+    expect(buildProviders({ devLoginEnabled: true, production: true })).toEqual([
+      GitHub,
+      Google,
+      Yandex,
+    ]);
   });
 });

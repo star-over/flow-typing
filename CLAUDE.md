@@ -97,7 +97,7 @@ Backend для синхронизированных данных (auth с Phase 
 - Issuer whitelist: `convex/auth.config.ts`.
 - HTTP routes: `convex/http.ts` (`auth.addHttpRoutes(http)`).
 - Текущие провайдеры: GitHub, Google, Yandex. Apple/SberID — Roadmap V2.
-- **Dev-вход (ADR 0012):** стоковый Password-провайдер за env-флагом `AUTH_DEV_LOGIN_ENABLED` (env Convex, только dev-deployment; на production флага нет — провайдера физически нет; собирается в `convex/auth.ts:buildProviders`). Кнопка на `/signin` — за клиентскими флагами `PUBLIC_DEV_LOGIN*` из `.env.local` (см. `.env.example`). Пара к нему — `resetMyProfile` («чистый лист» прогонов). Инструмент для ИИ-агентов/E2E (тренировка требует входа — `/train` и `drill*` auth-required), не продуктовый режим.
+- **Dev-вход (ADR 0012):** стоковый Password-провайдер за env-флагом `AUTH_DEV_LOGIN_ENABLED` **и** признаком не-prod (`convex/auth.ts:buildProviders` требует `devLoginEnabled && !isProduction()`; ADR 0023). На production провайдера нет: флаг там не ставится, а даже ошибочно выставленный гасится fail-closed `isProduction()`. Кнопка на `/signin` — за клиентскими флагами `PUBLIC_DEV_LOGIN*` из `.env.local` (см. `.env.example`). Пара к нему — `resetMyProfile` («чистый лист» прогонов). Инструмент для ИИ-агентов/E2E (тренировка требует входа — `/train` и `drill*` auth-required), не продуктовый режим.
 
 **Add new OAuth provider:**
 1. Import из `@auth/core/providers/<name>` в `convex/auth.ts`.
@@ -111,6 +111,7 @@ Backend для синхронизированных данных (auth с Phase 
 - `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерируются `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_YANDEX_ID`, `AUTH_YANDEX_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
+- `DEPLOY_ENV` — признак окружения деплоя для gating dev-инструментов (ADR 0023). **fail-closed**: `development` на dev-deployment снимает prod-предохранители; не задан (или `production`) на боевом = закрыто. Читается чистым helper'ом `convex/lib/env.ts` (`isProduction()`/`assertNonProd()`) — гейт `resetMyProfile`/`setMyLadderStep` и второй предохранитель Password. **На dev-deployment обязателен** (`npx convex env set DEPLOY_ENV development`), иначе dev-двери на нём выключены.
 
 **Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.
 

@@ -20,6 +20,9 @@ export default defineConfig({
           include: ['convex/**/*.test.ts'],
           environment: 'edge-runtime',
           server: { deps: { inline: ['convex-test'] } },
+          // Тесты эмулируют dev-деплой: fail-closed prod-гейт (convex/lib/env.ts)
+          // без этого счёл бы окружение production и заблокировал dev-мутации.
+          env: { DEPLOY_ENV: 'development' },
         },
       },
       {
