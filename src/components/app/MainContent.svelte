@@ -51,6 +51,7 @@
     cursorType={$settings.cursorType}
     rhythmChannelEnabled={$settings.rhythmChannelEnabled}
     rhythmAriaLabel={dictionary.app.rhythm_channel_aria}
+    loadingLabel={dictionary.app.loading}
   />
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
@@ -61,6 +62,22 @@
     isGuest={auth.state.status === 'guest'}
     {dictionary}
   />
+
+{:else if inState({ snapshot: state, value: 'sessionComplete' })}
+  <!-- Вырожденное завершение: сессия окончилась без единого предъявления
+       (lessonStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
+       а не оставляем белое поле. Кнопки («В меню» / «Начать заново») — в FooterActions. -->
+  <p class="screen-note">{dictionary.app.session_empty}</p>
+
+{:else if inState({ snapshot: state, value: 'sessionError' })}
+  <!-- Сетевой сбой старта сессии (sessionMachine.error → SESSION.ERROR): видимая
+       деградация вместо тихого пустого завершения. Кнопки «Повторить» / «В меню» —
+       в FooterActions. -->
+  <div class="session-error">
+    <h2 class="screen-title">{dictionary.app.error_title}</h2>
+    <p class="screen-note">{dictionary.app.error_network}</p>
+  </div>
+
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
 {:else if inState({ snapshot: state, value: 'menu' })}
@@ -78,5 +95,18 @@
 
   .pause {
     color: var(--main-content-pause-color);
+  }
+
+  .session-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
+    max-width: 28rem;
+    text-align: center;
+  }
+
+  .screen-note {
+    color: var(--color-text-secondary);
   }
 </style>

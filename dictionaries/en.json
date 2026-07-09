@@ -40,7 +40,12 @@
     "start_again": "Start Again",
     "pause": "Pause",
     "resume": "Resume",
-    "rhythm_channel_aria": "Typing rhythm indicator"
+    "rhythm_channel_aria": "Typing rhythm indicator",
+    "error_body": "Something went wrong. Try reloading the page.",
+    "error_network": "Couldn't reach the server. Check your connection and try again.",
+    "reload": "Reload",
+    "retry": "Retry",
+    "session_empty": "No characters were typed this session."
   },
   "settings": {
     "title": "User Preferences",

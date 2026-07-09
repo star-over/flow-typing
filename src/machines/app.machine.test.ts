@@ -229,6 +229,58 @@ describe('appMachine', () => {
     });
   });
 
+  // Сетевой сбой старта сессии всплывает отдельным экраном sessionError (не тихим
+  // пустым sessionComplete): sessionMachine шлёт SESSION.ERROR, родитель даёт
+  // повтор/меню. Переходы повторяют sessionComplete (retry вместо «начать заново»).
+  describe('SESSION.ERROR (network failure surfaced as a first-class screen)', () => {
+    function arriveInSessionError(layout: 'qwerty' | 'йцукен' = 'йцукен') {
+      const actor = createActor(appMachineForTest);
+      actor.start();
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: layout, durationSeconds: 300 });
+      actor.send({ type: 'SESSION.ERROR' });
+      return actor;
+    }
+
+    it('moves from training to sessionError, not a silent empty complete', () => {
+      const actor = arriveInSessionError();
+      expect(actor.getSnapshot().value).toBe('sessionError');
+    });
+
+    it('START_TRAINING retries with the chosen layout', () => {
+      const actor = arriveInSessionError('qwerty');
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty', durationSeconds: 300 });
+      const snap = actor.getSnapshot();
+      expect(snap.value).toEqual({ training: 'running' });
+      expect(snap.context.currentSymbolLayoutId).toBe('qwerty');
+    });
+
+    it('Enter NAVIGATION_KEY retries and preserves currentSymbolLayoutId', () => {
+      const actor = arriveInSessionError('йцукен');
+      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
+      const snap = actor.getSnapshot();
+      expect(snap.value).toEqual({ training: 'running' });
+      expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
+    });
+
+    it('Escape NAVIGATION_KEY returns to menu', () => {
+      const actor = arriveInSessionError();
+      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('TO_MENU returns to menu', () => {
+      const actor = arriveInSessionError();
+      actor.send({ type: 'TO_MENU' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+
+    it('TRAINER_OPENED resets to menu (return to /train never resurrects the error)', () => {
+      const actor = arriveInSessionError();
+      actor.send({ type: 'TRAINER_OPENED' });
+      expect(actor.getSnapshot().value).toBe('menu');
+    });
+  });
+
   // Вход на /train (App.svelte mount) нормализует тренажёр в чистое меню из
   // ЛЮБОГО состояния: экран не переживает навигацию между страницами, «Начать
   // тренировку» начинает заново, а не воскрешает прошлый экран/сессию (ADR 0010).

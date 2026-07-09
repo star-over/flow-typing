@@ -16,8 +16,13 @@
 
   const isVisible = $derived(
     inState({ snapshot: state, value: 'training' }) ||
-    inState({ snapshot: state, value: 'sessionComplete' })
+    inState({ snapshot: state, value: 'sessionComplete' }) ||
+    inState({ snapshot: state, value: 'sessionError' })
   );
+
+  // На экране сетевой ошибки та же кнопка START_TRAINING значит «Повторить», а не
+  // «Начать заново»: действие одно (перезапуск сессии), подпись честнее к контексту.
+  const isSessionError = $derived(inState({ snapshot: state, value: 'sessionError' }));
 
   // Пауза переехала в шапку (рядом с таймером): во время набора низ принадлежит
   // рукам, без панели управления. Поэтому футер рисуем только когда есть что
@@ -34,7 +39,7 @@
     <div class="actions">
       {#if state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
         <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}>
-          {dictionary.app.start_again}
+          {isSessionError ? dictionary.app.retry : dictionary.app.start_again}
         </button>
       {/if}
       {#if state.can({ type: 'RESUME' })}

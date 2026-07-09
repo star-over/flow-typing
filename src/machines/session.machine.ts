@@ -163,6 +163,15 @@ export const sessionMachine = setup({
       }
       enqueue.sendTo(context.parentActor, { type: 'SESSION.COMPLETE', stream: context.completed, summary });
     }),
+    // Первый fetchDrills упал (сеть недоступна) → уведомить родителя ЯВНЫМ
+    // SESSION.ERROR. Раньше onError вёл в done → finalizeAndNotify сводил пустой
+    // completed[] в SESSION.COMPLETE (exposures===0) → тихий пустой экран
+    // завершения. Сбой происходит в loading, ДО active: таймер не стартовал,
+    // сводки нет — сводить нечего, наверх идёт только сигнал ошибки.
+    notifyError: sendTo(
+      ({ context }) => context.parentActor,
+      { type: 'SESSION.ERROR' },
+    ),
     forwardKeyPress: sendTo('training', ({ event }) => ({
       type: 'KEY_PRESS',
       keys: (event as { keys: KeyCapId[] }).keys,
@@ -230,7 +239,7 @@ export const sessionMachine = setup({
             totalAppended: event.output.length,
           })),
         },
-        onError: { target: 'done' }, // пустой fetch → нечего печатать, в конец
+        onError: { target: 'error' }, // сеть недоступна → первоклассный экран ошибки, не тихий done
       },
     },
 
@@ -342,6 +351,17 @@ export const sessionMachine = setup({
       // родитель выражен структурой finalizeAndNotify (локаль summary + порядок
       // enqueue), а не порядком этого массива. Инварианты (a)/(b) — у действия.
       entry: 'finalizeAndNotify',
+      type: 'final',
+    },
+
+    // Первый fetch упал (сеть недоступна) — печатать нечего. НЕ тихий done со
+    // сводкой пустого потока (давал пустой экран завершения): первоклассная
+    // ошибка с явным SESSION.ERROR наверх, UI даёт «Повторить»/«В меню». Сбой в
+    // loading, до active → таймер/сводка не задействованы (инварианты ADR 0007
+    // нетронуты). Симметрия с done: тоже final, родитель уходит из training по
+    // событию, а не по onDone.
+    error: {
+      entry: 'notifyError',
       type: 'final',
     },
   },

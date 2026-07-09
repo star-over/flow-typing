@@ -42,6 +42,23 @@ describe('sessionMachine', () => {
     expect(actor.getSnapshot().matches({ active: 'timing' })).toBe(true);
   });
 
+  it('первый fetchDrills падает (сеть недоступна) → error + SESSION.ERROR родителю, НЕ тихий done', async () => {
+    // Сток-родитель ловит и SESSION.COMPLETE, и SESSION.ERROR. Раньше onError вёл в
+    // done → пустой SESSION.COMPLETE (exposures===0) → тихий пустой экран. Теперь
+    // сбой первого fetch — первоклассное состояние error с явным SESSION.ERROR.
+    const sink = makeCompletionSink();
+    const actor = createActor(
+      provideSession({ fetchSequence: [], fetchRejects: true }),
+      { input: { ...INPUT, parentActor: sink } },
+    );
+    actor.start();
+
+    await vi.waitFor(() => expect(actor.getSnapshot().matches('error')).toBe(true));
+    expect(actor.getSnapshot().matches('done')).toBe(false); // не тихое завершение
+    expect(sink.getSnapshot().context.errors).toBe(1); // родитель получил явный сигнал
+    expect(sink.getSnapshot().context.completions).toHaveLength(0); // без ложного SESSION.COMPLETE
+  });
+
   it('накапливает completed[] из TYPING.ADVANCED по мере печати', async () => {
     const actor = createActor(provideSession({ fetchSequence: [TWO] }), { input: INPUT });
     actor.start();

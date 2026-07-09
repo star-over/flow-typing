@@ -30,6 +30,7 @@ export type AppEvent =
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
   | { type: 'SESSION.COMPLETE'; stream: TypingStream; summary: SessionSummaryPayload | null }
+  | { type: 'SESSION.ERROR' }
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
   | { type: 'RESET_KEYBOARD' }
@@ -179,6 +180,10 @@ export const appMachine = setup({
             params: ({ event }) => ({ stream: event.stream, summary: event.summary }),
           },
         },
+        // Сетевой сбой старта сессии (sessionMachine.error) → отдельный экран
+        // ошибки, не тихий пустой sessionComplete. Сводки нет (сбой до active) —
+        // ничего не сохраняем, лишь показываем «Повторить»/«В меню».
+        'SESSION.ERROR': { target: 'sessionError' },
       },
       states: {
         running: {
@@ -233,6 +238,41 @@ export const appMachine = setup({
             },
           },
           // Esc дублирует кнопку «В меню» (TO_MENU): та же навигация с клавиатуры.
+          { guard: 'isEscape', target: 'menu', reenter: true },
+        ],
+      },
+    },
+
+    // Сетевой сбой старта сессии. Повторяет переходы sessionComplete: START_TRAINING
+    // (кнопка «Повторить») / Enter — новая попытка с сохранённой раскладкой;
+    // TO_MENU / Escape — в меню. Отличие от sessionComplete лишь в UI-подписи
+    // (retry вместо «начать заново») и отсутствии сводки — навигация та же.
+    sessionError: {
+      on: {
+        TO_MENU: { target: 'menu', reenter: true },
+        START_TRAINING: {
+          target: 'trainingStart',
+          reenter: true,
+          actions: {
+            type: 'setTrainingParams',
+            params: ({ event }) => ({
+              symbolLayoutId: event.symbolLayoutId,
+              durationSeconds: event.durationSeconds,
+            }),
+          },
+        },
+        'KEYBOARD.NAVIGATION_KEY': [
+          {
+            guard: 'isEnter',
+            target: 'trainingStart',
+            actions: {
+              type: 'setTrainingParams',
+              params: ({ context }) => ({
+                symbolLayoutId: context.currentSymbolLayoutId,
+                durationSeconds: context.sessionDurationSeconds,
+              }),
+            },
+          },
           { guard: 'isEscape', target: 'menu', reenter: true },
         ],
       },

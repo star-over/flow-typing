@@ -47,6 +47,7 @@ export function trainingSnapshotOf(
  */
 export function provideSession({
   fetchSequence,
+  fetchRejects = false,
   onCheckpoint = () => {
     /* по умолчанию не наблюдаем */
   },
@@ -55,6 +56,8 @@ export function provideSession({
   },
 }: {
   fetchSequence: TypingStream[];
+  /** Сеть недоступна: КАЖДЫЙ fetchDrills бросает (первый сбой → session.error). */
+  fetchRejects?: boolean;
   onCheckpoint?: (summary: DrillSummary) => void;
   onSession?: (payload: SessionSummaryPayload) => void;
 }) {
@@ -62,6 +65,7 @@ export function provideSession({
   return sessionMachine.provide({
     actors: {
       fetchDrills: fromPromise(async () => {
+        if (fetchRejects) throw new Error('fetch rejected (offline fixture)');
         const batch = fetchSequence[call] ?? [];
         call += 1;
         return batch;
@@ -83,10 +87,10 @@ export interface SessionCompletion {
 }
 
 /**
- * Сток-родитель, копящий события `SESSION.COMPLETE`. Без реального родителя
- * `sendComplete` уходит в self (запасной вариант XState при отсутствии
- * `parentActor`) и родителю не проверяется. Сводит два ad-hoc сток-родителя:
- * тесты читают `sink.getSnapshot().context.completions`.
+ * Сток-родитель, копящий события `SESSION.COMPLETE` и `SESSION.ERROR`. Без
+ * реального родителя эти события уходят в self (запасной вариант XState при
+ * отсутствии `parentActor`) и не проверяются. Сводит два ad-hoc сток-родителя:
+ * тесты читают `sink.getSnapshot().context.completions` / `.errors`.
  */
 export function makeCompletionSink(): Actor<ReturnType<typeof buildCompletionSinkMachine>> {
   return createActor(buildCompletionSinkMachine()).start();
@@ -95,8 +99,8 @@ export function makeCompletionSink(): Actor<ReturnType<typeof buildCompletionSin
 function buildCompletionSinkMachine() {
   return createMachine({
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- идиома XState v5: `types: {} as …` задаёт тип контекста
-    types: {} as { context: { completions: SessionCompletion[] } },
-    context: { completions: [] },
+    types: {} as { context: { completions: SessionCompletion[]; errors: number } },
+    context: { completions: [], errors: 0 },
     on: {
       'SESSION.COMPLETE': {
         actions: assign({
@@ -108,6 +112,9 @@ function buildCompletionSinkMachine() {
             return [...context.completions, { stream: done.stream, summary: done.summary }];
           },
         }),
+      },
+      'SESSION.ERROR': {
+        actions: assign({ errors: ({ context }) => context.errors + 1 }),
       },
     },
   });

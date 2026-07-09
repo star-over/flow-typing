@@ -140,6 +140,17 @@
     appActor.send({ type: 'PAUSE' });
   }
 
+  // Рантайм-краш в отрисовке/эффекте страницы (напр. $derived-конвейер ViewModel
+  // тренажёра) ловит <svelte:boundary> ниже — вместо белого экрана всего
+  // приложения. dev-лог = тот же Sentry-шов, что и hooks.client.handleError (P0-7).
+  // Header — ВНЕ границы, навигация переживает краш; восстановление — перезагрузка
+  // (singleton appActor мог повредиться, reset() перерисовал бы то же битое состояние).
+  function handleBoundaryError(error: unknown) {
+    if (import.meta.env.DEV) {
+      console.error('[boundary]', error);
+    }
+  }
+
   $effect(() => {
     const lang = $settings.interfaceLanguage;
     if (typeof document !== 'undefined') {
@@ -181,7 +192,23 @@
   />
 
   <main class="main">
-    {@render children()}
+    <svelte:boundary onerror={handleBoundaryError}>
+      {@render children()}
+
+      {#snippet failed()}
+        <div class="app-error">
+          <h1 class="app-error__title">{$dictionary.app.error_title}</h1>
+          <p class="app-error__body">{$dictionary.app.error_body}</p>
+          <button
+            type="button"
+            class="app-error__action"
+            onclick={() => location.reload()}
+          >
+            {$dictionary.app.reload}
+          </button>
+        </div>
+      {/snippet}
+    </svelte:boundary>
   </main>
 </div>
 
@@ -191,6 +218,43 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+  }
+
+  /* Fallback error-boundary: центрированная колонка внутри .main (Header уцелел). */
+  .app-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-3);
+    max-width: 28rem;
+    margin: auto;
+    text-align: center;
+  }
+
+  .app-error__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .app-error__body {
+    color: var(--color-text-secondary);
+  }
+
+  .app-error__action {
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-3);
+    border: 1px solid var(--color-text-secondary);
+    background: transparent;
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .app-error__action:hover {
+    border-color: var(--color-text-primary);
   }
 
   /* Header — slim top bar (sibling, не внутри центрирующего padding'а контента). */
