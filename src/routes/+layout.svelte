@@ -15,6 +15,7 @@
   import { inState } from '@/lib/state-utils';
   import { resolveTheme } from '@/themes/registry';
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
   import { on } from 'svelte/events';
   import { onDestroy, setContext } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
@@ -176,7 +177,7 @@
     {canPause}
     pauseLabel={$dictionary.app.pause}
     onPause={() => appActor.send({ type: 'PAUSE' })}
-    showLanguageSwitcher={!canPause}
+    showLanguageSwitcher={!page.url.pathname.startsWith('/train')}
   />
 
   <main class="main">

@@ -4,7 +4,7 @@
 
 **Goal:** Вынести переключатель языка интерфейса в шапку — компактный нативный `<select>` (глобус + код `EN`/`RU`), доступный с первого экрана всем; убрать поле языка из `/settings`.
 
-**Architecture:** Новый «глупый» компонент `LanguageSwitcher.svelte` в шапке читает сторы `settings`/`i18n` напрямую (как `UserMenu`/`SettingsPage`) и пишет через `updateSettings`. `Header` условно рендерит его по пропу `showLanguageSwitcher`, layout передаёт `!canPause` (скрыт в активном наборе). Стиль — ghost-хром без новых токенов темы. Полная рамка решения — спека `docs/superpowers/specs/2026-07-09-header-language-switcher-design.md`.
+**Architecture:** Новый «глупый» компонент `LanguageSwitcher.svelte` в шапке читает сторы `settings`/`i18n` напрямую (как `UserMenu`/`SettingsPage`) и пишет через `updateSettings`. `Header` условно рендерит его по свойству `showLanguageSwitcher`, layout передаёт `!canPause` (скрыт в активном наборе). Стиль — ghost-хром без новых токенов темы. Полная рамка решения — спецификация `docs/superpowers/specs/2026-07-09-header-language-switcher-design.md`.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5 (runes), TypeScript, Storybook (svelte-csf). Верификация — `make check-dev` (eslint + svelte-check + vitest) + Storybook + живой прогон; DOM-юнит-тестов компонентов в проекте нет (осознанно — см. ниже).
 
@@ -14,10 +14,10 @@
 
 ## Файловая структура
 
-- **Создать** `src/components/header/LanguageSwitcher.svelte` — сам контрол (глобус + нативный select + ghost-стиль).
-- **Создать** `src/components/header/LanguageSwitcher.stories.svelte` — Storybook-демо (конвенция проекта для нового компонента; опционально по спеке).
+- **Создать** `src/components/header/LanguageSwitcher.svelte` — сам компонент (глобус + нативный select + ghost-стиль).
+- **Создать** `src/components/header/LanguageSwitcher.stories.svelte` — Storybook-демо (конвенция проекта для нового компонента; опционально по спецификации).
 - **Изменить** `dictionaries/en.json`, `dictionaries/ru.json` — секция `options.interfaceLanguageCodes`.
-- **Изменить** `src/components/header/Header.svelte` — проп `showLanguageSwitcher` + условный рендер перед `UserMenu`.
+- **Изменить** `src/components/header/Header.svelte` — свойство `showLanguageSwitcher` + условный рендер перед `UserMenu`.
 - **Изменить** `src/routes/+layout.svelte` — передать `showLanguageSwitcher={!canPause}`.
 - **Изменить** `src/components/ui/SettingsPage.svelte` — убрать поле языка + осиротевшие `$derived` и импорт `UserSettings`.
 
@@ -248,7 +248,7 @@ Expected: `0 errors`.
 - [ ] **Step 3: (по желанию) визуально глянуть в Storybook**
 
 Run: `make storybook` → открыть `header/LanguageSwitcher` на http://localhost:6006
-Expected: контрол рендерится, глобус + код виден, select открывается.
+Expected: компонент рендерится, глобус + код виден, select открывается.
 
 - [ ] **Step 4: Commit** (по согласованию с владельцем)
 
@@ -260,6 +260,12 @@ git commit -m "feat(header): Storybook story for LanguageSwitcher"
 ---
 
 ## Task 4: Проводка в `Header` и `+layout`
+
+> **Update 2026-07-09 (после живой проверки).** Правило видимости изменено с `!canPause`
+> (скрыт только в активном наборе) на **маршрутное**: переключатель скрыт на всём
+> `/train`. В `+layout.svelte` добавить `import { page } from '$app/state';` и передать
+> `showLanguageSwitcher={!page.url.pathname.startsWith('/train')}` (вместо `!canPause`
+> в Step 5 ниже). JSDoc свойства в Header — «скрыт на /train». Остальные шаги без изменений.
 
 **Files:**
 - Modify: `src/components/header/Header.svelte`
@@ -282,7 +288,7 @@ git commit -m "feat(header): Storybook story for LanguageSwitcher"
   import LanguageSwitcher from './LanguageSwitcher.svelte';
 ```
 
-- [ ] **Step 2: `Header.svelte` — проп в интерфейсе `Props`**
+- [ ] **Step 2: `Header.svelte` — свойство в интерфейсе `Props`**
 
 Найти:
 
@@ -304,7 +310,7 @@ git commit -m "feat(header): Storybook story for LanguageSwitcher"
   }
 ```
 
-- [ ] **Step 3: `Header.svelte` — дефолт пропа в деструктуризации**
+- [ ] **Step 3: `Header.svelte` — дефолт свойства в разборе по полям**
 
 Найти:
 
@@ -380,12 +386,12 @@ git commit -m "feat(header): Storybook story for LanguageSwitcher"
 Run: `make check`
 Expected: `0 errors`.
 
-- [ ] **Step 7: Живой прогон — контрол в шапке и скрытие в наборе**
+- [ ] **Step 7: Живой прогон — компонент в шапке и скрытие в наборе**
 
 Run: `make dev` → открыть http://localhost:5173
 Expected:
 - на лендинге `/` в шапке справа виден `🌐 EN` слева от меню юзера/«Войти»;
-- на `/train` при **активном наборе** контрол исчезает (в шапке только таймер/пауза), а на **паузе** (Esc) — снова появляется.
+- на `/train` при **активном наборе** компонент исчезает (в шапке только таймер/пауза), а на **паузе** (Esc) — снова появляется.
 
 - [ ] **Step 8: Commit** (по согласованию с владельцем)
 
@@ -480,7 +486,7 @@ Run: `make dev`
 Expected:
 - Гостем на лендинге `/`: сменить `EN → RU` в шапке → тексты лендинга/шапки становятся русскими; `RU → EN` → обратно.
 - Авторизованным: смена языка из шапки сохраняется (перезагрузка страницы держит выбор; у авторизованного уезжает в cloud тем же путём, что раньше из настроек).
-- В тренировке контрол скрыт в наборе, виден на паузе.
+- В тренировке компонент скрыт в наборе, виден на паузе.
 
 - [ ] **Step 3: Орфография перед коммитом**
 
@@ -498,6 +504,6 @@ git commit -m "feat(header): interface language switcher in header"
 
 ## Self-review (выполнено при написании плана)
 
-- **Покрытие спеки:** компонент (T2), триггер глобус+код (T2), ghost-стиль без токенов (T2), место слева от UserMenu (T4), видимость `!canPause` (T4, проверено: `PAUSE` только в `training.running`, app.machine.ts:186), доступность всем (T2 — читает `settings`, auth не требуется), убрать из /settings (T5), i18n-коды + aria-label reuse (T1/T2), Storybook (T3), верификация (T6). Отложенное (вариант A, мёртвый ключ) — вне плана, в бэклоге.
-- **Плейсхолдеров нет:** весь код и команды приведены целиком.
-- **Согласованность имён:** проп `showLanguageSwitcher` одинаков в Header (T4 steps 2/3/4) и layout (T4 step 5); ключ `options.interfaceLanguageCodes` одинаков в T1 и T2; классы `language-switcher*` согласованы внутри T2.
+- **Покрытие спецификации:** компонент (T2), триггер глобус+код (T2), ghost-стиль без токенов (T2), место слева от UserMenu (T4), видимость `!canPause` (T4, проверено: `PAUSE` только в `training.running`, app.machine.ts:186), доступность всем (T2 — читает `settings`, auth не требуется), убрать из /settings (T5), i18n-коды + aria-label reuse (T1/T2), Storybook (T3), верификация (T6). Отложенное (вариант A, мёртвый ключ) — вне плана, в списке отложенных работ.
+- **Заполнителей нет:** весь код и команды приведены целиком.
+- **Согласованность имён:** свойство `showLanguageSwitcher` одинаково в Header (T4 steps 2/3/4) и layout (T4 step 5); ключ `options.interfaceLanguageCodes` одинаков в T1 и T2; классы `language-switcher*` согласованы внутри T2.
