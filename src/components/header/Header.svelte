@@ -2,6 +2,7 @@
   import { resolve } from '$app/paths';
   import UserMenu from '@/components/auth/UserMenu.svelte';
   import Wordmark from '@/components/ui/Wordmark.svelte';
+  import LanguageSwitcher from './LanguageSwitcher.svelte';
 
   interface Props {
     title: string;
@@ -12,9 +13,18 @@
     /** Текст кнопки паузы (локализован). */
     pauseLabel?: string;
     onPause?: () => void;
+    /** Показывать ли переключатель языка (скрыт в активном наборе). */
+    showLanguageSwitcher?: boolean;
   }
 
-  const { title, timerSeconds = null, canPause = false, pauseLabel = '', onPause }: Props = $props();
+  const {
+    title,
+    timerSeconds = null,
+    canPause = false,
+    pauseLabel = '',
+    onPause,
+    showLanguageSwitcher = false,
+  }: Props = $props();
 </script>
 
 <header class="header">
@@ -26,6 +36,9 @@
       {/if}
       {#if canPause}
         <button type="button" class="pause" onclick={onPause}>{pauseLabel}</button>
+      {/if}
+      {#if showLanguageSwitcher}
+        <LanguageSwitcher />
       {/if}
       <UserMenu />
     </div>

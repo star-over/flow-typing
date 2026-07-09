@@ -176,6 +176,7 @@
     {canPause}
     pauseLabel={$dictionary.app.pause}
     onPause={() => appActor.send({ type: 'PAUSE' })}
+    showLanguageSwitcher={!canPause}
   />
 
   <main class="main">
