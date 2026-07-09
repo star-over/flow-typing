@@ -86,8 +86,20 @@ ratatype
 sber
 stardew
 typesy
+typingclub
+typeracer
+typingtest
+typingmaster
+keyblaze
+tipp
+klavaro
+klavogonki
+nitrotype
+flowkeyboard
+fastfingers
+nchsoftware
 
-# --- Имена (исследователи, авторы) ---
+# --- Имена (исследователи, авторы, GitHub-ники) ---
 belan
 csíkszentmihályi
 exandr
@@ -98,11 +110,19 @@ salthouse
 schoonover
 weerdenburg
 zimmermann
+alexjj
+bragefuglseth
+aradzie
 
 # --- Прочие англоязычные термины ---
 asynchrony
 blob
 statista
+semrush
+ahrefs
+stiftung
+warentest
+madgerc
 
 # --- Латиница — без категории ---
 prefs
@@ -396,3 +416,10 @@ ofac
 проксирован
 мемов
 бэкенду
+вовлечённость
+минималистичного
+десятипальцевого
+брендинге
+геймификацией
+псевдослова
+вошкование
