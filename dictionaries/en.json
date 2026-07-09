@@ -167,6 +167,10 @@
       "en": "English",
       "ru": "Русский"
     },
+    "interfaceLanguageCodes": {
+      "en": "EN",
+      "ru": "RU"
+    },
     "textLanguages": {
       "en": "English",
       "ru": "Russian"
