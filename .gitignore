@@ -74,3 +74,6 @@ gha-creds-*.json
 
 # git worktrees
 .worktrees/
+
+# Brainstorming visual companion artifacts
+.superpowers/
