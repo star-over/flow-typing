@@ -98,6 +98,33 @@ nitrotype
 flowkeyboard
 fastfingers
 nchsoftware
+flowtype
+nabiraem
+staminaon
+codewar
+verseq
+rapidtyping
+blindtyping
+klavarog
+allsoft
+qualityhub
+techinfus
+irecommend
+compgramotnost
+expertology
+vyborok
+tovarovreiting
+gonki
+эрго
+donationware
+turbopack
+abnt
+bepo
+ttfb
+hsts
+нейро
+шахиджаняна
+десятипальцевую
 
 # --- Имена (исследователи, авторы, GitHub-ники) ---
 belan
@@ -123,6 +150,10 @@ ahrefs
 stiftung
 warentest
 madgerc
+wayback
+laravel
+fffjjj
+ffjfjf
 
 # --- Латиница — без категории ---
 prefs
