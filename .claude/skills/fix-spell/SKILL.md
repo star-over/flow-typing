@@ -16,9 +16,9 @@ Goal: make `make spell` green by either rewriting words in source (calques/typos
 
 1. Run `make spell` and capture the full output.
 2. If `Issues found: 0` — done. Tell the user, exit.
-3. Otherwise extract the unique unknown words. Bash:
+3. Otherwise extract the unique unknown words. Bash (`LC_ALL=C` is mandatory — default macOS collation makes `sort -u` collapse *distinct* Cyrillic words, silently dropping some from the list handed to the subagent):
    ```bash
-   make spell 2>&1 | grep -oE 'Unknown word \([^)]+\)' | sort -u
+   make spell 2>&1 | grep -oE 'Unknown word \([^)]+\)' | LC_ALL=C sort -u
    ```
 4. Spawn a single `Agent` with `model: 'haiku'` and `subagent_type: 'general-purpose'`. Pass it:
    - The full list of unknown words (one per line).
