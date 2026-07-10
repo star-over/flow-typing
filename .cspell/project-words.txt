@@ -62,6 +62,7 @@ depcruise
 dinamic
 evals
 fouc
+fout
 gorules
 lintstagedrc
 mischeck

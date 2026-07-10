@@ -6,9 +6,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="%sveltekit.assets%/favicon/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/favicon/favicon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" />
+    <!-- Шрифты Geist self-hosted (P0-4, приватность): woff2 в static/fonts/,
+         @font-face в src/app.css. Никаких запросов к Google Fonts. Preload
+         latin-файлов sans+mono — приоритет первому экрану без FOUT. -->
+    <link rel="preload" href="%sveltekit.assets%/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="%sveltekit.assets%/fonts/geist-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       // FOUC-free theme bootstrap. Synchronous, выполняется до того, как
       // SvelteKit инжектит CSS-link в head — атрибут data-theme установлен
