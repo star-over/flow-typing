@@ -1,0 +1,24 @@
+# Cloudflare Pages response headers for FlowTyping — WAVE 1 (deliberately minimal).
+#
+# These are HTTP *response* headers, re-applied by CF at the edge on every
+# response from this file. Change the file, redeploy, and the next response
+# carries the new value — nothing here is durably cached by the browser.
+#
+# Only zero-lock-in, non-breaking headers live here on purpose. The two heavy
+# headers are DEFERRED to a focused security-headers wave — see
+# docs/deploy/security-headers.md (full rationale, ready CSP draft, HSTS ladder):
+#   • Content-Security-Policy — powerful, but the single header most likely to
+#     block legitimate loads (e.g. the Convex WebSocket). Deserves its own pass:
+#     build + verify connect-src on a preview URL, decide kit.csp hash-mode and
+#     self-hosted fonts alongside P0-4.
+#   • Strict-Transport-Security (HSTS) — the ONE genuinely sticky header: the
+#     browser remembers it for max-age (and 'preload' bakes into browser
+#     binaries; both are slow/hard to undo). CF Pages already redirects
+#     HTTP→HTTPS at the edge, so launch loses little without it.
+#
+# Docs: https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

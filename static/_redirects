@@ -1,0 +1,16 @@
+# Cloudflare Pages SPA-fallback for FlowTyping (P0-2).
+#
+# The app is a pure client-rendered SPA built with @sveltejs/adapter-static
+# (svelte.config.js: fallback: 'index.html'). Every path that does NOT match a
+# real static asset (prerendered .html, /_app/*, /favicon/*) must serve the
+# SPA entry point so the client-side router can resolve routes like /train,
+# /settings, /stats, /signin on hard navigation / refresh.
+#
+# CF Pages serves existing files first and only applies this rule on a miss;
+# the 200 status is a rewrite (URL stays as typed), not a redirect.
+# Docs: https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Files in static/ are copied to the build output root by SvelteKit, so this
+# lands at build/_redirects where CF Pages reads it.
+
+/*    /index.html    200

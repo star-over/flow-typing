@@ -456,3 +456,13 @@ ofac
 геймификацией
 псевдослова
 вошкование
+
+# --- HTTP/security domain terms ---
+nosniff
+hstspreload
+googleusercontent
+clickjacking
+
+# --- Русские технические глаголы (пере- префикс) ---
+переразвернуть
+переразвернул
