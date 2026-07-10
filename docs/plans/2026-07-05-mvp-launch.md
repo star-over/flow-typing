@@ -34,7 +34,7 @@
 | **Контент** | 🟡 йцукен ок · en-трек построен, курирование | ~496 ru-drill'ов, шаги KeyLadder 0–9 покрыты. **EN qwerty-трек построен** (лестница через `ladderStep`, ADR 0020; qwerty зарегистрирована; корпус ~13.8k залит на dev; билингва в общей таблице `drills` работает). Остаётся **курирование** (тонкий шаг 0 у qwerty; полировка ru-текстов). |
 | **Инфраструктура / развёртывание** | 🔴 нет | Ноль артефактов развёртывания (нет CI, netlify/vercel/wrangler/Dockerfile). Живёт на cloud **dev**-развёртывании. |
 | **Безопасность** | 🟢 базовое усиление защиты | ~~Dev-барьер только на env-дисциплине; dev-мутации в public API~~ — ✅ code-guard `assertNonProd()` + fail-closed `DEPLOY_ENV` (P0-3, ADR 0023). ~~нет rate limiting; нет проверки диапазонов входных чисел~~ — ✅ проверка диапазонов (`convex/lib/validation.ts`) + per-user rate limiting (`convex/rateLimiter.ts`) на трёх писательских мутациях (**P0-10**). |
-| **Приватность / юр.** | 🔴 нет | EU-deployment (GDPR), но нет удаления/экспорта аккаунта, политики приватности, согласия. Google Fonts утекают IP. |
+| **Приватность / юр.** | 🟡 частично | ✅ удаление аккаунта (P0-4, `cb6fae0`, каскад) + self-host шрифтов (P0-4, `f4ef965` — Google Fonts убраны, нет утечки IP). Остаётся: политика приватности (owner-gated, с P0-2); экспорт + consent на raw-capture — P1. |
 | **Наблюдаемость** | 🔴 нет | Ноль product-аналитики, error-tracking, каналов обратной связи. При этом `sessionSummaries` в Convex — готовый пост-аутентификационный event-log. |
 | **SEO / маркетинг-готовность** | 🔴 нет | Нет `<title>`, meta description, OG/Twitter-тегов, robots.txt, sitemap, web manifest. |
 
@@ -101,6 +101,8 @@
 - Убедиться, что `PUBLIC_DEV_LOGIN*` не запечены в prod-build (`SignInScreen.svelte:34-58`).
 
 ### P0-4 · Приватность-минимум (GDPR) · **M**
+> 🟡 **КОД СДЕЛАН, ПОЛИТИКА — за владельцем** (2026-07-10). ✅ Self-host шрифтов Geist (`f4ef965` — убрана утечка IP в Google Fonts). ✅ Каскадное удаление аккаунта (`cb6fae0` — `convex/account.ts` `deleteMyAccount` стирает users+auth+userSettings+skillProfiles+sessionSummaries атомарно; danger-зона в `/settings` с двухшаговым подтверждением; верифицировано на реальных Google/GitHub-аккаунтах — 0 сирот). Остаётся: **политика приватности** (owner-gated, нужен домен — с P0-2). Отложено в P1 (планом §5): consent на raw-capture (канала нет — ADR 0019) + экспорт данных.
+
 EU-deployment + персональные данные (email, name, image, статистика печати) → нельзя без:
 - **Удаление аккаунта** (право на забвение): мутация, стирающая `users` + `userSettings` + `skillProfiles` + `sessionSummaries` + `rawCaptures` (строка метаданных **и** блоб в File Storage — см. ADR 0019) + auth-строки. Сейчас есть только `signOut` и `resetMyProfile` (чистит лишь `skillProfiles`). + кнопка в `/settings`.
 - **Consent на сбор сырья** (raw-capture, ADR 0019) — **следует за raw-capture в P1** (§5); в MVP серверного сбора нет → consent/удаление `rawCaptures` включаются вместе с каналом. При включении: раскрытие в политике + `opt-out`-тумблер; time-boxed retention сырья.

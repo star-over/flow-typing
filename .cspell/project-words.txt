@@ -100,6 +100,7 @@ flowkeyboard
 fastfingers
 nchsoftware
 flowtype
+flowtyping
 nabiraem
 staminaon
 codewar

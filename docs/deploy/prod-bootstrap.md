@@ -13,7 +13,7 @@ Google, Cloudflare, регистратор домена). Артефакты в 
 
 | Заполнитель | Значение (заполнить) |
 |---|---|
-| `<prod-domain>` | боевой домен фронта, напр. `flow-typing.app` |
+| `<prod-domain>` | боевой домен фронта, напр. `flowtyping.app` (рекомендация сессии; `flowtyping.com` занят) |
 | `<prod-convex>` | имя prod-развёртывания Convex, напр. `bold-otter-42` (host-часть `PUBLIC_CONVEX_URL`) |
 
 ---
