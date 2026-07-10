@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
+  import { env } from '$env/dynamic/public';
   import type { Dictionary } from '@/interfaces/types';
   import LandingHandsDemo from './LandingHandsDemo.svelte';
 
@@ -9,6 +10,10 @@
 
   const { dictionary }: Props = $props();
   const l = $derived(dictionary.landing);
+
+  // Feedback-канал (P0-7): ссылка появляется, только если владелец задал контакт
+  // (PUBLIC_FEEDBACK_URL — Telegram/email). Не задан → футера нет.
+  const feedbackUrl = env.PUBLIC_FEEDBACK_URL;
 
   // Мотивы трёх принципов — крошечные SVG из визуального языка тренажёра
   // (дуга пути · home-засечка · ровный ритм). По индексу принципа.
@@ -74,6 +79,12 @@
     <p class="tagline">{l.closing_text}</p>
     <a class="cta" href={resolve('/train')}>{dictionary.app.start_training}</a>
   </section>
+
+  {#if feedbackUrl}
+    <footer class="site-footer">
+      <a class="feedback-link" href={feedbackUrl}>{l.feedback_label}</a>
+    </footer>
+  {/if}
 </div>
 
 <style>
@@ -342,5 +353,30 @@
   @keyframes settle {
     from { opacity: 0.45; transform: translateY(1rem); }
     to { opacity: 1; transform: none; }
+  }
+
+  /* --- FOOTER: тихая feedback-ссылка (primitives + существующие landing-токены,
+     новой роли темы не нужно). --- */
+  .site-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--spacing-6);
+    border-top: var(--landing-rule);
+  }
+
+  .feedback-link {
+    font-size: var(--font-size-sm);
+    color: var(--landing-muted-color);
+    text-decoration: none;
+  }
+
+  .feedback-link:hover {
+    text-decoration: underline;
+  }
+
+  .feedback-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: var(--radius-2);
   }
 </style>

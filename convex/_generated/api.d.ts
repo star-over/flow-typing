@@ -10,6 +10,7 @@
 
 import type * as account from "../account.js";
 import type * as auth from "../auth.js";
+import type * as clientErrors from "../clientErrors.js";
 import type * as drill from "../drill.js";
 import type * as drillIndex from "../drillIndex.js";
 import type * as http from "../http.js";
@@ -31,6 +32,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   account: typeof account;
   auth: typeof auth;
+  clientErrors: typeof clientErrors;
   drill: typeof drill;
   drillIndex: typeof drillIndex;
   http: typeof http;

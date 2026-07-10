@@ -26,7 +26,8 @@
     "philosophy_new_label": "FlowTyping",
     "philosophy_new_text": "Shows the finger's path. Eyes free, memory in the hands.",
     "closing_title": "Ready to feel the keyboard?",
-    "closing_text": "A few minutes a day. Accuracy before speed."
+    "closing_text": "A few minutes a day. Accuracy before speed.",
+    "feedback_label": "Found a problem? Get in touch"
   },
   "app": {
     "title": "FlowTyping",

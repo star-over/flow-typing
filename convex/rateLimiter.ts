@@ -21,4 +21,9 @@ export const rateLimiter = new RateLimiter(components.rateLimiter, {
   drillRecord: { kind: 'token bucket', rate: 40, period: MINUTE, capacity: 20 },
   // upsertMine — штучные смены настроек + один pull/push на login-синхронизацию.
   settingsUpsert: { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 15 },
+  // clientErrors.report — ПУБЛИЧНЫЙ неаутентифицированный писатель (отчёт об
+  // ошибке, в т.ч. от гостя). Щедро на легитимные краши, но рубит автоматический
+  // флуд storage-abuse. Ключ — userId; гости делят общий 'anonymous' (худший
+  // случай — флудящий гость глушит логи других гостей, но БД защищена).
+  clientErrorReport: { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 20 },
 });

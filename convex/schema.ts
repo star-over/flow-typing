@@ -93,4 +93,18 @@ export default defineSchema({
       v.object({ target: v.string(), pressed: v.string(), count: v.number() }),
     ),
   }).index('by_user_and_layout', ['userId', 'symbolLayoutId']),
+  // Канал наблюдаемости (P0-7): непойманные клиентские ошибки из hooks.client.ts
+  // `handleError`. Замена внешнему error-tracking'у (Sentry недоступен владельцу в
+  // РФ + приватность-бренд) — ошибки лежат там же, где метрики, видны в Convex
+  // dashboard. userId optional: ошибка возможна и у гостя (лендинг, /signin,
+  // train-gate до входа) — тогда его нет. capturedAt штампует сервер. Индекса нет:
+  // читатель на MVP — сам dashboard; query-читателя (панель) заведём с ним (P1).
+  clientErrors: defineTable({
+    message: v.string(),
+    stack: v.optional(v.string()),
+    url: v.optional(v.string()), // pathname, где случилось
+    userAgent: v.optional(v.string()),
+    userId: v.optional(v.id('users')),
+    capturedAt: v.number(), // server-stamped
+  }),
 });
