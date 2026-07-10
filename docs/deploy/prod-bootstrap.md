@@ -5,8 +5,8 @@
 > Выбор запуска: хостинг — **Cloudflare Pages**, OAuth — **GitHub + Google** (2026-07-10).
 
 Это **owner-runbook**: команды выполняет владелец из своих аккаунтов (Convex, GitHub,
-Google, Cloudflare, регистратор домена). Артефакты в репозитории уже готовы:
-`.github/workflows/deploy.yml`, `static/_headers`, `static/_redirects`. Заполнители
+Google, Cloudflare, регистратор домена). **Развёртывание — ручное с ноутбука** (CI отложен,
+см. `docs/backlog.md`). Артефакты в репозитории готовы: `static/_headers`, `static/_redirects`. Заполнители
 (домен, секреты, Convex-хост) подставляются здесь — в коде их нет.
 
 Заполни таблицу подстановок один раз и держи под рукой:
@@ -23,7 +23,7 @@ Google, Cloudflare, регистратор домена). Артефакты в 
 - Аккаунт Convex (тот же, что владеет проектом `wandering-ocelot-9`).
 - Аккаунт Cloudflare (Pages включён; бесплатного тарифа хватает — план §4).
 - Доступ к регистратору домена и к DNS (перенос NS/CNAME на Cloudflare).
-- GitHub-репозиторий `star-over/flow-typing` (Actions включены).
+- CLI на ноутбуке: `npx convex login` (вход в аккаунт Convex) + `npx wrangler login` (вход в Cloudflare).
 
 ---
 
@@ -35,13 +35,13 @@ Google, Cloudflare, регистратор домена). Артефакты в 
 OAuth требуют privacy-policy на том же домене (стык с **P0-4**), бренд/доверие, SEO.
 DNS позже наведём на Cloudflare Pages (шаг 7).
 
-## 2. Prod-развёртывание Convex + ключ развёртывания
+## 2. Prod-развёртывание Convex
 
-1. Создать production-развёртывание (Convex Dashboard → проект → **Production** → Deploy, либо
-   первый `npx convex deploy` из аккаунта владельца создаёт его).
-2. Dashboard → prod-развёртывание → **Settings → Deploy Keys → Generate Production Key**.
-   Формат `prod:<name>-123|eyJ2...`. Это будущий GitHub-секрет `CONVEX_DEPLOY_KEY`
-   (шаг 6). Компоненты Convex (`aggregate`, `rateLimiter`) развернутся автоматически.
+Создать production-развёртывание: `npx convex login` (если ещё не вошёл), затем первый
+`npx convex deploy` из аккаунта владельца создаёт prod (или Dashboard → проект →
+**Production** → Deploy). Ручное развёртывание идёт через активную CLI-сессию — **ключ
+развёртывания не нужен** (он только для CI, отложен в backlog). Компоненты Convex
+(`aggregate`, `rateLimiter`) развернутся автоматически.
 
 ## 3. Свежие JWT-ключи для self-issued auth (из dev НЕ переносить)
 
@@ -107,19 +107,15 @@ npx convex env set --prod JWKS '<из шага 3>'
 Проверить: `npx convex env list --prod --names-only` — убедиться, что нет `DEPLOY_ENV=development`
 и нет `AUTH_DEV_LOGIN_ENABLED`.
 
-## 6. GitHub secrets для CI
+## 6. CI (авто-развёртывание на push) — ОТЛОЖЕН
 
-Repo → Settings → Secrets and variables → **Actions → Secrets**:
-- `CONVEX_DEPLOY_KEY` — prod ключ развёртывания (шаг 2).
-- `CLOUDFLARE_API_TOKEN` — токен со scope **Cloudflare Pages: Edit**
-  (Cloudflare → My Profile → API Tokens).
-- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare → Workers & Pages → Account ID.
-
-Опционально **Variables** → `CF_PAGES_PROJECT`, если имя проекта Pages ≠ `flow-typing`.
+Автоматизация «git push → развёртывание» (GitHub Actions + секреты `CONVEX_DEPLOY_KEY` /
+`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`) отложена — см. `docs/backlog.md`.
+Для MVP развёртывание ручное (шаг 9). Здесь ничего делать не нужно.
 
 ## 7. Проект Cloudflare Pages + домен
 
-1. Создать проект Pages (Direct Upload режим — сборку делает CI, не CF):
+1. Создать проект Pages (Direct Upload — сборку делаешь локально, publish через wrangler):
    ```bash
    npx wrangler pages project create flow-typing --production-branch=master
    ```
@@ -136,13 +132,14 @@ Repo → Settings → Secrets and variables → **Actions → Secrets**:
 меняет CSP). Причина отсрочки: CSP легко ломает загрузку и требует проверки на preview,
 а HSTS с длинным `max-age`/`preload` необратим — вводится лесенкой.
 
-## 9. Первое развёртывание
+## 9. Первое развёртывание (вручную с ноутбука)
 
-Автоматически — push в `master` запустит `.github/workflows/deploy.yml`
-(Convex prod push + сборка + publish на Pages). Либо вручную из аккаунта владельца:
+После `npx convex login` (аккаунт-владелец) и `npx wrangler login`:
 
 ```bash
-CONVEX_DEPLOY_KEY='<prod key>' npx convex deploy --cmd "make build" --cmd-url-env-var-name PUBLIC_CONVEX_URL
+# 1) push функций/схемы в prod + сборка фронта с prod-URL (интерактивная сессия — deploy key НЕ нужен)
+npx convex deploy --cmd "make build" --cmd-url-env-var-name PUBLIC_CONVEX_URL
+# 2) publish собранной статики на Pages
 npx wrangler pages deploy build --project-name=flow-typing --branch=master
 ```
 
@@ -170,8 +167,8 @@ make ladder-report LAYOUT=qwerty
 ```
 
 > ⚠️ `make import-corpus` / `rebuild-selection-index` / `ladder-report` ходят в развёртывание,
-> заданное `CONVEX_DEPLOYMENT`/ключом развёртывания. Убедись, что нацелен на **prod** (экспортируй
-> `CONVEX_DEPLOY_KEY=<prod>` в шелле или добавь `--prod` в соответствующие вызовы Makefile).
+> заданное `CONVEX_DEPLOYMENT`. При ручном развёртывании нацеливай prod флагом `--prod` на
+> `npx convex import`/`run` напрямую (Makefile-цели его не пробрасывают).
 > `import-corpus` — **append**: повторная заливка ТОЙ ЖЕ раскладки дублирует drill'ы.
 
 ---
@@ -185,8 +182,8 @@ make ladder-report LAYOUT=qwerty
 | `JWT_PRIVATE_KEY`+`JWKS` (Convex) | dev-ключи | **свежие** (шаг 3) |
 | `AUTH_{GITHUB,GOOGLE}_ID/SECRET` (Convex) | dev OAuth-app | prod OAuth-app (шаг 4) |
 | `SITE_URL` (Convex) | `http://localhost:5173` | `https://<prod-domain>` |
-| `PUBLIC_CONVEX_URL` (сборка) | из `.env.local` | подставляет `convex deploy --cmd-url-env-var-name` в CI |
-| `PUBLIC_DEV_LOGIN*` (`.env.local`) | опц. | **отсутствуют** (в CI нет `.env.local`) |
+| `PUBLIC_CONVEX_URL` (сборка) | из `.env.local` | подставляет `convex deploy --cmd-url-env-var-name` при ручном развёртывании |
+| `PUBLIC_DEV_LOGIN*` (`.env.local`) | опц. | **отсутствуют** (prod-сборка `.env.local` без dev-флагов) |
 | OAuth callback | `...wandering-ocelot-9.convex.site/...` | `https://<prod-convex>.convex.site/api/auth/callback/<provider>` |
 
 ## Добавить OAuth-провайдера позже (Yandex/Apple/…)
