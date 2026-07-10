@@ -71,7 +71,13 @@
     "theme_group_dark": "Тёмные темы",
     "language_placeholder": "Выберите язык",
     "symbol_layout_placeholder": "Выберите раскладку",
-    "back_button": "Назад"
+    "back_button": "Назад",
+    "delete_account_button": "Удалить аккаунт",
+    "delete_account_warning": "Это навсегда удалит ваш аккаунт и все данные. Отменить нельзя.",
+    "delete_account_confirm": "Удалить навсегда",
+    "delete_account_cancel": "Отмена",
+    "delete_account_pending": "Удаление…",
+    "delete_account_error": "Не удалось удалить аккаунт. Попробуйте ещё раз."
   },
   "stats_card": {
     "title": "Результаты Упражнения",

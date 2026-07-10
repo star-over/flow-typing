@@ -311,6 +311,11 @@
   --settings-page-btn-color           : var(--color-text-primary);
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
+  --settings-page-danger-btn-background      : var(--color-error);
+  --settings-page-danger-btn-color           : var(--color-keycap-error-fg);
+  --settings-page-danger-btn-border          : 1px solid var(--color-error);
+  --settings-page-danger-btn-hover-background : oklch(from var(--color-error) calc(l - 0.06) c h);
+  --settings-page-danger-text-color          : var(--color-error);
 
   /* SignInScreen */
   --sign-in-screen-background            : oklch(20% 0.01 280);

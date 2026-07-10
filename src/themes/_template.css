@@ -255,6 +255,11 @@
   --settings-page-btn-color           : unset;
   --settings-page-btn-border          : unset;
   --settings-page-btn-hover-background: unset;
+  --settings-page-danger-btn-background      : unset;
+  --settings-page-danger-btn-color           : unset;
+  --settings-page-danger-btn-border          : unset;
+  --settings-page-danger-btn-hover-background : unset;
+  --settings-page-danger-text-color          : unset;
 
   /* SignInScreen */
   --sign-in-screen-background            : unset;

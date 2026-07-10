@@ -71,7 +71,13 @@
     "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
     "symbol_layout_placeholder": "Select layout",
-    "back_button": "Back"
+    "back_button": "Back",
+    "delete_account_button": "Delete account",
+    "delete_account_warning": "This permanently deletes your account and all your data. This can't be undone.",
+    "delete_account_confirm": "Delete permanently",
+    "delete_account_cancel": "Cancel",
+    "delete_account_pending": "Deleting…",
+    "delete_account_error": "Couldn't delete your account. Please try again."
   },
   "stats_card": {
     "title": "Lesson Results",

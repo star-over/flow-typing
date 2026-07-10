@@ -19,6 +19,12 @@ export const SETTINGS_PAGE_CONTRACT = [
   '--settings-page-btn-color',           // color текста кнопки back
   '--settings-page-btn-border',          // border кнопки back
   '--settings-page-btn-hover-background',// background кнопки back на :hover
+  // Danger-зона: удаление аккаунта (P0-4). Destructive-кнопка + предупреждение.
+  '--settings-page-danger-btn-background',      // background кнопки удаления/подтверждения
+  '--settings-page-danger-btn-color',           // color текста destructive-кнопки
+  '--settings-page-danger-btn-border',          // border destructive-кнопки
+  '--settings-page-danger-btn-hover-background', // background destructive-кнопки на :hover
+  '--settings-page-danger-text-color',          // color текста-предупреждения
 ] as const satisfies readonly `--${string}`[];
 
 export type SettingsPageContractToken = (typeof SETTINGS_PAGE_CONTRACT)[number];
