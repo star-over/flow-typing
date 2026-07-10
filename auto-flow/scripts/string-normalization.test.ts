@@ -99,13 +99,13 @@ describe('normalizeApostrophes', () => {
 describe('normalizeString function (Complex)', () => {
   it('should apply all default rules correctly in order', () => {
     const input = '« Это   —   текст   с   разными   „символами“  и  пробелами ; \u2014 и  множеством\u00A0точек\u2026»';
-    const expected = '" Это- текст с разными "символами" и пробелами;- и множеством точек..."';
+    const expected = '" Это - текст с разными "символами" и пробелами; - и множеством точек..."';
     expect(normalizeString({ text: input })).toBe(expected);
   });
 
   it('should handle complex input with various issues', () => {
     const input = '   “ Hello — World ”   .   This   is   a   test \u2013 text\u2026  with   non\u00A0breaking   spaces .   ';
-    const expected = '" Hello- World ". This is a test- text... with non breaking spaces.';
+    const expected = '" Hello - World ". This is a test - text... with non breaking spaces.';
     expect(normalizeString({ text: input })).toBe(expected);
   });
 

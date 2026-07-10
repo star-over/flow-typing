@@ -36,8 +36,10 @@ export const removeSpaceBeforePunctuation: NormalizationRule = {
   apply: (text: string): string => {
     // First, handle all standard punctuation
     let result = text.replace(/\s+([.,!?;:])/g, '$1');
-    // Then, specifically handle spaces before a hyphen
-    result = result.replace(/\s+(-)/g, '$1');
+    // Then, spaces before a hyphen — but ONLY when it clings to the next
+    // word (`word -слитно`). A hyphen spaced on both sides is a dialogue /
+    // apposition dash (`реплика - ответ`) and must keep its spaces.
+    result = result.replace(/\s+(-)(?!\s)/g, '$1');
     return result;
   },
 };
