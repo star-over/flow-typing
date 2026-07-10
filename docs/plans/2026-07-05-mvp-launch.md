@@ -74,7 +74,8 @@
 > Convex, свежие JWT-ключи, prod OAuth-app'ы, `convex env set --prod` с fail-closed
 > инверсиями ADR 0023, GitHub secrets, проект Pages, заливка корпуса, smoke) —
 > **`docs/deploy/prod-bootstrap.md`**. Остаток — действия во внешних консолях владельца
-> (купить домен, создать prod-развёртывание, зарегистрировать OAuth-app'ы, прогнать env-set).
+> (~~купить домен~~ ✅, создать prod-развёртывание, зарегистрировать OAuth-app'ы, прогнать env-set).
+> **Прогресс владельца:** ✅ домен **`flowtyping.app`** куплен (2026-07-10).
 
 Полный физический путь до боевого запуска (детали и env-матрица — §4):
 1. Создать **production** Convex deployment (отдельный от `dev:wandering-ocelot-9`).
