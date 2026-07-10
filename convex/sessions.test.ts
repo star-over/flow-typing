@@ -102,6 +102,38 @@ describe('record mutation — auth', () => {
   });
 });
 
+describe('record mutation — rate limit (P0-10)', () => {
+  // sessionRecord token bucket capacity=10 (convex/rateLimiter.ts): 10 всплеск ок, 11-й рубится.
+  const SESSION_RECORD_CAPACITY = 10;
+
+  test('всплеск сверх capacity → 11-й вызов throw rate limit', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => seedUser({ ctx, email: 'flood@example.com' }));
+    const client = asUser({ t, userId });
+    for (let i = 0; i < SESSION_RECORD_CAPACITY; i++) {
+      await client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload });
+    }
+    await expect(
+      client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload }),
+    ).rejects.toThrow(/rate ?limit/i); // ConvexError data: {"kind":"RateLimited",...}
+  });
+
+  test('лимит per-user: исчерпанный юзер A не влияет на юзера B', async () => {
+    const t = makeConvexTest();
+    const { a, b } = await t.run(async (ctx) => ({
+      a: await seedUser({ ctx, email: 'a-rl@example.com' }),
+      b: await seedUser({ ctx, email: 'b-rl@example.com' }),
+    }));
+    for (let i = 0; i < SESSION_RECORD_CAPACITY; i++) {
+      await asUser({ t, userId: a }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload });
+    }
+    // A исчерпан, но B со своим полным ведром проходит.
+    await expect(
+      asUser({ t, userId: b }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload }),
+    ).resolves.toBeDefined();
+  });
+});
+
 describe('listMineHandler', () => {
   test('строки юзера в хронологическом порядке (старые → новые)', async () => {
     const t = makeConvexTest();

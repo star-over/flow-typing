@@ -20,6 +20,7 @@
  */
 import { convexTest, type TestConvex } from 'convex-test';
 import { register } from '@convex-dev/aggregate/test';
+import { register as registerRateLimiter } from '@convex-dev/rate-limiter/test';
 import schema from './schema';
 import { drillIndex } from './drillIndex';
 import type { MutationCtx } from './_generated/server';
@@ -33,6 +34,7 @@ const modules = import.meta.glob('./**/*.ts');
 export function makeConvexTest(): TestConvex<typeof schema> {
   const t = convexTest(schema, modules);
   register(t, 'drillIndex');
+  registerRateLimiter(t, 'rateLimiter'); // мутации зовут rateLimiter.limit — компонент нужен и в тестах
   return t;
 }
 

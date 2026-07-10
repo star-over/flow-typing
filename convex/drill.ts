@@ -38,6 +38,7 @@ import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/
 import { getLayoutData, type LayoutData } from './layoutData';
 import { assertNonProd } from './lib/env';
 import { assertValidDrillPerSymbol } from './lib/validation';
+import { rateLimiter } from './rateLimiter';
 import { symbolsAtStep, maxLadderStep } from '../shared/symbol-layout.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
@@ -386,6 +387,7 @@ export const drillRecord = mutation({
     if (userId === null) {
       throw new Error('Not authenticated');
     }
+    await rateLimiter.limit(ctx, 'drillRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await applyDrillSummaryHandler({
       ctx,
       userId,

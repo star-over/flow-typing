@@ -12,6 +12,7 @@ import type { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { assertValidSessionSummary } from './lib/validation';
+import { rateLimiter } from './rateLimiter';
 
 // Cold-start: профиля ещё нет → шаг 0 (openedSteps = 1), как resolveOpenedSteps в drill.ts.
 const DEFAULT_OPENED_STEPS = 1;
@@ -66,6 +67,7 @@ export const record = mutation({
   handler: async (ctx, { symbolLayoutId, ...payload }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error('Not authenticated');
+    await rateLimiter.limit(ctx, 'sessionRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, payload });
   },
 });

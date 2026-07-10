@@ -4,6 +4,7 @@ import type { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { assertValidSettingsInput } from './lib/validation';
+import { rateLimiter } from './rateLimiter';
 
 // Узкий, тестируемый helper. Принимает уже резолвленный userId — никакой auth ceremony.
 // Lib-обёртка (query getMine, см. Step 2.7) делает getAuthUserId и зовёт сюда.
@@ -89,6 +90,7 @@ export const upsertMine = mutation({
     if (userId === null) {
       throw new Error('Not authenticated');
     }
+    await rateLimiter.limit(ctx, 'settingsUpsert', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await upsertMineHandler({ ctx, userId, settings: args });
   },
 });

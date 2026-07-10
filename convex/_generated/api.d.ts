@@ -15,6 +15,7 @@ import type * as http from "../http.js";
 import type * as layoutData from "../layoutData.js";
 import type * as lib_env from "../lib/env.js";
 import type * as lib_validation from "../lib/validation.js";
+import type * as rateLimiter from "../rateLimiter.js";
 import type * as selectionIndex from "../selectionIndex.js";
 import type * as sessions from "../sessions.js";
 import type * as userSettings from "../userSettings.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   layoutData: typeof layoutData;
   "lib/env": typeof lib_env;
   "lib/validation": typeof lib_validation;
+  rateLimiter: typeof rateLimiter;
   selectionIndex: typeof selectionIndex;
   sessions: typeof sessions;
   userSettings: typeof userSettings;
@@ -68,4 +70,5 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   drillIndex: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"drillIndex">;
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
 };

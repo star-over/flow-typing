@@ -545,6 +545,19 @@ describe('drillRecord mutation — auth', () => {
       expect(profile?.symbolCells[0]).toMatchObject({ symbol: 'а', exposures: 2, clean: 1 });
     });
   });
+
+  // drillRecord token bucket capacity=20 (convex/rateLimiter.ts): 20 всплеск ок, 21-й рубится.
+  test('rate limit: всплеск сверх capacity → throw (P0-10)', async () => {
+    const t = makeConvexTest();
+    const userId = await t.run(async (ctx) => seedUser({ ctx }));
+    const client = asUser({ t, userId });
+    for (let i = 0; i < 20; i++) {
+      await client.mutation(api.drill.drillRecord, { symbolLayoutId: 'йцукен', summary });
+    }
+    await expect(
+      client.mutation(api.drill.drillRecord, { symbolLayoutId: 'йцукен', summary }),
+    ).rejects.toThrow(/rate ?limit/i);
+  });
 });
 
 describe('repertoireSnapshot query — auth', () => {
