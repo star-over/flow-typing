@@ -3,6 +3,7 @@ import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
+import { assertValidSettingsInput } from './lib/validation';
 
 // Узкий, тестируемый helper. Принимает уже резолвленный userId — никакой auth ceremony.
 // Lib-обёртка (query getMine, см. Step 2.7) делает getAuthUserId и зовёт сюда.
@@ -41,6 +42,7 @@ export async function upsertMineHandler({
     sessionDurationSeconds: number;
   };
 }): Promise<Id<'userSettings'>> {
+  assertValidSettingsInput(settings); // P0-10: длина имени + диапазон длительности до записи
   const existing = await ctx.db
     .query('userSettings')
     .withIndex('by_user', q => q.eq('userId', userId))

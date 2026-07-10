@@ -272,6 +272,26 @@ describe('applyDrillSummaryHandler — запись сводки в профил
     });
   });
 
+  test('невалидный perSymbol (clean > exposures) → throw, профиль не создан (P0-10)', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx });
+      await expect(
+        applyDrillSummaryHandler({
+          ctx,
+          userId,
+          symbolLayoutId: 'йцукен',
+          perSymbol: [{ symbol: 'а', exposures: 1, clean: 5, latencies: [] }],
+        }),
+      ).rejects.toThrow(/clean/i);
+      const profiles = await ctx.db
+        .query('skillProfiles')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .collect();
+      expect(profiles).toHaveLength(0);
+    });
+  });
+
   test('вторая запись копит в тот же профиль (один на пару user × раскладка)', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {

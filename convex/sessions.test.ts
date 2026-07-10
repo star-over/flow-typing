@@ -49,6 +49,21 @@ describe('recordSessionSummaryHandler', () => {
     });
   });
 
+  test('невалидный payload (clean > exposures) → throw, строка не вставлена (P0-10)', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx, email: 'bad@example.com' });
+      await expect(
+        recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, clean: 999 } }),
+      ).rejects.toThrow(/clean/i);
+      const rows = await ctx.db
+        .query('sessionSummaries')
+        .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
+        .collect();
+      expect(rows).toHaveLength(0);
+    });
+  });
+
   test('append-only: две сессии → две строки', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
@@ -92,7 +107,7 @@ describe('listMineHandler', () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'd@example.com' });
-      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, exposures: 100 } });
+      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, exposures: 100, clean: 90 } });
       await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, exposures: 200 } });
       const rows = await listMineHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
       expect(rows.map((r) => r.exposures)).toEqual([100, 200]); // by_user_and_layout → _creationTime ascending

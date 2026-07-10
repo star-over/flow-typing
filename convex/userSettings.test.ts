@@ -139,6 +139,28 @@ describe('upsertMineHandler', () => {
     });
   });
 
+  test('displayName сверх потолка → throw, строка не вставлена (P0-10)', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx, email: 'long@example.com' });
+      await expect(
+        upsertMineHandler({ ctx, userId, settings: { ...validSettings, displayName: 'x'.repeat(500) } }),
+      ).rejects.toThrow(/displayName/i);
+      const all = await ctx.db.query('userSettings').collect();
+      expect(all).toHaveLength(0);
+    });
+  });
+
+  test('sessionDurationSeconds вне диапазона → throw (P0-10)', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx, email: 'dur@example.com' });
+      await expect(
+        upsertMineHandler({ ctx, userId, settings: { ...validSettings, sessionDurationSeconds: 999_999 } }),
+      ).rejects.toThrow(/duration/i);
+    });
+  });
+
   test('isolates rows between users (upsert on A does not touch B)', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {

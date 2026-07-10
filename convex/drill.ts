@@ -37,6 +37,7 @@ import { drillIndex } from './drillIndex';
 import { makeSeededRandom, nextDistinctOffset } from '../shared/drill-selection/random-pick.ts';
 import { getLayoutData, type LayoutData } from './layoutData';
 import { assertNonProd } from './lib/env';
+import { assertValidDrillPerSymbol } from './lib/validation';
 import { symbolsAtStep, maxLadderStep } from '../shared/symbol-layout.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
@@ -346,6 +347,7 @@ export async function applyDrillSummaryHandler({
   symbolLayoutId: string;
   perSymbol: SymbolStatInput[];
 }): Promise<Id<'skillProfiles'>> {
+  assertValidDrillPerSymbol(perSymbol); // P0-10: диапазоны чисел до записи (анти-отравление профиля)
   const existing = await ctx.db
     .query('skillProfiles')
     .withIndex('by_user_and_layout', (q) =>

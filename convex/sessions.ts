@@ -11,6 +11,7 @@ import { v } from 'convex/values';
 import type { Id } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
+import { assertValidSessionSummary } from './lib/validation';
 
 // Cold-start: профиля ещё нет → шаг 0 (openedSteps = 1), как resolveOpenedSteps в drill.ts.
 const DEFAULT_OPENED_STEPS = 1;
@@ -36,6 +37,7 @@ export async function recordSessionSummaryHandler({
   symbolLayoutId: string;
   payload: SessionSummaryPayload;
 }): Promise<Id<'sessionSummaries'>> {
+  assertValidSessionSummary(payload); // P0-10: диапазоны чисел до записи (анти-фабрикация статистики)
   const profile = await ctx.db
     .query('skillProfiles')
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
