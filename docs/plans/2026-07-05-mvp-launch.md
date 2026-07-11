@@ -96,6 +96,10 @@
 > (чистые handler'ы нетронуты); Password — за двумя предохранителями `AUTH_DEV_LOGIN_ENABLED && !isProduction()`.
 > Клиентские `PUBLIC_DEV_LOGIN*` / `window.__*` уже за `import.meta.env.DEV` — в prod-сборку не
 > входят (верифицировано). NB: на dev-deployment задан `DEPLOY_ENV=development`; env-матрица §4 дополнена.
+>
+> _(2026-07-11, [ADR 0024](../adr/0024-dev-login-vite-dev-gating.md))_ Второй предохранитель Password
+> (`AUTH_DEV_LOGIN_ENABLED`) снят — теперь один `!isProduction()`, в один ряд с dev-мутациями; клиентская
+> кнопка dev-входа тоже за `import.meta.env.DEV` (аккаунт зашит, `PUBLIC_DEV_LOGIN*` убраны).
 
 - `resetMyProfile` (`convex/drill.ts:501`) и `setMyLadderStep` (`convex/drill.ts:570`) — **public** мутации, существуют на prod независимо от dev-флага. `setMyLadderStep` = дыра целостности (любой авторизованный юзер прыгает на произвольную ступень). → перевести в `internalMutation`.
 - Password-провайдер включается одной переменной `AUTH_DEV_LOGIN_ENABLED` на любом deployment (`convex/auth.ts:40-46`), без проверки «это dev». → добавить code-guard (например, требовать признак не-prod), не полагаться только на дисциплину env.
@@ -239,7 +243,7 @@ npx wrangler pages deploy build --project-name=flowtyping --branch=master
 ```
 - Одна команда пушит функции/схему/индексы в prod Convex **и** собирает фронт. `--cmd-url-env-var-name PUBLIC_CONVEX_URL` подставляет prod-URL под именем, которое читает клиент (`$env/static/public`), — сборка всегда против того же развёртывания, куда только что запушены функции.
 - Артефакт `build/` публикуется на CF Pages командой `wrangler pages deploy` (после `wrangler login`).
-- Prod-сборка идёт без `.env.local`-dev-флагов → `PUBLIC_DEV_LOGIN*` в пакет не попадают (dev-кнопки нет; ADR 0012).
+- Кнопка dev-входа за `import.meta.env.DEV` → вырезается из любой prod-сборки (dev-кнопки нет; ADR 0024). Клиентских dev-флагов больше нет.
 - **CI-автоматизация** (GitHub Actions «push → развёртывание» + `CONVEX_DEPLOY_KEY`/CF-секреты) — **отложена**, см. `docs/backlog.md`. Драйвер: ручные развёртывания станут частыми/утомительными.
 
 ### Env-матрица (dev → prod)
@@ -250,9 +254,7 @@ npx wrangler pages deploy build --project-name=flowtyping --branch=master
 | `SITE_URL` (Convex env) | `http://localhost:5173` | боевой домен фронта |
 | `JWT_PRIVATE_KEY` + `JWKS` (Convex env) | dev-ключи | **свежие** prod-ключи |
 | `AUTH_{GITHUB,GOOGLE,YANDEX}_ID/SECRET` (Convex env) | dev OAuth-app | prod OAuth-app (или добавить prod redirect) |
-| `AUTH_DEV_LOGIN_ENABLED` (Convex env) | `true` | **не ставить** |
-| `DEPLOY_ENV` (Convex env) | `development` | **не ставить** (fail-closed → prod; ADR 0023) |
-| `PUBLIC_DEV_LOGIN*` (`.env.local`) | опц. | **отсутствуют** |
+| `DEPLOY_ENV` (Convex env) | `development` | **не ставить** (fail-closed → prod; ADR 0023) — единственный гейт dev-дверей (ADR 0024) |
 | `PUBLIC_FEEDBACK_URL` (`.env.local` / сборочное окружение) | опц. | опц. — Telegram/email контакт; задан → feedback-ссылка в футере, не задан → нет (P0-7) |
 | OAuth callback | `...wandering-ocelot-9...convex.site/...` | `https://<prod>.convex.site/api/auth/callback/<provider>` |
 

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext } from 'svelte';
-  import { env } from '$env/dynamic/public';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import type { OAuthProviderId } from '@/lib/auth/auth.types';
@@ -24,26 +23,26 @@
     }
   }
 
-  // Dev-вход (ADR 0012): кнопка существует только когда .env.local даёт все три
-  // флага. Гарантия «нет кнопки на production» держится на окружении: для
-  // adapter-static $env/dynamic/public подставляется на этапе vite build из
-  // наличного .env.local и записывается в статический build/_app/env.js. CI/prod
-  // собирает без этих флагов → кнопки нет; локальный make build с dev-.env.local
-  // их запечёт, но build/ gitignored и по сети не отдаётся. Серверная половина —
-  // Password-провайдер за AUTH_DEV_LOGIN_ENABLED (convex/auth.ts) — на production
-  // отсутствует.
-  const devLoginAvailable =
-    env.PUBLIC_DEV_LOGIN === 'true' &&
-    Boolean(env.PUBLIC_DEV_LOGIN_EMAIL) &&
-    Boolean(env.PUBLIC_DEV_LOGIN_PASSWORD);
+  // Dev-вход (ADR 0012; механизм — ADR 0024): кнопка существует только в
+  // dev-сборке. `import.meta.env.DEV` — встроенный признак Vite: true под
+  // `vite dev` (make dev), false в любой сборке (`vite build`, CI/prod). Prod-сборка
+  // эту ветку не содержит — dead-code elimination вырезает её на сборке. Ноль
+  // env-флагов, ноль .env.local — единообразно с window.__* dev-helper'ами
+  // (appActor.ts). Серверная половина — Password-провайдер за `!isProduction()`
+  // (convex/auth.ts) — на production отсутствует.
+  const devLoginAvailable = import.meta.env.DEV;
+
+  // Фиксированный тестовый dev-аккаунт: компилируется только в dev-сборку
+  // (ветка выше). Работает лишь против не-prod Convex, где поднят Password-провайдер.
+  // Не секрет; репозиторий публичный → экспозиция ограничена dev-песочницей
+  // (ADR 0024, «остаточный риск»).
+  const DEV_LOGIN_EMAIL = 'dev@flowtyping.local';
+  const DEV_LOGIN_PASSWORD = 'flowtyping-dev-login';
 
   async function handleDevSignIn() {
     error = null;
     signingIn = true;
-    const email = env.PUBLIC_DEV_LOGIN_EMAIL;
-    const password = env.PUBLIC_DEV_LOGIN_PASSWORD;
-    if (!email || !password) return; // недостижимо при devLoginAvailable, но безопасно для TS
-    const credentials = { email, password };
+    const credentials = { email: DEV_LOGIN_EMAIL, password: DEV_LOGIN_PASSWORD };
     try {
       try {
         await auth.signIn('password', { ...credentials, flow: 'signIn' });
@@ -137,7 +136,7 @@
   }
 
   /* Dev-инструмент (ADR 0012): сознательно вне theme-контракта — кнопка живёт
-     только в dev-сборке за PUBLIC_DEV_LOGIN, темизировать нечего. */
+     только в dev-сборке (import.meta.env.DEV), темизировать нечего. */
   .sign-in-screen__btn-dev {
     background: transparent;
     color: var(--color-text-secondary);
