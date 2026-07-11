@@ -17,7 +17,7 @@ export const handleError: HandleClientError = ({ error, message, event }) => {
     return { message };
   }
   try {
-    const report = toErrorReport(error, event?.url?.pathname);
+    const report = toErrorReport({ error, url: event.url.pathname });
     void convex
       .mutation(api.clientErrors.report, {
         ...report,

@@ -12,7 +12,13 @@ export interface ClientErrorReport {
 }
 
 /** Извлекает message/stack из произвольного значения ошибки. */
-export function toErrorReport(error: unknown, url: string | undefined): ClientErrorReport {
+export function toErrorReport({
+  error,
+  url,
+}: {
+  error: unknown;
+  url: string | undefined;
+}): ClientErrorReport {
   const message = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
   return { message: message || 'Unknown error', stack, url };

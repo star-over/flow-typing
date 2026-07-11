@@ -82,6 +82,9 @@
 
   {#if feedbackUrl}
     <footer class="site-footer">
+      <!-- feedbackUrl — ВНЕШНИЙ адрес (PUBLIC_FEEDBACK_URL: Telegram/mailto), не
+           маршрут SvelteKit; resolve() применим только к внутренним путям. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a class="feedback-link" href={feedbackUrl}>{l.feedback_label}</a>
     </footer>
   {/if}

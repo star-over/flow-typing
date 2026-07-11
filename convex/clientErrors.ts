@@ -28,7 +28,7 @@ const MAX_STACK = 10_000;
 const MAX_URL = 500;
 const MAX_USER_AGENT = 500;
 
-function clamp(value: string | undefined, max: number): string | undefined {
+function clamp({ value, max }: { value: string | undefined; max: number }): string | undefined {
   if (value === undefined) return undefined;
   return value.length > max ? value.slice(0, max) : value;
 }
@@ -41,10 +41,10 @@ export function clampClientError(input: {
   userAgent?: string;
 }): { message: string; stack?: string; url?: string; userAgent?: string } {
   return {
-    message: clamp(input.message, MAX_MESSAGE) ?? '',
-    stack: clamp(input.stack, MAX_STACK),
-    url: clamp(input.url, MAX_URL),
-    userAgent: clamp(input.userAgent, MAX_USER_AGENT),
+    message: clamp({ value: input.message, max: MAX_MESSAGE }) ?? '',
+    stack: clamp({ value: input.stack, max: MAX_STACK }),
+    url: clamp({ value: input.url, max: MAX_URL }),
+    userAgent: clamp({ value: input.userAgent, max: MAX_USER_AGENT }),
   };
 }
 
