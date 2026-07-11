@@ -1,21 +1,23 @@
 <script lang="ts">
   import { getContext } from 'svelte';
-  import { resolve } from '$app/paths';
   import App from '@/components/app/App.svelte';
+  import SignInScreen from '@/components/auth/SignInScreen.svelte';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
-  // Auth-барьер (ADR 0012): тренировка требует входа. Гость — приглашение (по
-  // образцу /stats), loading — ничего (не мигать), авторизованный — тренажёр.
+  // Auth-барьер (ADR 0012): тренировка требует входа. P0-11: гостю показываем
+  // сам SignInScreen на месте (не ссылку на /signin — минус экран, минус клик;
+  // тот же компонент, что и /signin). Строка-подводка объясняет, зачем вход на
+  // том, что гость пришёл тренировать. loading — ничего (не мигать),
+  // авторизованный — тренажёр. Google popup-flow → после входа гейт становится
+  // тренажёром без навигации (redirectTo не нужен, пока провайдер один).
   const auth = getContext<AuthStore>('auth');
   const t = $derived($dictionary.train_gate);
 </script>
 
 {#if auth.state.status === 'guest'}
-  <div class="train-gate">
-    <p class="muted">{t.guest}</p>
-    <a class="train-gate__sign-in" href={resolve('/signin')}>{t.sign_in}</a>
-  </div>
+  <p class="train-gate__lead">{t.guest}</p>
+  <SignInScreen />
 {:else if auth.state.status === 'authenticated'}
   <App />
 {/if}
@@ -23,26 +25,10 @@
 
 
 <style>
-  .train-gate {
-    margin: 4rem auto;
-    max-width: 24rem;
+  .train-gate__lead {
+    max-width: 22rem;
+    margin: 4rem auto 0;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-4);
-  }
-
-  .muted {
     color: var(--color-text-secondary);
-  }
-
-  .train-gate__sign-in {
-    color: var(--color-text-secondary);
-    text-decoration: underline;
-  }
-
-  .train-gate__sign-in:hover,
-  .train-gate__sign-in:focus-visible {
-    color: var(--color-text-primary);
   }
 </style>

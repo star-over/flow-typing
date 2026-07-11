@@ -62,15 +62,17 @@
 <section class="sign-in-screen">
   <h1 class="sign-in-screen__title">{$dictionary.sign_in.title}</h1>
 
-  <button
-    type="button"
-    class="sign-in-screen__btn-github"
-    disabled={signingIn}
-    onclick={() => handleSignIn('github')}
-  >
-    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.github}
-  </button>
-
+  <!--
+    EN soft-launch (P0-11, ADR 0021): показываем только Google. GitHub/Yandex
+    временно скрыты. Убраны только их <button> + scoped-CSS здесь; общая
+    инфраструктура намеренно оставлена дремать: backend-провайдеры
+    (convex/auth.ts), тип OAuthProviderId, контракт-токены
+    `--sign-in-screen-btn-{github,yandex}-*` + их значения в темах, i18n-ключи
+    `sign_in.{github,yandex}` и `sign_in.disclaimer`. Вернуть провайдера
+    (например Yandex к RU-запуску) = вставить назад его <button> + scoped-CSS.
+    Оговорка «провайдер = аккаунт» при одном провайдере бессмысленна → не
+    рендерим (вернуть <p class="sign-in-screen__disclaimer"> вместе с провайдерами).
+  -->
   <button
     type="button"
     class="sign-in-screen__btn-google"
@@ -79,19 +81,6 @@
   >
     {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.google}
   </button>
-
-  <button
-    type="button"
-    class="sign-in-screen__btn-yandex"
-    disabled={signingIn}
-    onclick={() => handleSignIn('yandex')}
-  >
-    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.yandex}
-  </button>
-
-  <p class="sign-in-screen__disclaimer">
-    {$dictionary.sign_in.disclaimer}
-  </p>
 
   {#if devLoginAvailable}
     <button
@@ -128,32 +117,6 @@
     margin: 0;
   }
 
-  .sign-in-screen__disclaimer {
-    color: var(--sign-in-screen-disclaimer-color);
-    font-size: 0.875rem;
-    text-align: center;
-    margin: 0;
-  }
-
-  .sign-in-screen__btn-github {
-    background: var(--sign-in-screen-btn-github-background);
-    color: var(--sign-in-screen-btn-github-color);
-    border: var(--sign-in-screen-btn-github-border);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-sm, 0.25rem);
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .sign-in-screen__btn-github:hover {
-    background: var(--sign-in-screen-btn-github-hover-background);
-  }
-
-  .sign-in-screen__btn-github:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
   .sign-in-screen__btn-google {
     background: var(--sign-in-screen-btn-google-background);
     color: var(--sign-in-screen-btn-google-color);
@@ -169,25 +132,6 @@
   }
 
   .sign-in-screen__btn-google:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .sign-in-screen__btn-yandex {
-    background: var(--sign-in-screen-btn-yandex-background);
-    color: var(--sign-in-screen-btn-yandex-color);
-    border: var(--sign-in-screen-btn-yandex-border);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-sm, 0.25rem);
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .sign-in-screen__btn-yandex:hover {
-    background: var(--sign-in-screen-btn-yandex-hover-background);
-  }
-
-  .sign-in-screen__btn-yandex:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
