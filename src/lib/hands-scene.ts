@@ -84,6 +84,7 @@ import { areKeyCapIdArraysEqual, keyCapHasSymbol } from "./key-cap";
 interface FingerSceneDraft {
   navigationRole: FingerNavigationRole;
   keyCapStates?: Partial<Record<KeyCapId, KeySceneState>>;
+  navigationPath?: KeyCapId[];
 }
 export type HandsSceneViewModelDraft = Record<FingerId, FingerSceneDraft>;
 
@@ -123,6 +124,15 @@ export function sealHandsSceneViewModel(
           `navigationRole=${finger.navigationRole}, keyCapStates ` +
           `${hasKeyCapStates ? "присутствует" : "отсутствует"} ` +
           `(keyCapStates должны быть ⟺ navigationRole === 'TARGET').`,
+      );
+    }
+    const hasNavigationPath = finger.navigationPath !== undefined;
+    if (isTarget !== hasNavigationPath) {
+      throw new Error(
+        `HandsSceneViewModel: нарушено сцепление navigationPath для пальца ${fingerId}: ` +
+          `navigationRole=${finger.navigationRole}, navigationPath ` +
+          `${hasNavigationPath ? "присутствует" : "отсутствует"} ` +
+          `(navigationPath должен быть ⟺ navigationRole === 'TARGET').`,
       );
     }
   }
@@ -367,12 +377,22 @@ function applyNavigationPaths({
       (k: KeyCapId) => getFingerByKeyCap({ keyCapId: k, fingerLayout }) === fingerId
     );
 
-    if (!targetKey) continue;
+    if (!targetKey) {
+      // TARGET-палец без целевой клавиши в аккорде: пути нет, но поле обязано быть
+      // проставлено (иначе seal бросит на TARGET-пальце без navigationPath).
+      fingerData.navigationPath = [];
+      continue;
+    }
 
     let path: KeyCapId[] = [];
     if (homeKey) {
       path = findOptimalPath({ startKey: homeKey, endKey: targetKey, graph: keyboardGraph });
     }
+
+    // Храним уже посчитанный путь на TARGET-пальце: UI рисует MovementPath по готовому
+    // массиву и не пересобирает граф (docs/03 §3.3 п. 6). Разбросанные роли/стрелки
+    // (п. 4) остаются как есть.
+    fingerData.navigationPath = path;
 
     _applyNavigationRoles({ fingerData, path, targetKey });
     _applyNavigationArrows({ fingerData, path, keyCoordinateMap });

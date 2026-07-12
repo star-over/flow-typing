@@ -17,8 +17,6 @@
   } from '@/interfaces/types';
   import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
   import { createKeyLabelMap } from '@/lib/key-cap';
-  import { getHomeKeyForFinger } from '@/lib/finger';
-  import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
   import { calculateClusterTranslation } from './cluster-translation';
   import { HAND_VIEW_BOX } from './finger-paths';
   import { onMount } from 'svelte';
@@ -103,20 +101,10 @@
   // а читает уже посчитанные значения.
   const keyLabels = $derived(createKeyLabelMap({ physicalLayout, symbolLayout }));
 
-  // Граф геометрии — для восстановления упорядоченного пути дом→цель в слое рендера
-  // (тот же `findOptimalPath`, что использует ViewModel). Контракт ViewModel не трогаем.
-  const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
-
   /** Упорядоченный путь дом→…→цель для целевого пальца (для анимации `MovementPath`). */
   function movementPathFor(fingerId: FingerId): KeyCapId[] {
     const finger = handsScene[fingerId];
-    if (finger.navigationRole !== 'TARGET') return [];
-    const homeKey = getHomeKeyForFinger({ fingerId, fingerLayout });
-    const targetKey = (Object.keys(finger.keyCapStates) as KeyCapId[]).find(
-      (k) => finger.keyCapStates[k]?.navigationRole === 'TARGET'
-    );
-    if (!homeKey || !targetKey) return [];
-    return findOptimalPath({ startKey: homeKey, endKey: targetKey, graph: keyboardGraph });
+    return finger.navigationRole === 'TARGET' ? finger.navigationPath : [];
   }
 
   $effect(() => {

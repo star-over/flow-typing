@@ -10,6 +10,7 @@ export const simple_r_error_simple_f: HandsSceneFixture = {
     L1: { navigationRole: "INACTIVE" },
     L2: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyF", "KeyR"],
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },

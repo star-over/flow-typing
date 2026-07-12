@@ -12,6 +12,7 @@ export const shift_t_error_shift_n: HandsSceneFixture = {
     L1: { navigationRole: "INACTIVE" },
     L2: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyF", "KeyR", "KeyT"],
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -27,6 +28,7 @@ export const shift_t_error_shift_n: HandsSceneFixture = {
     R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "ERROR" }, R3: { navigationRole: "INACTIVE" }, R4: { navigationRole: "INACTIVE" },
     R5: {
       navigationRole: "TARGET",
+      navigationPath: ["Semicolon", "Slash", "ShiftRight"],
       keyCapStates: {
         Digit0: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Minus: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },

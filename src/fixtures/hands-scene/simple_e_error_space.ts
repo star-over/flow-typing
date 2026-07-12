@@ -12,6 +12,7 @@ export const simple_e_error_space: HandsSceneFixture = {
     L1: { navigationRole: "INACTIVE" }, L2: { navigationRole: "INACTIVE" },
     L3: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyD", "KeyE"],
       keyCapStates: {
         Digit3: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         KeyE: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },

@@ -10,6 +10,7 @@ export const simple_t: HandsSceneFixture = {
     L1: { navigationRole: "INACTIVE" },
     L2: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyF", "KeyR", "KeyT"],
       keyCapStates: {
         Digit4: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
         Digit5: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },

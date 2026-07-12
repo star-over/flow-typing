@@ -17,6 +17,7 @@ export const simple_k_error_simple_j: HandsSceneFixture = {
     R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "ERROR" },
     R3: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyK"],
       keyCapStates: {
         Digit8: { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },
         KeyI:   { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },

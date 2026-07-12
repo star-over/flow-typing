@@ -31,18 +31,18 @@ interface KeySceneState {
 Итоговая модель, представляющая собой словарь (`Record`), где ключ — это `FingerId`, а значение — состояние этого пальца и, опционально, состояния всех клавиш в его кластере.
 
 ```typescript
-// Discriminated union: наличие keyCapStates сцеплено с TARGET на уровне типа —
-// собрать не-TARGET палец с keyCapStates (или TARGET без них) нельзя.
+// Discriminated union: наличие keyCapStates и navigationPath сцеплено с TARGET на
+// уровне типа — собрать не-TARGET палец с ними (или TARGET без них) нельзя.
 // Поле navigationRole есть и на уровне пальца (здесь), и на уровне клавиши
 // (KeySceneState) — это два разных уровня одной сцены, не путать.
 type FingerSceneState =
-  | { navigationRole: 'TARGET'; keyCapStates: Partial<Record<KeyCapId, KeySceneState>> }
+  | { navigationRole: 'TARGET'; keyCapStates: Partial<Record<KeyCapId, KeySceneState>>; navigationPath: KeyCapId[] }
   | { navigationRole: 'NONE' | 'INACTIVE' | 'ERROR' };
 
 type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 ```
 
-Свойство `keyCapStates` определяется **только** для `TARGET`-пальцев (правило «Полного Кластера», §3.3). Инвариант гарантируется типом и проверяется на сборке в точке `sealHandsSceneViewModel` (`src/lib/hands-scene.ts`): нарушение — `throw`, а не молчаливо сломанная модель в UI.
+Свойства `keyCapStates` и `navigationPath` определяются **только** для `TARGET`-пальцев (правило «Полного Кластера», §3.3; упорядоченный путь навигации, §3.3 п. 6). Инвариант гарантируется типом и проверяется на сборке в точке `sealHandsSceneViewModel` (`src/lib/hands-scene.ts`): нарушение — `throw`, а не молчаливо сломанная модель в UI.
 
 ## 3.3. Ключевые правила формирования ViewModel
 
@@ -71,6 +71,14 @@ type HandsSceneViewModel = Record<FingerId, FingerSceneState>;
 *   `'CORRECT'`: Клавиша была нажата правильно и вовремя.
 *   `'ERROR'`: Клавиша была нажата ошибочно (не та клавиша, или в неправильное время, или с ненужным модификатором).
 *   `'NONE'`: Клавиша не участвовала в последнем вводе.
+
+#### 6. Упорядоченный путь навигации (`navigationPath`)
+*   `navigationPath` — упорядоченный массив `KeyCapId[]` пути пальца от домашней позиции до цели. Определяется **только для `TARGET`-пальцев** (как и `keyCapStates`, §3.3 п. 3; инвариант сцеплен с `TARGET` типом и проверяется в `sealHandsSceneViewModel`).
+*   **Порядок и границы:** первый элемент — домашняя клавиша пальца, последний — целевая; **оба конца включены**.
+*   Строится в конвейере (`applyNavigationPaths`, `hands-scene.ts`) той же парой `getHomeKeyForFinger` + `findOptimalPath`, что раскидывает пер-клавишные роли и стрелки (п. 4). Это **упорядоченная форма того же пути**, отдаваемая потребителю целиком, — чтобы UI рисовал движение по готовому массиву и **не пересобирал граф**.
+*   **Вырожденный случай «цель = дом»** (буква на домашнем ряду): `[дом]` — один элемент, не пустой массив (UI показывает «тап на месте»).
+*   **Пустой `[]`** — только когда пути нет (нет домашней клавиши или ключ вне графа).
+*   **Отношение к п. 4:** разбросанные пер-клавишные `navigationRole: 'PATH'` и `navigationArrow` **остаются** (их читает `KeyboardScene`); `navigationPath` — упорядоченная форма того же пути для анимации `MovementPath`. Два представления одного пути сосуществуют, не замещают друг друга.
 
 ## 3.4. Сценарии обработки ошибок (Примеры)
 

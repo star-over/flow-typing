@@ -11,6 +11,7 @@ export const simple_k: HandsSceneFixture = {
     R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "INACTIVE" },
     R3: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyK"],
       keyCapStates: {
         Digit8: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
         KeyI: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },

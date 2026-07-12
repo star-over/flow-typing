@@ -287,6 +287,8 @@ export interface KeySceneState {
 /**
  * Состояние пальца-цели. `navigationRole === 'TARGET'`, и у него **всегда** есть
  * `keyCapStates` — кластер клавиш пальца (правило «Полного Кластера», docs/03 §3.3).
+ * Так же **всегда** есть `navigationPath` — упорядоченный путь дом→цель для этого пальца
+ * (docs/03 §3.3 п. 6), сцепленный с `TARGET` симметрично `keyCapStates`.
  *
  * Замечание о коллизии имён: поле `navigationRole` существует и здесь (уровень пальца:
  * `FingerNavigationRole`), и в {@link KeySceneState} (уровень клавиши: `KeyCapNavigationRole`).
@@ -295,6 +297,7 @@ export interface KeySceneState {
 export interface TargetFingerSceneState {
   navigationRole: 'TARGET';
   keyCapStates: Partial<Record<KeyCapId, KeySceneState>>;
+  navigationPath: KeyCapId[];
 }
 
 /**

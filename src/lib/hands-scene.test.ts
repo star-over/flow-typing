@@ -108,4 +108,16 @@ describe('sealHandsSceneViewModel (правило «Полного Класте�
     draft.L1.keyCapStates = {};
     expect(() => sealHandsSceneViewModel(draft)).toThrow(/L1/);
   });
+
+  it('throws when a TARGET finger has no navigationPath', () => {
+    const draft = validDraft();
+    delete draft.R3.navigationPath;
+    expect(() => sealHandsSceneViewModel(draft)).toThrow(/R3/);
+  });
+
+  it('throws when a non-TARGET finger carries navigationPath', () => {
+    const draft = validDraft();
+    draft.L1.navigationPath = [];
+    expect(() => sealHandsSceneViewModel(draft)).toThrow(/L1/);
+  });
 });

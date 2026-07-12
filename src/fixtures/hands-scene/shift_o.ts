@@ -10,6 +10,7 @@ export const shift_o: HandsSceneFixture = {
     L1: { navigationRole: "INACTIVE" }, L2: { navigationRole: "INACTIVE" }, L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" },
     L5: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyA", "KeyZ", "ShiftLeft"],
       keyCapStates: {
         Backquote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         Digit1: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
@@ -22,6 +23,7 @@ export const shift_o: HandsSceneFixture = {
     LB: { navigationRole: "INACTIVE" }, R1: { navigationRole: "INACTIVE" }, R2: { navigationRole: "INACTIVE" }, R3: { navigationRole: "INACTIVE" },
     R4: {
       navigationRole: "TARGET",
+      navigationPath: ["KeyL", "KeyO"],
       keyCapStates: {
         Digit9: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
         KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },
