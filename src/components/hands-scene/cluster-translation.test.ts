@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateClusterTranslation } from './positioning-utils';
+import { calculateClusterTranslation } from './cluster-translation';
 
 // Мок DOM-элементов с `getBoundingClientRect`
 const createMockElement = (rect: DOMRect) => ({
