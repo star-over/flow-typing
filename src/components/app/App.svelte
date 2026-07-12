@@ -47,7 +47,6 @@
 
 <MainContent
   {state}
-  send={appActor.send.bind(appActor)}
   dictionary={$dictionary}
   {sessionActor}
 />

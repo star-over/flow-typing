@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Actor, StateFrom } from 'xstate';
-  import type { appMachine, AppEvent } from '@/machines/app.machine';
+  import type { appMachine } from '@/machines/app.machine';
   import type { sessionMachine } from '@/machines/session.machine';
   import type { Dictionary } from '@/interfaces/types';
   import { getContext } from 'svelte';
@@ -24,12 +24,11 @@
 
   interface Props {
     state: StateFrom<typeof appMachine>;
-    send: (event: AppEvent) => void;
     dictionary: Dictionary;
     sessionActor: Actor<typeof sessionMachine> | undefined;
   }
 
-  const { state, send, dictionary, sessionActor }: Props = $props();
+  const { state, dictionary, sessionActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённой сессии или ни одного предъявления).
   // Тогда экран sessionComplete пуст — допустимое degenerate-состояние, решение
