@@ -15,7 +15,6 @@
 
   import TrainingScene from '@/components/train/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/train/LessonStatsDisplay.svelte';
-  import MenuScreen from '@/components/train/MenuScreen.svelte';
   import RepertoireProgress from '@/components/train/RepertoireProgress.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
@@ -80,12 +79,9 @@
 
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
-{:else if inState({ snapshot: state, value: 'menu' })}
-  <MenuScreen
-    {dictionary}
-    onStart={() => send({ type: 'START_TRAINING', symbolLayoutId: $settings.symbolLayoutId, durationSeconds: $settings.sessionDurationSeconds })}
-  />
 {/if}
+<!-- Ветки под `idle` нет: /train автоматически запускает (ADR 0025), меню-экран упразднён. -->
+
 
 <style>
   .screen-title {

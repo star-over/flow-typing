@@ -1,4 +1,4 @@
-import { assign, emit, sendTo, setup } from "xstate";
+import { assign, sendTo, setup } from "xstate";
 
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type { SymbolLayoutId, TypingStream } from "@/interfaces/types";
@@ -18,14 +18,15 @@ export interface AppContext {
   // (те же время/cpm/точность, что в журнале /stats). Приходит в SESSION.COMPLETE.
   lastSessionSummary: SessionSummaryPayload | null;
   currentSymbolLayoutId: SymbolLayoutId;
-  /** Длительность сессии, выбранная в меню перед стартом. */
+  /** Длительность сессии, выбранная в настройках перед стартом. */
   sessionDurationSeconds: number;
 }
 
 export type AppEvent =
   | { type: 'START_TRAINING'; symbolLayoutId: SymbolLayoutId; durationSeconds: number }
-  | { type: 'TO_MENU' }
-  | { type: 'TRAINER_OPENED' }
+  // Вход на /train (App.svelte mount) — автостарт тренировки (ADR 0025). Несёт
+  // раскладку и длительность из $settings: их знает только UI.
+  | { type: 'TRAINER_OPENED'; symbolLayoutId: SymbolLayoutId; durationSeconds: number }
   | { type: 'TRAINER_CLOSED' }
   | { type: 'PAUSE' }
   | { type: 'RESUME' }
@@ -41,10 +42,6 @@ export const appMachine = setup({
   types: {
     context: {} as AppContext,
     events: {} as AppEvent,
-    // Уведомление через `emit`: пользователь запросил старт тренировки с
-    // клавиатуры (Enter в menu). Машина сама не стартует — раскладку знает только
-    // UI ($settings), и слушатель есть лишь на /train. Подробности — ниже у menu.
-    emitted: {} as { type: 'MENU_START_REQUESTED' },
   },
   actors: {
     keyboardService: keyboardMachine,
@@ -103,51 +100,41 @@ export const appMachine = setup({
     RESET_KEYBOARD: {
       actions: sendTo('keyboardService', { type: 'RESET' }),
     },
-    // Открытие тренажёра всегда начинается с чистого меню. appActor — singleton,
-    // переживает SvelteKit-навигацию (ADR 0007), поэтому без сброса экран прошлой
-    // сессии (`sessionComplete`) и брошенная пауза/сессия «застревают» и всплывают
-    // при возврате на /train. Это ломает «Начать тренировку»: ожидается новая
-    // тренировка, а не воскрешение прошлого экрана (ADR 0010). App.svelte шлёт это
-    // при входе на /train из любого активного состояния → возврат в `menu`.
-    // Пауза/возобновление ВНУТРИ /train не задеты: внутренние переходы не размонтируют App.
-    TRAINER_OPENED: { target: '#app.menu' },
-    // Зеркало TRAINER_OPENED на ВЫХОД: App.svelte шлёт при размонтировании (уход
-    // с /train — клик по логотипу, Settings, Stats). appActor переживает
-    // навигацию, а Header в +layout читает таймер/паузу из живого FSM, поэтому
-    // без сброса брошенная сессия тикает «в фоне»: обратный отсчёт не
-    // останавливается, кнопка «Пауза» висит в шапке. Возврат в menu завершает
+    // Вход на /train автоматически запускает тренировку (ADR 0025). Раньше нормализовал в
+    // `menu` (ADR 0010), но P0-11(a) вынес конфиг из меню на /settings → одинокая
+    // кнопка «Начать тренировку» на входе стала повторным трением (пользователь уже
+    // нажал её на лендинге). App.svelte шлёт это на входе из любого состояния с
+    // раскладкой/длительностью из $settings → свежая сессия. Ядро 0010 сохранено:
+    // возврат на /train не воскрешает залипший экран — он даёт новую тренировку.
+    // Пауза/возобновление ВНУТРИ /train не задеты (внутренние переходы не
+    // размонтируют App, событие не шлётся).
+    TRAINER_OPENED: {
+      target: '#app.trainingStart',
+      reenter: true,
+      actions: {
+        type: 'setTrainingParams',
+        params: ({ event }) => ({
+          symbolLayoutId: event.symbolLayoutId,
+          durationSeconds: event.durationSeconds,
+        }),
+      },
+    },
+    // Уход с /train (App.svelte unmount) завершает тренажёр: appActor переживает
+    // навигацию, а Header в +layout читает таймер/паузу из живого FSM, поэтому без
+    // сброса брошенная сессия тикает «в фоне». Возврат в `idle` завершает
     // invoked-sessionService (гасит его таймер) → Header очищается.
-    TRAINER_CLOSED: { target: '#app.menu' },
+    TRAINER_CLOSED: { target: '#app.idle' },
   },
   states: {
     initializing: {
-      always: 'menu',
+      always: 'idle',
     },
 
-    menu: {
-      on: {
-        START_TRAINING: {
-          target: 'trainingStart',
-          reenter: true,
-          actions: {
-            type: 'setTrainingParams',
-            params: ({ event }) => ({
-              symbolLayoutId: event.symbolLayoutId,
-              durationSeconds: event.durationSeconds,
-            }),
-          },
-        },
-        // Enter в menu = нажать «Начать тренировку». Машина не стартует напрямую:
-        // listener клавиатуры в +layout долетает до appActor на ЛЮБОМ маршруте,
-        // а FSM в menu и на /settings — прямой переход стартовал бы тренировку
-        // вне экрана. Вместо этого шлём уведомление через `emit`; его ловит
-        // App.svelte (есть лишь на /train) и шлёт тот же START_TRAINING с $settings.
-        'KEYBOARD.NAVIGATION_KEY': {
-          guard: 'isEnter',
-          actions: emit({ type: 'MENU_START_REQUESTED' }),
-        },
-      },
-    },
+    // Тренажёр «в покое»: пользовательского экрана-меню нет (ADR 0025). Это
+    // внутреннее состояние без invoked-сессии — цель гашения при уходе с /train
+    // (TRAINER_CLOSED) и исходная точка до автоматического запуска. На /train не рисуется:
+    // App.svelte автоматически запускает на входе, MainContent ветки под `idle` не имеет.
+    idle: {},
 
     training: {
       initial: 'running',
@@ -164,7 +151,7 @@ export const appMachine = setup({
       on: {
         // Форвард ввода в session ТОЛЬКО внутри training — здесь живёт
         // invoked-ребёнок. На корневом уровне это морозит root-актор: в
-        // menu/sessionComplete ребёнка нет, и sendTo мёртвому актору роняет
+        // idle/sessionComplete ребёнка нет, и sendTo мёртвому актору роняет
         // машину в error (см. app.machine.test.ts «stray CHARACTER_INPUT»).
         // sessionService шлёт SESSION.COMPLETE тоже только изнутри training.
         'KEYBOARD.CHARACTER_INPUT': {
@@ -182,7 +169,7 @@ export const appMachine = setup({
         },
         // Сетевой сбой старта сессии (sessionMachine.error) → отдельный экран
         // ошибки, не тихий пустой sessionComplete. Сводки нет (сбой до active) —
-        // ничего не сохраняем, лишь показываем «Повторить»/«В меню».
+        // ничего не сохраняем, лишь показываем «Повторить».
         'SESSION.ERROR': { target: 'sessionError' },
       },
       states: {
@@ -197,13 +184,27 @@ export const appMachine = setup({
             sendTo('keyboardService', { type: 'RESET' }),
             sendTo('sessionService', { type: 'PAUSE_TIMER' }),
           ],
-          // при → menu тоже сработает, но session уже останавливается — RESUME_TIMER отбрасывается
+          // при рестарте (START_TRAINING) тоже сработает, но session уже
+          // заменяется — RESUME_TIMER отбрасывается умирающим актором.
           exit: sendTo('sessionService', { type: 'RESUME_TIMER' }),
           on: {
             RESUME: 'running',
-            TO_MENU: '#app.menu',
+            // «Начать заново» из паузы: бросить текущую сессию, начать свежую.
+            START_TRAINING: {
+              target: '#app.trainingStart',
+              reenter: true,
+              actions: {
+                type: 'setTrainingParams',
+                params: ({ event }) => ({
+                  symbolLayoutId: event.symbolLayoutId,
+                  durationSeconds: event.durationSeconds,
+                }),
+              },
+            },
+            // Escape и Enter в паузе — оба возобновляют (тумблер паузы). «Уйти» —
+            // через шапку (ADR 0025): экрана-меню нет, отдельного abandon-перехода нет.
             'KEYBOARD.NAVIGATION_KEY': [
-              { guard: 'isEscape', target: '#app.menu' },
+              { guard: 'isEscape', target: 'running' },
               { guard: 'isEnter', target: 'running' },
             ],
           },
@@ -213,7 +214,6 @@ export const appMachine = setup({
 
     sessionComplete: {
       on: {
-        TO_MENU: { target: 'menu', reenter: true },
         START_TRAINING: {
           target: 'trainingStart',
           reenter: true,
@@ -225,6 +225,8 @@ export const appMachine = setup({
             }),
           },
         },
+        // Enter = «Начать заново» с сохранённой раскладкой. «Уйти» — через шапку
+        // (ADR 0025): экрана-меню нет, Escape инертен.
         'KEYBOARD.NAVIGATION_KEY': [
           {
             guard: 'isEnter',
@@ -237,19 +239,14 @@ export const appMachine = setup({
               }),
             },
           },
-          // Esc дублирует кнопку «В меню» (TO_MENU): та же навигация с клавиатуры.
-          { guard: 'isEscape', target: 'menu', reenter: true },
         ],
       },
     },
 
-    // Сетевой сбой старта сессии. Повторяет переходы sessionComplete: START_TRAINING
-    // (кнопка «Повторить») / Enter — новая попытка с сохранённой раскладкой;
-    // TO_MENU / Escape — в меню. Отличие от sessionComplete лишь в UI-подписи
-    // (retry вместо «начать заново») и отсутствии сводки — навигация та же.
+    // Сетевой сбой старта сессии. START_TRAINING (кнопка «Повторить») / Enter —
+    // новая попытка с сохранённой раскладкой. «Уйти» — через шапку (ADR 0025).
     sessionError: {
       on: {
-        TO_MENU: { target: 'menu', reenter: true },
         START_TRAINING: {
           target: 'trainingStart',
           reenter: true,
@@ -273,7 +270,6 @@ export const appMachine = setup({
               }),
             },
           },
-          { guard: 'isEscape', target: 'menu', reenter: true },
         ],
       },
     },
