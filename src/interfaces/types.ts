@@ -5,7 +5,6 @@
  * При рефакторинге или добавлении новых типов, пожалуйста, сохраняйте
  * существующие комментарии. Они являются частью документации и единого языка проекта.
  */
-import { z } from 'zod';
 import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
@@ -266,68 +265,6 @@ export interface KeyboardSceneKey {
  * в виде двумерного массива `KeyboardSceneKey`.
  */
 export type KeyboardSceneViewModel = KeyboardSceneKey[][];
-
-// --- Symbol Layout Descriptor (запись реестра раскладок) ---
-
-export const SymbolLayoutDescriptorSchema = z.object({
-  symbolLayoutId: z.enum(SYMBOL_LAYOUT_IDS),
-  textLanguage: z.enum(TEXT_LANGUAGES),
-  isDefaultForTextLanguages: z.array(z.enum(TEXT_LANGUAGES)),
-  symbolLayout: z.custom<SymbolLayout>(
-    (val) => Array.isArray(val) && val.every(
-      (e: unknown) =>
-        typeof e === 'object' && e !== null &&
-        typeof (e as { symbol: unknown }).symbol === 'string' &&
-        Array.isArray((e as { keyCaps: unknown }).keyCaps)
-    ),
-    'symbolLayout must be SymbolLayout array'
-  ),
-})
-.refine(
-  (d) => d.isDefaultForTextLanguages.includes(d.textLanguage),
-  { message: 'descriptor must be default for its own textLanguage' }
-)
-.refine(
-  (d) => d.isDefaultForTextLanguages.every(
-    lang => lang === d.textLanguage || d.textLanguage.startsWith(lang + '-')
-  ),
-  { message: 'isDefaultForTextLanguages must contain only textLanguage or its ancestors' }
-);
-
-export type SymbolLayoutDescriptor = z.infer<typeof SymbolLayoutDescriptorSchema>;
-
-export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
-  .superRefine((registry, ctx) => {
-    // Не больше одной дефолтной раскладки на язык
-    const defaultCounts = new Map<TextLanguage, string[]>();
-    for (const d of registry) {
-      for (const lang of d.isDefaultForTextLanguages) {
-        const list = defaultCounts.get(lang) ?? [];
-        list.push(d.symbolLayoutId);
-        defaultCounts.set(lang, list);
-      }
-    }
-    for (const [lang, ids] of defaultCounts) {
-      if (ids.length > 1) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `Multiple default layouts for textLanguage='${lang}': ${ids.join(', ')}`,
-        });
-      }
-    }
-    // Покрытие TEXT_LANGUAGES хотя бы одной раскладкой
-    const covered = new Set(registry.flatMap(d => [
-      d.textLanguage, ...d.isDefaultForTextLanguages
-    ]));
-    for (const lang of TEXT_LANGUAGES) {
-      if (!covered.has(lang)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `No layout covers textLanguage='${lang}'`,
-        });
-      }
-    }
-  });
 
 // --- i18n ---
 import type en from '../../dictionaries/en.json';

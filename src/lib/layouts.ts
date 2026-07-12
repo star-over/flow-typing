@@ -20,6 +20,7 @@ import {
   KEY_CAP_HOME_KEY_MARKERS,
   KEY_CAP_SYMBOL_SIZES,
   SYMBOL_LAYOUT_IDS,
+  TEXT_LANGUAGES,
   FINGER_IDS,
 } from '@/interfaces/types';
 import type {
@@ -28,7 +29,6 @@ import type {
   PhysicalLayout,
   PhysicalLayoutId,
   SymbolLayout,
-  SymbolLayoutDescriptor,
   SymbolLayoutId,
   TextLanguage,
 } from '@/interfaces/types';
@@ -117,6 +117,68 @@ const SYMBOL_LAYOUT_META: Record<SymbolLayoutId, SymbolLayoutMeta> = {
   qwerty: { textLanguage: 'en', isDefaultForTextLanguages: ['en'] },
   'йцукен': { textLanguage: 'ru', isDefaultForTextLanguages: ['ru'] },
 };
+
+// ---------- Symbol Layout Descriptor (запись реестра раскладок) ----------
+
+export const SymbolLayoutDescriptorSchema = z.object({
+  symbolLayoutId: z.enum(SYMBOL_LAYOUT_IDS),
+  textLanguage: z.enum(TEXT_LANGUAGES),
+  isDefaultForTextLanguages: z.array(z.enum(TEXT_LANGUAGES)),
+  symbolLayout: z.custom<SymbolLayout>(
+    (val) => Array.isArray(val) && val.every(
+      (e: unknown) =>
+        typeof e === 'object' && e !== null &&
+        typeof (e as { symbol: unknown }).symbol === 'string' &&
+        Array.isArray((e as { keyCaps: unknown }).keyCaps)
+    ),
+    'symbolLayout must be SymbolLayout array'
+  ),
+})
+.refine(
+  (d) => d.isDefaultForTextLanguages.includes(d.textLanguage),
+  { message: 'descriptor must be default for its own textLanguage' }
+)
+.refine(
+  (d) => d.isDefaultForTextLanguages.every(
+    lang => lang === d.textLanguage || d.textLanguage.startsWith(lang + '-')
+  ),
+  { message: 'isDefaultForTextLanguages must contain only textLanguage or its ancestors' }
+);
+
+export type SymbolLayoutDescriptor = z.infer<typeof SymbolLayoutDescriptorSchema>;
+
+export const SymbolLayoutRegistrySchema = z.array(SymbolLayoutDescriptorSchema)
+  .superRefine((registry, ctx) => {
+    // Не больше одной дефолтной раскладки на язык
+    const defaultCounts = new Map<TextLanguage, string[]>();
+    for (const d of registry) {
+      for (const lang of d.isDefaultForTextLanguages) {
+        const list = defaultCounts.get(lang) ?? [];
+        list.push(d.symbolLayoutId);
+        defaultCounts.set(lang, list);
+      }
+    }
+    for (const [lang, ids] of defaultCounts) {
+      if (ids.length > 1) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Multiple default layouts for textLanguage='${lang}': ${ids.join(', ')}`,
+        });
+      }
+    }
+    // Покрытие TEXT_LANGUAGES хотя бы одной раскладкой
+    const covered = new Set(registry.flatMap(d => [
+      d.textLanguage, ...d.isDefaultForTextLanguages
+    ]));
+    for (const lang of TEXT_LANGUAGES) {
+      if (!covered.has(lang)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `No layout covers textLanguage='${lang}'`,
+        });
+      }
+    }
+  });
 
 // ---------- Module-level registries (загружаются на старте) ----------
 
