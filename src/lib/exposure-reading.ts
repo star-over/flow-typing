@@ -20,7 +20,7 @@
  *    часов ≠ моторный сигнал). Незавершённый символ рвёт цепь латентности.
  */
 import type { StreamAttempt, TypingStream } from '@/interfaces/types';
-import { areKeyCapIdArraysEqual } from './symbol-utils';
+import { areKeyCapIdArraysEqual } from './key-cap';
 
 // Порог «паузы»: межсимвольный интервал длиннее — человек отвлёкся, не моторный
 // сигнал, в латентность не идёт. Провизорно (план «Числа-настройки»).

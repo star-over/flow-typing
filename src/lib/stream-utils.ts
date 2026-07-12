@@ -5,7 +5,19 @@
  */
 import type { FlowLineSymbolType, KeyCapId, StreamAttempt, StreamSymbol, TypingStream } from '@/interfaces/types';
 
-import { areKeyCapIdArraysEqual, nbsp, sp } from "./symbol-utils";
+import { areKeyCapIdArraysEqual } from "./key-cap";
+
+/**
+ * Символ неразрывного пробела (non-breaking space).
+ * @type {string}
+ */
+export const nbsp = '\u00A0';
+
+/**
+ * Символ обычного пробела (space).
+ * @type {string}
+ */
+export const sp = '\u0020';
 
 /**
  * Добавляет новую попытку набора к символу в `TypingStream`.

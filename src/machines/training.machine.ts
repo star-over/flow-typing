@@ -9,7 +9,7 @@ import { assertEvent, assign, sendTo, setup } from 'xstate';
 
 import type { KeyCapId, ParentActor, StreamSymbol, SymbolLayoutId, TypingStream } from '@/interfaces/types';
 import { addAttempt } from '@/lib/stream-utils';
-import { areKeyCapIdArraysEqual } from '@/lib/symbol-utils';
+import { areKeyCapIdArraysEqual } from '@/lib/key-cap';
 
 
 export interface TrainingContext {

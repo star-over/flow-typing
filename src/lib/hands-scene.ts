@@ -72,7 +72,7 @@ import {
 } from "./finger";
 import type { KeyCoordinateMap } from "./layout-utils";
 import { type AdjacencyList, findOptimalPath } from "./pathfinding";
-import { areKeyCapIdArraysEqual, keyCapHasSymbol } from "./symbol-utils";
+import { areKeyCapIdArraysEqual, keyCapHasSymbol } from "./key-cap";
 
 /**
  * Черновая (не запечатанная) модель сцены рук — рабочий тип конвейера сборки.

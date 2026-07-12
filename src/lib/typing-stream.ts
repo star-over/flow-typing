@@ -1,5 +1,5 @@
 import type { SymbolLayout, TypingStream } from "@/interfaces/types";
-import { getKeyCapIdsForChar } from "@/lib/symbol-utils";
+import { getKeyCapIdsForChar } from "@/lib/key-cap";
 
 /**
  * Builds a TypingStream from a given drill text.

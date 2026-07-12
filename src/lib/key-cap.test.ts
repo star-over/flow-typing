@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
-import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey, keyCapHasSymbol } from './symbol-utils';
+import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey, keyCapHasSymbol } from './key-cap';
 
 const symbolLayoutQwerty = getSymbolLayout('qwerty');
 const physicalLayoutANSI = getPhysicalLayout('ansi');

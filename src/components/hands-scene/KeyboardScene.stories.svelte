@@ -3,7 +3,7 @@
   import KeyboardScene from './KeyboardScene.svelte';
   import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
   import { createKeyboardScene } from '@/lib/keyboard-scene';
-  import { createKeyLabelMap } from '@/lib/symbol-utils';
+  import { createKeyLabelMap } from '@/lib/key-cap';
 
   const fingerLayoutASDF = getFingerLayout('asdf');
   const fingerLayoutSDFV = getFingerLayout('sdfv');

@@ -1,5 +1,5 @@
 import type { StreamSymbol, KeyCapPressResult } from "@/interfaces/types";
-import { areKeyCapIdArraysEqual } from "./symbol-utils";
+import { areKeyCapIdArraysEqual } from "./key-cap";
 
 /**
  * Determines the visual feedback result of the last typing attempt for a given symbol.

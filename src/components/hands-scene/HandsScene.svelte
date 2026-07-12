@@ -17,7 +17,7 @@
   } from '@/interfaces/types';
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
   import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
-  import { createKeyLabelMap } from '@/lib/symbol-utils';
+  import { createKeyLabelMap } from '@/lib/key-cap';
   import { getHomeKeyForFinger } from '@/lib/finger';
   import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
   import { HAND_VIEW_BOX } from './finger-paths';

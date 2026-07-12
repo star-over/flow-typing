@@ -6,7 +6,7 @@
   import { getSymbolLayout } from '@/lib/layouts';
 
   const symbolLayoutQwerty = getSymbolLayout('qwerty');
-  import { getKeyCapIdsForChar } from '@/lib/symbol-utils';
+  import { getKeyCapIdsForChar } from '@/lib/key-cap';
   import {
     FLOW_LINE_CURSOR_TYPES,
     KEY_CAP_PRESS_RESULTS,

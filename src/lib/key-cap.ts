@@ -1,22 +1,15 @@
+/**
+ * @file Концепт-дом клавиши (KeyCap): поведение над клавишами через слои раскладок.
+ * @description Собирает keyCap-логику, ключённую на `KeyCapId`: надпись/символ клавиши
+ * в символьной раскладке (`SymbolLayout`) — `getLabel`, `createKeyLabelMap`,
+ * `getKeyCapIdsForChar`, `keyCapHasSymbol`; физический тип клавиши в физической раскладке
+ * (`PhysicalLayout`) — `isModifierKey`, `isTextKey`; равенство аккордов — `areKeyCapIdArraysEqual`.
+ */
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type {
   PhysicalLayout,
   SymbolLayout,
 } from "@/interfaces/types";
-
-/**
- * Символ неразрывного пробела (non-breaking space).
- * @type {string}
- */
-export const nbsp = '\u00A0';
-
-/**
- * Символ обычного пробела (space).
- * @type {string}
- */
-export const sp = '\u0020';
-
-
 
 /** Проверяет, является ли клавиша модификатором. */
 export function isModifierKey({

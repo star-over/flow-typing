@@ -1,7 +1,7 @@
 import { assign, sendTo, setup } from "xstate";
 
 import type { KeyCapId, ParentActor, PhysicalLayout } from "@/interfaces/types";
-import { isModifierKey, isTextKey } from "@/lib/symbol-utils";
+import { isModifierKey, isTextKey } from "@/lib/key-cap";
 /**
  * @description Контекст машины `keyboardMachine`.
  * @property {Set<KeyCapId>} pressedKeys - Множество кодов нажатых в данный момент клавиш.

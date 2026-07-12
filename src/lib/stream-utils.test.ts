@@ -6,7 +6,7 @@ const symbolLayoutQwerty = getSymbolLayout('qwerty');
 import type { KeyCapId, StreamSymbol } from "@/interfaces/types";
 
 import { addAttempt, getSymbolChar,getSymbolType } from "./stream-utils";
-import { nbsp } from "./symbol-utils";
+import { nbsp } from "./stream-utils";
 import { createTypingStream } from "./typing-stream";
 
 
