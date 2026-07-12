@@ -68,6 +68,7 @@
     "rhythm_channel_label": "Канал ритма",
     "rhythm_channel_description": "Показывать ритм-гид под строкой набора во время тренировки.",
     "session_duration_label": "Длительность сессии",
+    "training_group": "Тренировка",
     "theme_group_light": "Светлые темы",
     "theme_group_dark": "Тёмные темы",
     "language_placeholder": "Выберите язык",

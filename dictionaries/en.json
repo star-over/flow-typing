@@ -68,6 +68,7 @@
     "rhythm_channel_label": "Rhythm channel",
     "rhythm_channel_description": "Show a rhythm guide under the typing line during training.",
     "session_duration_label": "Session duration",
+    "training_group": "Training",
     "theme_group_light": "Light themes",
     "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
