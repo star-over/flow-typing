@@ -281,7 +281,9 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
 
       actor.send({ type: 'TRAINER_CLOSED' });
-      expect(actor.getSnapshot().value).toBe('idle');
+      const snap = actor.getSnapshot();
+      expect(snap.value).toBe('idle');
+      expect(snap.children.sessionService).toBeUndefined();
     });
 
     it('from sessionComplete → idle', () => {

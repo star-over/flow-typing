@@ -67,8 +67,9 @@ P0-11(a) вынес конфигурацию тренировки (язык те
 - Шапка — единственный путь «уйти» с тренировки; уход гасит сессию
   (`TRAINER_CLOSED → idle`).
 - `src/components/train/MenuScreen.svelte` удалён (единственный потребитель —
-  `MainContent` — больше его не рендерит). i18n-ключ `app.back_to_menu` осиротел →
-  прореживание в backlog.
+  `MainContent` — больше его не рендерит). Осиротели i18n-ключ `app.back_to_menu` и
+  контракт-токены `--footer-actions-btn-danger-*` (кнопка «В меню» убрана) —
+  прореживание записано в `docs/backlog.md`.
 - `TRAINER_OPENED` теперь несёт `{ symbolLayoutId, durationSeconds }`; `TO_MENU` и
   `MENU_START_REQUESTED` удалены из контракта событий. Обновлён `app.machine.test.ts`.
 - ADR 0010 помечен «поправлен 0025» в статус-строке; его тело неизменно (политика
