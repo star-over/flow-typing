@@ -1,7 +1,11 @@
 <script lang="ts">
   import { getContext } from 'svelte';
+  import { browser } from '$app/environment';
+  import { on } from 'svelte/events';
   import App from '@/components/app/App.svelte';
   import SignInScreen from '@/components/auth/SignInScreen.svelte';
+  import KeyboardRequiredNotice from '@/components/device/KeyboardRequiredNotice.svelte';
+  import { TOUCH_ONLY_QUERY, isTouchOnlyDevice } from '@/lib/device';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
@@ -13,9 +17,37 @@
   // тренажёром без навигации (redirectTo не нужен, пока провайдер один).
   const auth = getContext<AuthStore>('auth');
   const t = $derived($dictionary.train_gate);
+
+  // Мобильный трафик: набор невозможен без физической клавиатуры (P1, S).
+  // Предупреждение стоит ПЕРЕД auth-веткой — мобильный гость видит «нужна
+  // клавиатура» ещё до приглашения войти, а App (шлёт TRAINER_OPENED в теле
+  // скрипта — автостарт сессии, ADR 0025) на тач-устройстве не монтируется вовсе.
+  // Начальное значение считаем синхронно (чистый SPA, matchMedia доступен на
+  // init) — иначе App мигнул бы монтированием до срабатывания эффекта. Эффект
+  // ловит поздний flip (планшет: поворот, подключение мыши). `keyboardConfirmed`
+  // — per-visit «Продолжить всё равно»: сбрасывается на перезагрузке, без
+  // localStorage (минимум; ложный позитив планшета-с-клавиатурой закрывается сам).
+  let isTouchOnly = $state(browser ? isTouchOnlyDevice() : false);
+  let keyboardConfirmed = $state(false);
+  const kb = $derived($dictionary.keyboard_required);
+
+  $effect(() => {
+    if (!browser) return;
+    const mq = matchMedia(TOUCH_ONLY_QUERY);
+    return on(mq, 'change', (event) => {
+      isTouchOnly = event.matches;
+    });
+  });
 </script>
 
-{#if auth.state.status === 'guest'}
+{#if isTouchOnly && !keyboardConfirmed}
+  <KeyboardRequiredNotice
+    title={kb.title}
+    body={kb.body}
+    continueLabel={kb.continue_anyway}
+    onContinue={() => (keyboardConfirmed = true)}
+  />
+{:else if auth.state.status === 'guest'}
   <p class="train-gate__lead">{t.guest}</p>
   <SignInScreen />
 {:else if auth.state.status === 'authenticated'}

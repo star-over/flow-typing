@@ -156,6 +156,11 @@
   "train_gate": {
     "guest": "Training requires signing in — your profile and progress live on the server."
   },
+  "keyboard_required": {
+    "title": "A physical keyboard is required",
+    "body": "FlowTyping is a touch-typing trainer built for the desktop. Typing needs a physical keyboard — open it on a computer.",
+    "continue_anyway": "Continue anyway"
+  },
   "sign_in": {
     "title": "Sign in to FlowTyping",
     "github": "Sign in with GitHub",

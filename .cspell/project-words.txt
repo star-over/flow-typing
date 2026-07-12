@@ -73,6 +73,7 @@ semgrep
 sonarjs
 substates
 typiing
+unstub
 
 # --- Продукты-ориентиры ---
 amphetype
