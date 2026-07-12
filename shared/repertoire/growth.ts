@@ -4,7 +4,7 @@
  * лимита (предохранитель от застревания при случайной выдаче). Никогда не
  * уменьшает openedSteps; не растит выше потолка лестницы (maxStep).
  */
-import { isSymbolReady, repertoireMedianLatency, type ProfileCell, type ReadinessParams } from './readiness.ts';
+import { evaluateStepReadiness, type ProfileCell, type ReadinessParams } from './readiness.ts';
 
 export function decideOpenedSteps({
   openedSteps,
@@ -23,10 +23,8 @@ export function decideOpenedSteps({
 }): number {
   if (openedSteps > maxStep) return openedSteps; // потолок: все шаги открыты
   if (currentStepSymbols.length === 0) return openedSteps;
-  const median = repertoireMedianLatency(cells);
-  const bySymbol = new Map(cells.map((c) => [c.symbol, c]));
-  const notReady = currentStepSymbols.filter(
-    (symbol) => !isSymbolReady({ cell: bySymbol.get(symbol), params, repertoireMedianLatency: median }),
+  const notReady = evaluateStepReadiness({ currentStepSymbols, cells, params }).symbols.filter(
+    (s) => !s.ready,
   ).length;
   return notReady <= debtLimit ? openedSteps + 1 : openedSteps;
 }

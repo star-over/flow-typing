@@ -4,7 +4,7 @@
  * этапа репертуара (ADR 0008). Витринная производная — в подборе не участвует.
  */
 import { maxLadderStep, symbolsAtStep, type SymbolEntry } from '../symbol-layout.ts';
-import { readinessGaps, repertoireMedianLatency, type ProfileCell, type ReadinessGaps } from './readiness.ts';
+import { evaluateStepReadiness, type ProfileCell, type ReadinessGaps } from './readiness.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from './config.ts';
 
 export interface RepertoireProgress {
@@ -26,13 +26,11 @@ export function computeRepertoireProgress({
   symbolLayout: SymbolEntry[];
 }): RepertoireProgress {
   const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout });
-  const median = repertoireMedianLatency(symbolCells);
-  const bySymbol = new Map(symbolCells.map((c) => [c.symbol, c]));
+  const { symbols } = evaluateStepReadiness({ currentStepSymbols, cells: symbolCells, params: READINESS_PARAMS });
   const blockers = { exposure: 0, accuracy: 0, latency: 0 };
   let readyCount = 0;
-  for (const symbol of currentStepSymbols) {
-    const gaps = readinessGaps({ cell: bySymbol.get(symbol), params: READINESS_PARAMS, repertoireMedianLatency: median });
-    if (!gaps.exposure && !gaps.accuracy && !gaps.latency) {
+  for (const { gaps, ready } of symbols) {
+    if (ready) {
       readyCount += 1;
       continue;
     }
@@ -99,14 +97,12 @@ export function computeProgressionDetail({
   symbolLayout: SymbolEntry[];
 }): ProgressionDetail {
   const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout });
-  const median = repertoireMedianLatency(symbolCells);
-  const bySymbol = new Map(symbolCells.map((c) => [c.symbol, c]));
-  let readyCount = 0;
-  const symbols: SymbolProgress[] = currentStepSymbols.map((symbol) => {
-    const cell = bySymbol.get(symbol);
-    const gaps = readinessGaps({ cell, params: READINESS_PARAMS, repertoireMedianLatency: median });
-    const ready = !gaps.exposure && !gaps.accuracy && !gaps.latency;
-    if (ready) readyCount += 1;
+  const { repertoireMedianLatency: median, symbols: evaluated } = evaluateStepReadiness({
+    currentStepSymbols,
+    cells: symbolCells,
+    params: READINESS_PARAMS,
+  });
+  const symbols: SymbolProgress[] = evaluated.map(({ symbol, cell, gaps, ready }) => {
     const exposures = cell?.exposures ?? 0;
     return {
       symbol,
@@ -119,6 +115,7 @@ export function computeProgressionDetail({
       ready,
     };
   });
+  const readyCount = evaluated.filter((s) => s.ready).length;
   const notReady = currentStepSymbols.length - readyCount;
   return {
     openedSteps,

@@ -75,3 +75,42 @@ export function isSymbolReady({
   const gaps = readinessGaps({ cell, params, repertoireMedianLatency });
   return !gaps.exposure && !gaps.accuracy && !gaps.latency;
 }
+
+/** Готовность одного символа шага: сырая ячейка, три гейта Readiness и итог. */
+export interface StepSymbolReadiness {
+  symbol: string;
+  cell: ProfileCell | undefined;
+  gaps: ReadinessGaps;
+  ready: boolean; // = !gaps.exposure && !gaps.accuracy && !gaps.latency
+}
+
+/** Готовность шага целиком: медиана репертуара (посчитана раз) + символы в порядке шага. */
+export interface StepReadiness {
+  repertoireMedianLatency: number;
+  symbols: StepSymbolReadiness[];
+}
+
+/**
+ * Общий setup+обход готовности символов шага: медиана репертуара и per-symbol gaps
+ * считаются один раз, символы возвращаются в порядке входа. Дом для writer'а роста
+ * (growth) и reader'ов прогресса (progress) — они делят обход, но каждый агрегирует
+ * итог по-своему (счётчики, blockers, per-symbol витрина).
+ */
+export function evaluateStepReadiness({
+  currentStepSymbols,
+  cells,
+  params,
+}: {
+  currentStepSymbols: readonly string[];
+  cells: readonly ProfileCell[];
+  params: ReadinessParams;
+}): StepReadiness {
+  const median = repertoireMedianLatency(cells);
+  const bySymbol = new Map(cells.map((c) => [c.symbol, c]));
+  const symbols = currentStepSymbols.map((symbol) => {
+    const cell = bySymbol.get(symbol);
+    const gaps = readinessGaps({ cell, params, repertoireMedianLatency: median });
+    return { symbol, cell, gaps, ready: !gaps.exposure && !gaps.accuracy && !gaps.latency };
+  });
+  return { repertoireMedianLatency: median, symbols };
+}

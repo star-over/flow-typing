@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { isSymbolReady, readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
+import { evaluateStepReadiness, isSymbolReady, readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
 
 const PARAMS = { minExposures: 20, minFirstTryAccuracy: 0.9, latencyK: 1.5 };
 const cell = (over: Partial<ProfileCell>): ProfileCell => ({
@@ -48,6 +48,59 @@ describe('readinessGaps', () => {
   test('медленнее k× медианы → latency не выполнено', () => {
     expect(readinessGaps({ cell: { symbol: 'а', exposures: 30, clean: 29, latencyEwma: 400, latencySamples: 30 }, params: P, repertoireMedianLatency: 200 }))
       .toMatchObject({ latency: true });
+  });
+});
+
+describe('evaluateStepReadiness', () => {
+  test('готовый символ — ready:true, все gaps false', () => {
+    const { symbols } = evaluateStepReadiness({
+      currentStepSymbols: ['а'],
+      cells: [cell({ symbol: 'а', latencyEwma: 250 })],
+      params: PARAMS,
+    });
+    expect(symbols).toHaveLength(1);
+    expect(symbols[0]).toMatchObject({
+      symbol: 'а',
+      gaps: { exposure: false, accuracy: false, latency: false },
+      ready: true,
+    });
+  });
+  test('отсутствующая ячейка — ready:false, все gaps true, cell undefined', () => {
+    const { symbols } = evaluateStepReadiness({
+      currentStepSymbols: ['я'],
+      cells: [cell({ symbol: 'а', latencyEwma: 200 })],
+      params: PARAMS,
+    });
+    expect(symbols[0]).toEqual({
+      symbol: 'я',
+      cell: undefined,
+      gaps: { exposure: true, accuracy: true, latency: true },
+      ready: false,
+    });
+  });
+  test('repertoireMedianLatency в результате = медиана входных cells', () => {
+    const { repertoireMedianLatency: median } = evaluateStepReadiness({
+      currentStepSymbols: ['а'],
+      cells: [
+        cell({ symbol: 'а', latencyEwma: 100 }),
+        cell({ symbol: 'б', latencyEwma: 300 }),
+        cell({ symbol: 'в', latencyEwma: 0, latencySamples: 0 }), // без замеров — вне медианы
+      ],
+      params: PARAMS,
+    });
+    expect(median).toBe(200);
+  });
+  test('порядок symbols соответствует currentStepSymbols', () => {
+    const { symbols } = evaluateStepReadiness({
+      currentStepSymbols: ['в', 'а', 'б'],
+      cells: [
+        cell({ symbol: 'а' }),
+        cell({ symbol: 'б' }),
+        cell({ symbol: 'в' }),
+      ],
+      params: PARAMS,
+    });
+    expect(symbols.map((s) => s.symbol)).toEqual(['в', 'а', 'б']);
   });
 });
 
