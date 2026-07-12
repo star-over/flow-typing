@@ -9,5 +9,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
-  sessionDurationSeconds: 300,
+  sessionDurationSeconds: 60,
 };

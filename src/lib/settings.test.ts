@@ -13,7 +13,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
-      sessionDurationSeconds: 300,
+      sessionDurationSeconds: 60,
     });
   });
 
@@ -27,7 +27,7 @@ describe('normalizeSettings', () => {
       theme: 'auto',
       displayName: '',
       rhythmChannelEnabled: false,
-      sessionDurationSeconds: 300,
+      sessionDurationSeconds: 60,
     });
   });
 
@@ -65,11 +65,11 @@ describe('normalizeSettings', () => {
     expect(normalizeSettings({ sessionDurationSeconds: 900 }).sessionDurationSeconds).toBe(900);
   });
 
-  it('невалидный sessionDurationSeconds → дефолт 300', () => {
-    expect(normalizeSettings({}).sessionDurationSeconds).toBe(300);
-    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(300);
-    expect(normalizeSettings({ sessionDurationSeconds: 30 }).sessionDurationSeconds).toBe(300);
-    expect(normalizeSettings({ sessionDurationSeconds: 120 }).sessionDurationSeconds).toBe(300);
+  it('невалидный sessionDurationSeconds → дефолт 60', () => {
+    expect(normalizeSettings({}).sessionDurationSeconds).toBe(60);
+    expect(normalizeSettings({ sessionDurationSeconds: 'ten' }).sessionDurationSeconds).toBe(60);
+    expect(normalizeSettings({ sessionDurationSeconds: 30 }).sessionDurationSeconds).toBe(60);
+    expect(normalizeSettings({ sessionDurationSeconds: 120 }).sessionDurationSeconds).toBe(60);
   });
 
   it('displayName: любая строка проходит как есть', () => {
