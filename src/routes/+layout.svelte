@@ -7,7 +7,7 @@
   import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
   import { appActor } from '@/machines/appActor';
-  import { selectSessionActor } from '@/machines/selectors';
+  import { selectSessionActor, selectSessionTimer } from '@/machines/selectors';
   import { computeTimerSeconds } from '@/lib/timer-display';
   import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
   import { dictionary } from '@/lib/i18n';
@@ -105,9 +105,9 @@
       displayElapsedMs = 0;
       return;
     }
-    displayElapsedMs = actor.getSnapshot().context.displayElapsedMs;
+    displayElapsedMs = selectSessionTimer(actor.getSnapshot()).displayElapsedMs;
     const sub = actor.subscribe((s) => {
-      displayElapsedMs = s.context.displayElapsedMs;
+      displayElapsedMs = selectSessionTimer(s).displayElapsedMs;
     });
     return () => sub.unsubscribe();
   });
@@ -116,7 +116,7 @@
       displayElapsedMs,
       isTraining: inState({ snapshot: appState, value: 'training' }),
       hasSession: sessionActor !== undefined,
-      durationSeconds: sessionActor?.getSnapshot().context.durationSeconds ?? DEFAULT_USER_SETTINGS.sessionDurationSeconds,
+      durationSeconds: sessionActor ? selectSessionTimer(sessionActor.getSnapshot()).durationSeconds : DEFAULT_USER_SETTINGS.sessionDurationSeconds,
     }),
   );
 

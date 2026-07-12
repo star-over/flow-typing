@@ -4,6 +4,7 @@
   import type { FingerLayout, FlowLineCursorType, PhysicalLayout, TypingStream } from '@/interfaces/types';
 
   import { selectTrainingActor } from '@/machines/selectors';
+  import { inState } from '@/lib/state-utils';
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
@@ -40,7 +41,7 @@
   // Первая порция ещё в пути (session.loading): показываем надпись вместо пустой
   // сцены (пустой FlowLine + простаивающие руки читались бы как «сломано»). Сбой
   // сети уводит сессию в error → sessionError-экран рисует MainContent, не здесь.
-  const isLoading = $derived(sessionState.matches('loading'));
+  const isLoading = $derived(inState({ snapshot: sessionState, value: 'loading' }));
 
   // Вложенный training появляется после loading; терпим отсутствие.
   const trainingActor = $derived(selectTrainingActor(sessionState));

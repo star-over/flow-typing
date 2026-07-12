@@ -2,6 +2,7 @@
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor } from '@/machines/selectors';
 
+  import { inState } from '@/lib/state-utils';
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
   import { onDestroy, onMount } from 'svelte';
@@ -22,7 +23,7 @@
   // тренажёр в `menu` здесь, при монтировании (= при входе на /train). Пауза/
   // возобновление внутри /train не задеты: их внутренние переходы App не размонтируют (ADR 0010).
   onMount(() => {
-    if (!appActor.getSnapshot().matches('menu')) {
+    if (!inState({ snapshot: appActor.getSnapshot(), value: 'menu' })) {
       appActor.send({ type: 'TRAINER_OPENED' });
     }
   });
@@ -34,7 +35,7 @@
   // TRAINER_OPENED возвращаем тренажёр в menu → invoked-sessionService
   // завершается вместе с таймером, Header очищается.
   onDestroy(() => {
-    if (!appActor.getSnapshot().matches('menu')) {
+    if (!inState({ snapshot: appActor.getSnapshot(), value: 'menu' })) {
       appActor.send({ type: 'TRAINER_CLOSED' });
     }
   });

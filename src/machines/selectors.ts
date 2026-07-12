@@ -29,3 +29,21 @@ export function selectTrainingActor(
 ): Actor<typeof trainingMachine> | undefined {
   return sessionSnapshot.children.training as Actor<typeof trainingMachine> | undefined;
 }
+
+/**
+ * Достать поля таймера из снимка sessionMachine.
+ *
+ * Единственное место, которое знает имена полей контекста session-машины
+ * (`displayElapsedMs`, `durationSeconds`). Таймер тикает ВНУТРИ session-актора
+ * и в снимок appActor намеренно не всплывает — UI подписывается на session-
+ * актора напрямую (см. `+layout.svelte:97`). Тотальный: снимок у вызывающего
+ * есть всегда, отсутствие самого актора компонент гасит отдельно.
+ */
+export function selectSessionTimer(
+  sessionSnapshot: SnapshotFrom<typeof sessionMachine>
+): { displayElapsedMs: number; durationSeconds: number } {
+  return {
+    displayElapsedMs: sessionSnapshot.context.displayElapsedMs,
+    durationSeconds: sessionSnapshot.context.durationSeconds,
+  };
+}
