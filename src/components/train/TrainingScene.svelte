@@ -7,9 +7,8 @@
   import { createKeyboardGraph } from '@/lib/pathfinding';
   import { createKeyCoordinateMap } from '@/lib/layout-utils';
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
-  import { getPressResult } from '@/lib/press-result-utils';
+  import { enrichStreamSymbols, getPressResult } from '@/lib/typing-stream';
   import { getSymbolLayout } from '@/lib/layouts';
-  import { enrichStreamSymbols } from '@/lib/stream-utils';
 
   import FlowLine from '@/components/flow-line/FlowLine.svelte';
   import HandsScene from '@/components/hands-scene/HandsScene.svelte';

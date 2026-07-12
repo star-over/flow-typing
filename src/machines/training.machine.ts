@@ -8,7 +8,7 @@
 import { assertEvent, assign, sendTo, setup } from 'xstate';
 
 import type { KeyCapId, ParentActor, StreamSymbol, SymbolLayoutId, TypingStream } from '@/interfaces/types';
-import { addAttempt } from '@/lib/stream-utils';
+import { addAttempt } from '@/lib/typing-stream';
 import { areKeyCapIdArraysEqual } from '@/lib/key-cap';
 
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import RegularSymbol from './RegularSymbol.svelte';
   import CursorSymbol from './CursorSymbol.svelte';
-  import type { EnrichedStreamSymbol } from '@/lib/stream-utils';
+  import type { EnrichedStreamSymbol } from '@/lib/typing-stream';
   import type {
     KeyCapPressResult,
     FlowLineCursorType,
