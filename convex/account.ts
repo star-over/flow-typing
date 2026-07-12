@@ -8,7 +8,7 @@ import type { MutationCtx } from './_generated/server';
 // что принадлежит юзеру, в ОДНОЙ транзакции: мутация Convex атомарна — при
 // ошибке на любом шаге не фиксируется ничего, частичного удаления не бывает.
 //
-//   Продуктовые данные: userSettings · skillProfiles · sessionSummaries
+//   Продуктовые данные: userSettings · skillProfiles · sessionSummaries · clientErrors
 //   Auth: authRefreshTokens (по сессиям) · authSessions · authAccounts
 //   Строка users — последней.
 //
@@ -58,6 +58,14 @@ export async function deleteMyAccountHandler({
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId))
     .collect();
   for (const row of summaries) await ctx.db.delete(row._id);
+
+  // clientErrors (P0-7): телеметрия ошибок с userId юзера. userId optional (гость
+  // пишет без него) — eq(userId) отбирает только строки этого юзера, гостевые не трогает.
+  const errors = await ctx.db
+    .query('clientErrors')
+    .withIndex('by_user', (q) => q.eq('userId', userId))
+    .collect();
+  for (const row of errors) await ctx.db.delete(row._id);
 
   // 2. Auth: каждая сессия + её refresh-токены (примитив deleteSession), затем аккаунты.
   const sessions = await ctx.db

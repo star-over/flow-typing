@@ -5,7 +5,7 @@ import type { MutationCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
 
 // Сеет юзера со строками во ВСЕХ таблицах, которые трогает каскад: продуктовые
-// (userSettings, skillProfiles, sessionSummaries) + auth (authAccounts,
+// (userSettings, skillProfiles, sessionSummaries, clientErrors) + auth (authAccounts,
 // authSessions, authRefreshTokens). Возвращает userId + sessionId (refresh-токен
 // висит на сессии, не на userId — нужен для проверки его удаления).
 async function seedFullUser({
@@ -37,6 +37,7 @@ async function seedFullUser({
     latencyMedianMs: 200,
     confusions: [],
   });
+  await ctx.db.insert('clientErrors', { userId, message: 'boom', capturedAt: 1 });
   await ctx.db.insert('authAccounts', {
     userId,
     provider: 'github',
@@ -70,6 +71,10 @@ async function userFootprint({
     .query('sessionSummaries')
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId))
     .collect();
+  const errors = await ctx.db
+    .query('clientErrors')
+    .withIndex('by_user', (q) => q.eq('userId', userId))
+    .collect();
   const accounts = await ctx.db
     .query('authAccounts')
     .withIndex('userIdAndProvider', (q) => q.eq('userId', userId))
@@ -87,6 +92,7 @@ async function userFootprint({
     settings: settings.length,
     profiles: profiles.length,
     summaries: summaries.length,
+    errors: errors.length,
     accounts: accounts.length,
     sessions: sessions.length,
     refreshTokens: refreshTokens.length,
@@ -94,8 +100,8 @@ async function userFootprint({
   };
 }
 
-const FULL = { settings: 1, profiles: 1, summaries: 1, accounts: 1, sessions: 1, refreshTokens: 1, user: 1 };
-const EMPTY = { settings: 0, profiles: 0, summaries: 0, accounts: 0, sessions: 0, refreshTokens: 0, user: 0 };
+const FULL = { settings: 1, profiles: 1, summaries: 1, errors: 1, accounts: 1, sessions: 1, refreshTokens: 1, user: 1 };
+const EMPTY = { settings: 0, profiles: 0, summaries: 0, errors: 0, accounts: 0, sessions: 0, refreshTokens: 0, user: 0 };
 
 describe('deleteMyAccountHandler', () => {
   test('стирает все строки юзера во всех таблицах каскада', async () => {
@@ -121,6 +127,21 @@ describe('deleteMyAccountHandler', () => {
 
       expect(await userFootprint({ ctx, ...a })).toEqual(EMPTY);
       expect(await userFootprint({ ctx, ...b })).toEqual(FULL); // чужое цело
+    });
+  });
+
+  test('не трогает clientErrors гостя (userId === undefined)', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const a = await seedFullUser({ ctx, email: 'a@example.com' });
+      // Ошибка без userId — гостевая телеметрия (лендинг/signin до входа). Каскад
+      // юзера её не должен коснуться: удаление scoped по userId, не «стереть всё».
+      const guestErrorId = await ctx.db.insert('clientErrors', { message: 'guest boom', capturedAt: 1 });
+
+      await deleteMyAccountHandler({ ctx, userId: a.userId });
+
+      expect(await userFootprint({ ctx, ...a })).toEqual(EMPTY); // ошибка юзера ушла
+      expect(await ctx.db.get(guestErrorId)).not.toBeNull(); // гостевая цела
     });
   });
 

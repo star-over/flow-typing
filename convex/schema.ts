@@ -97,8 +97,10 @@ export default defineSchema({
   // `handleError`. Замена внешнему error-tracking'у (Sentry недоступен владельцу в
   // РФ + приватность-бренд) — ошибки лежат там же, где метрики, видны в Convex
   // dashboard. userId optional: ошибка возможна и у гостя (лендинг, /signin,
-  // train-gate до входа) — тогда его нет. capturedAt штампует сервер. Индекса нет:
-  // читатель на MVP — сам dashboard; query-читателя (панель) заведём с ним (P1).
+  // train-gate до входа) — тогда его нет. capturedAt штампует сервер.
+  // by_user — для каскада удаления аккаунта (право на забвение, deleteMyAccount):
+  // строки гостя (userId===undefined) под eq(concreteId) не совпадают → чистятся
+  // только ошибки удаляемого юзера. Query-читателя (панель) заведём в P1.
   clientErrors: defineTable({
     message: v.string(),
     stack: v.optional(v.string()),
@@ -106,5 +108,5 @@ export default defineSchema({
     userAgent: v.optional(v.string()),
     userId: v.optional(v.id('users')),
     capturedAt: v.number(), // server-stamped
-  }),
+  }).index('by_user', ['userId']),
 });
