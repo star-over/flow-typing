@@ -531,7 +531,7 @@ public API (не область дублирования кандидата 5). 
 вывода, `SymbolProgress`-маппинг и `firstTryAccuracy`-логика остались дословно у потребителя).
 Импорт `progress.ts` из `readiness` сужен до `evaluateStepReadiness`+`type ProfileCell`+
 `type ReadinessGaps` (прямые `readinessGaps`/`repertoireMedianLatency` ушли); growth — до
-`evaluateStepReadiness`. `isSymbolReady` **не тронут** (осиротел в проде — осознанно, см. выше).
+`evaluateStepReadiness`. `isSymbolReady` **не тронут** (осиротел в боевом коде — осознанно, см. выше).
 `convex/drill.ts` и `layout-utils.ts` не трогались. **Приёмка фактической проверкой:** re-grep —
 прямой setup (`readinessGaps`/`repertoireMedianLatency(`/`new Map(`) исчез из growth/progress,
 `evaluateStepReadiness` во всех трёх, вызовы в `drill.ts` неизменны; `make check-dev` зелёный
