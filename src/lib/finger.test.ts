@@ -1,7 +1,7 @@
 import { describe, expect,it } from "vitest";
 
 import { getFingerLayout } from "@/lib/layouts";
-import { getFingerKeys } from "./hand-utils";
+import { getFingerByKeyCap, getFingerKeys } from "./finger";
 
 const fingerLayoutASDF = getFingerLayout('asdf');
 
@@ -24,5 +24,17 @@ describe('getFingerKeys', () => {
     expect(lbCluster).toEqual([]);
     const rbCluster = getFingerKeys({ fingerId: 'RB', fingerLayout: fingerLayoutASDF });
     expect(rbCluster).toEqual([]);
+  });
+});
+
+describe('getFingerByKeyCap', () => {
+  it('should return the correct fingerId for a given KeyCapId', () => {
+    expect(getFingerByKeyCap({ keyCapId: 'KeyA', fingerLayout: fingerLayoutASDF })).toBe('L5');
+    expect(getFingerByKeyCap({ keyCapId: 'KeyJ', fingerLayout: fingerLayoutASDF })).toBe('R2');
+    expect(getFingerByKeyCap({ keyCapId: 'Space', fingerLayout: fingerLayoutASDF })).toBe('R1');
+  });
+
+  it('should return undefined for a KeyCapId not in the finger layout', () => {
+    expect(getFingerByKeyCap({ keyCapId: 'Unknown', fingerLayout: fingerLayoutASDF })).toBeUndefined();
   });
 });

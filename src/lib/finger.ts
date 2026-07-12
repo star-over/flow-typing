@@ -1,7 +1,8 @@
 /**
- * @file Утилиты для работы с руками и пальцами.
- * @description Содержит функции для определения состояний рук и пальцев,
- * их принадлежности, и для получения связанных с ними данных.
+ * @file Концепт-дом пальца: соответствие пальцев и клавиш.
+ * @description Собирает finger↔keyCap-логику над `FingerLayout`: какие клавиши
+ * назначены пальцу (Кластер), какая клавиша домашняя, какому пальцу принадлежит
+ * клавиша, и к какой руке относится сам палец. Сторона руки — свойство пальца.
  */
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import {
@@ -51,4 +52,16 @@ export function getHomeKeyForFinger({
     (item) => item.fingerId === fingerId && item.home
   );
   return entry ? entry.keyCapId : undefined;
+}
+
+/** Получает `fingerId` для заданного `KeyCapId` из пальцевого макета. */
+export function getFingerByKeyCap({
+  keyCapId,
+  fingerLayout,
+}: {
+  keyCapId: KeyCapId;
+  fingerLayout: FingerLayout;
+}): FingerId | undefined {
+  const entry = fingerLayout.find((item) => item.keyCapId === keyCapId);
+  return entry ? entry.fingerId : undefined;
 }

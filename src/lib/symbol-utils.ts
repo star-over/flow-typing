@@ -1,7 +1,5 @@
 import type { KeyCapId } from "@/interfaces/key-cap-id";
 import type {
-  FingerId,
-  FingerLayout,
   PhysicalLayout,
   SymbolLayout,
 } from "@/interfaces/types";
@@ -159,18 +157,6 @@ export function keyCapHasSymbol({
   return symbolLayout.some(
     (entry) => entry.keyCaps.length === 1 && entry.keyCaps[0] === keyCapId,
   );
-}
-
-/** Получает `fingerId` для заданного `KeyCapId` из пальцевого макета. */
-export function getFingerByKeyCap({
-  keyCapId,
-  fingerLayout,
-}: {
-  keyCapId: KeyCapId;
-  fingerLayout: FingerLayout;
-}): FingerId | undefined {
-  const entry = fingerLayout.find((item) => item.keyCapId === keyCapId);
-  return entry ? entry.fingerId : undefined;
 }
 
 /**

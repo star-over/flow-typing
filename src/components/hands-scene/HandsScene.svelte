@@ -18,7 +18,7 @@
   import { calculateClusterTranslation } from '@/lib/positioning-utils';
   import { createKeyboardSceneForFinger } from '@/lib/keyboard-scene';
   import { createKeyLabelMap } from '@/lib/symbol-utils';
-  import { getHomeKeyForFinger } from '@/lib/hand-utils';
+  import { getHomeKeyForFinger } from '@/lib/finger';
   import { createKeyboardGraph, findOptimalPath } from '@/lib/pathfinding';
   import { HAND_VIEW_BOX } from './finger-paths';
   import { onMount } from 'svelte';

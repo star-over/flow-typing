@@ -65,13 +65,14 @@ import {
 } from "@/interfaces/types";
 
 import {
+  getFingerByKeyCap,
   getFingerKeys,
   getHomeKeyForFinger,
   isLeftHandFinger,
-} from "./hand-utils";
+} from "./finger";
 import type { KeyCoordinateMap } from "./layout-utils";
 import { type AdjacencyList, findOptimalPath } from "./pathfinding";
-import { areKeyCapIdArraysEqual, getFingerByKeyCap, keyCapHasSymbol } from "./symbol-utils";
+import { areKeyCapIdArraysEqual, keyCapHasSymbol } from "./symbol-utils";
 
 /**
  * Черновая (не запечатанная) модель сцены рук — рабочий тип конвейера сборки.

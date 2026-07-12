@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getFingerLayout, getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
-import { areKeyCapIdArraysEqual, getFingerByKeyCap,getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey, keyCapHasSymbol } from './symbol-utils';
+import { getPhysicalLayout, getSymbolLayout } from '@/lib/layouts';
+import { areKeyCapIdArraysEqual, getKeyCapIdsForChar, getLabel, isModifierKey, isTextKey, keyCapHasSymbol } from './symbol-utils';
 
 const symbolLayoutQwerty = getSymbolLayout('qwerty');
-const fingerLayoutASDF = getFingerLayout('asdf');
 const physicalLayoutANSI = getPhysicalLayout('ansi');
 
 describe('getKeyCapIdsForChar', () => {
@@ -93,18 +92,6 @@ describe('isModifierKey', () => {
   it('should return false for an invalid or non-existent KeyCapId', () => {
     expect(isModifierKey({ key: 'InvalidKey', physicalLayout: physicalLayoutANSI })).toBe(false);
     expect(isModifierKey({ key: 'Shift', physicalLayout: physicalLayoutANSI })).toBe(false);
-  });
-});
-
-describe('getFingerByKeyCap', () => {
-  it('should return the correct fingerId for a given KeyCapId', () => {
-    expect(getFingerByKeyCap({ keyCapId: 'KeyA', fingerLayout: fingerLayoutASDF })).toBe('L5');
-    expect(getFingerByKeyCap({ keyCapId: 'KeyJ', fingerLayout: fingerLayoutASDF })).toBe('R2');
-    expect(getFingerByKeyCap({ keyCapId: 'Space', fingerLayout: fingerLayoutASDF })).toBe('R1');
-  });
-
-  it('should return undefined for a KeyCapId not in the finger layout', () => {
-    expect(getFingerByKeyCap({ keyCapId: 'Unknown', fingerLayout: fingerLayoutASDF })).toBeUndefined();
   });
 });
 

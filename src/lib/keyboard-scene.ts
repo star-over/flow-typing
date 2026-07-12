@@ -22,7 +22,7 @@ import type {
   Visibility,
 } from "@/interfaces/types";
 import { KEY_CAP_UNIT_WIDTHS } from "@/interfaces/types";
-import { getHomeKeyForFinger } from "@/lib/hand-utils";
+import { getHomeKeyForFinger } from "@/lib/finger";
 import { getLabel } from "@/lib/symbol-utils";
 
 /**
