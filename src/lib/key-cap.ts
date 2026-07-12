@@ -1,6 +1,6 @@
 /**
  * @file Концепт-дом клавиши (KeyCap): поведение над клавишами через слои раскладок.
- * @description Собирает keyCap-логику, ключённую на `KeyCapId`: надпись/символ клавиши
+ * @description Собирает keyCap-логику, привязанную к `KeyCapId`: надпись/символ клавиши
  * в символьной раскладке (`SymbolLayout`) — `getLabel`, `createKeyLabelMap`,
  * `getKeyCapIdsForChar`, `keyCapHasSymbol`; физический тип клавиши в физической раскладке
  * (`PhysicalLayout`) — `isModifierKey`, `isTextKey`; равенство аккордов — `areKeyCapIdArraysEqual`.
