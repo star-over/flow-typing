@@ -1,6 +1,6 @@
 # Признак окружения деплоя — явная `DEPLOY_ENV`, трактуемая fail-closed
 
-> Статус: принят · 2026-07-09 · Реализация: в коде (`convex/lib/env.ts`; правит план запуска [`docs/plans/2026-07-05-mvp-launch.md`](../plans/2026-07-05-mvp-launch.md) §2 P0-3, §4)
+> Статус: принят · 2026-07-09 · поправлен [ADR 0024](0024-dev-login-vite-dev-gating.md) (снят второй предохранитель Password) · Реализация: в коде (`convex/lib/env.ts`; правит план запуска [`docs/plans/2026-07-05-mvp-launch.md`](../plans/2026-07-05-mvp-launch.md) §2 P0-3, §4)
 
 Dev-инструменты (ADR 0012) — Password-провайдер входа и мутации «чистого листа»
 (`resetMyProfile`) / прыжка по ступеням (`setMyLadderStep`) — на боевом deployment опасны:
@@ -65,6 +65,11 @@ Password регистрируется при `devLoginEnabled && !isProduction()
   `!isProduction()`): ошибочно выставленный на prod флаг провайдер не поднимет.
 - **Env-матрица запуска дополнена** (план §4): prod — `DEPLOY_ENV` не задавать (или
   `production`) и `AUTH_DEV_LOGIN_ENABLED` не ставить; dev — `DEPLOY_ENV=development`.
+- _(2026-07-11, [ADR 0024](0024-dev-login-vite-dev-gating.md))_ **Второй предохранитель
+  Password снят.** `AUTH_DEV_LOGIN_ENABLED` больше не читается; Password за одним
+  `!isProduction()`, в один ряд с dev-мутациями. Следствия выше про «два независимых
+  предохранителя» и prod-строку «`AUTH_DEV_LOGIN_ENABLED` не ставить» относятся к
+  исходному решению; актуальный механизм и разбор цены — в 0024.
 
 <!--
 Написано в момент решения (сессия 2026-07-09), владельцем выбрана fail-closed-семантика.

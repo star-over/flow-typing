@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext } from 'svelte';
-  import { env } from '$env/dynamic/public';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import type { OAuthProviderId } from '@/lib/auth/auth.types';
@@ -24,26 +23,26 @@
     }
   }
 
-  // Dev-вход (ADR 0012): кнопка существует только когда .env.local даёт все три
-  // флага. Гарантия «нет кнопки на production» держится на окружении: для
-  // adapter-static $env/dynamic/public подставляется на этапе vite build из
-  // наличного .env.local и записывается в статический build/_app/env.js. CI/prod
-  // собирает без этих флагов → кнопки нет; локальный make build с dev-.env.local
-  // их запечёт, но build/ gitignored и по сети не отдаётся. Серверная половина —
-  // Password-провайдер за AUTH_DEV_LOGIN_ENABLED (convex/auth.ts) — на production
-  // отсутствует.
-  const devLoginAvailable =
-    env.PUBLIC_DEV_LOGIN === 'true' &&
-    Boolean(env.PUBLIC_DEV_LOGIN_EMAIL) &&
-    Boolean(env.PUBLIC_DEV_LOGIN_PASSWORD);
+  // Dev-вход (ADR 0012; механизм — ADR 0024): кнопка существует только в
+  // dev-сборке. `import.meta.env.DEV` — встроенный признак Vite: true под
+  // `vite dev` (make dev), false в любой сборке (`vite build`, CI/prod). Prod-сборка
+  // эту ветку не содержит — dead-code elimination вырезает её на сборке. Ноль
+  // env-флагов, ноль .env.local — единообразно с window.__* dev-helper'ами
+  // (appActor.ts). Серверная половина — Password-провайдер за `!isProduction()`
+  // (convex/auth.ts) — на production отсутствует.
+  const devLoginAvailable = import.meta.env.DEV;
+
+  // Фиксированный тестовый dev-аккаунт: компилируется только в dev-сборку
+  // (ветка выше). Работает лишь против не-prod Convex, где поднят Password-провайдер.
+  // Не секрет; репозиторий публичный → экспозиция ограничена dev-песочницей
+  // (ADR 0024, «остаточный риск»).
+  const DEV_LOGIN_EMAIL = 'dev@flowtyping.local';
+  const DEV_LOGIN_PASSWORD = 'flowtyping-dev-login';
 
   async function handleDevSignIn() {
     error = null;
     signingIn = true;
-    const email = env.PUBLIC_DEV_LOGIN_EMAIL;
-    const password = env.PUBLIC_DEV_LOGIN_PASSWORD;
-    if (!email || !password) return; // недостижимо при devLoginAvailable, но безопасно для TS
-    const credentials = { email, password };
+    const credentials = { email: DEV_LOGIN_EMAIL, password: DEV_LOGIN_PASSWORD };
     try {
       try {
         await auth.signIn('password', { ...credentials, flow: 'signIn' });
@@ -62,15 +61,17 @@
 <section class="sign-in-screen">
   <h1 class="sign-in-screen__title">{$dictionary.sign_in.title}</h1>
 
-  <button
-    type="button"
-    class="sign-in-screen__btn-github"
-    disabled={signingIn}
-    onclick={() => handleSignIn('github')}
-  >
-    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.github}
-  </button>
-
+  <!--
+    EN soft-launch (P0-11, ADR 0021): показываем только Google. GitHub/Yandex
+    временно скрыты. Убраны только их <button> + scoped-CSS здесь; общая
+    инфраструктура намеренно оставлена дремать: backend-провайдеры
+    (convex/auth.ts), тип OAuthProviderId, контракт-токены
+    `--sign-in-screen-btn-{github,yandex}-*` + их значения в темах, i18n-ключи
+    `sign_in.{github,yandex}` и `sign_in.disclaimer`. Вернуть провайдера
+    (например Yandex к RU-запуску) = вставить назад его <button> + scoped-CSS.
+    Оговорка «провайдер = аккаунт» при одном провайдере бессмысленна → не
+    рендерим (вернуть <p class="sign-in-screen__disclaimer"> вместе с провайдерами).
+  -->
   <button
     type="button"
     class="sign-in-screen__btn-google"
@@ -79,19 +80,6 @@
   >
     {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.google}
   </button>
-
-  <button
-    type="button"
-    class="sign-in-screen__btn-yandex"
-    disabled={signingIn}
-    onclick={() => handleSignIn('yandex')}
-  >
-    {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.yandex}
-  </button>
-
-  <p class="sign-in-screen__disclaimer">
-    {$dictionary.sign_in.disclaimer}
-  </p>
 
   {#if devLoginAvailable}
     <button
@@ -128,32 +116,6 @@
     margin: 0;
   }
 
-  .sign-in-screen__disclaimer {
-    color: var(--sign-in-screen-disclaimer-color);
-    font-size: 0.875rem;
-    text-align: center;
-    margin: 0;
-  }
-
-  .sign-in-screen__btn-github {
-    background: var(--sign-in-screen-btn-github-background);
-    color: var(--sign-in-screen-btn-github-color);
-    border: var(--sign-in-screen-btn-github-border);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-sm, 0.25rem);
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .sign-in-screen__btn-github:hover {
-    background: var(--sign-in-screen-btn-github-hover-background);
-  }
-
-  .sign-in-screen__btn-github:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
   .sign-in-screen__btn-google {
     background: var(--sign-in-screen-btn-google-background);
     color: var(--sign-in-screen-btn-google-color);
@@ -173,27 +135,8 @@
     cursor: not-allowed;
   }
 
-  .sign-in-screen__btn-yandex {
-    background: var(--sign-in-screen-btn-yandex-background);
-    color: var(--sign-in-screen-btn-yandex-color);
-    border: var(--sign-in-screen-btn-yandex-border);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-sm, 0.25rem);
-    cursor: pointer;
-    font-size: 1rem;
-  }
-
-  .sign-in-screen__btn-yandex:hover {
-    background: var(--sign-in-screen-btn-yandex-hover-background);
-  }
-
-  .sign-in-screen__btn-yandex:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
   /* Dev-инструмент (ADR 0012): сознательно вне theme-контракта — кнопка живёт
-     только в dev-сборке за PUBLIC_DEV_LOGIN, темизировать нечего. */
+     только в dev-сборке (import.meta.env.DEV), темизировать нечего. */
   .sign-in-screen__btn-dev {
     background: transparent;
     color: var(--color-text-secondary);

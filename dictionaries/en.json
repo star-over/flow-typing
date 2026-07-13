@@ -46,7 +46,8 @@
     "error_network": "Couldn't reach the server. Check your connection and try again.",
     "reload": "Reload",
     "retry": "Retry",
-    "session_empty": "No characters were typed this session."
+    "session_empty": "No characters were typed this session.",
+    "privacy_policy": "Privacy Policy"
   },
   "settings": {
     "title": "User Preferences",
@@ -68,6 +69,7 @@
     "rhythm_channel_label": "Rhythm channel",
     "rhythm_channel_description": "Show a rhythm guide under the typing line during training.",
     "session_duration_label": "Session duration",
+    "training_group": "Training",
     "theme_group_light": "Light themes",
     "theme_group_dark": "Dark themes",
     "language_placeholder": "Select language",
@@ -153,8 +155,12 @@
     "guest_invite": "Sign in to save step progress"
   },
   "train_gate": {
-    "guest": "Training requires signing in — your profile and progress live on the server.",
-    "sign_in": "Sign in"
+    "guest": "Training requires signing in — your profile and progress live on the server."
+  },
+  "keyboard_required": {
+    "title": "A physical keyboard is required",
+    "body": "FlowTyping is a touch-typing trainer built for the desktop. Typing needs a physical keyboard — open it on a computer.",
+    "continue_anyway": "Continue anyway"
   },
   "sign_in": {
     "title": "Sign in to FlowTyping",
@@ -162,7 +168,7 @@
     "google": "Sign in with Google",
     "yandex": "Sign in with Yandex",
     "redirecting": "Redirecting…",
-    "disclaimer": "Use the same sign-in method as before — your progress is tied to it.",
+    "disclaimer": "Your progress is tied to your sign-in method — use the same one each time.",
     "dev_login": "Dev login (agent / E2E)",
     "dev_login_pending": "Signing in…"
   },

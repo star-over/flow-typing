@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Actor, StateFrom } from 'xstate';
-  import type { appMachine, AppEvent } from '@/machines/app.machine';
+  import type { appMachine } from '@/machines/app.machine';
   import type { sessionMachine } from '@/machines/session.machine';
   import type { Dictionary } from '@/interfaces/types';
   import { getContext } from 'svelte';
@@ -15,7 +15,6 @@
 
   import TrainingScene from '@/components/train/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/train/LessonStatsDisplay.svelte';
-  import MenuScreen from '@/components/train/MenuScreen.svelte';
   import RepertoireProgress from '@/components/train/RepertoireProgress.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
@@ -25,12 +24,11 @@
 
   interface Props {
     state: StateFrom<typeof appMachine>;
-    send: (event: AppEvent) => void;
     dictionary: Dictionary;
     sessionActor: Actor<typeof sessionMachine> | undefined;
   }
 
-  const { state, send, dictionary, sessionActor }: Props = $props();
+  const { state, dictionary, sessionActor }: Props = $props();
 
   // null, когда нечего показывать (нет завершённой сессии или ни одного предъявления).
   // Тогда экран sessionComplete пуст — допустимое degenerate-состояние, решение
@@ -66,12 +64,12 @@
 {:else if inState({ snapshot: state, value: 'sessionComplete' })}
   <!-- Вырожденное завершение: сессия окончилась без единого предъявления
        (lessonStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
-       а не оставляем белое поле. Кнопки («В меню» / «Начать заново») — в FooterActions. -->
+       а не оставляем белое поле. Кнопка «Начать заново» — в FooterActions. -->
   <p class="screen-note">{dictionary.app.session_empty}</p>
 
 {:else if inState({ snapshot: state, value: 'sessionError' })}
   <!-- Сетевой сбой старта сессии (sessionMachine.error → SESSION.ERROR): видимая
-       деградация вместо тихого пустого завершения. Кнопки «Повторить» / «В меню» —
+       деградация вместо тихого пустого завершения. Кнопка «Повторить» —
        в FooterActions. -->
   <div class="session-error">
     <h2 class="screen-title">{dictionary.app.error_title}</h2>
@@ -80,12 +78,9 @@
 
 {:else if inState({ snapshot: state, value: { training: 'paused' } })}
   <h2 class="screen-title pause">{dictionary.app.pause}</h2>
-{:else if inState({ snapshot: state, value: 'menu' })}
-  <MenuScreen
-    {dictionary}
-    onStart={({ symbolLayoutId }) => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds: $settings.sessionDurationSeconds })}
-  />
 {/if}
+<!-- Ветки под `idle` нет: /train автоматически запускает (ADR 0025), меню-экран упразднён. -->
+
 
 <style>
   .screen-title {

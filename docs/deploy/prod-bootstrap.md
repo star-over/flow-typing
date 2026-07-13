@@ -121,12 +121,13 @@ npx convex env set --prod JWKS '<из шага 3>'
 **НЕ ставить на prod (иначе откроешь dev-двери):**
 - ❌ `DEPLOY_ENV` — не задавать (fail-closed → трактуется как prod; ADR 0023).
   Для читаемости допустимо явно `npx convex env set --prod DEPLOY_ENV production`,
-  но **никогда** `development`.
-- ❌ `AUTH_DEV_LOGIN_ENABLED` — не ставить (Password-провайдер не поднимется; ADR 0012).
+  но **никогда** `development`. Это **единственный** гейт dev-дверей на prod (ADR 0024).
 - ❌ `CONVEX_SITE_URL` — не трогать руками (Convex выставляет сам).
 
-Проверить: `npx convex env list --prod --names-only` — убедиться, что нет `DEPLOY_ENV=development`
-и нет `AUTH_DEV_LOGIN_ENABLED`.
+`AUTH_DEV_LOGIN_ENABLED` больше не читается (снят в ADR 0024) — ставить или нет
+неважно; гейт Password теперь только `DEPLOY_ENV`.
+
+Проверить: `npx convex env list --prod --names-only` — убедиться, что нет `DEPLOY_ENV=development`.
 
 ## 6. CI (авто-развёртывание на push) — ОТЛОЖЕН
 
@@ -173,7 +174,7 @@ npx wrangler pages deploy build --project-name=flow-typing --branch=master
   «провайдер = аккаунт»).
 - Аватар грузится (`img-src` покрывает CDN провайдеров).
 - Пройти сессию тренировки (нужен корпус — шаг 11), открыть `/stats`.
-- Кнопки dev-входа на `/signin` **нет** (проверка, что `PUBLIC_DEV_LOGIN*` не запеклись).
+- Кнопки dev-входа на `/signin` **нет** (`import.meta.env.DEV === false` в prod-сборке → ветку вырезал DCE; ADR 0024).
 
 ## 11. Залить корпус в prod (обе раскладки: EN + RU)
 
@@ -209,14 +210,16 @@ npx convex run --prod selectionIndex:ladderReport '{"symbolLayoutId":"йцуке
 
 | Переменная | dev (`wandering-ocelot-9`) | prod |
 |---|---|---|
-| `DEPLOY_ENV` (Convex) | `development` | **не ставить** (или `production`) |
-| `AUTH_DEV_LOGIN_ENABLED` (Convex) | `true` | **не ставить** |
+| `DEPLOY_ENV` (Convex) | `development` | **не ставить** (или `production`) — единственный гейт dev-дверей (ADR 0024) |
 | `JWT_PRIVATE_KEY`+`JWKS` (Convex) | dev-ключи | **свежие** (шаг 3) |
 | `AUTH_{GITHUB,GOOGLE}_ID/SECRET` (Convex) | dev OAuth-app | prod OAuth-app (шаг 4) |
 | `SITE_URL` (Convex) | `http://localhost:5173` | `https://<prod-domain>` |
 | `PUBLIC_CONVEX_URL` (сборка) | из `.env.local` | подставляет `convex deploy --cmd-url-env-var-name` при ручном развёртывании |
-| `PUBLIC_DEV_LOGIN*` (`.env.local`) | опц. | **отсутствуют** (prod-сборка `.env.local` без dev-флагов) |
 | OAuth callback | `...wandering-ocelot-9.convex.site/...` | `https://<prod-convex>.convex.site/api/auth/callback/<provider>` |
+
+> Dev-вход env-переменных не требует (ADR 0024): кнопка — за `import.meta.env.DEV` (compile-time,
+> вырезается из prod-сборки), серверный Password — за `DEPLOY_ENV` (строка выше). Клиентских
+> `PUBLIC_DEV_LOGIN*` и серверного `AUTH_DEV_LOGIN_ENABLED` больше нет.
 
 ## Добавить OAuth-провайдера позже (Yandex/Apple/…)
 

@@ -29,8 +29,7 @@
   // показать — иначе в `running` остался бы пустой sticky-бар у нижней кромки.
   const hasActions = $derived(
     state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds }) ||
-    state.can({ type: 'RESUME' }) ||
-    state.can({ type: 'TO_MENU' })
+    state.can({ type: 'RESUME' })
   );
 </script>
 
@@ -45,11 +44,6 @@
       {#if state.can({ type: 'RESUME' })}
         <button type="button" class="btn success" onclick={() => send({ type: 'RESUME' })}>
           {dictionary.app.resume}
-        </button>
-      {/if}
-      {#if state.can({ type: 'TO_MENU' })}
-        <button type="button" class="btn danger" onclick={() => send({ type: 'TO_MENU' })}>
-          {dictionary.app.back_to_menu}
         </button>
       {/if}
     </div>
@@ -114,9 +108,4 @@
     border: var(--footer-actions-btn-success-border);
   }
 
-  .btn.danger {
-    background: var(--footer-actions-btn-danger-background);
-    color: var(--footer-actions-btn-danger-color);
-    border: var(--footer-actions-btn-danger-border);
-  }
 </style>

@@ -6,6 +6,35 @@
     <link rel="icon" type="image/png" sizes="32x32" href="%sveltekit.assets%/favicon/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/favicon/favicon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Share-минимум (P0-8): title/description/OG/Twitter — СТАТИКОЙ здесь, не в
+         <svelte:head>. Приложение — чистый SPA (ssr=false, prerender=false), а
+         боты, что разворачивают ссылку в карточку (Telegram/Slack/LinkedIn),
+         JS не исполняют → видят только этот статический index.html. EN — одна
+         каноническая локаль
+         (ADR 0021); это метаданные документа для краулеров, вне i18n-разметки
+         компонента (ADR 0022), как favicon'ы и theme-скрипт рядом.
+         og:image отложена (карточку рисуем отдельной задачей) → twitter:card
+         summary; при появлении картинки → +og:image и summary_large_image. -->
+    <title>FlowTyping — Touch-type by motion, not by hunting keys</title>
+    <meta
+      name="description"
+      content="FlowTyping shows the path each finger travels — home to key and back. Accuracy and rhythm first; speed follows."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FlowTyping" />
+    <meta property="og:url" content="https://flowtyping.app/" />
+    <meta property="og:locale" content="en" />
+    <meta property="og:title" content="FlowTyping — Touch-type by motion, not by hunting keys" />
+    <meta
+      property="og:description"
+      content="FlowTyping shows the path each finger travels — home to key and back. Accuracy and rhythm first; speed follows."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="FlowTyping — Touch-type by motion, not by hunting keys" />
+    <meta
+      name="twitter:description"
+      content="FlowTyping shows the path each finger travels — home to key and back. Accuracy and rhythm first; speed follows."
+    />
     <!-- Шрифты Geist self-hosted (P0-4, приватность): woff2 в static/fonts/,
          @font-face в src/app.css. Никаких запросов к Google Fonts. Preload
          latin-файлов sans+mono — приоритет первому экрану без FOUT. -->

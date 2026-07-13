@@ -80,11 +80,21 @@
     <a class="cta" href={resolve('/train')}>{dictionary.app.start_training}</a>
   </section>
 
-  {#if feedbackUrl}
-    <footer class="site-footer">
-      <a class="feedback-link" href={feedbackUrl}>{l.feedback_label}</a>
-    </footer>
-  {/if}
+  <footer class="site-footer">
+    <!-- Политика приватности (P0-4): статическая страница /privacy вне клиентской
+         маршрутизации SPA (static/privacy/index.html — видима поисковому боту без JS,
+         как OG-теги P0-8). data-sveltekit-reload = полная навигация; без него
+         клиентский роутер не знает маршрут /privacy и уронил бы его в SPA-fallback.
+         Видна всегда — в отличие от feedback-ссылки ниже (та за PUBLIC_FEEDBACK_URL). -->
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+    <a class="footer-link" href="/privacy" data-sveltekit-reload>{dictionary.app.privacy_policy}</a>
+    {#if feedbackUrl}
+      <!-- feedbackUrl — ВНЕШНИЙ адрес (PUBLIC_FEEDBACK_URL: Telegram/mailto), не
+           маршрут SvelteKit; resolve() применим только к внутренним путям. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+      <a class="footer-link" href={feedbackUrl}>{l.feedback_label}</a>
+    {/if}
+  </footer>
 </div>
 
 <style>
@@ -360,21 +370,23 @@
   .site-footer {
     display: flex;
     justify-content: center;
+    gap: var(--spacing-6);
+    flex-wrap: wrap;
     padding-top: var(--spacing-6);
     border-top: var(--landing-rule);
   }
 
-  .feedback-link {
+  .footer-link {
     font-size: var(--font-size-sm);
     color: var(--landing-muted-color);
     text-decoration: none;
   }
 
-  .feedback-link:hover {
+  .footer-link:hover {
     text-decoration: underline;
   }
 
-  .feedback-link:focus-visible {
+  .footer-link:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
     border-radius: var(--radius-2);
