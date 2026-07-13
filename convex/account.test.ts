@@ -156,4 +156,18 @@ describe('deleteMyAccountHandler', () => {
       expect(await userFootprint({ ctx, ...a })).toEqual(FULL);
     });
   });
+
+  test('deleteMyAccount стирает surveyResponses юзера', async () => {
+    const t = makeConvexTest();
+    await t.run(async (ctx) => {
+      const userId = await seedUser({ ctx, email: 'del@example.com' });
+      await ctx.db.insert('surveyResponses', { userId, answer: 'yes', capturedAt: 1 });
+      await deleteMyAccountHandler({ ctx, userId });
+      const left = await ctx.db
+        .query('surveyResponses')
+        .withIndex('by_user', (q) => q.eq('userId', userId))
+        .collect();
+      expect(left).toHaveLength(0);
+    });
+  });
 });
