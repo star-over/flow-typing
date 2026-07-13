@@ -16,11 +16,27 @@
   import TrainingScene from '@/components/train/TrainingScene.svelte';
   import LessonStatsDisplay from '@/components/train/LessonStatsDisplay.svelte';
   import RepertoireProgress from '@/components/train/RepertoireProgress.svelte';
+  import SurveyPrompt from '@/components/train/SurveyPrompt.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
+  import type { SessionsStore } from '@/lib/sessions/sessions-store.svelte';
+  import type { SurveyStore } from '@/lib/survey/survey-store.svelte';
+  import { shouldShowMicroSurvey } from '@/lib/micro-survey';
+  import { api, convex } from '@/lib/convex';
+  import type { SurveyAnswer } from '@/interfaces/survey';
 
   const repertoire = getContext<RepertoireStore>('repertoire');
   const auth = getContext<AuthStore>('auth');
+  const sessions = getContext<SessionsStore>('sessions');
+  const survey = getContext<SurveyStore>('survey');
+  const showSurvey = $derived(
+    shouldShowMicroSurvey({ sessionCount: sessions.list.length, hasResponded: survey.hasResponded }),
+  );
+
+  function recordSurvey(answer: SurveyAnswer) {
+    // fire-and-forget, at-most-once (ADR 0015) — как sessionSummary.
+    void convex.mutation(api.surveys.record, { answer });
+  }
 
   interface Props {
     state: StateFrom<typeof appMachine>;
@@ -60,12 +76,18 @@
     isGuest={auth.state.status === 'guest'}
     {dictionary}
   />
+  {#if showSurvey}
+    <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
+  {/if}
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' })}
   <!-- Вырожденное завершение: сессия окончилась без единого предъявления
        (lessonStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
        а не оставляем белое поле. Кнопка «Начать заново» — в FooterActions. -->
   <p class="screen-note">{dictionary.app.session_empty}</p>
+  {#if showSurvey}
+    <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
+  {/if}
 
 {:else if inState({ snapshot: state, value: 'sessionError' })}
   <!-- Сетевой сбой старта сессии (sessionMachine.error → SESSION.ERROR): видимая
