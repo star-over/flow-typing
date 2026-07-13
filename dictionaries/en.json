@@ -46,7 +46,8 @@
     "error_network": "Couldn't reach the server. Check your connection and try again.",
     "reload": "Reload",
     "retry": "Retry",
-    "session_empty": "No characters were typed this session."
+    "session_empty": "No characters were typed this session.",
+    "privacy_policy": "Privacy Policy"
   },
   "settings": {
     "title": "User Preferences",

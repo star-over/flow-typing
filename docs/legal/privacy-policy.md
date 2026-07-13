@@ -1,33 +1,22 @@
 # Privacy Policy / Политика конфиденциальности
 
-> **DRAFT — FOR LEGAL REVIEW**
-> Это рабочий черновик. Перед публикацией его должен проверить юрист владельца проекта.
-> This is a working draft. It must be reviewed by the project owner's legal counsel before publication.
->
-> **Placeholders to replace before publishing / Поля для замены перед публикацией:**
-> - `[OWNER_NAME]` — наименование оператора / юридического лица / ИП (или имя физического лица).
-> - `[PRIVACY_EMAIL]` — email для privacy-запросов.
-> - `[EFFECTIVE_DATE]` — дата вступления политики в силу.
-> - `[DOMAIN]` — домен приложения (`flowtyping.app`).
-
 ---
 
 # English version
 
 ## 1. Introduction
 
-`[OWNER_NAME]` ("we", "us", "our") operates the web application available at `https://[DOMAIN]` (the "Service"). This Privacy Policy explains how we collect, use, store, and protect personal data when you use the Service.
+We ("we", "us", "our") operate the web application available at `https://flowtyping.app` (the "Service"). This Privacy Policy explains how we collect, use, store, and protect personal data when you use the Service.
 
-**Effective date:** `[EFFECTIVE_DATE]`
+**Effective date:** 2026-07-01
 
-For any privacy-related questions, contact us at: `[PRIVACY_EMAIL]`
+For any privacy-related questions, contact us at: 8497715@gmail.com
 
 ## 2. Data controller
 
-The data controller is:
+The data controller is the entity operating the Service. For any questions about the processing of your personal data, you can contact us at:
 
-`[OWNER_NAME]`
-Contact email: `[PRIVACY_EMAIL]`
+Email: 8497715@gmail.com
 
 ## 3. What data we collect
 
@@ -110,7 +99,7 @@ Depending on your jurisdiction, you may have the right to:
 - Withdraw consent where processing is based on consent
 - Lodge a complaint with a data protection authority
 
-To exercise your rights, contact us at `[PRIVACY_EMAIL]`.
+To exercise your rights, contact us at 8497715@gmail.com.
 
 ## 10. Cookies and local storage
 
@@ -144,18 +133,17 @@ We may update this Privacy Policy from time to time. If changes are material, we
 
 ## 1. Общие положения
 
-Настоящая Политика конфиденциальности описывает, как `[OWNER_NAME]` (далее — «мы», «оператор») обрабатывает персональные данные пользователей веб-приложения, доступного по адресу `https://[DOMAIN]` (далее — «Сервис»).
+Настоящая Политика конфиденциальности описывает, как мы (далее — «мы», «оператор») обрабатываем персональные данные пользователей веб-приложения, доступного по адресу `https://flowtyping.app` (далее — «Сервис»).
 
-**Дата вступления в силу:** `[EFFECTIVE_DATE]`
+**Дата вступления в силу:** 2026-07-01
 
-По вопросам, связанным с обработкой персональных данных, обращайтесь по адресу: `[PRIVACY_EMAIL]`
+По вопросам, связанным с обработкой персональных данных, обращайтесь по адресу: 8497715@gmail.com
 
 ## 2. Оператор персональных данных
 
-Оператором персональных данных является:
+Оператором персональных данных является лицо, эксплуатирующее Сервис. По всем вопросам обработки персональных данных вы можете связаться с нами по адресу:
 
-`[OWNER_NAME]`
-Email для связи: `[PRIVACY_EMAIL]`
+Email для связи: 8497715@gmail.com
 
 ## 3. Какие данные мы обрабатываем
 
@@ -236,7 +224,7 @@ Email для связи: `[PRIVACY_EMAIL]`
 - Отозвать согласие на обработку персональных данных
 - Обжаловать действия оператора в уполномоченный орган по защите прав субъектов персональных данных
 
-Для реализации своих прав направьте запрос на `[PRIVACY_EMAIL]`.
+Для реализации своих прав направьте запрос на 8497715@gmail.com.
 
 ## 10. Cookies и локальное хранилище
 

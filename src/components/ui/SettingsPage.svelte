@@ -129,6 +129,12 @@
       {/if}
     </div>
   {/if}
+
+  <!-- Политика приватности (P0-4): статическая /privacy вне клиентской маршрутизации
+       SPA; data-sveltekit-reload = полная навигация (клиентский роутер маршрут не знает).
+       Видна всем, включая гостя — danger-зона выше только у авторизованного. -->
+  <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+  <a class="privacy-link" href="/privacy" data-sveltekit-reload>{dictionary.app.privacy_policy}</a>
 </div>
 
 <style>
@@ -235,5 +241,13 @@
   .danger-error {
     font-size: 0.75rem;
     color: var(--settings-page-danger-text-color);
+  }
+
+  .privacy-link {
+    font-size: 0.75rem;
+    color: var(--settings-page-label-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    align-self: flex-start;
   }
 </style>
