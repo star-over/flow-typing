@@ -11,6 +11,7 @@ import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
 import { LESSON_STATS_DISPLAY_CONTRACT } from '@/components/train/LessonStatsDisplay.contract';
 import { REPERTOIRE_PROGRESS_CONTRACT } from '@/components/train/RepertoireProgress.contract';
+import { SURVEY_PROMPT_CONTRACT } from '@/components/train/SurveyPrompt.contract';
 import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
 import { LANDING_CONTRACT } from '@/components/landing/LandingScreen.contract';
 import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract';
@@ -51,6 +52,7 @@ export const THEME_CONTRACT = [
   ...SELECT_CONTRACT,
   ...LESSON_STATS_DISPLAY_CONTRACT,
   ...REPERTOIRE_PROGRESS_CONTRACT,
+  ...SURVEY_PROMPT_CONTRACT,
   ...SETTINGS_PAGE_CONTRACT,
   ...SIGN_IN_SCREEN_CONTRACT,
   ...USER_MENU_CONTRACT,

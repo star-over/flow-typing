@@ -302,6 +302,17 @@
   --repertoire-progress-bar-fill    : var(--color-success);
   --repertoire-progress-accent-color: var(--color-success);
 
+  /* SurveyPrompt */
+  --survey-prompt-background             : var(--color-surface);
+  --survey-prompt-border                 : 1px solid var(--color-border);
+  --survey-prompt-question-color         : var(--color-text-primary);
+  --survey-prompt-button-background      : var(--color-bg);
+  --survey-prompt-button-border          : 1px solid var(--color-border);
+  --survey-prompt-button-color           : var(--color-text-primary);
+  --survey-prompt-button-hover-background: var(--color-surface-hover);
+  --survey-prompt-thanks-color           : var(--color-text-secondary);
+  --survey-prompt-dismiss-color          : var(--color-text-secondary);
+
   /* SettingsPage */
   --settings-page-label-color         : var(--color-text-secondary);
   --settings-page-input-background    : var(--color-surface);
