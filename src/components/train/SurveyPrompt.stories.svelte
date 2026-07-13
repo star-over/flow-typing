@@ -18,3 +18,5 @@
 </script>
 
 <Story name="Question" />
+
+<Story name="Thanks" args={{ phase: 'thanks' }} />

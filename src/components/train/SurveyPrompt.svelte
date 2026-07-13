@@ -5,10 +5,9 @@
   interface Props {
     dictionary: Dictionary;
     onAnswer: (answer: SurveyAnswer) => void;
+    phase?: 'question' | 'thanks';
   }
-  const { dictionary, onAnswer }: Props = $props();
-
-  let phase = $state<'question' | 'thanks'>('question');
+  let { dictionary, onAnswer, phase = $bindable('question') }: Props = $props();
 
   function choose(answer: SurveyAnswer) {
     onAnswer(answer);
@@ -21,6 +20,7 @@
     <div class="row">
       <p class="question">{dictionary.survey.question}</p>
       <button
+        type="button"
         class="dismiss"
         aria-label={dictionary.survey.dismiss_label}
         onclick={() => choose('dismissed')}
@@ -29,9 +29,9 @@
       </button>
     </div>
     <div class="answers">
-      <button class="answer" onclick={() => choose('yes')}>{dictionary.survey.answer_yes}</button>
-      <button class="answer" onclick={() => choose('somewhat')}>{dictionary.survey.answer_somewhat}</button>
-      <button class="answer" onclick={() => choose('no')}>{dictionary.survey.answer_no}</button>
+      <button type="button" class="answer" onclick={() => choose('yes')}>{dictionary.survey.answer_yes}</button>
+      <button type="button" class="answer" onclick={() => choose('somewhat')}>{dictionary.survey.answer_somewhat}</button>
+      <button type="button" class="answer" onclick={() => choose('no')}>{dictionary.survey.answer_no}</button>
     </div>
   {:else}
     <p class="thanks">{dictionary.survey.thanks}</p>

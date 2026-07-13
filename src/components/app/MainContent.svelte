@@ -34,8 +34,12 @@
   );
 
   function recordSurvey(answer: SurveyAnswer) {
-    // fire-and-forget, at-most-once (ADR 0015) — как sessionSummary.
-    void convex.mutation(api.surveys.record, { answer });
+    // fire-and-forget, at-most-once (ADR 0015) — как sessionSummary. Сбой (rate-limit/
+    // офлайн) гасим: опрос не критичен, при не-записи hasResponded не станет true и в
+    // следующей сессии вопрос всплывёт снова.
+    void convex
+      .mutation(api.surveys.record, { answer })
+      .catch((err) => console.warn('surveyRecord пропущен (офлайн, at-most-once — ADR 0015)', err));
   }
 
   interface Props {
