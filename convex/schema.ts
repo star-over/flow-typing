@@ -109,4 +109,14 @@ export default defineSchema({
     userId: v.optional(v.id('users')),
     capturedAt: v.number(), // server-stamped
   }).index('by_user', ['userId']),
+  // micro-survey (P1): один вопрос «Помогает печатать не глядя?» после 3-й
+  // тренировки. 'dismissed' = закрыл не ответив (тоже строка) — «показан?»
+  // выводим из наличия строки по by_user, отдельного флага нет.
+  surveyResponses: defineTable({
+    userId: v.id('users'),
+    answer: v.union(
+      v.literal('yes'), v.literal('somewhat'), v.literal('no'), v.literal('dismissed'),
+    ),
+    capturedAt: v.number(), // server-stamped
+  }).index('by_user', ['userId']),
 });
