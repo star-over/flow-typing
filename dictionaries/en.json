@@ -180,6 +180,14 @@
   "debug": {
     "state_title": "State"
   },
+  "survey": {
+    "question": "Helping you type without looking?",
+    "answer_yes": "Yes",
+    "answer_somewhat": "Somewhat",
+    "answer_no": "No",
+    "thanks": "Thanks!",
+    "dismiss_label": "Dismiss"
+  },
   "options": {
     "interfaceLanguages": {
       "en": "English",

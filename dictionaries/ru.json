@@ -180,6 +180,14 @@
   "debug": {
     "state_title": "Состояние"
   },
+  "survey": {
+    "question": "Помогает печатать не глядя?",
+    "answer_yes": "Да",
+    "answer_somewhat": "Немного",
+    "answer_no": "Нет",
+    "thanks": "Спасибо!",
+    "dismiss_label": "Закрыть"
+  },
   "options": {
     "interfaceLanguages": {
       "en": "Английский",
