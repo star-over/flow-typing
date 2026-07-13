@@ -467,6 +467,8 @@ nosniff
 hstspreload
 googleusercontent
 clickjacking
+dotenvx
+ecies
 
 # --- Русские технические глаголы (пере- префикс) ---
 переразвернуть
