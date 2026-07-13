@@ -59,7 +59,16 @@ export const drillsPage = internalQuery({
   },
 });
 
-/** Вставка батча строк таблицы отбора + зеркалирование в агрегат (ADR 0009). */
+/**
+ * Вставка батча строк таблицы отбора + зеркалирование в агрегат (ADR 0009).
+ *
+ * Пишем в агрегат через `insert`, а не `insertIfDoesNotExist`: последний делает
+ * лишний lookup-обход B-дерева перед каждой вставкой (он нужен для live-backfill
+ * с конкурентной записью старого/нового кода). У нас этого сценария нет — писатель
+ * единственный (ADR 0009), а `rebuild` очищает namespace (`resetLayoutAggregate`)
+ * до вставки, поэтому дубликатов быть не может. Обход-проверка была чистым
+ * Database I/O оверхедом на строку (доминирующая статья расхода при пересборке).
+ */
 export const insertBatch = internalMutation({
   args: {
     rows: v.array(
@@ -71,7 +80,7 @@ export const insertBatch = internalMutation({
       const id = await ctx.db.insert('drillSelectionIndex', row);
       const doc = await ctx.db.get(id);
       if (doc === null) throw new Error(`строка drillSelectionIndex исчезла сразу после вставки: ${id}`);
-      await drillIndex.insertIfDoesNotExist(ctx, doc);
+      await drillIndex.insert(ctx, doc);
     }
   },
 });
