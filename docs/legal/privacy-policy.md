@@ -10,13 +10,13 @@ We ("we", "us", "our") operate the web application available at `https://flowtyp
 
 **Effective date:** 2026-07-01
 
-For any privacy-related questions, contact us at: 8497715@gmail.com
+For any privacy-related questions, contact us at: starover959@gmail.com
 
 ## 2. Data controller
 
 The data controller is the entity operating the Service. For any questions about the processing of your personal data, you can contact us at:
 
-Email: 8497715@gmail.com
+Email: starover959@gmail.com
 
 ## 3. What data we collect
 
@@ -99,7 +99,7 @@ Depending on your jurisdiction, you may have the right to:
 - Withdraw consent where processing is based on consent
 - Lodge a complaint with a data protection authority
 
-To exercise your rights, contact us at 8497715@gmail.com.
+To exercise your rights, contact us at starover959@gmail.com.
 
 ## 10. Cookies and local storage
 
@@ -137,13 +137,13 @@ We may update this Privacy Policy from time to time. If changes are material, we
 
 **Дата вступления в силу:** 2026-07-01
 
-По вопросам, связанным с обработкой персональных данных, обращайтесь по адресу: 8497715@gmail.com
+По вопросам, связанным с обработкой персональных данных, обращайтесь по адресу: starover959@gmail.com
 
 ## 2. Оператор персональных данных
 
 Оператором персональных данных является лицо, эксплуатирующее Сервис. По всем вопросам обработки персональных данных вы можете связаться с нами по адресу:
 
-Email для связи: 8497715@gmail.com
+Email для связи: starover959@gmail.com
 
 ## 3. Какие данные мы обрабатываем
 
@@ -224,7 +224,7 @@ Email для связи: 8497715@gmail.com
 - Отозвать согласие на обработку персональных данных
 - Обжаловать действия оператора в уполномоченный орган по защите прав субъектов персональных данных
 
-Для реализации своих прав направьте запрос на 8497715@gmail.com.
+Для реализации своих прав направьте запрос на starover959@gmail.com.
 
 ## 10. Cookies и локальное хранилище
 
