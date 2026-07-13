@@ -63,19 +63,6 @@ export function readinessGaps({
   return { exposure: false, accuracy, latency };
 }
 
-export function isSymbolReady({
-  cell,
-  params,
-  repertoireMedianLatency,
-}: {
-  cell: ProfileCell | undefined;
-  params: ReadinessParams;
-  repertoireMedianLatency: number;
-}): boolean {
-  const gaps = readinessGaps({ cell, params, repertoireMedianLatency });
-  return !gaps.exposure && !gaps.accuracy && !gaps.latency;
-}
-
 /** Готовность одного символа шага: сырая ячейка, три гейта Readiness и итог. */
 export interface StepSymbolReadiness {
   symbol: string;

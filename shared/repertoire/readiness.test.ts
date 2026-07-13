@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { evaluateStepReadiness, isSymbolReady, readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
+import { evaluateStepReadiness, readinessGaps, repertoireMedianLatency, type ProfileCell } from './readiness.ts';
 
 const PARAMS = { minExposures: 20, minFirstTryAccuracy: 0.9, latencyK: 1.5 };
 const cell = (over: Partial<ProfileCell>): ProfileCell => ({
@@ -101,29 +101,5 @@ describe('evaluateStepReadiness', () => {
       params: PARAMS,
     });
     expect(symbols.map((s) => s.symbol)).toEqual(['в', 'а', 'б']);
-  });
-});
-
-describe('isSymbolReady', () => {
-  test('нет ячейки — не готов', () => {
-    expect(isSymbolReady({ cell: undefined, params: PARAMS, repertoireMedianLatency: 200 })).toBe(false);
-  });
-  test('мало предъявлений — не готов', () => {
-    expect(isSymbolReady({ cell: cell({ exposures: 10, clean: 10 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(false);
-  });
-  test('низкая точность с первой попытки — не готов', () => {
-    expect(isSymbolReady({ cell: cell({ exposures: 30, clean: 20 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(false);
-  });
-  test('латентность хуже k× медианы — не готов', () => {
-    expect(isSymbolReady({ cell: cell({ latencyEwma: 400 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(false);
-  });
-  test('латентность ровно на границе k× медианы — готов (<=)', () => {
-    expect(isSymbolReady({ cell: cell({ latencyEwma: 300 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(true);
-  });
-  test('все условия выполнены — готов', () => {
-    expect(isSymbolReady({ cell: cell({ latencyEwma: 250 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(true);
-  });
-  test('нет собственных замеров латентности — судим по предъявлениям и точности', () => {
-    expect(isSymbolReady({ cell: cell({ latencySamples: 0, latencyEwma: 0 }), params: PARAMS, repertoireMedianLatency: 200 })).toBe(true);
   });
 });
