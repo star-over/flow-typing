@@ -186,11 +186,16 @@ Makefile-цели (`import-corpus`/`ladder-report`) ходят в развёрт
 (= dev) и `--prod` **не пробрасывают** — поэтому против prod бьём `convex import`/`run`
 напрямую с `--prod` (тяжело по Database I/O — у prod своя квота):
 
+Корпус лежит на диске **per-source** (у каждого языка `words.jsonl` + `phrases.jsonl` —
+сводные `*-corpus.jsonl` убраны, P0-9); заливаем все четыре файла:
+
 ```bash
 # EN (qwerty) — воспроизводимый jsonl на диске
-npx convex import --prod --table drills --append --format jsonLines --yes auto-flow/corpus/en/jsonl/en-corpus.jsonl
-# RU (йцукен) — путь задаёт P0-9 (воспроизводимый RU-jsonl готовится отдельным шагом, см. ниже)
-npx convex import --prod --table drills --append --format jsonLines --yes <ru-jsonl>
+npx convex import --prod --table drills --append --format jsonLines --yes auto-flow/corpus/en/jsonl/words.jsonl
+npx convex import --prod --table drills --append --format jsonLines --yes auto-flow/corpus/en/jsonl/phrases.jsonl
+# RU (йцукен) — воспроизводимый jsonl на диске (2778 drill'ов: words 1814 + phrases 964)
+npx convex import --prod --table drills --append --format jsonLines --yes auto-flow/corpus/ru/jsonl/words.jsonl
+npx convex import --prod --table drills --append --format jsonLines --yes auto-flow/corpus/ru/jsonl/phrases.jsonl
 # пересчёт таблицы отбора + контентный радар — по ОБЕИМ раскладкам (нет дыр на шагах 0–5)
 npx convex run --prod selectionIndex:rebuild '{"symbolLayoutId":"qwerty"}'
 npx convex run --prod selectionIndex:rebuild '{"symbolLayoutId":"йцукен"}'
@@ -198,11 +203,8 @@ npx convex run --prod selectionIndex:ladderReport '{"symbolLayoutId":"qwerty"}'
 npx convex run --prod selectionIndex:ladderReport '{"symbolLayoutId":"йцукен"}'
 ```
 
-> ⚠️ **Предпосылка RU:** воспроизводимого RU-jsonl (`<ru-jsonl>`) на диске нет — источник
-> корпуса йцукен утерян, 9715 drill'ов живут только в dev Convex. Подготовить его —
-> **отдельный шаг P0-9** (регенерация конвейером либо `convex export` из dev → извлечь
-> `drills/documents.jsonl` → фильтр по йцукен). Без него RU не залить; EN лить можно независимо.
-> `import` — **append**: повторная заливка ТОЙ ЖЕ раскладки дублирует drill'ы. Лить один раз.
+> ⚠️ **`import` — append:** повторная заливка того же файла дублирует drill'ы. Прогнать
+> каждый из четырёх `import` **один раз**. RU и EN независимы — порядок языков любой.
 
 ---
 
