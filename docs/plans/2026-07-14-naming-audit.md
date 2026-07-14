@@ -60,7 +60,7 @@
 
 - [ ] **НЕ в Wave A (untracked-мусор, коммитом не удалить):** `src/app/` — снести `rm -rf src/app` в основном каталоге; владелец переназначил в Волну C.
 - [x] `shared/selection-index/selection-index.test.ts`→`compute.test.ts` (тест по имени источника 1:1) — `9aec6de`
-- [ ] **ОТКЛОНЕНО (обоснованно):** `convex/test.helpers.ts`→`test-helpers.ts` — дефис невалиден в пути convex-модуля, а `testHelpers` (camelCase) convex пытается **задеплоить** (падает на тест-зависимостях `import.meta`). Точечный сегмент `test.` — намеренная идиома «не деплоить». Оставлено как есть (обоснование — в теле `9aec6de`).
+- [ ] **ОТКЛОНЕНО (обоснованно):** `convex/test.helpers.ts`→`test-helpers.ts` — дефис невалиден в пути convex-модуля, а `testHelpers` (camelCase) convex пытается **развернуть** (падает на тест-зависимостях `import.meta`). Точечный сегмент `test.` — намеренная идиома «не разворачивать». Оставлено как есть (обоснование — в теле `9aec6de`).
 - [x] `src/components/key-cap/KeyCap.contract.ts` — токен `KEYCAP_CONTRACT`→`KEY_CAP_CONTRACT` — `9aec6de`
 - [x] `src/fixtures/hands-scene/simple_e_error_shift_F.ts`→ строчная `f` — `9aec6de`
 - [x] `src/user-settings/user-settings.ts`→`defaults.ts` (+ co-located `user-settings.test.ts`→`defaults.test.ts`) — `9aec6de`
@@ -71,7 +71,7 @@
 
 - [x] **Развести `durationSeconds`** (конфиг vs факт) — грилл выбрал ОБРАТНУЮ сторону, чем предлагал этот пункт: двигаем measured, не config. `SessionRow.durationSeconds` и `SessionStats.durationInSeconds`→`elapsedSeconds` (родное слово, ср. `elapsedMs`/`displayElapsedMs`); config (`durationSeconds`/`sessionDurationSeconds`) оставлен; коллизия снята. Решение — `CONTEXT.md`, раздел Session — `d0ceb5a`
 - [x] **Слить ячейку профиля** `ProfileCell` / `SymbolCell` / `SeedProfileCell` — `convex` импортирует `ProfileCell` из `shared`; поле схемы `symbolCells` не тронуто. `drill.ts`-половина (`SymbolCell`→`ProfileCell`) утекла в `cc96486` (Волна A); остаток `test.helpers.ts` (`SeedProfileCell`) — `2fe5e04`
-- [x] **`summary`/`payload`** — единое имя `summary` на всей нити (машины → `session-impl` → convex `sessions.ts`/`validation.ts` + тесты/фикстуры того же концепта); тип `SessionSummaryPayload` оставлен (несёт смысл), wire-поля спредятся — `af8c77b`
+- [x] **`summary`/`payload`** — единое имя `summary` на всей нити (машины → `session-impl` → convex `sessions.ts`/`validation.ts` + тесты/фикстуры того же концепта); тип `SessionSummaryPayload` оставлен (несёт смысл), wire-поля разворачиваются — `af8c77b`
 - [x] **`sessionDurationSeconds`→`durationSeconds`** через XState — грилл: укорачивание УЗАКОНЕНО комментарием (квалификатор `session` избыточен внутри собственной области сессии — `SessionInput`), не проносим канон-имя через все слои. Асимметрия `currentSymbolLayoutId` vs `sessionDurationSeconds` тоже узаконена комментарием (`app.machine.ts`, разные оправдания префиксов) — `d0ceb5a`
 - [ ] **Ключи `rateLimiter`** (`convex/rateLimiter.ts:19-31`) → строки-пути `api.<module>.<fn>` (`'sessions.record'`, `'userSettings.upsertMine'`, …)
 - [ ] `convex/test.helpers.ts:89-98` (`seedDrill`) — параметр `layout`→`symbolLayoutId`
