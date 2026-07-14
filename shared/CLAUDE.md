@@ -2,8 +2,6 @@
 
 Чистая доменная модель, общая с сервером (`convex/`) и инструментами (`auto-flow/`): **никакого I/O** (нет `node:fs`, vite, `process`, сети). `src` её **не импортирует** (ADR 0014, развязка — подтверждено: 0 прямых импортов). Реальная структура: `repertoire/` (config/growth/progress/readiness), `drill-selection/`, `selection-index/`, `symbol-layout.ts`.
 
-> `shared/README.md` устарел (описывает несуществующий `key-ladder/`, молчит про `repertoire/`) — истину брать из кода и ADR; README к правке (запись в `docs/backlog.md`).
-
 Инварианты (за деталями — в ADR):
 
 - **Репертуар — префикс** канонического порядка ввода, кодируется одним числом `openedSteps`; subset-проверка вырождается в скаляр `stepLevel < openedSteps`. Репертуар — про **факт ввода**, не про качество (ADR 0001).
