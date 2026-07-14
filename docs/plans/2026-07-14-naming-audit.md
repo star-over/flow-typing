@@ -19,7 +19,7 @@
 | --- | --- | --- | --- |
 | **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ✅ сделана (merge `7821b0d`; 2 отклонения отложены — см. ниже) |
 | **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ✅ 4/7 сделано (merge `c0322f6`): 1.3/1.4/2.1/2.4; остались `rateLimiter`-ключи, `seedDrill` layout, `SymbolStat` |
-| **C** | Структура каталогов/доменов | средний | ⬜ не начата |
+| **C** | Структура каталогов/доменов | средний | ✅ сделана в ветке `refactor/naming-wave-c` (merge — владелец): C.2/C.3 переименования, C.4 журнал→`session-history/`, C.5 `survey/`; A.4 `src/app` снят |
 | **D** | Канон-касающееся (нужен ADR / заметка в CONTEXT.md) | требует решения, не механика | ⬜ не начата |
 
 ---
@@ -58,7 +58,7 @@
 
 ### A.4 — файловые нити (косметика предсказуемости)
 
-- [ ] **НЕ в Wave A (untracked-мусор, коммитом не удалить):** `src/app/` — снести `rm -rf src/app` в основном каталоге; владелец переназначил в Волну C.
+- [x] **Выполнено в Волне C** (untracked-мусор — только `.DS_Store`, коммитом не удаляется, без commit-ref): `src/app/` снесён `rm -rf src/app`.
 - [x] `shared/selection-index/selection-index.test.ts`→`compute.test.ts` (тест по имени источника 1:1) — `9aec6de`
 - [ ] **ОТКЛОНЕНО (обоснованно):** `convex/test.helpers.ts`→`test-helpers.ts` — дефис невалиден в пути convex-модуля, а `testHelpers` (camelCase) convex пытается **развернуть** (падает на тест-зависимостях `import.meta`). Точечный сегмент `test.` — намеренная идиома «не разворачивать». Оставлено как есть (обоснование — в теле `9aec6de`).
 - [x] `src/components/key-cap/KeyCap.contract.ts` — токен `KEYCAP_CONTRACT`→`KEY_CAP_CONTRACT` — `9aec6de`
@@ -81,10 +81,10 @@
 
 ## Волна C — структура каталогов/доменов (ветка `refactor/naming-wave-c`)
 
-- [ ] консолидация домена `session`: плоские `src/lib/session-*.ts` (живая логика) vs `src/lib/sessions/` (журнал) vs `src/machines/` — собрать/развести смысл в именах
-- [ ] консолидация домена `survey`: `src/lib/micro-survey.ts` vs `src/lib/survey/`
-- [ ] `src/lib/auth-gate.ts` / `auth-gated-query.svelte.ts` → нейтральное `gated-query` (логика общая, не auth-специфичная)
-- [ ] `src/lib/dev/typing-capture-store.ts` → `-idb`/`-db` («store» здесь IndexedDB, не Svelte-стор)
+- [x] консолидация домена `session` (грилл, решение владельца): журнал `src/lib/sessions/` → `src/lib/session-history/` (снята плюральная двусмысленность «живые vs прошлые»); живая логика `session-*.ts` оставлена **плоской** — единообразно с соседями `drill/batch/exposure/typing-stream` (самостоятельные термины глоссария, в `session/` не собираются); решение зафиксировано в `src/lib/CLAUDE.md` — `6dea191`
+- [x] консолидация домена `survey` (грилл, решение владельца): `micro-survey.ts` (+ тест) собран в существующий `src/lib/survey/` к `survey-store` — `6dea191`
+- [x] `src/lib/auth-gate.ts` / `auth-gated-query.svelte.ts` → `gated-query.*` (нейтрально: query-шов, не auth-подсистема; символы `runAuthGate`/`createAuthGatedQuery` и doc-язык оставлены — точно описывают, что значение закрыто auth-проверкой) — `2f3760d`
+- [x] `src/lib/dev/typing-capture-store.ts` → `typing-capture-idb.ts` («store» = IndexedDB object store, не Svelte-стор) — `49753c5`
 
 ---
 

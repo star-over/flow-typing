@@ -2,6 +2,14 @@
 
 XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`.
 
+## Домены session и survey — раскладка
+
+Принцип (Волна C аудита имён): **чистая логика — плоско в `src/lib/`; стор — в подкаталоге.** Новый logic-каталог не заводим, если рядом останутся неровно лежащие сиблинги; существующий маленький доменный каталог — достраиваем.
+
+- **session, живая логика (плоско):** `session-config`, `session-queue`, `session-summarize`, `session-timer` — трансформеры, питающие `machines/session.machine.ts`. Лежат плоско единообразно с соседями `drill-summarize` / `drill-stream` / `batch-budget` / `exposure-reading` / `typing-stream` — это **самостоятельные термины глоссария** (`CONTEXT.md`: Drill / Batch / Exposure / DrillSummary / TypingStream), не под-части session; в `session/` их не собирать.
+- **session, журнал (`session-history/`):** `sessions-store.svelte.ts` — стор завершённых сеансов (таблица `/stats`). Имя `session-history` (не плюральный `sessions/`) снимает двусмысленность «живые vs прошлые сессии».
+- **survey (`survey/`):** весь домен в одном каталоге — `micro-survey.ts` (чистая логика показа, ADR 0013) + `survey-store.svelte.ts` (стор ответов). Асимметрия с плоской session-логикой сознательна: `survey/` уже существовал и домен крошечный, достроить дешевле, чем плодить `session/`.
+
 ## ViewModel Pipeline + dumb UI
 
 Бизнес-логика — в XState-машинах, UI — «глупый». Между ними — pipeline в `src/lib/hands-scene.ts`: чистые трансформеры последовательно строят `HandsSceneViewModel` (idle → target finger states → visible clusters → navigation paths → error finger states → press results). Свойство `keyCapStates` определяется **только** у пальцев в состоянии `TARGET` (правило «Полного Кластера»). Правила формирования ViewModel и сценарии ошибок — `docs/03-ui-viewmodel-contract.md`, следовать буквально.
