@@ -5,7 +5,7 @@ import {
   assertValidSettingsInput,
 } from './validation';
 
-// Форма payload sessions.record (все поля персистятся в sessionSummaries → все
+// Форма сводки sessions.record (все поля персистятся в sessionSummaries → все
 // валидируются). Базовый валидный экземпляр, вариации мутируют одно поле.
 const validSummary = {
   exposures: 200,
@@ -18,7 +18,7 @@ const validSummary = {
 };
 
 describe('assertValidSessionSummary', () => {
-  test('валидный payload проходит без throw', () => {
+  test('валидная сводка проходит без throw', () => {
     expect(() => assertValidSessionSummary(validSummary)).not.toThrow();
   });
 

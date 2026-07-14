@@ -95,7 +95,7 @@ export const sessionMachine = setup({
     },
     recordSessionSummary: (
       _,
-      _params: { payload: SessionSummaryPayload; symbolLayoutId: SymbolLayoutId },
+      _params: { summary: SessionSummaryPayload; symbolLayoutId: SymbolLayoutId },
     ) => {
       throw new Error('recordSessionSummary not provided');
     },
@@ -159,7 +159,7 @@ export const sessionMachine = setup({
       const summary = sessionSummarize({ stream: context.completed, durationMs: context.displayElapsedMs });
       if (shouldJournalSession(summary)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enqueue({ type: 'recordSessionSummary', params: { payload: summary, symbolLayoutId: context.symbolLayoutId } } as any);
+        enqueue({ type: 'recordSessionSummary', params: { summary, symbolLayoutId: context.symbolLayoutId } } as any);
       }
       enqueue.sendTo(context.parentActor, { type: 'SESSION.COMPLETE', stream: context.completed, summary });
     }),

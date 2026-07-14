@@ -75,13 +75,13 @@ export const sessionService = sessionMachine.provide({
     // Журнал сессии: fire-and-forget, как recordCheckpoint. capturedAt/openedSteps
     // ставит сервер. Офлайн → молча гасим (at-most-once, ADR 0015).
     recordSessionSummary: (_, params) => {
-      const { payload, symbolLayoutId } = params;
+      const { summary, symbolLayoutId } = params;
       logConvex(
-        `sessionRecord → ${payload.exposures} символов, cpm=${Math.round(payload.cpm)} confusions=${payload.confusions.length}`,
+        `sessionRecord → ${summary.exposures} символов, cpm=${Math.round(summary.cpm)} confusions=${summary.confusions.length}`,
       );
       const startedAt = performance.now();
       void convex
-        .mutation(api.sessions.record, { symbolLayoutId, ...payload })
+        .mutation(api.sessions.record, { symbolLayoutId, ...summary })
         .then(() => logConvex(`sessionRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
         .catch((err) => console.warn('sessionSummary пропущен (офлайн, at-most-once — ADR 0015)', err));
     },

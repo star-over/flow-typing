@@ -44,10 +44,10 @@ function assertNonNegativeFinite({ value, max, label }: { value: number; max: nu
 }
 
 /**
- * Валидация payload `sessions.record` (все поля персистятся → все проверяются).
+ * Валидация сводки `sessions.record` (все поля персистятся → все проверяются).
  * `rhythm` optional — проверяется только если передан.
  */
-export function assertValidSessionSummary(payload: {
+export function assertValidSessionSummary(summary: {
   exposures: number;
   clean: number;
   cpm: number;
@@ -56,18 +56,18 @@ export function assertValidSessionSummary(payload: {
   rhythm?: number;
   confusions: { count: number }[];
 }): void {
-  assertNonNegativeInt({ value: payload.exposures, max: MAX_EXPOSURES, label: 'exposures' });
-  assertNonNegativeInt({ value: payload.clean, max: MAX_EXPOSURES, label: 'clean' });
-  if (payload.clean > payload.exposures) {
-    throw new Error(`clean (${payload.clean}) must not exceed exposures (${payload.exposures})`);
+  assertNonNegativeInt({ value: summary.exposures, max: MAX_EXPOSURES, label: 'exposures' });
+  assertNonNegativeInt({ value: summary.clean, max: MAX_EXPOSURES, label: 'clean' });
+  if (summary.clean > summary.exposures) {
+    throw new Error(`clean (${summary.clean}) must not exceed exposures (${summary.exposures})`);
   }
-  assertNonNegativeFinite({ value: payload.cpm, max: MAX_CPM, label: 'cpm' });
-  assertNonNegativeFinite({ value: payload.durationMs, max: MAX_DURATION_MS, label: 'durationMs' });
-  assertNonNegativeFinite({ value: payload.latencyMedianMs, max: MAX_LATENCY_MS, label: 'latencyMedianMs' });
-  if (payload.rhythm !== undefined) {
-    assertNonNegativeFinite({ value: payload.rhythm, max: MAX_RHYTHM, label: 'rhythm' });
+  assertNonNegativeFinite({ value: summary.cpm, max: MAX_CPM, label: 'cpm' });
+  assertNonNegativeFinite({ value: summary.durationMs, max: MAX_DURATION_MS, label: 'durationMs' });
+  assertNonNegativeFinite({ value: summary.latencyMedianMs, max: MAX_LATENCY_MS, label: 'latencyMedianMs' });
+  if (summary.rhythm !== undefined) {
+    assertNonNegativeFinite({ value: summary.rhythm, max: MAX_RHYTHM, label: 'rhythm' });
   }
-  for (const confusion of payload.confusions) {
+  for (const confusion of summary.confusions) {
     assertNonNegativeInt({ value: confusion.count, max: MAX_EXPOSURES, label: 'confusion count' });
   }
 }

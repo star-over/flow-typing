@@ -31,14 +31,14 @@ export async function recordSessionSummaryHandler({
   ctx,
   userId,
   symbolLayoutId,
-  payload,
+  summary,
 }: {
   ctx: MutationCtx;
   userId: Id<'users'>;
   symbolLayoutId: string;
-  payload: SessionSummaryPayload;
+  summary: SessionSummaryPayload;
 }): Promise<Id<'sessionSummaries'>> {
-  assertValidSessionSummary(payload); // P0-10: диапазоны чисел до записи (анти-фабрикация статистики)
+  assertValidSessionSummary(summary); // P0-10: диапазоны чисел до записи (анти-фабрикация статистики)
   const profile = await ctx.db
     .query('skillProfiles')
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
@@ -47,7 +47,7 @@ export async function recordSessionSummaryHandler({
   return await ctx.db.insert('sessionSummaries', {
     userId,
     symbolLayoutId,
-    ...payload,
+    ...summary,
     openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
     capturedAt: Date.now(),
   });
@@ -64,11 +64,11 @@ export const record = mutation({
     rhythm: v.optional(v.number()),
     confusions: v.array(v.object({ target: v.string(), pressed: v.string(), count: v.number() })),
   },
-  handler: async (ctx, { symbolLayoutId, ...payload }) => {
+  handler: async (ctx, { symbolLayoutId, ...summary }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error('Not authenticated');
     await rateLimiter.limit(ctx, 'sessionRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
-    return await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, payload });
+    return await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, summary });
   },
 });
 
