@@ -246,6 +246,17 @@
   --repertoire-progress-bar-fill    : unset;
   --repertoire-progress-accent-color: unset;
 
+  /* SurveyPrompt */
+  --survey-prompt-background             : unset;
+  --survey-prompt-border                 : unset;
+  --survey-prompt-question-color         : unset;
+  --survey-prompt-button-background      : unset;
+  --survey-prompt-button-border          : unset;
+  --survey-prompt-button-color           : unset;
+  --survey-prompt-button-hover-background: unset;
+  --survey-prompt-thanks-color           : unset;
+  --survey-prompt-dismiss-color          : unset;
+
   /* SettingsPage */
   --settings-page-label-color         : unset;
   --settings-page-input-background    : unset;

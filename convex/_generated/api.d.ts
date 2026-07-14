@@ -20,6 +20,7 @@ import type * as lib_validation from "../lib/validation.js";
 import type * as rateLimiter from "../rateLimiter.js";
 import type * as selectionIndex from "../selectionIndex.js";
 import type * as sessions from "../sessions.js";
+import type * as surveys from "../surveys.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
 
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   rateLimiter: typeof rateLimiter;
   selectionIndex: typeof selectionIndex;
   sessions: typeof sessions;
+  surveys: typeof surveys;
   userSettings: typeof userSettings;
   users: typeof users;
 }>;

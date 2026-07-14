@@ -6,6 +6,7 @@
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
   import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
+  import { createSurveyStore } from '@/lib/survey/survey-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor, selectSessionTimer } from '@/machines/selectors';
   import { computeTimerSeconds } from '@/lib/timer-display';
@@ -54,6 +55,9 @@
     symbolLayoutId: () => $settings.symbolLayoutId,
   });
   setContext('sessions', sessionsStore);
+
+  const surveyStore = createSurveyStore({ authStore });
+  setContext('survey', surveyStore);
 
   // Phase 5: cross-device settings sync для авторизованных юзеров.
   // Гость работает offline, никаких cloud-вызовов; auth-guard внутри attachCloudSync.

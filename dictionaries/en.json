@@ -38,7 +38,7 @@
     "session_complete": "Session Complete!",
     "back_to_menu": "Back to Menu",
     "error_title": "An Error Occurred",
-    "start_again": "Start Again",
+    "start_again": "Start Training",
     "pause": "Pause",
     "resume": "Resume",
     "rhythm_channel_aria": "Typing rhythm indicator",
@@ -179,6 +179,13 @@
   },
   "debug": {
     "state_title": "State"
+  },
+  "survey": {
+    "question": "So, hooked?",
+    "answer_yes": "Yes",
+    "answer_no": "No",
+    "thanks": "Thanks!",
+    "dismiss_label": "Dismiss"
   },
   "options": {
     "interfaceLanguages": {

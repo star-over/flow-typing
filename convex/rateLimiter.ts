@@ -26,4 +26,7 @@ export const rateLimiter = new RateLimiter(components.rateLimiter, {
   // флуд storage-abuse. Ключ — userId; гости делят общий 'anonymous' (худший
   // случай — флудящий гость глушит логи других гостей, но БД защищена).
   clientErrorReport: { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 20 },
+  // surveys.record — редчайший писатель (один раз на юзера). Лимит только против
+  // автоматического флуда; легитимный юзер бьёт максимум раз за всё время.
+  surveyRecord: { kind: 'token bucket', rate: 10, period: MINUTE, capacity: 5 },
 });
