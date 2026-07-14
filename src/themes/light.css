@@ -232,7 +232,7 @@
   --movement-path-r4-marker  : var(--color-finger-4);
   --movement-path-l5-marker  : var(--color-finger-5);
   --movement-path-r5-marker  : var(--color-finger-5);
-  --movement-path-marker-core: oklch(0.25 0 0);
+  --movement-path-marker-core: oklch(0.58 0.15 68); /* тело бусины — тёплая бронза (блик/терминатор выводит компонент) */
 
   /* FlowLine */
   --flow-line-border            : 2px solid var(--color-cursor-border);

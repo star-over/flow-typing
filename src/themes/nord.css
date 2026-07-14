@@ -223,7 +223,7 @@
   --movement-path-r4-marker  : var(--color-finger-4);
   --movement-path-l5-marker  : var(--color-finger-5);
   --movement-path-r5-marker  : var(--color-finger-5);
-  --movement-path-marker-core: oklch(0.96 0.01 220);
+  --movement-path-marker-core: oklch(0.89 0.03 82); /* тело бусины — тёплая жемчужина, попит на холодном фоне (блик/терминатор выводит компонент) */
 
   /* FlowLine */
   --flow-line-border            : 2px solid var(--color-cursor-border);

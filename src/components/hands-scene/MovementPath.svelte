@@ -15,7 +15,8 @@
   («откуда→куда» без анимации, PRODUCT §Accessibility).
 
   Цвет — контракт темы: путь `--movement-path-guide` (индиго), движение по пальцу
-  `--movement-path-<pos>-marker` (спектр), нейтральное ядро точки `--movement-path-marker-core`.
+  `--movement-path-<pos>-marker` (спектр), тело бусины-ядра `--movement-path-marker-core`
+  (блик/терминатор выводятся из него сферической огранкой — см. секцию стилей ниже).
 -->
 <script lang="ts">
   import { onMount, tick } from 'svelte';
@@ -41,8 +42,12 @@
   const { path, fingerId }: Props = $props();
 
   const markerColor = $derived(`var(--movement-path-${fingerId.toLowerCase()}-marker, currentColor)`);
-  // Ядро точки — контрастный нейтрал (не гамма пальца), чтобы движение было заметно.
-  const coreColor = 'var(--movement-path-marker-core)';
+
+  // Ядро точки — сферическая бусина: блик / тело / терминатор выводятся из одного цвета
+  // тела `--movement-path-marker-core` через `oklch(from …)` (см. секцию стилей). Тело
+  // контрастно фону и гамме пальца, чтобы движение было заметно; идентичность — в ободке (stroke).
+  const uid = $props.id();
+  const coreGradId = `marker-core-grad-${uid}`;
 
   let svgEl = $state<SVGSVGElement | null>(null);
 
@@ -137,6 +142,18 @@
   preserveAspectRatio="none"
   aria-hidden="true"
 >
+  <defs>
+    <!-- Сферическая огранка ядра: блик (св.-верх), тело, терминатор — из одного цвета
+         тела `--movement-path-marker-core`. Светлые темы дают тёмное тело → бронза;
+         тёмные — светлое тело → жемчужина. Уникальный id на экземпляр кластера. -->
+    <radialGradient id={coreGradId} cx="34%" cy="30%" r="72%">
+      <stop class="mc-specular" offset="0%" />
+      <stop class="mc-upper" offset="22%" />
+      <stop class="mc-body" offset="55%" />
+      <stop class="mc-edge" offset="100%" />
+    </radialGradient>
+  </defs>
+
   {#if points.length >= 1}
     {#if hasPath}
       <path class="guide" d={guidePath} />
@@ -162,7 +179,7 @@
       />
     {/if}
 
-    <!-- Кончик пальца: контрастное нейтральное ядро (заметно на фоне пальца/цели) +
+    <!-- Кончик пальца: сферическая бусина-ядро (заметна на фоне пальца/цели) +
          пальцевый ободок и гало (идентичность). Ниже центра клавиши — не прячет label. -->
     <circle class="halo" cx={dotPoint.x} cy={dotPoint.y} r={keySize.h * 0.42} style:fill={markerColor} />
     <circle
@@ -170,7 +187,7 @@
       cx={dotPoint.x}
       cy={dotPoint.y}
       r={dotRadius}
-      style:fill={coreColor}
+      fill="url(#{coreGradId})"
       style:stroke={markerColor}
     />
   {/if}
@@ -215,10 +232,19 @@
 
   .halo { opacity: 0.22; }
 
-  /* Точка-кончик: контрастное нейтральное ядро (fill inline) + пальцевый ободок
-     (stroke inline). Ободок несёт идентичность пальца, ядро — заметность движения. */
+  /* Точка-кончик: сферическая бусина-ядро (fill = радиальный градиент) + пальцевый ободок
+     (stroke inline). Ободок несёт идентичность пальца, бусина — заметность движения. */
   .dot {
     fill-opacity: 0.9;
     stroke-width: 2;
   }
+
+  /* Сферическая огранка ядра из одного цвета тела `--movement-path-marker-core`:
+     блик — светлее и почти без хромы (тёплый белый блик), тело — как есть,
+     терминатор — темнее. Один рецепт даёт бронзу на светлых темах (тёмное тело)
+     и жемчужину на тёмных (светлое тело — блик упирается в белый). */
+  .mc-specular { stop-color: oklch(from var(--movement-path-marker-core) calc(l + 0.37) calc(c * 0.30) h); }
+  .mc-upper    { stop-color: oklch(from var(--movement-path-marker-core) calc(l + 0.22) calc(c * 0.80) h); }
+  .mc-body     { stop-color: var(--movement-path-marker-core); }
+  .mc-edge     { stop-color: oklch(from var(--movement-path-marker-core) calc(l - 0.18) c h); }
 </style>
