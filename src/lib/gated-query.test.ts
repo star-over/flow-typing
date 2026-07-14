@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { runAuthGate } from './auth-gate';
+import { runAuthGate } from './gated-query';
 
 function harness() {
   const setValues: number[] = [];

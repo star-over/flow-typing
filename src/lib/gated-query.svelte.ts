@@ -1,5 +1,5 @@
 import type { AuthStore } from './auth/auth-store.svelte';
-import { runAuthGate, type ReactiveSubscribe } from './auth-gate';
+import { runAuthGate, type ReactiveSubscribe } from './gated-query';
 
 /**
  * Reactive значение, питаемое cloud-подпиской и закрытое auth-проверкой: гость и loading
