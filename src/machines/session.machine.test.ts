@@ -209,7 +209,7 @@ describe('sessionMachine', () => {
     });
   });
 
-  it('на завершении сессии (done) шлёт recordSessionSummary с payload по всему потоку', async () => {
+  it('на завершении сессии (done) шлёт recordSessionSummary со сводкой по всему потоку', async () => {
     const onSession = vi.fn();
     // Восемь символов: с запасом проходим guard MIN_JOURNAL_EXPOSURES (5).
     const EIGHT: TypingStream = Array.from({ length: 8 }, () => sym('a', 'KeyA'));
@@ -226,10 +226,10 @@ describe('sessionMachine', () => {
     await vi.waitFor(() => expect(actor.getSnapshot().matches('done')).toBe(true));
 
     expect(onSession).toHaveBeenCalledTimes(1); // ровно один раз — в done, не на дозагрузках
-    const payload = onSession.mock.calls[0]![0] as { exposures: number; confusions: unknown[]; durationMs: number };
-    expect(payload.exposures).toBe(8);
-    expect(payload.confusions).toEqual([]);
-    expect(typeof payload.durationMs).toBe('number');
+    const summary = onSession.mock.calls[0]![0] as { exposures: number; confusions: unknown[]; durationMs: number };
+    expect(summary.exposures).toBe(8);
+    expect(summary.confusions).toEqual([]);
+    expect(typeof summary.durationMs).toBe('number');
   });
 
   // Порядок завершения теперь выражен структурой finalizeAndNotify, а не массивом
@@ -243,13 +243,13 @@ describe('sessionMachine', () => {
     onSession = () => {},
   }: {
     onCheckpoint?: () => void;
-    onSession?: (payload: { exposures: number }) => void;
+    onSession?: (summary: { exposures: number }) => void;
   } = {}) {
     const LONG: TypingStream = Array.from({ length: REFILL_THRESHOLD_SYMBOLS + 20 }, () => sym('a', 'KeyA'));
     return provideSession({
       fetchSequence: [LONG],
       onCheckpoint: () => onCheckpoint(),
-      onSession: (payload) => onSession(payload),
+      onSession: (summary) => onSession(summary),
     });
   }
 
@@ -279,10 +279,10 @@ describe('sessionMachine', () => {
   });
 
   it('done (a): SESSION.COMPLETE несёт уже посчитанную summary — те же числа, что в журнале', async () => {
-    let journalPayload: { exposures: number } | undefined;
+    let journalSummary: { exposures: number } | undefined;
     const sink = makeCompletionSink();
     const actor = createActor(
-      longStreamSession({ onSession: (payload) => (journalPayload = payload) }),
+      longStreamSession({ onSession: (summary) => (journalSummary = summary) }),
       { input: { ...INPUT, parentActor: sink } },
     );
     actor.start();
@@ -297,7 +297,7 @@ describe('sessionMachine', () => {
     const received = sink.getSnapshot().context.completions[0]?.summary as { exposures: number } | null;
     expect(received).not.toBeNull();
     expect(received!.exposures).toBe(6);
-    expect(journalPayload?.exposures).toBe(6);
+    expect(journalSummary?.exposures).toBe(6);
   });
 
   // Реальный time-driven путь истечения: тикер (setInterval) → TICK → guard

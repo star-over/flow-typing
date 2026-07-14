@@ -26,7 +26,7 @@ describe('accuracyPercent', () => {
 describe('sessionStatsFromSummary', () => {
   it('переводит durationMs в секунды и cpm/wpm', () => {
     const stats = sessionStatsFromSummary(summary({ exposures: 200, clean: 190, cpm: 194, durationMs: 60_000 }));
-    expect(stats.durationInSeconds).toBe(60);
+    expect(stats.elapsedSeconds).toBe(60);
     expect(stats.cpm).toBe(194);
     expect(stats.wpm).toBe(194 / 5);
   });
@@ -43,7 +43,7 @@ describe('sessionStatsFromSummary', () => {
 
   it('значения сырые (без округления) — округляет отображающий слой, как в /stats', () => {
     const stats = sessionStatsFromSummary(summary({ exposures: 3, clean: 2, cpm: 123.456, durationMs: 1234 }));
-    expect(stats.durationInSeconds).toBe(1.234);
+    expect(stats.elapsedSeconds).toBe(1.234);
     expect(stats.cpm).toBe(123.456);
     expect(stats.accuracy).toBeCloseTo((2 / 3) * 100, 5);
   });

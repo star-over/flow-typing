@@ -40,6 +40,10 @@ import { trainingMachine } from './training.machine';
 export interface SessionInput {
   symbolLayoutId: SymbolLayoutId;
   cpm: number;
+  // Настроенная длительность сессии (target). Квалификатор `session` из канон-имени
+  // sessionDurationSeconds (настройки/AppContext) намеренно опущен: внутри собственной
+  // области сессии он избыточен. Measured-время («сколько длилось») — отдельный концепт
+  // (elapsedMs/displayElapsedMs, журнал durationMs), под durationSeconds не сводить.
   durationSeconds: number;
   parentActor: ParentActor;
 }
@@ -95,7 +99,7 @@ export const sessionMachine = setup({
     },
     recordSessionSummary: (
       _,
-      _params: { payload: SessionSummaryPayload; symbolLayoutId: SymbolLayoutId },
+      _params: { summary: SessionSummaryPayload; symbolLayoutId: SymbolLayoutId },
     ) => {
       throw new Error('recordSessionSummary not provided');
     },
@@ -159,7 +163,7 @@ export const sessionMachine = setup({
       const summary = sessionSummarize({ stream: context.completed, durationMs: context.displayElapsedMs });
       if (shouldJournalSession(summary)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        enqueue({ type: 'recordSessionSummary', params: { payload: summary, symbolLayoutId: context.symbolLayoutId } } as any);
+        enqueue({ type: 'recordSessionSummary', params: { summary, symbolLayoutId: context.symbolLayoutId } } as any);
       }
       enqueue.sendTo(context.parentActor, { type: 'SESSION.COMPLETE', stream: context.completed, summary });
     }),

@@ -33,7 +33,7 @@ describe('formatSessionRow', () => {
   });
 
   test('длительность — целые секунды', () => {
-    expect(formatSessionRow({ session: session({ durationMs: 61400 }), locale: 'en' }).durationSeconds).toBe(61);
+    expect(formatSessionRow({ session: session({ durationMs: 61400 }), locale: 'en' }).elapsedSeconds).toBe(61);
   });
 
   test('id прокинут, дата — непустая строка', () => {

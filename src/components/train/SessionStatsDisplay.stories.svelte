@@ -5,14 +5,14 @@
   import enDictionary from '../../../dictionaries/en.json';
 
   const goodPerformanceStats: SessionStats = {
-    durationInSeconds: 60,
+    elapsedSeconds: 60,
     accuracy: 88.89,
     cpm: 55.94,
     wpm: 11.19,
   };
 
   const averagePerformanceStats: SessionStats = {
-    durationInSeconds: 4,
+    elapsedSeconds: 4,
     accuracy: 83.33,
     cpm: 150,
     wpm: 30,

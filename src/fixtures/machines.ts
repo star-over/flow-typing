@@ -59,7 +59,7 @@ export function provideSession({
   /** Сеть недоступна: КАЖДЫЙ fetchDrills бросает (первый сбой → session.error). */
   fetchRejects?: boolean;
   onCheckpoint?: (summary: DrillSummary) => void;
-  onSession?: (payload: SessionSummaryPayload) => void;
+  onSession?: (summary: SessionSummaryPayload) => void;
 }) {
   let call = 0;
   return sessionMachine.provide({
@@ -75,7 +75,7 @@ export function provideSession({
       recordCheckpoint: (_, params) =>
         onCheckpoint((params as { summary: DrillSummary }).summary),
       recordSessionSummary: (_, params) =>
-        onSession((params as { payload: SessionSummaryPayload }).payload),
+        onSession((params as { summary: SessionSummaryPayload }).summary),
     },
   });
 }

@@ -4,7 +4,7 @@ import { recordSessionSummaryHandler, listMineHandler } from './sessions';
 import { api } from './_generated/api';
 import { makeConvexTest, asUser, seedUser, seedProfile } from './test.helpers';
 
-const payload = {
+const summary = {
   exposures: 200,
   clean: 190,
   cpm: 200,
@@ -19,7 +19,7 @@ describe('recordSessionSummaryHandler', () => {
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'a@example.com' });
       await seedProfile({ ctx, userId, symbolLayoutId: 'йцукен', openedSteps: 5, updatedAt: 1000 });
-      const id = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
+      const id = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary });
       const row = await ctx.db.get(id);
       expect(row?.openedSteps).toBe(5);
       expect(row?.exposures).toBe(200);
@@ -32,9 +32,9 @@ describe('recordSessionSummaryHandler', () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'r@example.com' });
-      const withRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, rhythm: 82 } });
+      const withRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary: { ...summary, rhythm: 82 } });
       expect((await ctx.db.get(withRhythm))?.rhythm).toBe(82);
-      const withoutRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
+      const withoutRhythm = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary });
       expect((await ctx.db.get(withoutRhythm))?.rhythm).toBeUndefined();
     });
   });
@@ -43,18 +43,18 @@ describe('recordSessionSummaryHandler', () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'b@example.com' });
-      const id = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
+      const id = await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary });
       const row = await ctx.db.get(id);
       expect(row?.openedSteps).toBe(1);
     });
   });
 
-  test('невалидный payload (clean > exposures) → throw, строка не вставлена (P0-10)', async () => {
+  test('невалидная сводка (clean > exposures) → throw, строка не вставлена (P0-10)', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'bad@example.com' });
       await expect(
-        recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, clean: 999 } }),
+        recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary: { ...summary, clean: 999 } }),
       ).rejects.toThrow(/clean/i);
       const rows = await ctx.db
         .query('sessionSummaries')
@@ -68,8 +68,8 @@ describe('recordSessionSummaryHandler', () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'c@example.com' });
-      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
-      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload });
+      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary });
+      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary });
       const rows = await ctx.db
         .query('sessionSummaries')
         .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', 'йцукен'))
@@ -83,14 +83,14 @@ describe('record mutation — auth', () => {
   test('гость (без identity) → throw Not authenticated', async () => {
     const t = makeConvexTest();
     await expect(
-      t.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload }),
+      t.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary }),
     ).rejects.toThrow(/not authenticated/i);
   });
 
   test('authenticated: вставляет сводку для identity-юзера', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => seedUser({ ctx, email: 'rec@example.com' }));
-    await asUser({ t, userId }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload });
+    await asUser({ t, userId }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary });
     await t.run(async (ctx) => {
       const rows = await ctx.db
         .query('sessionSummaries')
@@ -111,10 +111,10 @@ describe('record mutation — rate limit (P0-10)', () => {
     const userId = await t.run(async (ctx) => seedUser({ ctx, email: 'flood@example.com' }));
     const client = asUser({ t, userId });
     for (let i = 0; i < SESSION_RECORD_CAPACITY; i++) {
-      await client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload });
+      await client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary });
     }
     await expect(
-      client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload }),
+      client.mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary }),
     ).rejects.toThrow(/rate ?limit/i); // ConvexError data: {"kind":"RateLimited",...}
   });
 
@@ -125,11 +125,11 @@ describe('record mutation — rate limit (P0-10)', () => {
       b: await seedUser({ ctx, email: 'b-rl@example.com' }),
     }));
     for (let i = 0; i < SESSION_RECORD_CAPACITY; i++) {
-      await asUser({ t, userId: a }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload });
+      await asUser({ t, userId: a }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary });
     }
     // A исчерпан, но B со своим полным ведром проходит.
     await expect(
-      asUser({ t, userId: b }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...payload }),
+      asUser({ t, userId: b }).mutation(api.sessions.record, { symbolLayoutId: 'йцукен', ...summary }),
     ).resolves.toBeDefined();
   });
 });
@@ -139,8 +139,8 @@ describe('listMineHandler', () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx, email: 'd@example.com' });
-      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, exposures: 100, clean: 90 } });
-      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', payload: { ...payload, exposures: 200 } });
+      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary: { ...summary, exposures: 100, clean: 90 } });
+      await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId: 'йцукен', summary: { ...summary, exposures: 200 } });
       const rows = await listMineHandler({ ctx, userId, symbolLayoutId: 'йцукен' });
       expect(rows.map((r) => r.exposures)).toEqual([100, 200]); // by_user_and_layout → _creationTime ascending
     });
@@ -151,7 +151,7 @@ describe('listMineHandler', () => {
     await t.run(async (ctx) => {
       const a = await seedUser({ ctx, email: 'a2@example.com' });
       const b = await seedUser({ ctx, email: 'b2@example.com' });
-      await recordSessionSummaryHandler({ ctx, userId: a, symbolLayoutId: 'йцукен', payload });
+      await recordSessionSummaryHandler({ ctx, userId: a, symbolLayoutId: 'йцукен', summary });
       const rows = await listMineHandler({ ctx, userId: b, symbolLayoutId: 'йцукен' });
       expect(rows).toEqual([]);
     });
@@ -171,7 +171,7 @@ describe('listMine query — authenticated', () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
       const uid = await seedUser({ ctx, email: 'lm@example.com' });
-      await recordSessionSummaryHandler({ ctx, userId: uid, symbolLayoutId: 'йцукен', payload });
+      await recordSessionSummaryHandler({ ctx, userId: uid, symbolLayoutId: 'йцукен', summary });
       return uid;
     });
     const rows = await asUser({ t, userId }).query(api.sessions.listMine, { symbolLayoutId: 'йцукен' });

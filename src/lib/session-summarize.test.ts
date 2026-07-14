@@ -111,7 +111,7 @@ describe('sessionSummarize — ровность ритма', () => {
 });
 
 describe('shouldJournalSession', () => {
-  const payload = (exposures: number): SessionSummaryPayload => ({
+  const summary = (exposures: number): SessionSummaryPayload => ({
     exposures,
     clean: exposures,
     cpm: 0,
@@ -121,14 +121,14 @@ describe('shouldJournalSession', () => {
   });
 
   test('ниже порога — шум, не журналируем', () => {
-    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES - 1))).toBe(false);
+    expect(shouldJournalSession(summary(MIN_JOURNAL_EXPOSURES - 1))).toBe(false);
   });
 
   test('ровно на пороге — журналируем (граница включительно)', () => {
-    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES))).toBe(true);
+    expect(shouldJournalSession(summary(MIN_JOURNAL_EXPOSURES))).toBe(true);
   });
 
   test('выше порога — журналируем', () => {
-    expect(shouldJournalSession(payload(MIN_JOURNAL_EXPOSURES + 10))).toBe(true);
+    expect(shouldJournalSession(summary(MIN_JOURNAL_EXPOSURES + 10))).toBe(true);
   });
 });

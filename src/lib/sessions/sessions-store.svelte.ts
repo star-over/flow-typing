@@ -13,7 +13,7 @@ export type SessionSummary = FunctionReturnType<typeof api.sessions.listMine>[nu
 export interface SessionRow {
   id: string;
   date: string; // Intl.DateTimeFormat(locale) — дата+время
-  durationSeconds: number; // целые секунды
+  elapsedSeconds: number; // активное время сеанса, целые секунды (measured, не config)
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
   latencyMs: number; // медиана латентности сеанса, целые мс
@@ -32,7 +32,7 @@ export function formatSessionRow({
   return {
     id: session._id,
     date: new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(session.capturedAt),
-    durationSeconds: Math.round(session.durationMs / 1000),
+    elapsedSeconds: Math.round(session.durationMs / 1000),
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),
     latencyMs: Math.round(session.latencyMedianMs),

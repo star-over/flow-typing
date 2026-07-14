@@ -129,7 +129,7 @@
           {#each rows as row (row.id)}
             <tr>
               <td>{row.date}</td>
-              <td class="num">{row.durationSeconds} {t.units.duration}</td>
+              <td class="num">{row.elapsedSeconds} {t.units.duration}</td>
               <td class="num">{row.cpm} {t.units.cpm}</td>
               <td class="num">{row.accuracy}{t.units.accuracy}</td>
               <td class="num">{row.rhythm}</td>
