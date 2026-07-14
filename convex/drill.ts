@@ -44,9 +44,9 @@ import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
 import type { ProfileCell } from '../shared/repertoire/readiness.ts';
 import {
-  computeRepertoireProgress,
+  computeRepertoireSnapshot,
   computeProgressionDetail,
-  type RepertoireProgress,
+  type RepertoireSnapshot,
   type ProgressionDetail,
 } from '../shared/repertoire/progress.ts';
 
@@ -403,7 +403,7 @@ export async function repertoireSnapshotHandler({
   ctx: QueryCtx;
   userId: Id<'users'> | null;
   symbolLayoutId: string;
-}): Promise<RepertoireProgress | null> {
+}): Promise<RepertoireSnapshot | null> {
   if (userId === null) return null;
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) return null;
@@ -411,7 +411,7 @@ export async function repertoireSnapshotHandler({
     .query('skillProfiles')
     .withIndex('by_user_and_layout', (q) => q.eq('userId', userId).eq('symbolLayoutId', symbolLayoutId))
     .unique();
-  return computeRepertoireProgress({
+  return computeRepertoireSnapshot({
     openedSteps: profile?.openedSteps ?? DEFAULT_OPENED_STEPS,
     symbolCells: profile?.symbolCells ?? [],
     symbolLayout: layoutData.symbolLayout,

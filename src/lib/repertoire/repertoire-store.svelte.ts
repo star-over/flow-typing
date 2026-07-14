@@ -4,7 +4,7 @@ import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import type { SymbolLayoutId } from '@/interfaces/types';
 import { createAuthGatedQuery } from '@/lib/gated-query.svelte';
 
-// Тип снимка берём из Convex-вывода функции (= RepertoireProgress | null),
+// Тип снимка берём из Convex-вывода функции (= RepertoireSnapshot | null),
 // БЕЗ импорта из shared/ — у src нет прецедента импорта shared, а Convex codegen
 // уже даёт нам этот тип через api. Экспортируем для UI-компонента.
 export type RepertoireSnapshot = FunctionReturnType<typeof api.drill.repertoireSnapshot>;

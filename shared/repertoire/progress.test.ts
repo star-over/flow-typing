@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { computeRepertoireProgress, computeProgressionDetail } from './progress.ts';
+import { computeRepertoireSnapshot, computeProgressionDetail } from './progress.ts';
 import type { SymbolEntry } from '../symbol-layout.ts';
 import type { ProfileCell } from './readiness.ts';
 
@@ -14,9 +14,9 @@ const LAYOUT: SymbolEntry[] = [
 const ready = (s: string): ProfileCell => ({ symbol: s, exposures: 30, clean: 29, latencyEwma: 200, latencySamples: 30 });
 const notReady = (s: string, clean: number, latencyEwma = 200): ProfileCell => ({ symbol: s, exposures: 30, clean, latencyEwma, latencySamples: 30 });
 
-describe('computeRepertoireProgress', () => {
+describe('computeRepertoireSnapshot', () => {
   test('ступень, готовность и долг по текущему шагу', () => {
-    const p = computeRepertoireProgress({
+    const p = computeRepertoireSnapshot({
       openedSteps: 1, symbolCells: [ready('а')], symbolLayout: LAYOUT,
     });
     expect(p.openedSteps).toBe(1);
@@ -27,7 +27,7 @@ describe('computeRepertoireProgress', () => {
   });
 
   test('maturingNeeded учитывает долговой лимит', () => {
-    const p = computeRepertoireProgress({
+    const p = computeRepertoireSnapshot({
       openedSteps: 1, symbolCells: [ready('а')], symbolLayout: LAYOUT,
     });
     expect(p.maturingNeeded).toBe(0); // не-готовых 1 ≤ долговой лимит 2
@@ -42,7 +42,7 @@ describe('computeRepertoireProgress', () => {
       { symbol: 'в', keyCaps: ['KeyD'], ladderStep: 1 },
     ];
     // Никто не готов (symbolCells пусто)
-    const p = computeRepertoireProgress({
+    const p = computeRepertoireSnapshot({
       openedSteps: 1, symbolCells: [], symbolLayout: layoutWithMore,
     });
     expect(p.totalOnStep).toBe(4); // 4 символа на шаге 0
@@ -58,7 +58,7 @@ describe('computeRepertoireProgress', () => {
     ];
     // 'а': 30 предъявлений, но только 20 чистых (20/30 ≈ 0.67 < 0.9)
     // 'о': готов (29/30 ≈ 0.97 ≥ 0.9)
-    const p = computeRepertoireProgress({
+    const p = computeRepertoireSnapshot({
       openedSteps: 1,
       symbolCells: [notReady('а', 20), ready('о')],
       symbolLayout: layoutWithMore,
@@ -74,7 +74,7 @@ describe('computeRepertoireProgress', () => {
     ];
     // 'о': быстрый (150ms), 'в': средний (160ms) → медиана ≈ 155
     // 'а': медленный (400ms > 1.5 × 155 = 232.5) ✓ latency-блокер
-    const p = computeRepertoireProgress({
+    const p = computeRepertoireSnapshot({
       openedSteps: 1,
       symbolCells: [
         notReady('а', 30, 400), // 400ms — медленнее медианы
