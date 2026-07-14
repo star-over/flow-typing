@@ -11,7 +11,7 @@
 import type { Actor } from 'xstate';
 import type { appMachine } from '@/machines/app.machine';
 import { streamToRunRecord } from './typing-run';
-import * as store from './typing-capture-store';
+import * as store from './typing-capture-idb';
 
 type AppActor = Actor<typeof appMachine>;
 
