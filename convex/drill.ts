@@ -87,15 +87,15 @@ function buildDefaultDrillText({
   const letters = symbols.filter((s) => s.trim().length > 0); // пробел добавляем сами как разделитель
   if (letters.length === 0) return '';
   const words: string[] = [];
-  let total = 0;
+  let totalChars = 0;
   let cursor = 0;
-  while (total < budgetChars) {
+  while (totalChars < budgetChars) {
     let word = '';
     for (let i = 0; i < DEFAULT_DRILL_WORD_LENGTH; i++) {
       word += letters[cursor % letters.length];
       cursor += 1;
     }
-    total += word.length + (words.length > 0 ? 1 : 0); // +1 за пробел-разделитель
+    totalChars += word.length + (words.length > 0 ? 1 : 0); // +1 за пробел-разделитель
     words.push(word);
   }
   return words.join(' ');
@@ -159,9 +159,9 @@ export async function selectDrillsHandler({
     const rng = makeSeededRandom(seed);
     const used = new Set<number>();
     const drills: { text: string }[] = [];
-    let total = 0;
+    let totalChars = 0;
     for (;;) {
-      if (drills.length > 0 && total >= budgetChars) break;
+      if (drills.length > 0 && totalChars >= budgetChars) break;
       const offset = nextDistinctOffset({ rng, count, used });
       if (offset === null) break;
       const { id: selectionId } = await drillIndex.at(ctx, offset, { namespace: symbolLayoutId, bounds });
@@ -172,7 +172,7 @@ export async function selectDrillsHandler({
       const drill = await ctx.db.get(row.drillId);
       if (drill === null) continue;
       drills.push({ text: drill.text });
-      total += drill.length;
+      totalChars += drill.length;
     }
     if (drills.length > 0) return { drills };
     // Пул не пуст (count>0), но все ссылки битые → контентный сбой → дефолт ниже.
@@ -240,7 +240,7 @@ interface SymbolStatInput {
 }
 
 /** Чистое решение о новом openedSteps по обновлённым ячейкам (writer-логика). */
-function grownOpenedSteps({
+function growOpenedSteps({
   symbolLayoutId,
   openedSteps,
   cells,
@@ -251,7 +251,7 @@ function grownOpenedSteps({
 }): number {
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) {
-    console.warn(`grownOpenedSteps: нет данных раскладки ${symbolLayoutId} — рост пропущен`);
+    console.warn(`growOpenedSteps: нет данных раскладки ${symbolLayoutId} — рост пропущен`);
     return openedSteps;
   }
   const { symbolLayout } = layoutData;
@@ -365,7 +365,7 @@ export async function applyDrillSummaryHandler({
       updatedAt: now,
     });
   }
-  const openedSteps = grownOpenedSteps({ symbolLayoutId, openedSteps: existing.openedSteps, cells: symbolCells });
+  const openedSteps = growOpenedSteps({ symbolLayoutId, openedSteps: existing.openedSteps, cells: symbolCells });
   await ctx.db.patch(existing._id, { symbolCells, openedSteps, updatedAt: now });
   return existing._id;
 }

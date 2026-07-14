@@ -1,6 +1,6 @@
 // src/lib/session-summarize.ts
 /**
- * @file `summarizeSession` — чистая клиентская сводка ВСЕЙ сессии для журнала
+ * @file `sessionSummarize` — чистая клиентская сводка ВСЕЙ сессии для журнала
  * `sessionSummaries` (аналитика/коучинг). Отдельно от `drillSummarize` (дельта в
  * skillProfiles для алгоритма): добавляет направление промаха (confusion) и cpm.
  * Сырые attempts на сервер НЕ уходят — только агрегаты.
@@ -55,7 +55,7 @@ export function rhythmConsistency(intervals: number[]): number | undefined {
   return Math.round(100 * Math.max(0, 1 - cv));
 }
 
-export function summarizeSession({
+export function sessionSummarize({
   stream,
   durationMs,
 }: {

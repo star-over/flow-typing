@@ -370,7 +370,7 @@ describe('applyDrillSummaryHandler — рост репертуара', () => {
   });
 
   test('неизвестная раскладка → рост пропущен, сводка сохранена (без throw)', async () => {
-    // grownOpenedSteps пишет console.warn для раскладки без данных — рабочее
+    // growOpenedSteps пишет console.warn для раскладки без данных — рабочее
     // поведение. Тест намеренно подаёт 'unknown', поэтому глушим warn, чтобы он
     // не засорял вывод тестов.
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});

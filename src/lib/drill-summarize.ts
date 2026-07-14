@@ -60,7 +60,7 @@ export function drillSummarize(stream: TypingStream): DrillSummary {
 
 /**
  * Свёртка чтений предъявлений в `DrillSummary` (группировка по символу + overall).
- * Отдельно от прохода потока, чтобы `summarizeSession` обходил поток один раз:
+ * Отдельно от прохода потока, чтобы `sessionSummarize` обходил поток один раз:
  * читает предъявления единожды и повторно использует те же чтения для overall, ритма и
  * confusions.
  */

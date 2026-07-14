@@ -167,8 +167,8 @@ function determineTypingContext({
 }): TypingContext {
     const targetKeyCaps = currentStreamSymbol.targetKeyCaps;
     const activeFingers = new Set<FingerId>();
-    targetKeyCaps.forEach((keyId: KeyCapId) => {
-        const finger = getFingerByKeyCap({ keyCapId: keyId, fingerLayout });
+    targetKeyCaps.forEach((keyCapId: KeyCapId) => {
+        const finger = getFingerByKeyCap({ keyCapId, fingerLayout });
         if (finger) {
             activeFingers.add(finger);
         }
@@ -181,9 +181,9 @@ function determineTypingContext({
 
     if (wasAttemptIncorrect) {
         const incorrectPressFingers = new Set<FingerId>();
-        lastAttempt.pressedKeyCaps.forEach((keyId) => {
+        lastAttempt.pressedKeyCaps.forEach((keyCapId) => {
             // Special Space logic first
-            if (keyId === 'Space') {
+            if (keyCapId === 'Space') {
                 const [firstTargetFinger] = Array.from(activeFingers);
                 const isTargetLeftHand = firstTargetFinger ? isLeftHandFinger(firstTargetFinger) : false;
                 if (isTargetLeftHand) {
@@ -194,7 +194,7 @@ function determineTypingContext({
                 return;
             }
 
-            const finger = getFingerByKeyCap({ keyCapId: keyId, fingerLayout });
+            const finger = getFingerByKeyCap({ keyCapId, fingerLayout });
             if (finger) {
                 incorrectPressFingers.add(finger);
             }
@@ -282,12 +282,12 @@ function buildVisibleClusters({
       // всегда — при Shift-символе сама цель мизинца ЕСТЬ модификатор
       // (ShiftLeft/ShiftRight), и без этого исключения фильтр спрятал бы Shift-цель.
       .filter(
-        (keyId) =>
-          keyCapHasSymbol({ keyCapId: keyId, symbolLayout }) ||
-          targetKeyCaps.includes(keyId),
+        (keyCapId) =>
+          keyCapHasSymbol({ keyCapId, symbolLayout }) ||
+          targetKeyCaps.includes(keyCapId),
       )
-      .forEach((keyId) => {
-        keyCapStates[keyId] = {
+      .forEach((keyCapId) => {
+        keyCapStates[keyCapId] = {
           visibility: "VISIBLE",
           navigationRole: "NONE",
           pressResult: "NONE",
@@ -316,9 +316,9 @@ function _applyNavigationRoles({
   const targetState = keyCapStates[targetKey];
   if (!targetState) return;
   targetState.navigationRole = "TARGET";
-  path.forEach((keyId) => {
-    const keyState = keyCapStates[keyId];
-    if (keyState && keyId !== targetKey) {
+  path.forEach((keyCapId) => {
+    const keyState = keyCapStates[keyCapId];
+    if (keyState && keyCapId !== targetKey) {
       keyState.navigationRole = "PATH";
     }
   });
@@ -335,11 +335,11 @@ function _applyNavigationArrows({
 }) {
   const { keyCapStates } = fingerData;
   if (!keyCapStates) return;
-  path.forEach((keyId, index) => {
+  path.forEach((keyCapId, index) => {
     const nextKeyInPath = path[index + 1];
     if (nextKeyInPath) {
-      const keyState = keyCapStates[keyId];
-      const currentCoords = keyCoordinateMap.get(keyId);
+      const keyState = keyCapStates[keyCapId];
+      const currentCoords = keyCoordinateMap.get(keyCapId);
       const nextCoords = keyCoordinateMap.get(nextKeyInPath);
       if (keyState && currentCoords && nextCoords) {
         if (nextCoords.r < currentCoords.r) keyState.navigationArrow = "UP";
@@ -446,10 +446,10 @@ function applyKeyPressResults({
     const { keyCapStates } = fingerData;
     if (!keyCapStates) continue;
 
-    for (const [keyIdRaw, keyState] of Object.entries(keyCapStates)) {
-      const keyId = keyIdRaw as KeyCapId;
-      const wasKeyPressed = pressedSet.has(keyId);
-      const wasKeyRequired = targetSet.has(keyId);
+    for (const [keyCapIdRaw, keyState] of Object.entries(keyCapStates)) {
+      const keyCapId = keyCapIdRaw as KeyCapId;
+      const wasKeyPressed = pressedSet.has(keyCapId);
+      const wasKeyRequired = targetSet.has(keyCapId);
 
       if (wasKeyRequired && wasKeyPressed) {
         keyState.pressResult = 'CORRECT';

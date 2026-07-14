@@ -39,10 +39,10 @@ async function fetchServerDrillStream({
   const seed = Math.floor(Math.random() * 0x7fffffff);
   logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId} seed=${seed}`);
   const startedAt = performance.now();
-  const res = await convex.query(api.drill.drillNext, { symbolLayoutId, budgetChars, seed });
-  const stream = glueServerDrills({ drills: res.drills, symbolLayoutId });
+  const response = await convex.query(api.drill.drillNext, { symbolLayoutId, budgetChars, seed });
+  const stream = glueServerDrills({ drills: response.drills, symbolLayoutId });
   const elapsedMs = Math.round(performance.now() - startedAt);
-  logConvex(`drillNext ← ${res.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
+  logConvex(`drillNext ← ${response.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
   return stream;
 }
 

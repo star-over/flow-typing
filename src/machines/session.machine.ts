@@ -31,7 +31,7 @@ import {
 import { needsRefill as queueNeedsRefill, planCheckpoint } from '@/lib/session-queue';
 import {
   shouldJournalSession,
-  summarizeSession,
+  sessionSummarize,
   type SessionSummaryPayload,
 } from '@/lib/session-summarize';
 import { commitSegment, isExpired as windowExpired, liveElapsed } from '@/lib/session-timer';
@@ -156,7 +156,7 @@ export const sessionMachine = setup({
         enqueue({ type: 'recordCheckpoint', params: { summary: plan.summary, symbolLayoutId: context.symbolLayoutId } } as any);
         enqueue.assign({ previousCheckpoint: plan.nextCheckpoint });
       }
-      const summary = summarizeSession({ stream: context.completed, durationMs: context.displayElapsedMs });
+      const summary = sessionSummarize({ stream: context.completed, durationMs: context.displayElapsedMs });
       if (shouldJournalSession(summary)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         enqueue({ type: 'recordSessionSummary', params: { payload: summary, symbolLayoutId: context.symbolLayoutId } } as any);
