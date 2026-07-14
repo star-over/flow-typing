@@ -30,11 +30,13 @@
   --color-warning    : oklch(0.70 0.13 75);
 
   /* --- Domain · Finger palette --- */
-  --color-finger-1   : oklch(0.86 0.17 92);
-  --color-finger-2   : oklch(0.76 0.16 56);
-  --color-finger-3   : oklch(0.78 0.16 152);
-  --color-finger-4   : oklch(0.71 0.12 255);
-  --color-finger-5   : oklch(0.72 0.15 306);
+  /* «Приглушённый гербарий» (ADR 0026): тихий спектр, разведён по оттенку И светлоте,
+     вне зон цели (янтарь 66) и маршрута (индиго 255), все темнее цели. */
+  --color-finger-1   : oklch(0.60 0.10 38);   /* большой — терракота */
+  --color-finger-2   : oklch(0.56 0.09 200);  /* указательный — петроль */
+  --color-finger-3   : oklch(0.64 0.07 148);  /* средний — шалфей */
+  --color-finger-4   : oklch(0.50 0.10 300);  /* безымянный — фиалка */
+  --color-finger-5   : oklch(0.65 0.07 350);  /* мизинец — пыльная роза */
   --color-finger-base: oklch(0.85 0.04 80);
 
   /* --- Domain · Finger state (non-TARGET) --- */
@@ -43,8 +45,8 @@
   --color-finger-error   : var(--color-error);
 
   /* --- Domain · Navigation visualization --- */
-  --color-path-highlight: oklch(0.55 0.18 250);
-  --color-target-marker : oklch(0.70 0.15 70);
+  --color-path-highlight: oklch(0.55 0.17 255); /* маршрут-навигатор (ADR 0026) */
+  --color-target-marker : oklch(0.68 0.17 66);  /* насыщенный янтарь — яркий пункт назначения */
   --color-cursor-border : oklch(0.78 0.15 80);
 
     /* --- Domain · KeyCap navigation role TARGET --- */
@@ -64,24 +66,29 @@
   --color-symbol-error-bg  : oklch(0.92 0.05 25);
 
   /* --- Domain · CursorSymbol block --- */
-  --color-cursor-bg: oklch(0.77 0.16 70);
+  --color-cursor-bg: var(--color-target-marker); /* курсор = цель: символ под курсором визуально = целевая клавиша */
   --color-cursor-fg: oklch(0.14 0 0);
 
   /* --- Domain · KeyCap base --- */
   --color-keycap-label : var(--color-text-primary);
   --color-keycap-marker: var(--color-text-primary);
 
-  /* --- Domain · KeyCap color groups --- */
-  --color-keycap-group-neutral-bg    : oklch(0.88 0.03 80 / 0.7);
-  --color-keycap-group-neutral-border: oklch(0.78 0.03 80);
-  --color-keycap-group-yellow-bg     : oklch(0.92 0.05 90 / 0.7);
-  --color-keycap-group-yellow-border : oklch(0.85 0.12 90);
-  --color-keycap-group-sky-bg        : oklch(0.88 0.04 235 / 0.7);
-  --color-keycap-group-sky-border    : oklch(0.78 0.10 230);
-  --color-keycap-group-indigo-bg     : oklch(0.88 0.04 275 / 0.7);
-  --color-keycap-group-indigo-border : oklch(0.75 0.10 275);
-  --color-keycap-group-purple-bg     : oklch(0.88 0.04 300 / 0.7);
-  --color-keycap-group-purple-border : oklch(0.80 0.11 300);
+  /* --- Domain · KeyCap color groups (гербарий, ADR 0026) --- */
+  /* Тон клавиши = бледное эхо цвета пальца («плотнее»): выводим из --color-finger-N,
+     фиксируя светлоту/хрому, берём только оттенок — клавиша под пальцем совпадает.
+     Имена-слоты (yellow/sky/indigo/purple/neutral) старые; в sepia несут гербарий:
+     neutral=терракота, yellow=петроль, sky=шалфей, indigo=фиалка, purple=роза.
+     Переименование слотов — при переносе модели на все темы. */
+  --color-keycap-group-neutral-bg    : oklch(from var(--color-finger-1) 0.89 0.06 h / 0.78);
+  --color-keycap-group-neutral-border: oklch(from var(--color-finger-1) 0.78 0.12 h);
+  --color-keycap-group-yellow-bg     : oklch(from var(--color-finger-2) 0.89 0.06 h / 0.78);
+  --color-keycap-group-yellow-border : oklch(from var(--color-finger-2) 0.78 0.12 h);
+  --color-keycap-group-sky-bg        : oklch(from var(--color-finger-3) 0.89 0.06 h / 0.78);
+  --color-keycap-group-sky-border    : oklch(from var(--color-finger-3) 0.78 0.12 h);
+  --color-keycap-group-indigo-bg     : oklch(from var(--color-finger-4) 0.89 0.06 h / 0.78);
+  --color-keycap-group-indigo-border : oklch(from var(--color-finger-4) 0.78 0.12 h);
+  --color-keycap-group-purple-bg     : oklch(from var(--color-finger-5) 0.89 0.06 h / 0.78);
+  --color-keycap-group-purple-border : oklch(from var(--color-finger-5) 0.78 0.12 h);
 
   /* --- Domain · KeyCap secondary --- */
   --color-keycap-secondary-bg    : oklch(0.92 0.03 80);
@@ -222,19 +229,21 @@
   /* HandsScene */
   --hands-center-point-fill: var(--color-path-highlight);
 
-  /* MovementPath — движение по спектру пальцев; путь = индиго; тап = кольцо+пульс */
+  /* MovementPath — модель «навигатор» (ADR 0026): всё движение = один холодный маршрут
+     (индиго), отвязан от цвета пальца; диск = голова маршрута; тап = кольцо+пульс.
+     10 per-position маркеров держим ради контракта, но в sepia все = маршрут. */
   --movement-path-guide      : var(--color-path-highlight);
-  --movement-path-l1-marker  : var(--color-finger-1);
-  --movement-path-r1-marker  : var(--color-finger-1);
-  --movement-path-l2-marker  : var(--color-finger-2);
-  --movement-path-r2-marker  : var(--color-finger-2);
-  --movement-path-l3-marker  : var(--color-finger-3);
-  --movement-path-r3-marker  : var(--color-finger-3);
-  --movement-path-l4-marker  : var(--color-finger-4);
-  --movement-path-r4-marker  : var(--color-finger-4);
-  --movement-path-l5-marker  : var(--color-finger-5);
-  --movement-path-r5-marker  : var(--color-finger-5);
-  --movement-path-marker-core: oklch(0.28 0.03 70);
+  --movement-path-l1-marker  : var(--color-path-highlight);
+  --movement-path-r1-marker  : var(--color-path-highlight);
+  --movement-path-l2-marker  : var(--color-path-highlight);
+  --movement-path-r2-marker  : var(--color-path-highlight);
+  --movement-path-l3-marker  : var(--color-path-highlight);
+  --movement-path-r3-marker  : var(--color-path-highlight);
+  --movement-path-l4-marker  : var(--color-path-highlight);
+  --movement-path-r4-marker  : var(--color-path-highlight);
+  --movement-path-l5-marker  : var(--color-path-highlight);
+  --movement-path-r5-marker  : var(--color-path-highlight);
+  --movement-path-marker-core: var(--color-path-highlight); /* тело диска — голова маршрута (блик/терминатор выводит компонент) */
 
   /* FlowLine */
   --flow-line-border            : 2px solid var(--color-cursor-border);
