@@ -20,7 +20,7 @@ export interface SessionRow {
   rhythm: string; // ровность ритма: "82%" или "—" (нет данных / старая строка)
 }
 
-/** Функция форматирования: документ сеанса → строка таблицы. Округления как в LessonStatsDisplay. */
+/** Функция форматирования: документ сеанса → строка таблицы. Округления как в SessionStatsDisplay. */
 export function formatSessionRow({
   session,
   locale,

@@ -229,13 +229,13 @@
   --select-focus-outline   : unset;
   --select-arrow-background: unset;
 
-  /* LessonStatsDisplay */
-  --lesson-stats-display-background     : unset;
-  --lesson-stats-display-border         : unset;
-  --lesson-stats-display-item-background: unset;
-  --lesson-stats-display-label-color    : unset;
-  --lesson-stats-display-value-color    : unset;
-  --lesson-stats-display-unit-color     : unset;
+  /* SessionStatsDisplay */
+  --session-stats-display-background     : unset;
+  --session-stats-display-border         : unset;
+  --session-stats-display-item-background: unset;
+  --session-stats-display-label-color    : unset;
+  --session-stats-display-value-color    : unset;
+  --session-stats-display-unit-color     : unset;
 
   /* RepertoireProgress */
   --repertoire-progress-background  : unset;

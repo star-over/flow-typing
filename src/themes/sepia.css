@@ -297,13 +297,13 @@
   --select-focus-outline   : 2px solid var(--color-border);
   --select-arrow-background: var(--color-text-secondary);
 
-  /* LessonStatsDisplay */
-  --lesson-stats-display-background     : var(--color-surface);
-  --lesson-stats-display-border         : 1px solid var(--color-border);
-  --lesson-stats-display-item-background: var(--color-bg);
-  --lesson-stats-display-label-color    : var(--color-text-muted);
-  --lesson-stats-display-value-color    : var(--color-text-primary);
-  --lesson-stats-display-unit-color     : var(--color-text-secondary);
+  /* SessionStatsDisplay */
+  --session-stats-display-background     : var(--color-surface);
+  --session-stats-display-border         : 1px solid var(--color-border);
+  --session-stats-display-item-background: var(--color-bg);
+  --session-stats-display-label-color    : var(--color-text-muted);
+  --session-stats-display-value-color    : var(--color-text-primary);
+  --session-stats-display-unit-color     : var(--color-text-secondary);
 
   /* RepertoireProgress */
   --repertoire-progress-background  : var(--color-surface);
