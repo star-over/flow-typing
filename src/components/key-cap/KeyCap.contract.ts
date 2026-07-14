@@ -14,7 +14,7 @@
  * (палитра, формулы `oklch(from ...)`, `color-mix(...)`) — это её
  * внутренняя кухня, контракт о ней не знает.
  */
-export const KEYCAP_CONTRACT = [
+export const KEY_CAP_CONTRACT = [
   // --- Base ---
   '--keycap-color', // color для клавиш без data-finger-id
   '--keycap-marker-background', // background маркера .keycap-marker (home dot/bar)
@@ -60,4 +60,4 @@ export const KEYCAP_CONTRACT = [
   '--keycap-error-border',
 ] as const satisfies readonly `--${string}`[];
 
-export type KeyCapContractToken = (typeof KEYCAP_CONTRACT)[number];
+export type KeyCapContractToken = (typeof KEY_CAP_CONTRACT)[number];

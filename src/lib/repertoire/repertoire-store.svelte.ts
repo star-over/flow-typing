@@ -9,22 +9,22 @@ import { createAuthGatedQuery } from '@/lib/auth-gated-query.svelte';
 // уже даёт нам этот тип через api. Экспортируем для UI-компонента.
 export type RepertoireSnapshot = FunctionReturnType<typeof api.drill.repertoireSnapshot>;
 
-/** Чистый предикат «ступень выросла с отметки старта сессии». */
-export function didStepGrow({
-  startStep,
-  currentStep,
+/** Чистый предикат «openedSteps выросли с отметки старта сессии». */
+export function didOpenedStepsGrow({
+  startOpenedSteps,
+  currentOpenedSteps,
 }: {
-  startStep: number | null;
-  currentStep: number | null;
+  startOpenedSteps: number | null;
+  currentOpenedSteps: number | null;
 }): boolean {
-  if (startStep === null || currentStep === null) return false;
-  return currentStep > startStep;
+  if (startOpenedSteps === null || currentOpenedSteps === null) return false;
+  return currentOpenedSteps > startOpenedSteps;
 }
 
 /**
  * Reactive store снимка прогресса репертуара. Вызывать в +layout (svelte-context),
  * после auth. Подписка живёт весь сеанс (паттерн auth-store); markSessionStart
- * фиксирует ступень на входе в тренировку — для показа перехода в sessionComplete.
+ * фиксирует openedSteps на входе в тренировку — для показа перехода в sessionComplete.
  */
 export function createRepertoireStore({
   authStore,
@@ -39,17 +39,20 @@ export function createRepertoireStore({
     subscribe: (onResult) =>
       convex.onUpdate(api.drill.repertoireSnapshot, { symbolLayoutId: symbolLayoutId() }, onResult),
   });
-  let startStep = $state<number | null>(null);
+  let startOpenedSteps = $state<number | null>(null);
 
   return {
     get snapshot() {
       return query.value;
     },
     get grew() {
-      return didStepGrow({ startStep, currentStep: query.value?.openedSteps ?? null });
+      return didOpenedStepsGrow({
+        startOpenedSteps,
+        currentOpenedSteps: query.value?.openedSteps ?? null,
+      });
     },
     markSessionStart() {
-      startStep = query.value?.openedSteps ?? null;
+      startOpenedSteps = query.value?.openedSteps ?? null;
     },
   };
 }

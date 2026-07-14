@@ -11,10 +11,10 @@
   const physicalLayoutANSI = getPhysicalLayout('ansi');
 
   import { inState } from '@/lib/state-utils';
-  import { lessonStatsFromSummary } from '@/lib/stats-calculator';
+  import { sessionStatsFromSummary } from '@/lib/stats-calculator';
 
   import TrainingScene from '@/components/train/TrainingScene.svelte';
-  import LessonStatsDisplay from '@/components/train/LessonStatsDisplay.svelte';
+  import SessionStatsDisplay from '@/components/train/SessionStatsDisplay.svelte';
   import RepertoireProgress from '@/components/train/RepertoireProgress.svelte';
   import SurveyPrompt from '@/components/train/SurveyPrompt.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
@@ -52,12 +52,12 @@
 
   // null, когда нечего показывать (нет завершённой сессии или ни одного предъявления).
   // Тогда экран sessionComplete пуст — допустимое degenerate-состояние, решение
-  // принимает родитель, не сам LessonStatsDisplay. Источник — каноническая сводка
+  // принимает родитель, не сам SessionStatsDisplay. Источник — каноническая сводка
   // сессии (те же числа, что строка /stats), а не «настенное» время по attempts.
-  const lessonStats = $derived.by(() => {
+  const sessionStats = $derived.by(() => {
     const summary = state.context.lastSessionSummary;
     if (!summary || summary.exposures === 0) return null;
-    return lessonStatsFromSummary(summary);
+    return sessionStatsFromSummary(summary);
   });
 </script>
 
@@ -72,12 +72,12 @@
     loadingLabel={dictionary.app.loading}
   />
 
-{:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
+{:else if inState({ snapshot: state, value: 'sessionComplete' }) && sessionStats}
   <!-- Опрос — НАД статистикой: заметность важнее (замер гипотезы, P1). -->
   {#if showSurvey}
     <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
   {/if}
-  <LessonStatsDisplay stats={lessonStats} {dictionary} />
+  <SessionStatsDisplay stats={sessionStats} {dictionary} />
   <RepertoireProgress
     snapshot={repertoire.snapshot}
     grew={repertoire.grew}
@@ -87,7 +87,7 @@
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' })}
   <!-- Вырожденное завершение: сессия окончилась без единого предъявления
-       (lessonStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
+       (sessionStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
        а не оставляем белое поле. Кнопка «Начать заново» — в FooterActions. -->
   {#if showSurvey}
     <SurveyPrompt {dictionary} onAnswer={recordSurvey} />

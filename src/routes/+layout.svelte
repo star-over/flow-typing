@@ -10,7 +10,7 @@
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor, selectSessionTimer } from '@/machines/selectors';
   import { computeTimerSeconds } from '@/lib/timer-display';
-  import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
+  import { DEFAULT_USER_SETTINGS } from '@/user-settings/defaults';
   import { dictionary } from '@/lib/i18n';
   import { settings, attachCloudSync } from '@/lib/settings';
   import { inState } from '@/lib/state-utils';

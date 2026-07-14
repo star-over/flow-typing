@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_USER_SETTINGS } from './user-settings';
+import { DEFAULT_USER_SETTINGS } from './defaults';
 
 // Канарейка (намеренный детектор смены значения). В ОТЛИЧИЕ от поведенческих
 // тестов normalizeSettings (`settings.test.ts` сверяется с этим же источником,

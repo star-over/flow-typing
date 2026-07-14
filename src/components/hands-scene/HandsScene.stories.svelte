@@ -21,7 +21,7 @@
   import { simple_r_error_simple_f } from '@/fixtures/hands-scene/simple_r_error_simple_f';
   import { simple_e_error_simple_d } from '@/fixtures/hands-scene/simple_e_error_simple_d';
   import { simple_e_error_space } from '@/fixtures/hands-scene/simple_e_error_space';
-  import { simple_e_error_shift_F } from '@/fixtures/hands-scene/simple_e_error_shift_F';
+  import { simple_e_error_shift_f } from '@/fixtures/hands-scene/simple_e_error_shift_f';
   import { shift_o_error_simple_o } from '@/fixtures/hands-scene/shift_o_error_simple_o';
   import { shift_t_error_shift_n } from '@/fixtures/hands-scene/shift_t_error_shift_n';
 
@@ -74,6 +74,6 @@
 <Story name="Error / Wanted r, pressed f" args={{ handsScene: simple_r_error_simple_f.expectedOutput }} />
 <Story name="Error / Wanted e, pressed d" args={{ handsScene: simple_e_error_simple_d.expectedOutput }} />
 <Story name="Error / Wanted e, pressed Space" args={{ handsScene: simple_e_error_space.expectedOutput }} />
-<Story name="Error / Wanted e, pressed Shift+F" args={{ handsScene: simple_e_error_shift_F.expectedOutput }} />
+<Story name="Error / Wanted e, pressed Shift+F" args={{ handsScene: simple_e_error_shift_f.expectedOutput }} />
 <Story name="Error / Wanted O (Shift), pressed o" args={{ handsScene: shift_o_error_simple_o.expectedOutput }} />
 <Story name="Error / Wanted T (Shift), pressed Shift+N" args={{ handsScene: shift_t_error_shift_n.expectedOutput }} />

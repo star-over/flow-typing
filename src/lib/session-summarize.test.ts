@@ -1,7 +1,7 @@
 // src/lib/session-summarize.test.ts
 import { describe, expect, test } from 'vitest';
 import {
-  summarizeSession,
+  sessionSummarize,
   shouldJournalSession,
   MAX_CONFUSIONS,
   MIN_RHYTHM_INTERVALS,
@@ -12,9 +12,9 @@ import { MIN_JOURNAL_EXPOSURES } from './session-config';
 import type { StreamSymbol } from '@/interfaces/types';
 import { press, streamSymbol } from '@/fixtures/stream';
 
-describe('summarizeSession', () => {
+describe('sessionSummarize', () => {
   test('confusion: первый промах учитывается с направлением (target → pressed)', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [streamSymbol('a', ['KeyA'], [press(['KeyS']), press(['KeyA'])])],
       durationMs: 60000,
     });
@@ -24,7 +24,7 @@ describe('summarizeSession', () => {
   });
 
   test('чистое нажатие не даёт confusion', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [streamSymbol('h', ['KeyH'], [press(['KeyH'])])],
       durationMs: 60000,
     });
@@ -33,7 +33,7 @@ describe('summarizeSession', () => {
   });
 
   test('confusion игнорирует сочетания клавиш и пустые нажатия (V1 — только одиночные)', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [
         streamSymbol('я', ['KeyZ'], [press(['KeyZ', 'ShiftLeft']), press(['KeyZ'])]), // сочетание клавиш как промах
         streamSymbol('ф', ['KeyA'], [press([]), press(['KeyA'])]), // пустое нажатие
@@ -44,7 +44,7 @@ describe('summarizeSession', () => {
   });
 
   test('cpm = exposures / минуты (durationMs из активного времени)', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [streamSymbol('a', ['KeyA'], [press(['KeyA'])]), streamSymbol('b', ['KeyB'], [press(['KeyB'])])],
       durationMs: 30000, // полминуты → cpm = 2 / 0.5 = 4
     });
@@ -53,7 +53,7 @@ describe('summarizeSession', () => {
   });
 
   test('cpm = 0 при крошечной длительности (durationMs < 1000) — не делим на ~ноль', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [streamSymbol('a', ['KeyA'], [press(['KeyA'])])],
       durationMs: 500,
     });
@@ -68,7 +68,7 @@ describe('summarizeSession', () => {
       const sym = String.fromCharCode(0x430 + i); // кириллица а,б,в… как уникальные цели
       stream.push(streamSymbol(sym, ['KeyZ'], [press(['KeyX']), press(['KeyZ'])]));
     }
-    const out = summarizeSession({ stream, durationMs: 60000 });
+    const out = sessionSummarize({ stream, durationMs: 60000 });
     expect(out.confusions.length).toBe(MAX_CONFUSIONS);
     expect(out.confusions[0]).toEqual({ target: 'a', pressed: 'KeyS', count: 3 }); // самый частый — первым
   });
@@ -88,7 +88,7 @@ describe('rhythmConsistency', () => {
   });
 });
 
-describe('summarizeSession — ровность ритма', () => {
+describe('sessionSummarize — ровность ритма', () => {
   // Чистые символы с равномерными startAt → равные межсимвольные интервалы → 100%.
   function evenStream(count: number, stepMs: number): StreamSymbol[] {
     return Array.from({ length: count }, (_, i) =>
@@ -97,12 +97,12 @@ describe('summarizeSession — ровность ритма', () => {
   }
 
   test('равномерный набор → rhythm = 100', () => {
-    const out = summarizeSession({ stream: evenStream(8, 200), durationMs: 60000 });
+    const out = sessionSummarize({ stream: evenStream(8, 200), durationMs: 60000 });
     expect(out.rhythm).toBe(100);
   });
 
   test('нет времени нажатий (startAt отсутствует) → поле rhythm опущено', () => {
-    const out = summarizeSession({
+    const out = sessionSummarize({
       stream: [streamSymbol('a', ['KeyA'], [press(['KeyA'])])],
       durationMs: 60000,
     });

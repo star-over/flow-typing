@@ -6,7 +6,7 @@
  * фабрикуют статистику (мусор в `sessionSummaries` / `skillProfiles`, кривой /stats,
  * отравление будущей калибровки движка). Эти ассерты — второй слой поверх формы:
  * бросают при выходе за инвариант домена. Чистые (без ctx) → юнит-тест напрямую
- * (паттерн `createOrUpdateUserHandler` / инлайн-проверки `setMyLadderStepHandler`).
+ * (паттерн `createOrUpdateUserHandler` / инлайн-проверки `setMyOpenedStepsHandler`).
  *
  * Работают на ВСЕХ деплоях — это универсальный харденинг, не dev-гейт (ADR 0023 /
  * `isProduction()` тут ни при чём).

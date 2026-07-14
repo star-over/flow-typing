@@ -1,4 +1,4 @@
-import { KEYCAP_CONTRACT } from '@/components/key-cap/KeyCap.contract';
+import { KEY_CAP_CONTRACT } from '@/components/key-cap/KeyCap.contract';
 import { FINGER_CONTRACT } from '@/components/hands-scene/Finger.contract';
 import { HANDS_SCENE_CONTRACT } from '@/components/hands-scene/HandsScene.contract';
 import { MOVEMENT_PATH_CONTRACT } from '@/components/hands-scene/MovementPath.contract';
@@ -9,7 +9,7 @@ import { REGULAR_SYMBOL_CONTRACT } from '@/components/flow-line/RegularSymbol.co
 import { NAV_ARROW_CONTRACT } from '@/components/key-cap/NavArrow.contract';
 import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
-import { LESSON_STATS_DISPLAY_CONTRACT } from '@/components/train/LessonStatsDisplay.contract';
+import { SESSION_STATS_DISPLAY_CONTRACT } from '@/components/train/SessionStatsDisplay.contract';
 import { REPERTOIRE_PROGRESS_CONTRACT } from '@/components/train/RepertoireProgress.contract';
 import { SURVEY_PROMPT_CONTRACT } from '@/components/train/SurveyPrompt.contract';
 import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
@@ -37,7 +37,7 @@ import { WORDMARK_CONTRACT } from '@/components/ui/Wordmark.contract';
  */
 export const THEME_CONTRACT = [
   ...ROOT_CONTRACT,
-  ...KEYCAP_CONTRACT,
+  ...KEY_CAP_CONTRACT,
   ...FINGER_CONTRACT,
   ...HANDS_SCENE_CONTRACT,
   ...MOVEMENT_PATH_CONTRACT,
@@ -50,7 +50,7 @@ export const THEME_CONTRACT = [
   ...HEADER_CONTRACT,
   ...MAIN_CONTENT_CONTRACT,
   ...SELECT_CONTRACT,
-  ...LESSON_STATS_DISPLAY_CONTRACT,
+  ...SESSION_STATS_DISPLAY_CONTRACT,
   ...REPERTOIRE_PROGRESS_CONTRACT,
   ...SURVEY_PROMPT_CONTRACT,
   ...SETTINGS_PAGE_CONTRACT,

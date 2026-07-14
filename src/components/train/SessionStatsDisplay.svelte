@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { LessonStats } from '@/lib/stats-calculator';
+  import type { SessionStats } from '@/lib/stats-calculator';
   import type { Dictionary } from '@/interfaces/types';
 
   interface Props {
-    stats: LessonStats;
+    stats: SessionStats;
     dictionary: Dictionary;
   }
 
@@ -48,9 +48,9 @@
     width: 100%;
     max-width: 640px;
     padding: var(--spacing-6);
-    background: var(--lesson-stats-display-background);
+    background: var(--session-stats-display-background);
     border-radius: var(--radius-4);
-    border: var(--lesson-stats-display-border);
+    border: var(--session-stats-display-border);
   }
 
   .title {
@@ -77,7 +77,7 @@
     align-items: center;
     justify-content: center;
     padding: var(--spacing-4);
-    background: var(--lesson-stats-display-item-background);
+    background: var(--session-stats-display-item-background);
     border-radius: var(--radius-3);
     /* `min-width: 0` отключает grid-default min-content sizing — без него
      * stat-item не сжимается ниже ширины своего контента и весь grid
@@ -87,19 +87,19 @@
 
   .stat-label {
     font-size: 0.875rem;
-    color: var(--lesson-stats-display-label-color);
+    color: var(--session-stats-display-label-color);
   }
 
   .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--lesson-stats-display-value-color);
+    color: var(--session-stats-display-value-color);
   }
 
   .stat-unit {
     font-size: 1rem;
     font-weight: 500;
-    color: var(--lesson-stats-display-unit-color);
+    color: var(--session-stats-display-unit-color);
     margin-left: var(--spacing-1);
   }
 </style>

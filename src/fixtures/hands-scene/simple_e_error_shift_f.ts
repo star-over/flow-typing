@@ -1,6 +1,6 @@
 
 import type { HandsSceneFixture } from './types';
-export const simple_e_error_shift_F: HandsSceneFixture = {
+export const simple_e_error_shift_f: HandsSceneFixture = {
   input: {
     targetSymbol: "e",
     targetKeyCaps: ["KeyE"],
