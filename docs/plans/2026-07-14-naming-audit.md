@@ -69,10 +69,10 @@
 
 ## Волна B — выравнивание контрактов между модулями (ветка `refactor/naming-wave-b`)
 
-- [ ] **Развести `durationSeconds`** (конфиг vs факт): `targetDurationSeconds` в `session.machine.ts`/`selectors.ts`/`app.machine.ts`; `durationSeconds` оставить журналу (`sessions-store.svelte.ts`, `durationMs/1000`)
-- [ ] **Слить ячейку профиля** `ProfileCell` (`shared/repertoire/readiness.ts`) / `SymbolCell` (`convex/drill.ts:234`) / `SeedProfileCell` (`convex/test.helpers.ts`) — `convex` импортирует `ProfileCell` из `shared`; имя поля схемы `symbolCells`
-- [ ] **`summary`/`payload`** — единое имя `summary` на соседних действиях (`session.machine.ts:93/96`, `session-impl.ts:64/78`)
-- [ ] **`sessionDurationSeconds`→`durationSeconds`** через XState — либо пронести без сокращения, либо зафиксировать правило комментарием; заодно асимметрия `currentSymbolLayoutId` vs `sessionDurationSeconds`
+- [x] **Развести `durationSeconds`** (конфиг vs факт) — грилл выбрал ОБРАТНУЮ сторону, чем предлагал этот пункт: двигаем measured, не config. `SessionRow.durationSeconds` и `SessionStats.durationInSeconds`→`elapsedSeconds` (родное слово, ср. `elapsedMs`/`displayElapsedMs`); config (`durationSeconds`/`sessionDurationSeconds`) оставлен; коллизия снята. Решение — `CONTEXT.md`, раздел Session — `d0ceb5a`
+- [x] **Слить ячейку профиля** `ProfileCell` / `SymbolCell` / `SeedProfileCell` — `convex` импортирует `ProfileCell` из `shared`; поле схемы `symbolCells` не тронуто. `drill.ts`-половина (`SymbolCell`→`ProfileCell`) утекла в `cc96486` (Волна A); остаток `test.helpers.ts` (`SeedProfileCell`) — `2fe5e04`
+- [x] **`summary`/`payload`** — единое имя `summary` на всей нити (машины → `session-impl` → convex `sessions.ts`/`validation.ts` + тесты/фикстуры того же концепта); тип `SessionSummaryPayload` оставлен (несёт смысл), wire-поля спредятся — `af8c77b`
+- [x] **`sessionDurationSeconds`→`durationSeconds`** через XState — грилл: укорачивание УЗАКОНЕНО комментарием (квалификатор `session` избыточен внутри собственной области сессии — `SessionInput`), не проносим канон-имя через все слои. Асимметрия `currentSymbolLayoutId` vs `sessionDurationSeconds` тоже узаконена комментарием (`app.machine.ts`, разные оправдания префиксов) — `d0ceb5a`
 - [ ] **Ключи `rateLimiter`** (`convex/rateLimiter.ts:19-31`) → строки-пути `api.<module>.<fn>` (`'sessions.record'`, `'userSettings.upsertMine'`, …)
 - [ ] `convex/test.helpers.ts:89-98` (`seedDrill`) — параметр `layout`→`symbolLayoutId`
 - [ ] (низкий) `SymbolStat`/`SymbolStatInput` — единое локальное имя `SymbolStat` по обе стороны
