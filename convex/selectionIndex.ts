@@ -4,7 +4,9 @@
  * строки. Данные раскладки берём из единого источника напрямую — символьная
  * раскладка (`src/layouts/*.json`) несёт и клавиши, и шаг открытия символа
  * (`ladderStep`, ADR 0020), без генерируемых копий. `symbolLayoutId` лишь выбирает
- * нужную раскладку.
+ * нужную раскладку. Инстанс `TableAggregate` над той же таблицей `drillSelectionIndex`
+ * (r/w-счётчик читателя `drill.ts` + sync при этой пересборке) живёт в
+ * `convex/drillIndex.ts` (ADR 0009); здесь — только пересборка-writer.
  *
  * Запуск: `npx convex run selectionIndex:rebuild '{"symbolLayoutId":"йцукен"}'`
  * (см. `make rebuild-selection-index`).

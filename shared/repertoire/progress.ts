@@ -7,7 +7,7 @@ import { maxLadderStep, symbolsAtStep, type SymbolEntry } from '../symbol-layout
 import { evaluateStepReadiness, type ProfileCell, type ReadinessGaps } from './readiness.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from './config.ts';
 
-export interface RepertoireProgress {
+export interface RepertoireSnapshot {
   openedSteps: number;
   totalSteps: number; // всего ступеней в лестнице (для «N из M»); = maxLadderStep + 1
   totalOnStep: number;
@@ -16,7 +16,7 @@ export interface RepertoireProgress {
   blockers: { exposure: number; accuracy: number; latency: number };
 }
 
-export function computeRepertoireProgress({
+export function computeRepertoireSnapshot({
   openedSteps,
   symbolCells,
   symbolLayout,
@@ -24,7 +24,7 @@ export function computeRepertoireProgress({
   openedSteps: number;
   symbolCells: readonly ProfileCell[];
   symbolLayout: SymbolEntry[];
-}): RepertoireProgress {
+}): RepertoireSnapshot {
   const currentStepSymbols = symbolsAtStep({ step: openedSteps - 1, symbolLayout });
   const { symbols } = evaluateStepReadiness({ currentStepSymbols, cells: symbolCells, params: READINESS_PARAMS });
   const blockers = { exposure: 0, accuracy: 0, latency: 0 };
