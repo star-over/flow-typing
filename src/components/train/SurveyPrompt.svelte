@@ -30,7 +30,6 @@
     </div>
     <div class="answers">
       <button type="button" class="answer" onclick={() => choose('yes')}>{dictionary.survey.answer_yes}</button>
-      <button type="button" class="answer" onclick={() => choose('somewhat')}>{dictionary.survey.answer_somewhat}</button>
       <button type="button" class="answer" onclick={() => choose('no')}>{dictionary.survey.answer_no}</button>
     </div>
   {:else}

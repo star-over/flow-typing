@@ -114,9 +114,7 @@ export default defineSchema({
   // выводим из наличия строки по by_user, отдельного флага нет.
   surveyResponses: defineTable({
     userId: v.id('users'),
-    answer: v.union(
-      v.literal('yes'), v.literal('somewhat'), v.literal('no'), v.literal('dismissed'),
-    ),
+    answer: v.union(v.literal('yes'), v.literal('no'), v.literal('dismissed')),
     capturedAt: v.number(), // server-stamped
   }).index('by_user', ['userId']),
 });

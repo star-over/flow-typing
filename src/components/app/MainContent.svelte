@@ -73,6 +73,10 @@
   />
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' }) && lessonStats}
+  <!-- Опрос — НАД статистикой: заметность важнее (замер гипотезы, P1). -->
+  {#if showSurvey}
+    <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
+  {/if}
   <LessonStatsDisplay stats={lessonStats} {dictionary} />
   <RepertoireProgress
     snapshot={repertoire.snapshot}
@@ -80,18 +84,15 @@
     isGuest={auth.state.status === 'guest'}
     {dictionary}
   />
-  {#if showSurvey}
-    <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
-  {/if}
 
 {:else if inState({ snapshot: state, value: 'sessionComplete' })}
   <!-- Вырожденное завершение: сессия окончилась без единого предъявления
        (lessonStats===null при exposures===0) — раньше экран был пуст. Сообщаем,
        а не оставляем белое поле. Кнопка «Начать заново» — в FooterActions. -->
-  <p class="screen-note">{dictionary.app.session_empty}</p>
   {#if showSurvey}
     <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
   {/if}
+  <p class="screen-note">{dictionary.app.session_empty}</p>
 
 {:else if inState({ snapshot: state, value: 'sessionError' })}
   <!-- Сетевой сбой старта сессии (sessionMachine.error → SESSION.ERROR): видимая

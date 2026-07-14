@@ -12,7 +12,7 @@ import { mutation, query } from './_generated/server';
 import type { MutationCtx, QueryCtx } from './_generated/server';
 import { rateLimiter } from './rateLimiter';
 
-export type SurveyAnswer = 'yes' | 'somewhat' | 'no' | 'dismissed';
+export type SurveyAnswer = 'yes' | 'no' | 'dismissed';
 
 export async function recordSurveyHandler({
   ctx,
@@ -28,9 +28,7 @@ export async function recordSurveyHandler({
 
 export const record = mutation({
   args: {
-    answer: v.union(
-      v.literal('yes'), v.literal('somewhat'), v.literal('no'), v.literal('dismissed'),
-    ),
+    answer: v.union(v.literal('yes'), v.literal('no'), v.literal('dismissed')),
   },
   handler: async (ctx, { answer }) => {
     const userId = await getAuthUserId(ctx);

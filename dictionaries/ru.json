@@ -38,7 +38,7 @@
     "session_complete": "Тренировка завершена!",
     "back_to_menu": "В меню",
     "error_title": "Произошла ошибка",
-    "start_again": "Начать заново",
+    "start_again": "Начать тренировку",
     "pause": "Пауза",
     "resume": "Продолжить",
     "rhythm_channel_aria": "Индикатор ритма печати",
@@ -181,9 +181,8 @@
     "state_title": "Состояние"
   },
   "survey": {
-    "question": "Помогает печатать не глядя?",
+    "question": "Ну как, зацепило?",
     "answer_yes": "Да",
-    "answer_somewhat": "Немного",
     "answer_no": "Нет",
     "thanks": "Спасибо!",
     "dismiss_label": "Закрыть"
