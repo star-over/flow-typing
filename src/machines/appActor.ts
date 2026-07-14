@@ -24,10 +24,10 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   void import('@/lib/dev/profile-reset').then(({ attachProfileReset }) => {
     attachProfileReset();
   });
-  // Dev-only: window.__setLadderStep(step) — установить ступень лестницы текущего
-  // юзера для текущей раскладки (см. lib/dev/ladder-set).
-  void import('@/lib/dev/ladder-set').then(({ attachLadderStepSet }) => {
-    attachLadderStepSet();
+  // Dev-only: window.__setOpenedSteps(n) — установить число открытых шагов
+  // репертуара текущего юзера для текущей раскладки (см. lib/dev/opened-steps-set).
+  void import('@/lib/dev/opened-steps-set').then(({ attachOpenedStepsSet }) => {
+    attachOpenedStepsSet();
   });
 }
 

@@ -42,6 +42,7 @@ import { rateLimiter } from './rateLimiter';
 import { symbolsAtStep, maxLadderStep } from '../shared/symbol-layout.ts';
 import { decideOpenedSteps } from '../shared/repertoire/growth.ts';
 import { READINESS_PARAMS, REPERTOIRE_DEBT_LIMIT } from '../shared/repertoire/config.ts';
+import type { ProfileCell } from '../shared/repertoire/readiness.ts';
 import {
   computeRepertoireProgress,
   computeProgressionDetail,
@@ -231,14 +232,6 @@ export const drillNext = query({
 // инициализирует EWMA, дальше — fold с этим alpha.
 const LATENCY_EWMA_ALPHA = 0.3;
 
-interface SymbolCell {
-  symbol: string;
-  exposures: number;
-  clean: number;
-  latencyEwma: number;
-  latencySamples: number;
-}
-
 interface SymbolStatInput {
   symbol: string;
   exposures: number;
@@ -254,7 +247,7 @@ function grownOpenedSteps({
 }: {
   symbolLayoutId: string;
   openedSteps: number;
-  cells: SymbolCell[];
+  cells: ProfileCell[];
 }): number {
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) {
@@ -282,11 +275,11 @@ export function foldSummaryIntoCells({
   perSymbol,
   latencyAlpha,
 }: {
-  cells: readonly SymbolCell[];
+  cells: readonly ProfileCell[];
   perSymbol: readonly SymbolStatInput[];
   latencyAlpha: number;
-}): SymbolCell[] {
-  const bySymbol = new Map<string, SymbolCell>(cells.map((cell) => [cell.symbol, { ...cell }]));
+}): ProfileCell[] {
+  const bySymbol = new Map<string, ProfileCell>(cells.map((cell) => [cell.symbol, { ...cell }]));
 
   for (const stat of perSymbol) {
     const cell = bySymbol.get(stat.symbol) ?? {
@@ -510,23 +503,24 @@ export const resetMyProfile = mutation({
 });
 
 // ────────────────────────────────────────────────────────────────────────────
-// setMyLadderStep — DEV/TEST утилита: установить ступень лестницы текущего
-// юзера для указанной раскладки. Сбрасывает symbolCells, чтобы новая ступень
-// стартовала с чистой статистикой. Запрошенная ступень clamp'ится к диапазону
-// [1, maxStep + 1], где maxStep — последний шаг лестницы раскладки.
+// setMyOpenedSteps — DEV/TEST утилита: установить число открытых шагов
+// (openedSteps) репертуара текущего юзера для указанной раскладки. Сбрасывает
+// symbolCells, чтобы новый репертуар стартовал с чистой статистикой. Запрошенное
+// значение clamp'ится к диапазону [1, maxStep + 1], где maxStep — последний шаг
+// лестницы раскладки.
 // ────────────────────────────────────────────────────────────────────────────
 
 /** Устанавливает openedSteps для профиля юзера (создаёт/обновляет) и сбрасывает ячейки. */
-export async function setMyLadderStepHandler({
+export async function setMyOpenedStepsHandler({
   ctx,
   userId,
   symbolLayoutId,
-  targetStep,
+  targetOpenedSteps,
 }: {
   ctx: MutationCtx;
   userId: Id<'users'> | null;
   symbolLayoutId: string;
-  targetStep: number;
+  targetOpenedSteps: number;
 }): Promise<{ openedSteps: number; clamped: boolean }> {
   if (userId === null) {
     throw new Error('Not authenticated');
@@ -535,13 +529,13 @@ export async function setMyLadderStepHandler({
   const layoutData = getLayoutData(symbolLayoutId);
   if (!layoutData) throw new Error(`Unknown symbolLayoutId: ${symbolLayoutId}`);
 
-  if (!Number.isFinite(targetStep) || !Number.isInteger(targetStep)) {
-    throw new Error(`Invalid targetStep: ${targetStep}. Must be a finite integer.`);
+  if (!Number.isFinite(targetOpenedSteps) || !Number.isInteger(targetOpenedSteps)) {
+    throw new Error(`Invalid targetOpenedSteps: ${targetOpenedSteps}. Must be a finite integer.`);
   }
 
   const maxStep = maxLadderStep(layoutData.symbolLayout);
   const maxOpenedSteps = maxStep + 1;
-  const clampedStep = Math.max(1, Math.min(targetStep, maxOpenedSteps));
+  const clampedStep = Math.max(1, Math.min(targetOpenedSteps, maxOpenedSteps));
 
   const existing = await ctx.db
     .query('skillProfiles')
@@ -567,13 +561,13 @@ export async function setMyLadderStepHandler({
     });
   }
 
-  return { openedSteps: clampedStep, clamped: clampedStep !== targetStep };
+  return { openedSteps: clampedStep, clamped: clampedStep !== targetOpenedSteps };
 }
 
-export const setMyLadderStep = mutation({
+export const setMyOpenedSteps = mutation({
   args: {
     symbolLayoutId: v.string(),
-    targetStep: v.number(),
+    targetOpenedSteps: v.number(),
   },
   returns: v.object({
     openedSteps: v.number(),
@@ -585,11 +579,11 @@ export const setMyLadderStep = mutation({
     if (userId === null) {
       throw new Error('Not authenticated');
     }
-    return await setMyLadderStepHandler({
+    return await setMyOpenedStepsHandler({
       ctx,
       userId,
       symbolLayoutId: args.symbolLayoutId,
-      targetStep: args.targetStep,
+      targetOpenedSteps: args.targetOpenedSteps,
     });
   },
 });

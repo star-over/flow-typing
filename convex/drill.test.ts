@@ -9,7 +9,7 @@ import {
   resetMyProfileHandler,
   buildDefaultDrills,
   selectDrillsHandler,
-  setMyLadderStepHandler,
+  setMyOpenedStepsHandler,
 } from './drill';
 import { makeConvexTest, asUser, seedUser, seedDrill, seedProfile } from './test.helpers';
 import { getLayoutData } from './layoutData';
@@ -689,16 +689,16 @@ describe('resetMyProfile mutation — auth', () => {
 });
 
 
-describe('setMyLadderStepHandler — установка ступени профиля', () => {
+describe('setMyOpenedStepsHandler — установка openedSteps профиля', () => {
   test('создаёт профиль, если его нет', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx });
-      const result = await setMyLadderStepHandler({
+      const result = await setMyOpenedStepsHandler({
         ctx,
         userId,
         symbolLayoutId: 'йцукен',
-        targetStep: 3,
+        targetOpenedSteps: 3,
       });
       expect(result.openedSteps).toBe(3);
       expect(result.clamped).toBe(false);
@@ -725,11 +725,11 @@ describe('setMyLadderStepHandler — установка ступени проф�
         symbolCells: [{ symbol: 'а', exposures: 10, clean: 9, latencyEwma: 150, latencySamples: 10 }],
         updatedAt: 1,
       });
-      const result = await setMyLadderStepHandler({
+      const result = await setMyOpenedStepsHandler({
         ctx,
         userId,
         symbolLayoutId: 'йцукен',
-        targetStep: 2,
+        targetOpenedSteps: 2,
       });
       expect(result.openedSteps).toBe(2);
       expect(result.clamped).toBe(false);
@@ -748,11 +748,11 @@ describe('setMyLadderStepHandler — установка ступени проф�
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx });
-      const result = await setMyLadderStepHandler({
+      const result = await setMyOpenedStepsHandler({
         ctx,
         userId,
         symbolLayoutId: 'йцукен',
-        targetStep: 999,
+        targetOpenedSteps: 999,
       });
       expect(result.clamped).toBe(true);
       expect(result.openedSteps).toBeGreaterThan(1);
@@ -770,11 +770,11 @@ describe('setMyLadderStepHandler — установка ступени проф�
     const t = makeConvexTest();
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx });
-      const result = await setMyLadderStepHandler({
+      const result = await setMyOpenedStepsHandler({
         ctx,
         userId,
         symbolLayoutId: 'йцукен',
-        targetStep: 0,
+        targetOpenedSteps: 0,
       });
       expect(result.openedSteps).toBe(1);
       expect(result.clamped).toBe(true);
@@ -785,7 +785,7 @@ describe('setMyLadderStepHandler — установка ступени проф�
     const t = makeConvexTest();
     await expect(
       t.run(async (ctx) =>
-        setMyLadderStepHandler({ ctx, userId: null, symbolLayoutId: 'йцукен', targetStep: 2 })
+        setMyOpenedStepsHandler({ ctx, userId: null, symbolLayoutId: 'йцукен', targetOpenedSteps: 2 })
       )
     ).rejects.toThrow(/not authenticated/i);
   });
@@ -795,19 +795,19 @@ describe('setMyLadderStepHandler — установка ступени проф�
     await t.run(async (ctx) => {
       const userId = await seedUser({ ctx });
       await expect(
-        setMyLadderStepHandler({ ctx, userId, symbolLayoutId: 'unknown', targetStep: 2 })
+        setMyOpenedStepsHandler({ ctx, userId, symbolLayoutId: 'unknown', targetOpenedSteps: 2 })
       ).rejects.toThrow(/unknown symbolLayoutId/i);
     });
   });
 });
 
-describe('setMyLadderStep mutation — auth', () => {
+describe('setMyOpenedSteps mutation — auth', () => {
   test('authenticated: устанавливает ступень текущего юзера', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => seedUser({ ctx }));
-    const result = await asUser({ t, userId }).mutation(api.drill.setMyLadderStep, {
+    const result = await asUser({ t, userId }).mutation(api.drill.setMyOpenedSteps, {
       symbolLayoutId: 'йцукен',
-      targetStep: 3,
+      targetOpenedSteps: 3,
     });
     expect(result.openedSteps).toBe(3);
     expect(result.clamped).toBe(false);
@@ -824,7 +824,7 @@ describe('setMyLadderStep mutation — auth', () => {
   test('гость (без identity) → throw Not authenticated', async () => {
     const t = makeConvexTest();
     await expect(
-      t.mutation(api.drill.setMyLadderStep, { symbolLayoutId: 'йцукен', targetStep: 2 })
+      t.mutation(api.drill.setMyOpenedSteps, { symbolLayoutId: 'йцукен', targetOpenedSteps: 2 })
     ).rejects.toThrow(/not authenticated/i);
   });
 
@@ -834,9 +834,9 @@ describe('setMyLadderStep mutation — auth', () => {
     vi.stubEnv('DEPLOY_ENV', 'production');
     try {
       await expect(
-        asUser({ t, userId }).mutation(api.drill.setMyLadderStep, {
+        asUser({ t, userId }).mutation(api.drill.setMyOpenedSteps, {
           symbolLayoutId: 'йцукен',
-          targetStep: 3,
+          targetOpenedSteps: 3,
         })
       ).rejects.toThrow(/production/i);
     } finally {

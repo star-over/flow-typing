@@ -32,7 +32,7 @@ Backend для синхронизированных данных (auth с Phase 
 - `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерируются `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_YANDEX_ID`, `AUTH_YANDEX_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
-- `DEPLOY_ENV` — признак окружения деплоя для gating dev-инструментов (ADR 0023). **fail-closed**: `development` на dev-deployment снимает prod-предохранители; не задан (или `production`) на боевом = закрыто. Читается чистым helper'ом `convex/lib/env.ts` (`isProduction()`/`assertNonProd()`) — единый гейт `resetMyProfile`/`setMyLadderStep` **и** Password-провайдера dev-входа (ADR 0024 снял отдельный `AUTH_DEV_LOGIN_ENABLED`). **На dev-deployment обязателен** (`npx convex env set DEPLOY_ENV development`), иначе dev-двери на нём выключены.
+- `DEPLOY_ENV` — признак окружения деплоя для gating dev-инструментов (ADR 0023). **fail-closed**: `development` на dev-deployment снимает prod-предохранители; не задан (или `production`) на боевом = закрыто. Читается чистым helper'ом `convex/lib/env.ts` (`isProduction()`/`assertNonProd()`) — единый гейт `resetMyProfile`/`setMyOpenedSteps` **и** Password-провайдера dev-входа (ADR 0024 снял отдельный `AUTH_DEV_LOGIN_ENABLED`). **На dev-deployment обязателен** (`npx convex env set DEPLOY_ENV development`), иначе dev-двери на нём выключены.
 
 **Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.
 
