@@ -17,6 +17,9 @@ export interface AppContext {
   // Каноническая сводка последней сессии — источник чисел для экрана результатов
   // (те же время/cpm/точность, что в журнале /stats). Приходит в SESSION.COMPLETE.
   lastSessionSummary: SessionSummaryPayload | null;
+  // Асимметрия имён намеренна: current* помечает активно выбранную раскладку
+  // (отстройка от многих других symbolLayoutId в коде), а sessionDurationSeconds
+  // зеркалит имя-канон из настроек. Оба — «выбранное для следующей сессии».
   currentSymbolLayoutId: SymbolLayoutId;
   /** Длительность сессии, выбранная в настройках перед стартом. */
   sessionDurationSeconds: number;

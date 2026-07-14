@@ -17,7 +17,7 @@
     cpm: Math.round(stats.cpm),
     wpm: Math.round(stats.wpm),
     accuracy: stats.accuracy.toFixed(1),
-    duration: Math.round(stats.durationInSeconds),
+    duration: Math.round(stats.elapsedSeconds),
   });
 </script>
 

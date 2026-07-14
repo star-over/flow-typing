@@ -11,7 +11,7 @@
 import type { SessionSummaryPayload } from './session-summarize';
 
 export interface SessionStats {
-  durationInSeconds: number;
+  elapsedSeconds: number; // активное время сеанса (measured, не config)
   accuracy: number; // процент: см. accuracyPercent (как в журнале)
   cpm: number; // знаков в минуту (пропускная способность за активную минуту)
   wpm: number; // слов в минуту = cpm / 5
@@ -30,7 +30,7 @@ export function accuracyPercent({ exposures, clean }: { exposures: number; clean
 export function sessionStatsFromSummary(summary: SessionSummaryPayload): SessionStats {
   const accuracy = accuracyPercent({ exposures: summary.exposures, clean: summary.clean });
   return {
-    durationInSeconds: summary.durationMs / 1000,
+    elapsedSeconds: summary.durationMs / 1000,
     accuracy,
     cpm: summary.cpm,
     wpm: summary.cpm / 5,

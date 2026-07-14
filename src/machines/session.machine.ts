@@ -40,6 +40,10 @@ import { trainingMachine } from './training.machine';
 export interface SessionInput {
   symbolLayoutId: SymbolLayoutId;
   cpm: number;
+  // Настроенная длительность сессии (target). Квалификатор `session` из канон-имени
+  // sessionDurationSeconds (настройки/AppContext) намеренно опущен: внутри собственной
+  // области сессии он избыточен. Measured-время («сколько длилось») — отдельный концепт
+  // (elapsedMs/displayElapsedMs, журнал durationMs), под durationSeconds не сводить.
   durationSeconds: number;
   parentActor: ParentActor;
 }
