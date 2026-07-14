@@ -17,7 +17,7 @@
 
 | Волна | Суть | Риск | Статус |
 | --- | --- | --- | --- |
-| **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ⬜ не начата |
+| **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ✅ сделана (merge `7821b0d`; 2 отклонения отложены — см. ниже) |
 | **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ⬜ не начата |
 | **C** | Структура каталогов/доменов | средний | ⬜ не начата |
 | **D** | Канон-касающееся (нужен ADR / заметка в CONTEXT.md) | требует решения, не механика | ⬜ не начата |
@@ -31,39 +31,39 @@
 ### A.1 — `setMyLadderStep` пишет `openedSteps`, а не `ladderStep` (семантическая ловушка)
 Имя намекает на правку контентного `ladderStep` (ADR 0020, меняется только ре-нарезкой), а dev-утилита пишет `openedSteps` профиля.
 
-- [ ] `convex/drill.ts:513-592` — `setMyLadderStepHandler`→`setMyOpenedStepsHandler`, mutation `setMyLadderStep`→`setMyOpenedSteps`, параметр `targetStep`→`targetOpenedSteps`
-- [ ] `src/lib/dev/ladder-set.ts` → `opened-steps-set.ts`; `window.__setLadderStep`→`__setOpenedSteps`; `attachLadderStepSet`→`attachOpenedStepsSet`; `SetLadderStepConsoleApi`→`SetOpenedStepsConsoleApi`; прозу-комментарии выправить
-- [ ] `src/machines/appActor.ts:27-29` — import + комментарий
-- [ ] `convex/drill.test.ts` (~10 мест), `convex/lib/validation.ts:9` (комментарий)
-- [ ] `npx convex dev --once` — регенерация `_generated` + развёртывание-валидация
-- [ ] **(грилл-развилка)** решить: тянуть ли родственные `startStep`/`currentStep` в `src/lib/repertoire/repertoire-store.svelte.ts` (`didStepGrow`) → `startOpenedSteps`/`currentOpenedSteps`
+- [x] `convex/drill.ts:513-592` — `setMyLadderStepHandler`→`setMyOpenedStepsHandler`, mutation `setMyLadderStep`→`setMyOpenedSteps`, параметр `targetStep`→`targetOpenedSteps` — `cc96486`
+- [x] `src/lib/dev/ladder-set.ts` → `opened-steps-set.ts`; `window.__setLadderStep`→`__setOpenedSteps`; `attachLadderStepSet`→`attachOpenedStepsSet`; `SetLadderStepConsoleApi`→`SetOpenedStepsConsoleApi`; прозу-комментарии выправить — `cc96486`
+- [x] `src/machines/appActor.ts:27-29` — import + комментарий — `cc96486`
+- [x] `convex/drill.test.ts` (~10 мест), `convex/lib/validation.ts:9` (комментарий) — `cc96486`
+- [x] `npx convex dev --once` — регенерация `_generated` + развёртывание-валидация — `cc96486`
+- [x] **(грилл-развилка, решена владельцем: ДА)** родственные `startStep`/`currentStep` → `startOpenedSteps`/`currentOpenedSteps`, `didStepGrow`→`didOpenedStepsGrow` (`src/lib/repertoire/repertoire-store.svelte.ts`) — `cc96486`
 
 ### A.2 — `Lesson*`-кластер → `Session*` (avoid-термин; экран завершённой СЕССИИ)
 `lesson`/`урок` явно похоронен в `CONTEXT.md`. Компонент рендерится в `sessionComplete`.
 
-- [ ] `src/components/train/LessonStatsDisplay.{svelte,stories.svelte,contract.ts}` → `SessionStatsDisplay.*`
-- [ ] тип `LessonStats`→`SessionStats`, функция `lessonStatsFromSummary`→`sessionStatsFromSummary` (`src/lib/stats-calculator.{ts,test.ts}`)
-- [ ] `src/components/app/MainContent.svelte:14,17,57,60,80` — импорты + локаль `lessonStats`
-- [ ] `src/lib/sessions/sessions-store.svelte.ts` — проверить и выправить ссылку на `Lesson*`
-- [ ] контракт-токен `LESSON_STATS_DISPLAY_CONTRACT`→`SESSION_STATS_DISPLAY_CONTRACT` (`src/themes/contract.ts` агрегат) + CSS-переменные `--lesson-stats-display-*`→`--session-stats-display-*` (темы+компонент+контракт синхронно)
-- [ ] i18n (ADR 0022): `en.json:86 stats_card.title "Lesson Results"`→`"Session Results"` + параллельный ключ в `ru.json` (секцию `stats_card` НЕ переименовывать)
+- [x] `src/components/train/LessonStatsDisplay.{svelte,stories.svelte,contract.ts}` → `SessionStatsDisplay.*` — `faee32e`
+- [x] тип `LessonStats`→`SessionStats`, функция `lessonStatsFromSummary`→`sessionStatsFromSummary` (`src/lib/stats-calculator.{ts,test.ts}`) — `faee32e`
+- [x] `src/components/app/MainContent.svelte:14,17,57,60,80` — импорты + локаль `lessonStats` — `faee32e`
+- [x] `src/lib/sessions/sessions-store.svelte.ts` — проверить и выправить ссылку на `Lesson*` — `faee32e`
+- [x] контракт-токен `LESSON_STATS_DISPLAY_CONTRACT`→`SESSION_STATS_DISPLAY_CONTRACT` (`src/themes/contract.ts` агрегат) + CSS-переменные `--lesson-stats-display-*`→`--session-stats-display-*` (темы+компонент+контракт синхронно) — `faee32e`
+- [ ] **ОТЛОЖЕНО в Wave D (решение владельца):** i18n-**значения** (`en.json:86 stats_card.title "Lesson Results"`→`"Session Results"` + `ru.json`) — копи-проход, не Wave A. Идентификаторы кода уже переименованы.
 
 ### A.3 — локальные имена (единичные, малый радиус)
 
-- [ ] `src/lib/hands-scene.ts` — `keyId`→`keyCapId` (~14 мест; тип `KeyCapId`)
-- [ ] `src/machines/session-impl.ts:42` — `res`→`response`
-- [ ] `convex/drill.ts` (~`:159,163,174`) — аккумулятор `total`→`totalChars`
-- [ ] `convex/drill.ts:250,375` — `grownOpenedSteps`→`growOpenedSteps` (глагол)
-- [ ] `src/lib/session-summarize.ts:58` — `summarizeSession`→`sessionSummarize` (симметрия к `drillSummarize`; 3 вызова)
+- [x] `src/lib/hands-scene.ts` — `keyId`→`keyCapId` (~14 мест; тип `KeyCapId`) — `26b74f9`
+- [x] `src/machines/session-impl.ts:42` — `res`→`response` — `26b74f9`
+- [x] `convex/drill.ts` — аккумулятор `total`→`totalChars` (в **обеих** функциях) — `26b74f9`
+- [x] `convex/drill.ts:250,375` — `grownOpenedSteps`→`growOpenedSteps` (глагол) — `26b74f9`
+- [x] `src/lib/session-summarize.ts:58` — `summarizeSession`→`sessionSummarize` (симметрия к `drillSummarize`; 3 вызова) — `26b74f9`
 
 ### A.4 — файловые нити (косметика предсказуемости)
 
-- [ ] удалить мёртвый `src/app/` (untracked, пустой, наследие Next.js, конфликтует с `src/components/app/`)
-- [ ] `shared/selection-index/selection-index.test.ts`→`compute.test.ts` (тест по имени источника 1:1)
-- [ ] `convex/test.helpers.ts`→`test-helpers.ts` (обновить импортёров-тестов)
-- [ ] `src/components/key-cap/KeyCap.contract.ts` — токен `KEYCAP_CONTRACT`→`KEY_CAP_CONTRACT`
-- [ ] `src/fixtures/hands-scene/simple_e_error_shift_F.ts`→ строчная `f`
-- [ ] `src/user-settings/user-settings.ts`→`defaults.ts` (дублирование имени; grep импортёров `DEFAULT_USER_SETTINGS` — радиус шире; можно отложить, если держим волну плоской)
+- [ ] **НЕ в Wave A (untracked-мусор, коммитом не удалить):** `src/app/` — снести `rm -rf src/app` в основном каталоге; владелец переназначил в Волну C.
+- [x] `shared/selection-index/selection-index.test.ts`→`compute.test.ts` (тест по имени источника 1:1) — `9aec6de`
+- [ ] **ОТКЛОНЕНО (обоснованно):** `convex/test.helpers.ts`→`test-helpers.ts` — дефис невалиден в пути convex-модуля, а `testHelpers` (camelCase) convex пытается **задеплоить** (падает на тест-зависимостях `import.meta`). Точечный сегмент `test.` — намеренная идиома «не деплоить». Оставлено как есть (обоснование — в теле `9aec6de`).
+- [x] `src/components/key-cap/KeyCap.contract.ts` — токен `KEYCAP_CONTRACT`→`KEY_CAP_CONTRACT` — `9aec6de`
+- [x] `src/fixtures/hands-scene/simple_e_error_shift_F.ts`→ строчная `f` — `9aec6de`
+- [x] `src/user-settings/user-settings.ts`→`defaults.ts` (+ co-located `user-settings.test.ts`→`defaults.test.ts`) — `9aec6de`
 
 ---
 
