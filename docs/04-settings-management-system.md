@@ -25,10 +25,10 @@ export interface UserSettings {
   symbolLayoutId: SymbolLayoutId;        // раскладка ('qwerty' | 'йцукен')
   fingerLayoutId: FingerLayoutId;        // схема постановки рук (дефолт asdf)
   cursorType: FlowLineCursorType;        // форма курсора FlowLine
-  cursorMode: FlowLineCursorMode;        // положение курсора в строке FlowLine
   theme: ThemeSetting;                   // ThemeId | 'auto'
   displayName: string;                   // имя поверх users.name ('' = имя провайдера)
   rhythmChannelEnabled: boolean;         // «канал ритма» во время тренировки (opt-in)
+  sessionDurationSeconds: number;        // длительность таймерной сессии в секундах
 }
 ```
 
@@ -40,10 +40,10 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   symbolLayoutId: 'qwerty',
   fingerLayoutId: 'asdf',
   cursorType: 'RECTANGLE',
-  cursorMode: 'HALF',
   theme: 'auto',
   displayName: '',
   rhythmChannelEnabled: false,
+  sessionDurationSeconds: 60,
 };
 ```
 
@@ -86,7 +86,7 @@ export function updateSettings(partial: Partial<UserSettings>) {
 - **Язык упражнений** — `textLanguage` (en | ru).
 - **Раскладка** — `symbolLayoutId` (qwerty | йцукен), производное от `textLanguage`.
 - **Постановка рук** — `fingerLayoutId`.
-- **Курсор FlowLine** — `cursorType` / `cursorMode`.
+- **Курсор FlowLine** — `cursorType`.
 - **Канал ритма** — `rhythmChannelEnabled`.
 - **Start** — запускает тренировку (`appActor.send({ type: 'START_TRAINING', symbolLayoutId })`).
 
