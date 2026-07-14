@@ -2,7 +2,7 @@ import { api, convex } from '@/lib/convex';
 import type { FunctionReturnType } from 'convex/server';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import type { SymbolLayoutId } from '@/interfaces/types';
-import { createAuthGatedQuery } from '@/lib/auth-gated-query.svelte';
+import { createAuthGatedQuery } from '@/lib/gated-query.svelte';
 
 // Per-symbol разбор готовности текущего шага (= ProgressionDetail | null).
 // Тип берём из Convex-вывода функции, без импорта из shared/ (паттерн repertoire-store).

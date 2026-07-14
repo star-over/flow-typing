@@ -19,9 +19,9 @@
   import SurveyPrompt from '@/components/train/SurveyPrompt.svelte';
   import type { RepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
-  import type { SessionsStore } from '@/lib/sessions/sessions-store.svelte';
+  import type { SessionsStore } from '@/lib/session-history/sessions-store.svelte';
   import type { SurveyStore } from '@/lib/survey/survey-store.svelte';
-  import { shouldShowMicroSurvey } from '@/lib/micro-survey';
+  import { shouldShowMicroSurvey } from '@/lib/survey/micro-survey';
   import { api, convex } from '@/lib/convex';
   import type { SurveyAnswer } from '@/interfaces/survey';
 
