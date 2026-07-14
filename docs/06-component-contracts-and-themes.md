@@ -47,7 +47,7 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 
 | Шаблон | Когда используется | Пример |
 |---|---|---|
-| `--<component>-<element>-<property>` | свойство конкретного элемента компонента | `--keycap-l2-background`, `--cursor-symbol-color`, `--lesson-stats-display-item-background` |
+| `--<component>-<element>-<property>` | свойство конкретного элемента компонента | `--keycap-l2-background`, `--cursor-symbol-color`, `--session-stats-display-item-background` |
 | `--<component>-<element>-<state>-<property>` | свойство элемента в конкретном состоянии | `--keycap-l2-target-background`, `--footer-actions-btn-hover-background` |
 | `--<component>-<semantic-role>` | декоративная роль, без явного CSS-свойства | `--keycap-home-ring`, `--keycap-path-ring`, `--nav-arrow-outline` |
 
