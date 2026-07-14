@@ -12,7 +12,7 @@ import { shift_o } from './shift_o';
 import { shift_o_error_simple_o } from './shift_o_error_simple_o';
 import { shift_t_error_shift_n } from './shift_t_error_shift_n';
 import { simple_6 } from './simple_6';
-import { simple_e_error_shift_F } from './simple_e_error_shift_F';
+import { simple_e_error_shift_f } from './simple_e_error_shift_f';
 import { simple_e_error_simple_d } from './simple_e_error_simple_d';
 import { simple_e_error_space } from './simple_e_error_space';
 import { simple_k } from './simple_k';
@@ -31,7 +31,7 @@ export {
   shift_o_error_simple_o,
   shift_t_error_shift_n,
   simple_6,
-  simple_e_error_shift_F,
+  simple_e_error_shift_f,
   simple_e_error_simple_d,
   simple_e_error_space,
   simple_k,
@@ -55,7 +55,7 @@ export const handsSceneFixtures: { label: string; fixture: HandsSceneFixture }[]
   { label: '"e" with pressed "Space"', fixture: simple_e_error_space },
   { label: 'idle (symbol undefined)', fixture: idle },
   { label: '"Shift-O"', fixture: shift_o },
-  { label: '"e" with pressed "Shift-F"', fixture: simple_e_error_shift_F },
+  { label: '"e" with pressed "Shift-F"', fixture: simple_e_error_shift_f },
   { label: '"t"', fixture: simple_t },
   { label: 'simple "k"', fixture: simple_k },
 ];

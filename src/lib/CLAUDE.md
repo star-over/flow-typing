@@ -9,7 +9,7 @@ XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`
 ## Settings и i18n
 
 - `src/lib/settings.ts` — writable store; грузится из `localStorage['flow-typing-user-settings']` через `normalizeSettings` поверх `DEFAULT_USER_SETTINGS` (чтобы новые поля корректно догружались у старых пользователей, неизвестные — игнорировались). Любой `update`/`set` сохраняется обратно.
-- Метаданные настроек (тип, дефолты, опции) — `src/user-settings/user-settings.ts`.
+- Метаданные настроек (тип, дефолты, опции) — `src/user-settings/defaults.ts`.
 - i18n: `src/lib/i18n.ts` — derived store, словари `dictionaries/{en,ru}.json`. **Единое хранилище всех UI-строк (ADR 0022):** любая видимая пользователю строка приходит из i18n — компонент читает `$dictionary.<секция>.<ключ>` либо получает уже локализованную строку (передаёт как параметр); вшитых строковых литералов в разметке нет, даже у непереводимого (бренд `FlowTyping`, имена провайдеров) — оно просто совпадает по значению в `en`/`ru`, но лежит в словаре.
 
 ## Cross-device sync (Phase 5)

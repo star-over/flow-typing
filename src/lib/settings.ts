@@ -13,7 +13,7 @@ import {
   type TextLanguage,
 } from '@/interfaces/types';
 import type { UserSettings } from '@/interfaces/user-settings';
-import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
+import { DEFAULT_USER_SETTINGS } from '@/user-settings/defaults';
 import {
   getCompatibleSymbolLayoutsForTextLanguage,
   getDefaultSymbolLayoutForTextLanguage,

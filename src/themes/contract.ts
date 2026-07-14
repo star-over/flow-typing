@@ -1,4 +1,4 @@
-import { KEYCAP_CONTRACT } from '@/components/key-cap/KeyCap.contract';
+import { KEY_CAP_CONTRACT } from '@/components/key-cap/KeyCap.contract';
 import { FINGER_CONTRACT } from '@/components/hands-scene/Finger.contract';
 import { HANDS_SCENE_CONTRACT } from '@/components/hands-scene/HandsScene.contract';
 import { MOVEMENT_PATH_CONTRACT } from '@/components/hands-scene/MovementPath.contract';
@@ -37,7 +37,7 @@ import { WORDMARK_CONTRACT } from '@/components/ui/Wordmark.contract';
  */
 export const THEME_CONTRACT = [
   ...ROOT_CONTRACT,
-  ...KEYCAP_CONTRACT,
+  ...KEY_CAP_CONTRACT,
   ...FINGER_CONTRACT,
   ...HANDS_SCENE_CONTRACT,
   ...MOVEMENT_PATH_CONTRACT,

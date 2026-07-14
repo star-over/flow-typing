@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeSettings } from './settings';
-import { DEFAULT_USER_SETTINGS } from '@/user-settings/user-settings';
+import { DEFAULT_USER_SETTINGS } from '@/user-settings/defaults';
 
 describe('normalizeSettings', () => {
   // Дефолты сверяем с источником истины (DEFAULT_USER_SETTINGS), а НЕ с
