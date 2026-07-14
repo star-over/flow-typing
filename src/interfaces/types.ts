@@ -9,7 +9,7 @@ import type { KEY_CAP_IDS } from "@/interfaces/key-cap-id";
 
 export type KeyCapId = typeof KEY_CAP_IDS[number]; // Re-export KeyCapId
 
-/** Языки, на которых пишутся тексты упражнений (BCP 47). */
+/** Языки, на которых пишутся тексты `Drill`'ов (BCP 47). */
 export const TEXT_LANGUAGES = ['en', 'ru'] as const;
 export type TextLanguage = typeof TEXT_LANGUAGES[number];
 
@@ -22,7 +22,7 @@ export const KEY_CAP_HOME_KEY_MARKERS = ["NONE", "BAR", "DOT"] as const;
 export type KeyCapHomeKeyMarker = typeof KEY_CAP_HOME_KEY_MARKERS[number];
 
 /**
- * Определяет навигационную роль клавиши в текущем упражнении.
+ * Навигационная роль клавиши относительно текущей цели набора.
  * Используется для визуальных подсказок пользователю.
  */
 export const KEY_CAP_NAVIGATION_ROLES = [
@@ -34,8 +34,8 @@ export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
 
 
 /**
- * Определяет навигационную роль клавиши в текущем упражнении.
- * Используется для визуальных стрелок направления движения пальца к клавише
+ * Направление стрелки-подсказки для клавиши относительно текущей цели набора.
+ * Используется для визуальных стрелок направления движения пальца к клавише.
  */
 export const KEY_CAP_NAVIGATION_ARROWS = [
   "NONE",   // Стрелка не отображается.
@@ -146,7 +146,8 @@ export interface StreamAttempt {
 }
 
 /**
- * Расширенное представление одного "шага" в упражнении.
+ * Расширенное представление одного шага в `TypingStream` (потоке набора).
+ * Единица потока — одно предъявление (Exposure) целевого символа.
  * Включает сам символ и заранее вычисленные целевые клавиши.
  */
 export interface StreamSymbol {
@@ -156,8 +157,10 @@ export interface StreamSymbol {
 }
 
 /**
- * Поток символов для набора. Представляет собой полное упражнение.
- * Является источником данных для `FlowLine`.
+ * Непрерывный поток символов для набора: последовательность `StreamSymbol`,
+ * склеенная из многих `Drill` (границы drill'ов невидимы — пробел внутри
+ * неотличим от стыка). Не одно упражнение и не одна `Session`: сессия печатает
+ * такой поток, ограничивая его таймером. Источник данных для `FlowLine`.
  */
 export type TypingStream = StreamSymbol[];
 
@@ -254,7 +257,7 @@ export interface KeyboardSceneKey {
   visibility?: Visibility;
   /** Результат последнего нажатия на эту клавишу. */
   pressResult?: KeyCapPressResult;
-  /** Навигационная роль клавиши в текущем упражнении. */
+  /** Навигационная роль клавиши относительно текущей цели набора. */
   navigationRole?: KeyCapNavigationRole;
   /** Стрелка направления движения пальца к клавише. */
   navigationArrow?: KeyCapNavigationArrow;
