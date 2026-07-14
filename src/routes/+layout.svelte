@@ -5,7 +5,7 @@
   import { convex, api } from '@/lib/convex';
   import { createAuthStore } from '@/lib/auth/auth-store.svelte';
   import { createRepertoireStore } from '@/lib/repertoire/repertoire-store.svelte';
-  import { createSessionsStore } from '@/lib/sessions/sessions-store.svelte';
+  import { createSessionsStore } from '@/lib/session-history/sessions-store.svelte';
   import { createSurveyStore } from '@/lib/survey/survey-store.svelte';
   import { appActor } from '@/machines/appActor';
   import { selectSessionActor, selectSessionTimer } from '@/machines/selectors';

@@ -5,7 +5,7 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
-  import { formatSessionRow, type SessionsStore } from '@/lib/sessions/sessions-store.svelte';
+  import { formatSessionRow, type SessionsStore } from '@/lib/session-history/sessions-store.svelte';
   import { createProgressionStore } from '@/lib/repertoire/progression-store.svelte';
 
   const auth = getContext<AuthStore>('auth');
