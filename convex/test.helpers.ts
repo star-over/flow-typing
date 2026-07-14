@@ -25,6 +25,7 @@ import schema from './schema';
 import { drillIndex } from './drillIndex';
 import type { MutationCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
+import type { ProfileCell } from '../shared/repertoire/readiness.ts';
 
 // import.meta.glob резолвится относительно этого файла (convex/); './**/*.ts' глобит
 // те же convex-модули, что из тест-файлов — один дом регистрации на весь проект.
@@ -105,14 +106,6 @@ export async function seedDrill({
   return drillId;
 }
 
-interface SeedProfileCell {
-  symbol: string;
-  exposures: number;
-  clean: number;
-  latencyEwma: number;
-  latencySamples: number;
-}
-
 /** Вставляет `skillProfiles` (ключ user × раскладка); symbolCells/updatedAt — дефолты. */
 export async function seedProfile({
   ctx,
@@ -126,7 +119,7 @@ export async function seedProfile({
   userId: Id<'users'>;
   symbolLayoutId: string;
   openedSteps: number;
-  symbolCells?: SeedProfileCell[];
+  symbolCells?: ProfileCell[];
   updatedAt?: number;
 }): Promise<Id<'skillProfiles'>> {
   return await ctx.db.insert('skillProfiles', { userId, symbolLayoutId, openedSteps, symbolCells, updatedAt });
