@@ -1,18 +1,23 @@
 <!--
-  RhythmChannel — «канал ритма»: тихий лидирующий ритм-сигнал под FlowLine.
+  RhythmChannel — «канал ритма»: тихий рецептор ритм-сигнала под курсором FlowLine.
 
-  Статичная зелёная зона по центру; маркер-кромка мгновенно прыгает вверх на верном
-  нажатии и плавно оседает под «гравитацией». Тап, когда кромка в центре зоны, держит
-  текущий темп; выше центра — частишь, ниже — тормозишь. Цвет маркера фиксируется в
-  момент тапа (куда реально нажал), а не там, куда кромка улетела после прыжка.
+  Форма — «дорожка к сейчас» (research §7): маркер-кромка сбегает к неподвижному
+  рецептору по центру (та же вертикаль внимания, что и курсор FlowLine — связь
+  визуальная, размещением; интеграции с полем ввода нет, канал независим и отключаем).
+  Момент «нажми» = кромка проходит рецептор (он вспыхивает зелёным). Тап в зоне держит
+  темп; правее центра — частишь, левее — тормозишь.
 
-  Глупый UI: вся механика — в чистой модели `@/lib/rhythm-channel`. Компонент только
-  ведёт rAF-падение и держит изменяемое состояние. Beat = инкремент `beatIndex`
-  (продвижение курсора в trainingMachine на каждый верно набранный символ).
+  Цвет несёт «в зоне / вне зоны», сторону несёт позиция: зелёный = держишь темп, янтарь
+  = вне зоны в любую сторону (замедление не наказываем — «точность вперёд скорости»).
+  Куда нажал, фиксируется в момент тапа (`tapZone`), а не там, куда кромка улетела
+  после прыжка: этим красится маркер и заливка-состояние полосы.
 
-  prefers-reduced-motion: непрерывное падение заменяется дискретным шагом на каждое нажатие
-  (кромка оседает за прошедший интервал одним вычислением, без поэтапной анимации).
-  Модель и формулы: docs/research/rhythm-visualization.md §11.
+  Глупый UI: вся механика — в чистой модели `@/lib/rhythm-channel` (заморожена,
+  research §11). Компонент ведёт rAF-падение и держит изменяемое состояние. Beat =
+  инкремент `beatIndex` (продвижение курсора в trainingMachine на верный символ).
+
+  prefers-reduced-motion: непрерывное падение заменяется дискретным шагом на нажатие
+  (кромка оседает за интервал одним вычислением); CSS-переходы выключены.
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -53,7 +58,14 @@
   // Статичная зона — позиционные константы (доля шкалы → проценты).
   const zoneLeftPct = ((ZONE_CENTER - BAND_WIDTH / 2) / MAX_LEVEL) * 100;
   const zoneWidthPct = (BAND_WIDTH / MAX_LEVEL) * 100;
+
+  // Живые величины (обновляются каждый кадр) от позиции кромки.
   const markerPct = $derived(Math.max(0, Math.min(100, (rhythm.level / MAX_LEVEL) * 100)));
+  // Дорожка-след от рецептора (центр) к маркеру: масштаб половины дорожки [0…1].
+  const trailRight = $derived(Math.max(0, Math.min(1, (markerPct - 50) / 50)));
+  const trailLeft = $derived(Math.max(0, Math.min(1, (50 - markerPct) / 50)));
+  // Рецептор «сейчас» вспыхивает, пока кромка проходит близко к центру.
+  const anchorLit = $derived(Math.abs(rhythm.level - ZONE_CENTER) < 0.04);
 
   function registerBeat() {
     const now = performance.now();
@@ -101,9 +113,20 @@
 </script>
 
 <div class="rhythm-channel" role="img" aria-label={ariaLabel}>
-  <div class="track">
+  <div class="track state-{rhythm.tapZone}">
+    <!-- Заливка-состояние: тап вне зоны подтягивает янтарь со стороны сноса. -->
+    <div class="wash"></div>
+    <!-- Пояс-допуск: края растворяются в прозрачность (граница мягкая, не абсолютная). -->
     <div class="zone" style="left:{zoneLeftPct}%; width:{zoneWidthPct}%"></div>
-    <div class="marker z-{rhythm.tapZone}" style="left:{markerPct}%"></div>
+    <!-- Дорожка-след живой позиции: масштабируется трансформом от центра к кромке. -->
+    <div class="trail trail-right" style="transform:scaleX({trailRight})"></div>
+    <div class="trail trail-left" style="transform:scaleX({trailLeft})"></div>
+    <!-- Рецептор «сейчас» под курсором FlowLine. -->
+    <div class="anchor" class:lit={anchorLit}></div>
+    <!-- Маркер-кромка: слой во всю ширину едет трансформом (не layout-свойством). -->
+    <div class="sweep" style="transform:translateX({markerPct}%)">
+      <div class="marker"></div>
+    </div>
   </div>
 </div>
 
@@ -117,45 +140,107 @@
   .track {
     position: relative;
     width: min(36rem, 80vw);
-    height: 0.625rem;
+    height: 1rem;
     border: var(--rhythm-channel-track-border);
-    border-radius: var(--radius-2);
+    border-radius: var(--radius-3);
     background: var(--rhythm-channel-track-background);
     overflow: hidden;
   }
 
-  /* Зелёная зона — герой: мягкая заливка + крепкие кромки через inset-тень
-     (не border-left/right, чтобы крепкая кромка зоны не читалась как accent-полоса). */
+  .wash {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--motion-duration-base) var(--motion-ease-standard);
+  }
+  .track.state-above .wash {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent 42%, var(--rhythm-channel-state-fill));
+  }
+  .track.state-below .wash {
+    opacity: 1;
+    background: linear-gradient(270deg, transparent 42%, var(--rhythm-channel-state-fill));
+  }
+
+  /* Мягкий пояс-допуск: цвет держится в середине, левый/правый края уходят в
+     прозрачность — граница читается как коридор, а не жёсткий гейт. */
   .zone {
     position: absolute;
     top: 0;
     bottom: 0;
-    background: var(--rhythm-channel-zone-fill);
-    box-shadow:
-      inset 1.5px 0 0 var(--rhythm-channel-zone-edge),
-      inset -1.5px 0 0 var(--rhythm-channel-zone-edge);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--rhythm-channel-zone-fill) 30%,
+      var(--rhythm-channel-zone-fill) 70%,
+      transparent
+    );
   }
 
-  /* Маркер-кромка: тонкая вертикаль, цвет — по зоне в момент тапа. */
+  /* Дорожка-след: две половины, каждая закреплена у центра и растёт scaleX к кромке. */
+  .trail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+  }
+  .trail-right {
+    left: 50%;
+    transform-origin: left center;
+    background: linear-gradient(90deg, transparent, var(--rhythm-channel-trail));
+  }
+  .trail-left {
+    right: 50%;
+    transform-origin: right center;
+    background: linear-gradient(270deg, transparent, var(--rhythm-channel-trail));
+  }
+
+  /* Рецептор «сейчас»: неподвижная вертикаль по центру, вспыхивает зелёным на проходе. */
+  .anchor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: var(--rhythm-channel-anchor);
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+  .anchor.lit {
+    background: var(--rhythm-channel-marker-in);
+    box-shadow: 0 0 0 4px var(--rhythm-channel-zone-fill);
+  }
+
+  .sweep {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
   .marker {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 2px;
+    left: 0;
+    width: 3px;
     transform: translateX(-50%);
-    transition: background-color 120ms ease;
+    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard);
   }
-  .marker.z-in {
+  /* Цвет маркера — по зоне тапа: в зоне зелёный (держишь), вне — янтарь (в любую сторону). */
+  .track.state-in .marker {
     background: var(--rhythm-channel-marker-in);
   }
-  .marker.z-above {
-    background: var(--rhythm-channel-marker-above);
-  }
-  .marker.z-below {
-    background: var(--rhythm-channel-marker-below);
+  .track.state-above .marker,
+  .track.state-below .marker {
+    background: var(--rhythm-channel-marker-outside);
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .wash,
+    .anchor,
     .marker {
       transition: none;
     }

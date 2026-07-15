@@ -325,8 +325,9 @@
   --rhythm-channel-track-background: unset;
   --rhythm-channel-track-border   : unset;
   --rhythm-channel-zone-fill      : unset;
-  --rhythm-channel-zone-edge      : unset;
   --rhythm-channel-marker-in      : unset;
-  --rhythm-channel-marker-above   : unset;
-  --rhythm-channel-marker-below   : unset;
+  --rhythm-channel-marker-outside : unset;
+  --rhythm-channel-state-fill     : unset;
+  --rhythm-channel-anchor         : unset;
+  --rhythm-channel-trail          : unset;
 }
