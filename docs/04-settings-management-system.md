@@ -32,7 +32,7 @@ export interface UserSettings {
 }
 ```
 
-Дефолты — отдельный файл `src/user-settings/user-settings.ts`:
+Дефолты — отдельный файл `src/user-settings/defaults.ts`:
 ```typescript
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   interfaceLanguage: 'en',

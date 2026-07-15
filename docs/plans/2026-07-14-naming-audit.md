@@ -17,10 +17,10 @@
 
 | Волна | Суть | Риск | Статус |
 | --- | --- | --- | --- |
-| **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ✅ сделана (merge `7821b0d`; 2 отклонения отложены — см. ниже) |
-| **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ✅ 4/7 сделано (merge `c0322f6`): 1.3/1.4/2.1/2.4; остались `rateLimiter`-ключи, `seedDrill` layout, `SymbolStat` |
+| **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ✅ сделана (merge `7821b0d`); i18n-отложенное закрыто копи-проходом `9e8d443`; `test.helpers` отклонён обоснованно |
+| **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ✅ 7/7 (merge `c0322f6` + хвосты `0bf7109`): 1.3/1.4/2.1/2.4 + rateLimiter-ключи/seedDrill/SymbolStat; + §3-плоскости `63ba4a7` |
 | **C** | Структура каталогов/доменов | средний | ✅ сделана (merge `87647f1`): C.2/C.3 переименования, C.4 журнал→`session-history/`, C.5 `survey/`; A.4 `src/app` снят |
-| **D** | Канон-касающееся (нужен ADR / заметка в CONTEXT.md) | требует решения, не механика | ✅ 4/5 сделано (merge `d72f25d`): 1.5/Ms/2.2/2.5; решения — doc-заметки, ADR не потребовался; остался i18n-копи-проход |
+| **D** | Канон-касающееся (нужен ADR / заметка в CONTEXT.md) | требует решения, не механика | ✅ 5/5 (merge `d72f25d` + копи-проход `9e8d443`): 1.5/Ms/2.2/2.5 + i18n Readiness-копи; решения — doc-заметки, ADR не потребовался |
 
 ---
 
@@ -46,7 +46,7 @@
 - [x] `src/components/app/MainContent.svelte:14,17,57,60,80` — импорты + локаль `lessonStats` — `faee32e`
 - [x] `src/lib/sessions/sessions-store.svelte.ts` — проверить и выправить ссылку на `Lesson*` — `faee32e`
 - [x] контракт-токен `LESSON_STATS_DISPLAY_CONTRACT`→`SESSION_STATS_DISPLAY_CONTRACT` (`src/themes/contract.ts` агрегат) + CSS-переменные `--lesson-stats-display-*`→`--session-stats-display-*` (темы+компонент+контракт синхронно) — `faee32e`
-- [ ] **ОТЛОЖЕНО в Wave D (решение владельца):** i18n-**значения** (`en.json:86 stats_card.title "Lesson Results"`→`"Session Results"` + `ru.json`) — копи-проход, не Wave A. Идентификаторы кода уже переименованы.
+- [x] i18n-**значения** (`stats_card.title "Lesson Results"`→`"Session Results"`; `ru.json` «Результаты сессии») — закрыто в i18n-копи-проходе — `9e8d443` (детали — секция Волны D)
 
 ### A.3 — локальные имена (единичные, малый радиус)
 
@@ -73,9 +73,11 @@
 - [x] **Слить ячейку профиля** `ProfileCell` / `SymbolCell` / `SeedProfileCell` — `convex` импортирует `ProfileCell` из `shared`; поле схемы `symbolCells` не тронуто. `drill.ts`-половина (`SymbolCell`→`ProfileCell`) утекла в `cc96486` (Волна A); остаток `test.helpers.ts` (`SeedProfileCell`) — `2fe5e04`
 - [x] **`summary`/`payload`** — единое имя `summary` на всей нити (машины → `session-impl` → convex `sessions.ts`/`validation.ts` + тесты/фикстуры того же концепта); тип `SessionSummaryPayload` оставлен (несёт смысл), wire-поля разворачиваются — `af8c77b`
 - [x] **`sessionDurationSeconds`→`durationSeconds`** через XState — грилл: укорачивание УЗАКОНЕНО комментарием (квалификатор `session` избыточен внутри собственной области сессии — `SessionInput`), не проносим канон-имя через все слои. Асимметрия `currentSymbolLayoutId` vs `sessionDurationSeconds` тоже узаконена комментарием (`app.machine.ts`, разные оправдания префиксов) — `d0ceb5a`
-- [ ] **Ключи `rateLimiter`** (`convex/rateLimiter.ts:19-31`) → строки-пути `api.<module>.<fn>` (`'sessions.record'`, `'userSettings.upsertMine'`, …)
-- [ ] `convex/test.helpers.ts:89-98` (`seedDrill`) — параметр `layout`→`symbolLayoutId`
-- [ ] (низкий) `SymbolStat`/`SymbolStatInput` — единое локальное имя `SymbolStat` по обе стороны
+- [x] **Ключи `rateLimiter`** → строки-пути `api.<module>.<fn>` (`sessions.record`, `drill.drillRecord`, `userSettings.upsertMine`, `clientErrors.report`, `surveys.record`); 5 call-sites + 4 комментария в тестах — `0bf7109`
+- [x] `seedDrill` — параметр `layout`→`symbolLayoutId` (`test.helpers.ts` + 15 call-sites) — `0bf7109`
+- [x] `SymbolStatInput`→`SymbolStat` — единое имя по обе стороны + комментарий-зеркало (сервер не импортирует src, ADR 0014) — `0bf7109`
+
+**Плоскости §3 (из холистической проверки):** `SessionRow.latencyMs`→`latencyMedianMs` (снят второй хоп имени); функция-помощник `elapsedSecondsFromDurationMs` (один дом конверсии, убран инлайн-дубль); `src/lib/CLAUDE.md` — заметка про `gated-query` + идиома «зеркальный тип границы» — `63ba4a7`
 
 ---
 
@@ -96,7 +98,7 @@
 - [x] зафиксировать конвенцию `Ms`-суффикса (внутри конвейера/хранилища без суффикса, на выходе к UI/журналу — с `Ms`) — заметка в `CONTEXT.md` (раздел Session, рядом с target/measured) — `5ba50fe`
 - [x] роли `drillIndex.ts` (агрегат-экземпляр) vs `selectionIndex.ts` (writer-пересборка) — **комментарий-навигатор** (двусторонняя перекрёстная ссылка); переименование модуля ОТКЛОНЕНО (рвало бы `selectionIndex:*` в Makefile + `docs/deploy/prod-bootstrap.md` строковыми литералами) — `cb4e36e`
 - [x] **investigate → решено: НЕ сливать** (вариант B). Query намеренно разведены весом payload (lite live-путь vs полный `/stats`; канон-подтверждено `docs/plans/2026-06-23…:21` + audit-3 кандидат 5). Тип `RepertoireProgress`→`RepertoireSnapshot` (снимок ≠ витринный компонент `RepertoireProgress.svelte`); query/`_generated` не тронуты; doc-заметка в `CONTEXT.md`, НЕ ADR (контур data-fetching не меняется) — `ab76062`
-- [ ] **НЕ в этой сессии (копи-проход):** i18n EN `"unlocked"`/`"matured"` → `opened`/`ready` (параллель с RU); + отложенное A.2 (`"Lesson Results"`→`"Session Results"`)
+- [x] **i18n-копи-проход (оба языка):** метафора зрелости (`matured`/`созрел*`) → канон **Readiness** (`ready`/`готов*`); `unlocked` → `opened` (репертуар «открыт»); `Lesson Results` → `Session Results`; сняты восклицания («тихая награда» PRODUCT.md). Секции `stats_progression`+`repertoire_progress` сведены на один словарь — `9e8d443`
 
 ---
 

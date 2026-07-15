@@ -3,7 +3,7 @@ import type { FunctionReturnType } from 'convex/server';
 import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 import type { SymbolLayoutId } from '@/interfaces/types';
 import { createAuthGatedQuery } from '@/lib/gated-query.svelte';
-import { accuracyPercent } from '@/lib/stats-calculator';
+import { accuracyPercent, elapsedSecondsFromDurationMs } from '@/lib/stats-calculator';
 
 // Тип строки журнала берём из Convex-вывода listMine (как RepertoireSnapshot из
 // repertoireSnapshot) — без импорта из convex/, codegen уже даёт тип через api.
@@ -16,7 +16,7 @@ export interface SessionRow {
   elapsedSeconds: number; // активное время сеанса, целые секунды (measured, не config)
   cpm: number; // целое
   accuracy: string; // один знак, напр. "97.2"
-  latencyMs: number; // медиана латентности сеанса, целые мс
+  latencyMedianMs: number; // медиана латентности сеанса, целые мс (то же имя, что источник — без повторного переименования)
   rhythm: string; // ровность ритма: "82%" или "—" (нет данных / старая строка)
 }
 
@@ -32,10 +32,10 @@ export function formatSessionRow({
   return {
     id: session._id,
     date: new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(session.capturedAt),
-    elapsedSeconds: Math.round(session.durationMs / 1000),
+    elapsedSeconds: Math.round(elapsedSecondsFromDurationMs(session.durationMs)),
     cpm: Math.round(session.cpm),
     accuracy: accuracy.toFixed(1),
-    latencyMs: Math.round(session.latencyMedianMs),
+    latencyMedianMs: Math.round(session.latencyMedianMs),
     // Старые строки и сессии без достаточных данных поля не имеют → «—».
     rhythm: session.rhythm == null ? '—' : `${Math.round(session.rhythm)}%`,
   };

@@ -2,13 +2,14 @@
 
 XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`.
 
-## Домены session и survey — раскладка
+## Домены session, survey, repertoire — раскладка
 
 Принцип (Волна C аудита имён): **чистая логика — плоско в `src/lib/`; стор — в подкаталоге.** Новый logic-каталог не заводим, если рядом останутся неровно лежащие сиблинги; существующий маленький доменный каталог — достраиваем.
 
 - **session, живая логика (плоско):** `session-config`, `session-queue`, `session-summarize`, `session-timer` — трансформеры, питающие `machines/session.machine.ts`. Лежат плоско единообразно с соседями `drill-summarize` / `drill-stream` / `batch-budget` / `exposure-reading` / `typing-stream` — это **самостоятельные термины глоссария** (`CONTEXT.md`: Drill / Batch / Exposure / DrillSummary / TypingStream), не под-части session; в `session/` их не собирать.
 - **session, журнал (`session-history/`):** `sessions-store.svelte.ts` — стор завершённых сеансов (таблица `/stats`). Имя `session-history` (не плюральный `sessions/`) снимает двусмысленность «живые vs прошлые сессии».
 - **survey (`survey/`):** весь домен в одном каталоге — `micro-survey.ts` (чистая логика показа, ADR 0013) + `survey-store.svelte.ts` (стор ответов). Асимметрия с плоской session-логикой сознательна: `survey/` уже существовал и домен крошечный, достроить дешевле, чем плодить `session/`.
+- **repertoire (`repertoire/`):** сторы репертуара и прогрессии (`repertoire-store.svelte.ts`, `progression-store.svelte.ts`) — cloud-read проекции. Чистая логика снимка/прогрессии живёт в `shared/repertoire/` (`computeRepertoireSnapshot`, граница `src`↮`shared` по ADR 0014), поэтому в `src/lib` каталог держит только сторы, как и соседние сиблинги `session-history/` и `survey/`.
 
 ## ViewModel Pipeline + dumb UI
 
@@ -39,3 +40,13 @@ XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`
 - `src/components/auth/UserMenu.svelte` — компактный UI текущего юзера в Header (loading/guest/authenticated состояния).
 - Контракт-токены: `SIGN_IN_SCREEN_CONTRACT` + `USER_MENU_CONTRACT` агрегированы в `THEME_CONTRACT`.
 - Тесты: `auth-state.test.ts` покрывает `computeAuthState` pure-функцию (state derivation). Компоненты — Storybook stories.
+
+## Cloud-read стор — общий шов `gated-query`
+
+Все cloud-read сторы читают Convex через один auth-gated шов, а не копируют инвариант gate/reset/cleanup по себе.
+
+- `src/lib/gated-query.ts` — чистое ядро `runAuthGate` (без runes, тестируется в node): пока статус не `authenticated` (гость или ещё loading) — сбрасывает значение на гостевое и не подписывается; при `authenticated` — подписывается на источник и возвращает отписку.
+- `gated-query.svelte.ts` — `createAuthGatedQuery`, runes-обёртка поверх ядра: связывает реактивные аргументы запроса с `runAuthGate` внутри `$effect` (смена аргумента → cleanup + пере-подписка). Стор поверх становится тонким — шов плюс своё доменное состояние.
+- **Потребители — 4 cloud-read стора:** `session-history/sessions-store.svelte.ts`, `repertoire/repertoire-store.svelte.ts`, `repertoire/progression-store.svelte.ts`, `survey/survey-store.svelte.ts`.
+- **Имя не «чинить» обратно:** шов переименован из `auth-gate` (Волна C), чтобы снять рамку «auth-**подсистема**» — это общая инфра четырёх несвязанных сторов, а не часть auth. Но значение реально гейтится по auth (`runAuthGate` открывает подписку только при `status === 'authenticated'`), поэтому слова «auth-gated» в JSDoc обоих файлов точны и оставлены намеренно.
+- **Идиома «зеркальный тип границы»:** тип строки/снимка каждый стор берёт из Convex-вывода через `FunctionReturnType<typeof api.<module>.<fn>>`, а не импортом из `convex/` (codegen даёт тип через `api`; `src` не тянет `convex`-внутренности). Так живут `SessionSummary` (← `sessions.listMine`), `RepertoireSnapshot` (← `drill.repertoireSnapshot`), `ProgressionDetail` (← `drill.progressionDetail`). Одна идиома, повторённая 3×; не путать тип-снимок `RepertoireSnapshot` (данные) с одноимённым по корню витринным компонентом `RepertoireProgress.svelte` (UI).
