@@ -33,7 +33,7 @@ export const record = mutation({
   handler: async (ctx, { answer }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error('Not authenticated');
-    await rateLimiter.limit(ctx, 'surveyRecord', { key: userId, throws: true });
+    await rateLimiter.limit(ctx, 'surveys.record', { key: userId, throws: true });
     return await recordSurveyHandler({ ctx, userId, answer });
   },
 });

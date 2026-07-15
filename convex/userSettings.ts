@@ -90,7 +90,7 @@ export const upsertMine = mutation({
     if (userId === null) {
       throw new Error('Not authenticated');
     }
-    await rateLimiter.limit(ctx, 'settingsUpsert', { key: userId, throws: true }); // P0-10: per-user anti-flood
+    await rateLimiter.limit(ctx, 'userSettings.upsertMine', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await upsertMineHandler({ ctx, userId, settings: args });
   },
 });

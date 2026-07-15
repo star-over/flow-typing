@@ -103,7 +103,7 @@ describe('record mutation — auth', () => {
 });
 
 describe('record mutation — rate limit (P0-10)', () => {
-  // sessionRecord token bucket capacity=10 (convex/rateLimiter.ts): 10 всплеск ок, 11-й рубится.
+  // sessions.record token bucket capacity=10 (convex/rateLimiter.ts): 10 всплеск ок, 11-й рубится.
   const SESSION_RECORD_CAPACITY = 10;
 
   test('всплеск сверх capacity → 11-й вызов throw rate limit', async () => {

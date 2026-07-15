@@ -32,7 +32,7 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
   test('бюджет ограничивает порцию: budgetChars 10 → 2 drill по 5', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
-      for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
+      for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, symbolLayoutId: 'test' });
       return seedUser({ ctx });
     });
 
@@ -49,8 +49,8 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
   test('жёсткий фильтр по openedSteps: drill со stepLevel ≥ openedSteps не выдаётся', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
-      for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
-      await seedDrill({ ctx, text: 'zzzzz', step: 5, layout: 'test' });
+      for (let i = 0; i < 10; i++) await seedDrill({ ctx, text: 'abcde', step: 0, symbolLayoutId: 'test' });
+      await seedDrill({ ctx, text: 'zzzzz', step: 5, symbolLayoutId: 'test' });
       return seedUser({ ctx });
     });
 
@@ -68,8 +68,8 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
   test('изоляция по раскладке: drill чужой раскладки не выдаётся', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
-      await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'test' });
-      await seedDrill({ ctx, text: 'zzzzz', step: 0, layout: 'other' });
+      await seedDrill({ ctx, text: 'abcde', step: 0, symbolLayoutId: 'test' });
+      await seedDrill({ ctx, text: 'zzzzz', step: 0, symbolLayoutId: 'other' });
       return seedUser({ ctx });
     });
 
@@ -103,7 +103,7 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
   test('seed детерминирует выборку: один seed → одинаковые тексты', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
-      for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}xx`, step: 0, layout: 'test' });
+      for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}xx`, step: 0, symbolLayoutId: 'test' });
       return seedUser({ ctx });
     });
     const client = asUser({ t, userId });
@@ -116,7 +116,7 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
       // Уникальные тексты: distinct по тексту ⟺ distinct по строкам (id на проводе нет).
-      for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}aa`, step: 0, layout: 'test' });
+      for (let i = 0; i < 20; i++) await seedDrill({ ctx, text: `dr${i}aa`, step: 0, symbolLayoutId: 'test' });
       return seedUser({ ctx });
     });
     const res = await asUser({ t, userId }).query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 50, seed: 5 });
@@ -127,7 +127,7 @@ describe('drillNext — выдача порции (этап 1, authenticated)', 
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => {
       // Индекс + агрегат живы (count>0), сам drill удалён → ссылка битая.
-      const drillId = await seedDrill({ ctx, text: 'abcde', step: 0, layout: 'йцукен' });
+      const drillId = await seedDrill({ ctx, text: 'abcde', step: 0, symbolLayoutId: 'йцукен' });
       await ctx.db.delete(drillId);
       return seedUser({ ctx });
     });
@@ -155,9 +155,9 @@ describe('selectDrillsHandler — политика отбора (ADR 0009/0006/0
   test('openedSteps 2: drill шага 1 впущен, шага 2 отсечён (bound stepLevel < openedSteps)', async () => {
     const t = makeConvexTest();
     await t.run(async (ctx) => {
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'aaaaa', step: 0, layout: 'test' });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'bbbbb', step: 1, layout: 'test' });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'ccccc', step: 2, layout: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'aaaaa', step: 0, symbolLayoutId: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'bbbbb', step: 1, symbolLayoutId: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'ccccc', step: 2, symbolLayoutId: 'test' });
 
       const res = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 2, budgetChars: 300, seed: 1 });
 
@@ -174,7 +174,7 @@ describe('selectDrillsHandler — политика отбора (ADR 0009/0006/0
       // 20 уникальных текстов ровно по 5 символов; бюджет 5 = один drill из пула → seed
       // выбирает, какой именно. distinct по тексту ⟺ distinct по строкам (id на проводе нет).
       for (let i = 0; i < 20; i++) {
-        await seedDrill({ ctx, text: `w${String(i).padStart(3, '0')}z`, step: 0, layout: 'test' });
+        await seedDrill({ ctx, text: `w${String(i).padStart(3, '0')}z`, step: 0, symbolLayoutId: 'test' });
       }
       const pick = async (seed: number) => {
         const res = await selectDrillsHandler({ ctx, symbolLayoutId: 'test', openedSteps: 1, budgetChars: 5, seed });
@@ -505,9 +505,9 @@ describe('drillNext query — authenticated (openedSteps из профиля)', 
     const userId = await t.run(async (ctx) => {
       const uid = await seedUser({ ctx });
       await seedProfile({ ctx, userId: uid, symbolLayoutId: 'test', openedSteps: 2 });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'aaaaa', step: 0, layout: 'test' });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'bbbbb', step: 1, layout: 'test' });
-      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'ccccc', step: 2, layout: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'aaaaa', step: 0, symbolLayoutId: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'bbbbb', step: 1, symbolLayoutId: 'test' });
+      for (let i = 0; i < 5; i++) await seedDrill({ ctx, text: 'ccccc', step: 2, symbolLayoutId: 'test' });
       return uid;
     });
     const res = await asUser({ t, userId }).query(api.drill.drillNext, { symbolLayoutId: 'test', budgetChars: 300, seed: 1 });
@@ -546,7 +546,7 @@ describe('drillRecord mutation — auth', () => {
     });
   });
 
-  // drillRecord token bucket capacity=20 (convex/rateLimiter.ts): 20 всплеск ок, 21-й рубится.
+  // drill.drillRecord token bucket capacity=20 (convex/rateLimiter.ts): 20 всплеск ок, 21-й рубится.
   test('rate limit: всплеск сверх capacity → throw (P0-10)', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => seedUser({ ctx }));

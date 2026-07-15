@@ -240,7 +240,7 @@ describe('upsertMine mutation — authenticated', () => {
     });
   });
 
-  // settingsUpsert token bucket capacity=15 (convex/rateLimiter.ts): 15 всплеск ок, 16-й рубится.
+  // userSettings.upsertMine token bucket capacity=15 (convex/rateLimiter.ts): 15 всплеск ок, 16-й рубится.
   test('rate limit: всплеск сверх capacity → throw (P0-10)', async () => {
     const t = makeConvexTest();
     const userId = await t.run(async (ctx) => seedUser({ ctx, email: 'flood@example.com' }));
