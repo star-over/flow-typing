@@ -1,6 +1,6 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
-  import Select from './Select.svelte';
+  import Select from '@/components/ui/Select.svelte';
   import SessionDurationSelector from './SessionDurationSelector.svelte';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
   import type {

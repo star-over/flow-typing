@@ -1,6 +1,6 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
-  import Select from './Select.svelte';
+  import Select from '@/components/ui/Select.svelte';
   import TrainingSettingsSection from './TrainingSettingsSection.svelte';
   import type { Dictionary } from '@/interfaces/types';
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
