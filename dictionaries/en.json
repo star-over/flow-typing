@@ -83,7 +83,7 @@
     "delete_account_error": "Couldn't delete your account. Please try again."
   },
   "stats_card": {
-    "title": "Lesson Results",
+    "title": "Session Results",
     "cpm": "Speed",
     "wpm": "WPM",
     "accuracy": "Accuracy",
@@ -116,12 +116,12 @@
   },
   "stats_progression": {
     "title": "Step progression",
-    "intro": "The next step unlocks once the current step's symbols mature ({debt} immature allowed). Each symbol matures on the three conditions below.",
+    "intro": "The next step opens once the current step's symbols are ready ({debt} not yet ready allowed). A symbol is ready when it meets the three conditions below.",
     "step": "Step {current} of {max}",
-    "ready": "{ready} of {total} matured",
+    "ready": "{ready} of {total} ready",
     "ready_to_advance": "Ready for the next step",
     "maturing": "Left to consolidate: {count}",
-    "all_open": "All steps unlocked",
+    "all_open": "All steps opened",
     "headers": {
       "symbol": "Symbol",
       "exposures": "Exposures",
@@ -132,7 +132,7 @@
     "target_exposures": "target ≥ {min}",
     "target_accuracy": "target ≥ {min}%",
     "target_latency": "limit ≤ {max} ms",
-    "status_ready": "matured",
+    "status_ready": "ready",
     "gap_exposures": "practice",
     "gap_accuracy": "accuracy",
     "gap_latency": "speed",
@@ -148,7 +148,7 @@
     "ready": "{ready} of {total} symbols ready",
     "maturing": "Left to consolidate: {count}",
     "ready_to_advance": "Ready for the next step",
-    "new_step": "New step unlocked!",
+    "new_step": "New step opened",
     "blockers_practice": "needs more practice",
     "blockers_accuracy": "needs accuracy",
     "blockers_speed": "needs speed",
