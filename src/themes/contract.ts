@@ -12,7 +12,7 @@ import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
 import { SESSION_STATS_DISPLAY_CONTRACT } from '@/components/train/SessionStatsDisplay.contract';
 import { REPERTOIRE_PROGRESS_CONTRACT } from '@/components/train/RepertoireProgress.contract';
 import { SURVEY_PROMPT_CONTRACT } from '@/components/train/SurveyPrompt.contract';
-import { SETTINGS_PAGE_CONTRACT } from '@/components/ui/SettingsPage.contract';
+import { SETTINGS_PAGE_CONTRACT } from '@/components/settings/SettingsPage.contract';
 import { LANDING_CONTRACT } from '@/components/landing/LandingScreen.contract';
 import { FOOTER_ACTIONS_CONTRACT } from '@/components/app/FooterActions.contract';
 import { HEADER_CONTRACT } from '@/components/header/Header.contract';
