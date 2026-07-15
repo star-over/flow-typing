@@ -378,12 +378,15 @@
   --landing-demo-path            : var(--color-path-highlight);
   --landing-demo-surface         : var(--color-surface);
 
-  /* RhythmChannel — зелёная зона/янтарь/оранжевый = семантика исходов ритма */
+  /* RhythmChannel — рецептор ритма под курсором FlowLine. Зелёный = кромка в зоне
+     (держишь темп); янтарь = вне зоны в любую сторону — частишь/тормозишь различает
+     позиция и сторона заливки, не оттенок (замедление не наказываем). */
   --rhythm-channel-track-background: var(--color-surface);
   --rhythm-channel-track-border   : 1px solid var(--color-border);
   --rhythm-channel-zone-fill      : oklch(from var(--color-success) l c h / 0.18);
-  --rhythm-channel-zone-edge      : oklch(from var(--color-success) l c h / 0.5);
   --rhythm-channel-marker-in      : var(--color-success);
-  --rhythm-channel-marker-above   : var(--color-warning);
-  --rhythm-channel-marker-below   : oklch(from var(--color-warning) l c 45);
+  --rhythm-channel-marker-outside : var(--color-warning);
+  --rhythm-channel-state-fill     : oklch(from var(--color-warning) l c h / 0.22);
+  --rhythm-channel-anchor         : var(--color-text-secondary);
+  --rhythm-channel-trail          : oklch(from var(--color-text-secondary) l c h / 0.16);
 }
