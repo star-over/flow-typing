@@ -10,6 +10,12 @@ XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`
 - **session, журнал (`session-history/`):** `sessions-store.svelte.ts` — стор завершённых сеансов (таблица `/stats`). Имя `session-history` (не плюральный `sessions/`) снимает двусмысленность «живые vs прошлые сессии».
 - **survey (`survey/`):** весь домен в одном каталоге — `micro-survey.ts` (чистая логика показа, ADR 0013) + `survey-store.svelte.ts` (стор ответов). Асимметрия с плоской session-логикой сознательна: `survey/` уже существовал и домен крошечный, достроить дешевле, чем плодить `session/`.
 
+## Cloud-read сторы: gated-query + зеркальный тип границы
+
+Четыре стора чтения из Convex — `session-history/sessions-store`, `repertoire/repertoire-store`, `repertoire/progression-store`, `survey/survey-store` — построены на общем шве `src/lib/gated-query.ts` (чистое ядро `runAuthGate`) + `gated-query.svelte.ts` (`createAuthGatedQuery` — runes-стор поверх). Шов открывает подписку только для авторизованного (`AuthState.status === 'authenticated'`; гость → `unauthValue`); переименован из `auth-gate` (Волна C аудита имён), чтобы снять рамку «auth-**подсистема**» — это общая инфраструктура несвязанных сторов, но слова «auth-gated» в комментариях точны (гейт реально по auth).
+
+**Идиома «зеркальный тип границы»:** тип строки/снимка каждый стор берёт из Convex-вывода через `FunctionReturnType<typeof api.<module>.<fn>>`, а не импортом из `convex/` (codegen уже даёт тип через `api`; `src` не тянет `convex`-внутренности). Так живут `SessionSummary` (← `sessions.listMine`), `RepertoireSnapshot` (← `drill.repertoireSnapshot`), `ProgressionDetail` (← `drill.progressionDetail`). Одна идиома, повторённая 3×; не путать тип-снимок `RepertoireSnapshot` (данные) с одноимённым по корню витринным компонентом `RepertoireProgress.svelte` (UI).
+
 ## ViewModel Pipeline + dumb UI
 
 Бизнес-логика — в XState-машинах, UI — «глупый». Между ними — pipeline в `src/lib/hands-scene.ts`: чистые трансформеры последовательно строят `HandsSceneViewModel` (idle → target finger states → visible clusters → navigation paths → error finger states → press results). Свойство `keyCapStates` определяется **только** у пальцев в состоянии `TARGET` (правило «Полного Кластера»). Правила формирования ViewModel и сценарии ошибок — `docs/03-ui-viewmodel-contract.md`, следовать буквально.

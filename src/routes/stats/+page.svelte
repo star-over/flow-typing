@@ -133,7 +133,7 @@
               <td class="num">{row.cpm} {t.units.cpm}</td>
               <td class="num">{row.accuracy}{t.units.accuracy}</td>
               <td class="num">{row.rhythm}</td>
-              <td class="num">{row.latencyMs} {t.units.latency}</td>
+              <td class="num">{row.latencyMedianMs} {t.units.latency}</td>
             </tr>
           {/each}
         </tbody>

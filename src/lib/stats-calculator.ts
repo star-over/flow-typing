@@ -26,11 +26,20 @@ export function accuracyPercent({ exposures, clean }: { exposures: number; clean
   return exposures > 0 ? (clean / exposures) * 100 : 0;
 }
 
+/**
+ * Активное время сессии в секундах из `durationMs` (measured). Единственный дом
+ * конверсии `durationMs`→`elapsedSeconds` (канон-пара target/measured, CONTEXT.md);
+ * сырая — округляет отображающий слой (строка /stats).
+ */
+export function elapsedSecondsFromDurationMs(durationMs: number): number {
+  return durationMs / 1000;
+}
+
 /** Сводка завершённой сессии → числа карточки результатов. Сырые, без округления. */
 export function sessionStatsFromSummary(summary: SessionSummaryPayload): SessionStats {
   const accuracy = accuracyPercent({ exposures: summary.exposures, clean: summary.clean });
   return {
-    elapsedSeconds: summary.durationMs / 1000,
+    elapsedSeconds: elapsedSecondsFromDurationMs(summary.durationMs),
     accuracy,
     cpm: summary.cpm,
     wpm: summary.cpm / 5,
