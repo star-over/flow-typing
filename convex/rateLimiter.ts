@@ -16,17 +16,17 @@ import { components } from './_generated/api';
 
 export const rateLimiter = new RateLimiter(components.rateLimiter, {
   // sessions.record — 1 легитимный вызов за ≥ 60 c (сессия длится минимум минуту).
-  sessionRecord: { kind: 'token bucket', rate: 20, period: MINUTE, capacity: 10 },
+  'sessions.record': { kind: 'token bucket', rate: 20, period: MINUTE, capacity: 10 },
   // drillRecord — несколько чекпоинтов за сессию (перед доборами очереди + финал).
-  drillRecord: { kind: 'token bucket', rate: 40, period: MINUTE, capacity: 20 },
+  'drill.drillRecord': { kind: 'token bucket', rate: 40, period: MINUTE, capacity: 20 },
   // upsertMine — штучные смены настроек + один pull/push на login-синхронизацию.
-  settingsUpsert: { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 15 },
+  'userSettings.upsertMine': { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 15 },
   // clientErrors.report — ПУБЛИЧНЫЙ неаутентифицированный писатель (отчёт об
   // ошибке, в т.ч. от гостя). Щедро на легитимные краши, но рубит автоматический
   // флуд storage-abuse. Ключ — userId; гости делят общий 'anonymous' (худший
   // случай — флудящий гость глушит логи других гостей, но БД защищена).
-  clientErrorReport: { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 20 },
+  'clientErrors.report': { kind: 'token bucket', rate: 30, period: MINUTE, capacity: 20 },
   // surveys.record — редчайший писатель (один раз на юзера). Лимит только против
   // автоматического флуда; легитимный юзер бьёт максимум раз за всё время.
-  surveyRecord: { kind: 'token bucket', rate: 10, period: MINUTE, capacity: 5 },
+  'surveys.record': { kind: 'token bucket', rate: 10, period: MINUTE, capacity: 5 },
 });

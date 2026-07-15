@@ -61,7 +61,7 @@ export const report = mutation({
     // Неаутентифицированный писатель → token-bucket против флуда. throws:false —
     // при исчерпании лимита молча роняем отчёт, а не бросаем клиенту (отправка
     // best-effort at-most-once).
-    const { ok } = await rateLimiter.limit(ctx, 'clientErrorReport', {
+    const { ok } = await rateLimiter.limit(ctx, 'clientErrors.report', {
       key: userId ?? 'anonymous',
     });
     if (!ok) return null;

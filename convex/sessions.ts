@@ -67,7 +67,7 @@ export const record = mutation({
   handler: async (ctx, { symbolLayoutId, ...summary }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error('Not authenticated');
-    await rateLimiter.limit(ctx, 'sessionRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
+    await rateLimiter.limit(ctx, 'sessions.record', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await recordSessionSummaryHandler({ ctx, userId, symbolLayoutId, summary });
   },
 });

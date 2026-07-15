@@ -59,7 +59,7 @@ describe('record mutation — auth', () => {
 });
 
 describe('record mutation — rate limit', () => {
-  // surveyRecord token bucket capacity=5 (convex/rateLimiter.ts): 5 всплеск ок, 6-й рубится.
+  // surveys.record token bucket capacity=5 (convex/rateLimiter.ts): 5 всплеск ок, 6-й рубится.
   const SURVEY_RECORD_CAPACITY = 5;
 
   test('всплеск сверх capacity → 6-й вызов throw rate limit', async () => {

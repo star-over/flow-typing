@@ -232,7 +232,10 @@ export const drillNext = query({
 // инициализирует EWMA, дальше — fold с этим alpha.
 const LATENCY_EWMA_ALPHA = 0.3;
 
-interface SymbolStatInput {
+// Зеркало клиентского `SymbolStat` (src/lib/drill-summarize) — та же форма
+// per-символьной ячейки. Сервер НЕ импортирует src (развязка, ADR 0014), поэтому
+// тип продублирован; имя намеренно совпадает с клиентским (зеркало по контракту).
+interface SymbolStat {
   symbol: string;
   exposures: number;
   clean: number;
@@ -276,7 +279,7 @@ export function foldSummaryIntoCells({
   latencyAlpha,
 }: {
   cells: readonly ProfileCell[];
-  perSymbol: readonly SymbolStatInput[];
+  perSymbol: readonly SymbolStat[];
   latencyAlpha: number;
 }): ProfileCell[] {
   const bySymbol = new Map<string, ProfileCell>(cells.map((cell) => [cell.symbol, { ...cell }]));
@@ -339,7 +342,7 @@ export async function applyDrillSummaryHandler({
   ctx: MutationCtx;
   userId: Id<'users'>;
   symbolLayoutId: string;
-  perSymbol: SymbolStatInput[];
+  perSymbol: SymbolStat[];
 }): Promise<Id<'skillProfiles'>> {
   assertValidDrillPerSymbol(perSymbol); // P0-10: диапазоны чисел до записи (анти-отравление профиля)
   const existing = await ctx.db
@@ -380,7 +383,7 @@ export const drillRecord = mutation({
     if (userId === null) {
       throw new Error('Not authenticated');
     }
-    await rateLimiter.limit(ctx, 'drillRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
+    await rateLimiter.limit(ctx, 'drill.drillRecord', { key: userId, throws: true }); // P0-10: per-user anti-flood
     return await applyDrillSummaryHandler({
       ctx,
       userId,
