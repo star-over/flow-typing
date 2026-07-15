@@ -18,7 +18,7 @@
 | Волна | Суть | Риск | Статус |
 | --- | --- | --- | --- |
 | **A** | Чистые переименования, ноль поведения | низкий (тестами прикрыто) | ✅ сделана (merge `7821b0d`; 2 отклонения отложены — см. ниже) |
-| **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ✅ 4/7 сделано (merge `c0322f6`): 1.3/1.4/2.1/2.4; остались `rateLimiter`-ключи, `seedDrill` layout, `SymbolStat` |
+| **B** | Выравнивание контрактов между модулями | средний (границы client/server) | ✅ 7/7 (merge `c0322f6` + хвосты `0bf7109`): 1.3/1.4/2.1/2.4 + rateLimiter-ключи/seedDrill/SymbolStat; + §3-плоскости `63ba4a7` |
 | **C** | Структура каталогов/доменов | средний | ✅ сделана (merge `87647f1`): C.2/C.3 переименования, C.4 журнал→`session-history/`, C.5 `survey/`; A.4 `src/app` снят |
 | **D** | Канон-касающееся (нужен ADR / заметка в CONTEXT.md) | требует решения, не механика | ✅ 4/5 сделано (merge `d72f25d`): 1.5/Ms/2.2/2.5; решения — doc-заметки, ADR не потребовался; остался i18n-копи-проход |
 
@@ -73,9 +73,11 @@
 - [x] **Слить ячейку профиля** `ProfileCell` / `SymbolCell` / `SeedProfileCell` — `convex` импортирует `ProfileCell` из `shared`; поле схемы `symbolCells` не тронуто. `drill.ts`-половина (`SymbolCell`→`ProfileCell`) утекла в `cc96486` (Волна A); остаток `test.helpers.ts` (`SeedProfileCell`) — `2fe5e04`
 - [x] **`summary`/`payload`** — единое имя `summary` на всей нити (машины → `session-impl` → convex `sessions.ts`/`validation.ts` + тесты/фикстуры того же концепта); тип `SessionSummaryPayload` оставлен (несёт смысл), wire-поля разворачиваются — `af8c77b`
 - [x] **`sessionDurationSeconds`→`durationSeconds`** через XState — грилл: укорачивание УЗАКОНЕНО комментарием (квалификатор `session` избыточен внутри собственной области сессии — `SessionInput`), не проносим канон-имя через все слои. Асимметрия `currentSymbolLayoutId` vs `sessionDurationSeconds` тоже узаконена комментарием (`app.machine.ts`, разные оправдания префиксов) — `d0ceb5a`
-- [ ] **Ключи `rateLimiter`** (`convex/rateLimiter.ts:19-31`) → строки-пути `api.<module>.<fn>` (`'sessions.record'`, `'userSettings.upsertMine'`, …)
-- [ ] `convex/test.helpers.ts:89-98` (`seedDrill`) — параметр `layout`→`symbolLayoutId`
-- [ ] (низкий) `SymbolStat`/`SymbolStatInput` — единое локальное имя `SymbolStat` по обе стороны
+- [x] **Ключи `rateLimiter`** → строки-пути `api.<module>.<fn>` (`sessions.record`, `drill.drillRecord`, `userSettings.upsertMine`, `clientErrors.report`, `surveys.record`); 5 call-sites + 4 комментария в тестах — `0bf7109`
+- [x] `seedDrill` — параметр `layout`→`symbolLayoutId` (`test.helpers.ts` + 15 call-sites) — `0bf7109`
+- [x] `SymbolStatInput`→`SymbolStat` — единое имя по обе стороны + комментарий-зеркало (сервер не импортирует src, ADR 0014) — `0bf7109`
+
+**Плоскости §3 (из холистической проверки):** `SessionRow.latencyMs`→`latencyMedianMs` (снят второй хоп имени); функция-помощник `elapsedSecondsFromDurationMs` (один дом конверсии, убран инлайн-дубль); `src/lib/CLAUDE.md` — заметка про `gated-query` + идиома «зеркальный тип границы» — `63ba4a7`
 
 ---
 
