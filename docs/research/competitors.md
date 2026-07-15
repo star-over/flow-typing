@@ -17,6 +17,7 @@
 | **TypeRacer** | [typeracer.com](https://play.typeracer.com) | Многопользовательская гонка | Игроки, комьюнити | Бесплатно, реклама | ~1.7–2 млн/мес |
 | **typingtest.com** | [typingtest.com](https://www.typingtest.com) | Тест скорости | HR, обычные пользователи | Freemium, корп. тарифы | ~3.3 млн/мес |
 | **Ratatype** | [ratatype.com](https://www.ratatype.com) | Курс + тест + сертификат | Самоучки, соискатели | Freemium, сертификаты ($5), Plus ($36/год) | данных мало, ~0.5–1 млн/мес |
+| **typing.io** | [typing.io](https://typing.io) | Практика на реальном коде | Программисты, разработчики | Freemium, премиум $9.99/мес | оценочно ~100–300 тыс./мес |
 | **Klavogonki** | [klavogonki.ru](https://klavogonki.ru) | Русскоязычные гонки | Русскоязычные пользователи | Бесплатно, добровольные пожертвования | ~150 тыс./мес (RU) |
 | **TypingMaster** | [typingmaster.com](https://www.typingmaster.com) | Настольный + SaaS | Windows-пользователи, офисы | $4.90/мес или $29/год | данных мало |
 | **Typesy** | [typesy.com](https://www.typesy.com) | Структурированный курс | домашнее обучение, взрослые | ~$9/мес | данных мало |
@@ -547,6 +548,30 @@
   - Упоминается в обзорах 2021–2025 гг. как один из лучших бесплатных русских тренажёров (рейтинг 4.7 в expertology.ru).
   - Источник: обзоры 5prism.ru, expertology.ru, Habr, Wayback Machine, июль 2026.
 
+### 2.29 typing.io
+
+- **URL:** [typing.io](https://typing.io)
+- **Описание:** Нишевый тренажёр для программистов: практика набора на реальных фрагментах open-source кода вместо сгенерированных упражнений. Фокус — на «неудобных» символах, скобках, пунктуации и паттернах, характерных для кода.
+- **Особенности тренажёра:**
+  - Уроки на основе реального кода из популярных open-source проектов: jQuery, Ruby on Rails, Mercurial, Guava, Xmonad, Symfony, Redis, Linux kernel и др.
+  - Поддержка 16+ языков программирования: JavaScript, Ruby, C, C++, Java, Python, PHP, Perl, Haskell, Scala, Clojure, Erlang, Shell, Objective-C, C#, Less.
+  - **Realistic Key Processing Engine** — нельзя проехать далеко за ошибкой; нужно исправлять опечатки, как в реальном коде.
+  - **Typo Heatmap** — тепловая карта ошибок по клавишам и пальцам (Qwerty, Colemak, Dvorak).
+  - **Typo Cost Analysis** — подсчёт «стоимости» опечаток, включая collateral keystrokes после ошибки.
+  - **Touch Typing Fingering Guide** — подсказки по пальцам для символов.
+  - Progress tracking — тренды WPM, ошибок, прогресса с момента регистрации.
+  - Custom lesson uploads (премиум) — можно загружать собственный код или разбирать код из GitHub-репозитория.
+- **Методика / педагогика:**
+  - Обучение через реальные паттерны кода, а не абстрактные упражнения.
+  - Акцент на символах и конструкциях, которые часто вызывают ошибки у программистов (скобки, операторы, регулярные выражения).
+  - Нет структурированного курса «с нуля» — предполагается, что пользователь уже владеет базовой техникой печати.
+- **Модель монетизации:** Freemium. Бесплатно: уроки на 16 языках, базовая аналитика, realistic key processing, typo cost analysis. Премиум **Mechanical Plan** — $9.99/мес: загрузка собственного кода, typo heatmap, fingering guide, детальная статистика прогресса.
+- **Посещаемость:** Оценочно **100–300 тыс. визитов в месяц**. Публичных данных мало; [SimilarWeb](https://www.similarweb.com/website/typing.io/) фиксирует доминирование прямого трафика (~57%) и среднюю продолжительность сессии ~1 мин, что характерно для коротких практических заходов. Реальная посещаемость может отличаться в 2–3 раза.
+- **Дополнительно:**
+  - Сильный бренд в сообществе разработчиков; проект запускался через Hacker News ([Show HN: A typing trainer that uses real code snippets](https://www.saashub.com/compare-typefacer-vs-typing-io)).
+  - Прямой конкурент по аудитории для FlowTyping в сегменте программистов, но отличается фокусом: typing.io — практика на коде, FlowTyping — обучение моторике и ритму через визуализацию движения.
+  - Источник: официальный сайт [typing.io](https://typing.io), [typing.io/pricing](https://typing.io/pricing), [SimilarWeb](https://www.similarweb.com/website/typing.io/), [SourceForge](https://sourceforge.net/software/product/Typing.io/), [SaaSHub](https://www.saashub.com/compare-typefacer-vs-typing-io), июль 2026.
+
 ---
 
 ## 3. Методологии обучения в сравнении
@@ -559,6 +584,7 @@
 | **Адаптивная** | Keybr, Typesy, TIPP10, VerseQ | Фокус на слабостях | Требует данных и калибровки | **Да** — Auto-Flow |
 | **Скоростной тест** | Monkeytype, 10FastFingers, typingtest.com, BlindTyping.com | Мотивация, метрики | Не учит с нуля | Для поддержания навыка |
 | **Соревнование / игра** | TypeRacer, Nitro Type, Klavogonki, CodeWar | Вовлечённость | Может подменять технику азартом | Возможно позже |
+| **Практика на реальном коде/тексте** | typing.io | Контекстно-близкие упражнения, мотивация | Требует базовой техники | Для программистской дорожки |
 | **Визуализация движения** | — | Формирует проприоцепцию | Сложно реализовать | **Ключевой дифференциатор FlowTyping** |
 
 ---
@@ -573,6 +599,7 @@
 6. **Open-source конкуренты (Keybr, Amphetype, Keypunch, Klavaro)** дают понять, что сообщество ценит прозрачность и контроль данных — потенциальный путь для FlowTyping.
 7. **Русскоязычный рынок конкурентен, но фрагментирован: лидеры — «СОЛО на клавиатуре», Stamina online, CodeWar, VerseQ, RapidTyping.** Klavogonki — соревнование, а не обучение. СОЛО и Stamina — классические последовательные курсы; CodeWar добавляет геймификацию и программистские тренажёры; VerseQ — адаптивная методика; RapidTyping — настольное приложение + веб для школ. Для FlowTyping это означает, что ниша занята, но есть возможность отличиться: freemium-модель, современный UX (большинство конкурентов работают на стеке 2010-х), ритм-визуализация, кроссплатформенность и сообщество.
 8. **Появился прямой конкурент с пересекающимся брендингом — Flowtype (flowtype.cloud).** Он тоже делает визуальный тренажёр слепой печати на пальцах, PWA, без регистрации и на английском/вьетнамском. Для FlowTyping это сигнал занять чёткую дифференциацию (русская локализация, ритм-визуализация, структурированная методика KeyLadder / Auto-Flow) и отслеживать пересечение в SEO/позиционировании.
+9. **typing.io подтверждает существование платной ниши среди программистов.** Модель $9.99/мес за практику на реальном коде показывает, что разработчики готовы платить за специализированный инструмент. Для FlowTyping это аргумент в пользу отдельной «программистской» дорожки (код, регулярки, спецсимволы) как потенциального премиум-направления.
 
 ---
 
@@ -589,7 +616,7 @@
   - официальный сайт [flowtype.cloud](https://www.flowtype.cloud) и страница `/learn`, июль 2026;
   - официальный сайт [solo.nabiraem.ru](https://solo.nabiraem.ru), обзоры qualityhub.techinfus.com и 5prism.ru, данные Semrush по `nabiraem.ru`, июль 2026;
   - официальный сайт [staminaon.com/ru](https://staminaon.com/ru/), Wayback Machine (`stamina-online.com`), обзоры irecommend.ru и compgramotnost.ru, июль 2026;
-  - официальные сайты [codewar.ru](https://codewar.ru), [verseq.ru](https://verseq.ru), [rapidtyping.com/ru](https://rapidtyping.com/ru/), [blindtyping.com](https://blindtyping.com), обзоры vc.ru, expertology.ru, vyborok.com, tovarovreiting.ru, Wayback Machine, июль 2026;
+  - официальные сайты [codewar.ru](https://codewar.ru), [verseq.ru](https://verseq.ru), [rapidtyping.com/ru](https://rapidtyping.com/ru/), [blindtyping.com](https://blindtyping.com), [typing.io](https://typing.io) и [typing.io/pricing](https://typing.io/pricing), обзоры vc.ru, expertology.ru, vyborok.com, tovarovreiting.ru, SourceForge, SaaSHub, Wayback Machine, июль 2026;
   - архивные данные по [klavarog.ru](https://klavarog.ru) из обзоров 5prism.ru, expertology.ru, Habr, июль 2026.
 
 ---
