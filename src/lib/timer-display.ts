@@ -23,3 +23,17 @@ export function computeTimerSeconds({
   if (!isTraining || !hasSession) return null;
   return Math.max(0, durationSeconds - Math.floor(displayElapsedMs / 1000));
 }
+
+/**
+ * Длительность в `м:сс` для карточки результатов. Сырыми секундами показывать
+ * нельзя: `sessionDurationSeconds` доходит до 900 (CONTEXT.md), а «900 с» никто
+ * не читает как пятнадцать минут. Секунды всегда в двух знаках — иначе «1:5»
+ * вместо «1:05». Отрицательное зажимаем в ноль (защита от дребезга на последнем
+ * тике, как в `computeTimerSeconds`).
+ */
+export function formatDurationShort(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(total / 60);
+  const rest = total % 60;
+  return `${minutes}:${String(rest).padStart(2, '0')}`;
+}

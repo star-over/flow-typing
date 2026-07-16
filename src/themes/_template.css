@@ -230,12 +230,24 @@
   --select-arrow-background: unset;
 
   /* SessionStatsDisplay */
-  --session-stats-display-background     : unset;
-  --session-stats-display-border         : unset;
-  --session-stats-display-item-background: unset;
-  --session-stats-display-label-color    : unset;
-  --session-stats-display-value-color    : unset;
-  --session-stats-display-unit-color     : unset;
+  --session-stats-display-background           : unset;
+  --session-stats-display-border               : unset;
+  --session-stats-display-divider              : unset;
+  --session-stats-display-label-color          : unset;
+  --session-stats-display-value-color          : unset;
+  --session-stats-display-unit-color           : unset;
+  --session-stats-display-note-color           : unset;
+  --session-stats-display-trend-color          : unset;
+  --session-stats-display-info-border          : unset;
+  --session-stats-display-info-color           : unset;
+  --session-stats-display-info-hover-background: unset;
+  --session-stats-display-info-open-background : unset;
+  --session-stats-display-info-open-color      : unset;
+  --session-stats-display-info-body-color      : unset;
+  --session-stats-display-info-body-border     : unset;
+  --session-stats-display-link-color           : unset;
+  --session-stats-display-link-border          : unset;
+  --session-stats-display-link-hover-border    : unset;
 
   /* RepertoireProgress */
   --repertoire-progress-background  : unset;

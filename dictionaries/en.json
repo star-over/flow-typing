@@ -84,15 +84,44 @@
   },
   "stats_card": {
     "title": "Session Results",
-    "cpm": "Speed",
-    "wpm": "WPM",
     "accuracy": "Accuracy",
-    "duration": "Duration",
+    "rhythm": "Rhythm evenness",
+    "volume": "Volume",
+    "pace": "Pace in motion",
     "units": {
-      "cpm": "CPM",
-      "wpm": "WPM",
       "accuracy": "%",
-      "duration": "s"
+      "pace": "cpm"
+    },
+    "derive": "Hit first try: {clean} of {exposures} · misses: {misses}",
+    "volume_value": "{exposures} in {duration}",
+    "delta_previous": "{arrow} {value} vs last",
+    "delta_baseline": "{arrow} {value} vs your average",
+    "delta_up": "▲",
+    "delta_down": "▼",
+    "trend_caption": "last {count} sessions",
+    "trend_aria": "Accuracy over recent sessions, in percent: {values}",
+    "confusion": "Most frequent miss: {from} → {to} ({count})",
+    "more": "Detailed statistics",
+    "none": "—",
+    "info_open": "What it means: {metric}",
+    "info_means_label": "What it tells you",
+    "info": {
+      "accuracy": {
+        "how": "The share of characters hit on the first keystroke. Only the first wrong keystroke counts as a miss: skip-ahead — typing on without noticing the typo — is subtracted, otherwise one mistake would count three times.",
+        "means": "hit it first time and the link «think of the symbol → the finger moves» is already wired. Miss it and the link hasn't formed yet — the finger is hunting for the key."
+      },
+      "rhythm": {
+        "how": "How even the pauses between keystrokes are. Independent of pace: slow and even still scores high.",
+        "means": "an even rhythm means the movement has become automatic; spikes mean stumbles and hunting for keys. Rhythm sees what accuracy cannot: you can type everything correctly yet unevenly — which means some movements you still recall rather than execute."
+      },
+      "volume": {
+        "how": "How many characters went through during active time — pauses don't count.",
+        "means": "how much the other numbers can be trusted. Over a short stretch they are random: a couple of lucky words lift accuracy, a couple of stumbles drop rhythm. The more characters, the less luck in them."
+      },
+      "pace": {
+        "how": "The speed of the movement itself, without pauses for thinking: derived from the typical interval between keystrokes.",
+        "means": "the gap against volume is your thinking time. High pace with low volume means the movement is trained but recalling the symbol is not."
+      }
     }
   },
   "stats_sessions": {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { computeTimerSeconds } from './timer-display';
+import { computeTimerSeconds, formatDurationShort } from './timer-display';
 
 describe('computeTimerSeconds', () => {
   test('вне тренировки — null (Header счётчик не рисует)', () => {
@@ -39,5 +39,31 @@ describe('computeTimerSeconds', () => {
     expect(
       computeTimerSeconds({ displayElapsedMs: 61_200, isTraining: true, hasSession: true, durationSeconds: 60 }),
     ).toBe(0);
+  });
+});
+
+describe('formatDurationShort', () => {
+  test('минута — 1:00, а не «60 с»', () => {
+    expect(formatDurationShort(60)).toBe('1:00');
+  });
+
+  test('предельная сессия 900 с читается как 15:00', () => {
+    // Ради этого формат и заводился: «900 с» никто не читает как 15 минут.
+    expect(formatDurationShort(900)).toBe('15:00');
+  });
+
+  test('секунды всегда в двух знаках', () => {
+    expect(formatDurationShort(65)).toBe('1:05');
+    expect(formatDurationShort(5)).toBe('0:05');
+  });
+
+  test('дробные секунды округляются', () => {
+    expect(formatDurationShort(59.6)).toBe('1:00');
+    expect(formatDurationShort(1.234)).toBe('0:01');
+  });
+
+  test('ноль и отрицательное — 0:00, без минуса', () => {
+    expect(formatDurationShort(0)).toBe('0:00');
+    expect(formatDurationShort(-3)).toBe('0:00');
   });
 });
