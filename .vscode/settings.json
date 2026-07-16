@@ -1,10 +1,7 @@
 {
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-      "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
-      "*.jsx": "${capture}.js",
       "*.ts": "${capture}.js, ${capture}.test.ts",
-      "*.tsx": "${capture}.ts, ${capture}.stories.tsx",
-      "vitest.config.ts": "vitest.shims.d.ts",
+      "*.svelte": "${capture}.stories.svelte, ${capture}.contract.ts",
       "tsconfig.json": "package.json, tsconfig*.tsbuildinfo, tsconfig.*.json, jsconfig.json, *.config.ts, *.config.js, *.config.mjs, *.config.cjs, .env, .env.*, .gitignore, .editorconfig, Makefile"  }
 }
