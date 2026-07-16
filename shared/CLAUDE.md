@@ -1,6 +1,6 @@
 # shared — рантайм-модель прогрессии (без I/O)
 
-Чистая доменная модель, общая с сервером (`convex/`) и инструментами (`auto-flow/`): **никакого I/O** (нет `node:fs`, vite, `process`, сети). `src` её **не импортирует** (ADR 0014, развязка — подтверждено: 0 прямых импортов). Реальная структура: `repertoire/` (config/growth/progress/readiness), `drill-selection/`, `selection-index/`, `symbol-layout.ts`.
+Чистая доменная модель, общая с сервером (`convex/`) и инструментами (`auto-flow/`): **никакого I/O** (нет `node:fs`, vite, `process`, сети). Живёт в `shared/`, а не внутри `auto-flow/`, — чтобы сервер (`convex/`) не тянул tooling-зависимости мастерской (`node:fs`, сборка корпуса). `src` её **не импортирует** (ADR 0014, развязка — подтверждено: 0 прямых импортов). Модули: `repertoire/`, `drill-selection/`, `selection-index/`, `symbol-layout.ts`.
 
 Инварианты (за деталями — в ADR):
 

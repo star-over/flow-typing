@@ -45,7 +45,6 @@
     "auto-flow/corpus/",
     "dist/",
     "coverage/",
-    "convex/README.md",
     "convex/_generated/"
   ]
 }
