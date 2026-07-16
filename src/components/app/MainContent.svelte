@@ -11,7 +11,10 @@
   const physicalLayoutANSI = getPhysicalLayout('ansi');
 
   import { inState } from '@/lib/state-utils';
-  import { sessionStatsFromSummary } from '@/lib/stats-calculator';
+  import { accuracyPercent, sessionStatsFromSummary } from '@/lib/stats-calculator';
+  import { deltaToBaseline, historyWithoutCurrent } from '@/lib/session-baseline';
+  import { topConfusionForDisplay } from '@/lib/confusion-display';
+  import { getSymbolLayout } from '@/lib/layouts';
 
   import TrainingScene from '@/components/train/TrainingScene.svelte';
   import SessionStatsDisplay from '@/components/train/SessionStatsDisplay.svelte';
@@ -54,10 +57,53 @@
   // Тогда экран sessionComplete пуст — допустимое degenerate-состояние, решение
   // принимает родитель, не сам SessionStatsDisplay. Источник — каноническая сводка
   // сессии (те же числа, что строка /stats), а не «настенное» время по attempts.
+  const summary = $derived(state.context.lastSessionSummary);
   const sessionStats = $derived.by(() => {
-    const summary = state.context.lastSessionSummary;
     if (!summary || summary.exposures === 0) return null;
     return sessionStatsFromSummary(summary);
+  });
+
+  /** Сколько прошлых сессий несёт траектория. Больше — линия превращается в шум. */
+  const TREND_LIMIT = 8;
+
+  // Прошлые сессии БЕЗ текущей: журнал — живая подписка, и строка только что
+  // законченной сессии прилетает в неё уже после показа экрана (fire-and-forget,
+  // ADR 0015). Не снять её — точка-сегодня раздвоится на глазах.
+  const history = $derived(
+    summary ? historyWithoutCurrent({ journal: sessions.list, current: summary }) : [],
+  );
+
+  const trend = $derived(
+    history.slice(-TREND_LIMIT).map((row) => ({
+      accuracy: accuracyPercent({ exposures: row.exposures, clean: row.clean }),
+    })),
+  );
+
+  // Точность к прошлой сессии: величина устойчивая, одного замера хватает.
+  const accuracyDelta = $derived.by(() => {
+    const previous = history.at(-1);
+    if (!previous || !sessionStats) return undefined;
+    return sessionStats.accuracy - accuracyPercent({ exposures: previous.exposures, clean: previous.clean });
+  });
+
+  // Ритм — к своей недавней норме, не к прошлой сессии: ADR 0004 по итогам
+  // валидации на реальных прохождениях зафиксировал его шумным, и дельта к
+  // одному замеру хлопала бы случайно. Сессии без ритма в базу не берём.
+  const rhythmDelta = $derived.by(() => {
+    const current = sessionStats?.rhythm;
+    if (current === undefined) return undefined;
+    const rhythms = history.flatMap((row) => (row.rhythm == null ? [] : [row.rhythm]));
+    return deltaToBaseline({ current, history: rhythms });
+  });
+
+  // Единственное на экране, что можно унести и применить. `pressed` в журнале —
+  // KeyCapId; в символ его переводит показ, через выбранную раскладку.
+  const confusion = $derived.by(() => {
+    if (!summary) return undefined;
+    return topConfusionForDisplay({
+      confusions: summary.confusions,
+      symbolLayout: getSymbolLayout($settings.symbolLayoutId),
+    });
   });
 </script>
 
@@ -77,7 +123,14 @@
   {#if showSurvey}
     <SurveyPrompt {dictionary} onAnswer={recordSurvey} />
   {/if}
-  <SessionStatsDisplay stats={sessionStats} {dictionary} />
+  <SessionStatsDisplay
+    stats={sessionStats}
+    {trend}
+    {accuracyDelta}
+    {rhythmDelta}
+    {confusion}
+    {dictionary}
+  />
   <RepertoireProgress
     snapshot={repertoire.snapshot}
     grew={repertoire.grew}

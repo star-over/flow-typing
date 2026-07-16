@@ -1,105 +1,500 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import type { SessionStats } from '@/lib/stats-calculator';
   import type { Dictionary } from '@/interfaces/types';
+  import { formatDurationShort } from '@/lib/timer-display';
+
+  /** Одна точка траектории: точность прошлой сессии, старые → новые. */
+  export interface AccuracyTrendPoint {
+    accuracy: number;
+  }
 
   interface Props {
     stats: SessionStats;
+    /** Точность прошлых сессий (БЕЗ текущей), старые → новые. Пусто — траектории нет. */
+    trend: readonly AccuracyTrendPoint[];
+    /** Дельта точности к прошлой сессии; undefined — прошлой нет. */
+    accuracyDelta: number | undefined;
+    /** Дельта ритма к своей недавней норме; undefined — истории мало или ритма нет. */
+    rhythmDelta: number | undefined;
+    /** Самая частая путаница сессии, уже переведённая в символы. */
+    confusion: { from: string; to: string; count: number } | undefined;
     dictionary: Dictionary;
   }
 
-  const { stats, dictionary }: Props = $props();
-  const stats_card = $derived(dictionary.stats_card);
+  const { stats, trend, accuracyDelta, rhythmDelta, confusion, dictionary }: Props = $props();
 
-  // Презентационное округление: CPM/WPM/duration читаемее как целые,
-  // accuracy показываем с одним знаком — у неё дробная часть бывает
-  // информативна (95.5 vs 100).
+  const t = $derived(dictionary.stats_card);
+
+  function fill({ template, values }: { template: string; values: Record<string, string | number> }): string {
+    return Object.entries(values).reduce((s, [key, val]) => s.replace(`{${key}}`, String(val)), template);
+  }
+
+  // Презентационное округление: точность с одним знаком (95.5 vs 100 информативно),
+  // остальное — целыми. Сырые значения приходят из stats-calculator.
   const display = $derived({
-    cpm: Math.round(stats.cpm),
-    wpm: Math.round(stats.wpm),
     accuracy: stats.accuracy.toFixed(1),
-    duration: Math.round(stats.elapsedSeconds),
+    rhythm: stats.rhythm === undefined ? t.none : String(Math.round(stats.rhythm)),
+    pace: stats.paceInMotion === undefined ? t.none : String(Math.round(stats.paceInMotion)),
+    duration: formatDurationShort(stats.elapsedSeconds),
+    exposures: stats.exposures,
+    misses: stats.misses,
+    clean: stats.exposures - stats.misses,
   });
+
+  /** Дельта → строка. Направление несёт глиф, не цвет: хром не красим (DESIGN.md),
+   *  и глиф остаётся различим при дальтонизме. */
+  function deltaText({ value, template }: { value: number; template: string }): string {
+    return fill({
+      template,
+      values: {
+        arrow: value >= 0 ? t.delta_up : t.delta_down,
+        value: Math.abs(value).toFixed(1),
+      },
+    });
+  }
+
+  const accuracyDeltaText = $derived(
+    accuracyDelta === undefined ? undefined : deltaText({ value: accuracyDelta, template: t.delta_previous }),
+  );
+  const rhythmDeltaText = $derived(
+    rhythmDelta === undefined ? undefined : deltaText({ value: rhythmDelta, template: t.delta_baseline }),
+  );
+
+  // ── Траектория ────────────────────────────────────────────────────────────
+  // Точность за прошлые сессии + текущая последней точкой. Рисуем, только когда
+  // точек хватает, чтобы линия что-то значила: на одной-двух это не траектория.
+  const MIN_TREND_POINTS = 4;
+  const VIEW_W = 320;
+  const VIEW_H = 56;
+  const PAD = 7; // радиус кольца точки-сегодня: чтобы не срезалось краем viewBox
+
+  const trendPoints = $derived([...trend.map((p) => p.accuracy), stats.accuracy]);
+  const showTrend = $derived(trendPoints.length >= MIN_TREND_POINTS);
+
+  const trendGeometry = $derived.by(() => {
+    const values = trendPoints;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    // Плоская история (все значения равны) — рисуем по центру, без деления на ноль.
+    const span = max - min;
+    const x = (i: number) => PAD + (i * (VIEW_W - 2 * PAD)) / Math.max(1, values.length - 1);
+    const y = (v: number) => (span === 0 ? VIEW_H / 2 : PAD + (1 - (v - min) / span) * (VIEW_H - 2 * PAD));
+    return {
+      polyline: values.map((v, i) => `${x(i)},${y(v)}`).join(' '),
+      lastX: x(values.length - 1),
+      lastY: y(values[values.length - 1] ?? min),
+    };
+  });
+
+  const trendAria = $derived(
+    fill({
+      template: t.trend_aria,
+      values: { values: trendPoints.map((v) => v.toFixed(1)).join(', ') },
+    }),
+  );
+
+  // ── Пояснения (i) ─────────────────────────────────────────────────────────
+  // Раскрытие по клику: то, что открывается только под курсором, не существует
+  // ни для клавиатуры, ни для пальца на экране.
+  type MetricKey = 'accuracy' | 'rhythm' | 'volume' | 'pace';
+  let openInfo = $state<MetricKey | null>(null);
+  const toggleInfo = (key: MetricKey) => (openInfo = openInfo === key ? null : key);
 </script>
 
-<div class="stats-display">
-  <h2 class="title">{stats_card.title}</h2>
+<section class="stats-display" aria-labelledby="session-stats-title">
+  <h2 class="sr-only" id="session-stats-title">{t.title}</h2>
+
+  <!-- ── Ярус 1: точность ── -->
+  <div class="hero">
+    <div class="hero-main">
+      <p class="label">
+        {t.accuracy}
+        <button
+          type="button"
+          class="info"
+          aria-expanded={openInfo === 'accuracy'}
+          aria-controls="info-accuracy"
+          aria-label={fill({ template: t.info_open, values: { metric: t.accuracy } })}
+          onclick={() => toggleInfo('accuracy')}
+        >i</button>
+      </p>
+      <p class="value hero-value">
+        {display.accuracy}<span class="unit">{t.units.accuracy}</span>
+      </p>
+      {#if accuracyDeltaText}
+        <p class="note delta">{accuracyDeltaText}</p>
+      {/if}
+    </div>
+
+    {#if showTrend}
+      <div class="trend">
+        <svg class="trend-svg" viewBox="0 0 {VIEW_W} {VIEW_H}" role="img" aria-label={trendAria}>
+          <polyline
+            points={trendGeometry.polyline}
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.45"
+          />
+          <!-- Сегодня — кольцо, а не тень: язык колец клавиш (дом / путь / цель). -->
+          <circle cx={trendGeometry.lastX} cy={trendGeometry.lastY} r="3.5" fill="currentColor" />
+          <circle
+            cx={trendGeometry.lastX}
+            cy={trendGeometry.lastY}
+            r="7"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            opacity="0.35"
+          />
+        </svg>
+        <p class="note trend-caption">
+          {fill({ template: t.trend_caption, values: { count: trendPoints.length } })}
+        </p>
+      </div>
+    {/if}
+
+    <p class="note derive">
+      {fill({
+        template: t.derive,
+        values: { clean: display.clean, exposures: display.exposures, misses: display.misses },
+      })}
+    </p>
+
+    {#if openInfo === 'accuracy'}
+      <p class="info-body hero-info" id="info-accuracy">
+        {t.info.accuracy.how}
+        <b>{t.info_means_label}:</b>
+        {t.info.accuracy.means}
+      </p>
+    {/if}
+  </div>
+
+  <!-- ── Ярусы 2 и 3: ритм крупнее, объём и темп стопкой ── -->
   <div class="grid">
-    <div class="stat-item">
-      <p class="stat-label">{stats_card.cpm}</p>
-      <p class="stat-value">{display.cpm}<span class="stat-unit">{stats_card.units.cpm}</span></p>
+    <div class="cell cell-rhythm">
+      <p class="label">
+        {t.rhythm}
+        <button
+          type="button"
+          class="info"
+          aria-expanded={openInfo === 'rhythm'}
+          aria-controls="info-rhythm"
+          aria-label={fill({ template: t.info_open, values: { metric: t.rhythm } })}
+          onclick={() => toggleInfo('rhythm')}
+        >i</button>
+      </p>
+      <p class="value rhythm-value">{display.rhythm}</p>
+      {#if rhythmDeltaText}
+        <p class="note delta">{rhythmDeltaText}</p>
+      {/if}
+      {#if openInfo === 'rhythm'}
+        <p class="info-body" id="info-rhythm">
+          {t.info.rhythm.how}
+          <b>{t.info_means_label}:</b>
+          {t.info.rhythm.means}
+        </p>
+      {/if}
     </div>
-    <div class="stat-item">
-      <p class="stat-label">{stats_card.wpm}</p>
-      <p class="stat-value">{display.wpm}<span class="stat-unit">{stats_card.units.wpm}</span></p>
+
+    <div class="cell">
+      <p class="label">
+        {t.volume}
+        <button
+          type="button"
+          class="info"
+          aria-expanded={openInfo === 'volume'}
+          aria-controls="info-volume"
+          aria-label={fill({ template: t.info_open, values: { metric: t.volume } })}
+          onclick={() => toggleInfo('volume')}
+        >i</button>
+      </p>
+      <p class="value">
+        {fill({
+          template: t.volume_value,
+          values: { exposures: display.exposures, duration: display.duration },
+        })}
+      </p>
+      {#if openInfo === 'volume'}
+        <p class="info-body" id="info-volume">
+          {t.info.volume.how}
+          <b>{t.info_means_label}:</b>
+          {t.info.volume.means}
+        </p>
+      {/if}
     </div>
-    <div class="stat-item">
-      <p class="stat-label">{stats_card.accuracy}</p>
-      <p class="stat-value">{display.accuracy}<span class="stat-unit">{stats_card.units.accuracy}</span></p>
-    </div>
-    <div class="stat-item">
-      <p class="stat-label">{stats_card.duration}</p>
-      <p class="stat-value">{display.duration}<span class="stat-unit">{stats_card.units.duration}</span></p>
+
+    <div class="cell cell-pace">
+      <p class="label">
+        {t.pace}
+        <button
+          type="button"
+          class="info"
+          aria-expanded={openInfo === 'pace'}
+          aria-controls="info-pace"
+          aria-label={fill({ template: t.info_open, values: { metric: t.pace } })}
+          onclick={() => toggleInfo('pace')}
+        >i</button>
+      </p>
+      <!-- Единица — только при числе: «— зн/мин» читается как единица измерения
+           прочерка. Нет замеров латентности — есть только прочерк. -->
+      <p class="value">
+        {display.pace}{#if stats.paceInMotion !== undefined}<span class="unit">{t.units.pace}</span>{/if}
+      </p>
+      {#if openInfo === 'pace'}
+        <p class="info-body" id="info-pace">
+          {t.info.pace.how}
+          <b>{t.info_means_label}:</b>
+          {t.info.pace.means}
+        </p>
+      {/if}
     </div>
   </div>
-</div>
+
+  <!-- ── Подвал: что унести с экрана + путь к истории ── -->
+  <div class="foot">
+    {#if confusion}
+      <p class="note confusion">
+        {fill({
+          template: t.confusion,
+          values: { from: confusion.from, to: confusion.to, count: confusion.count },
+        })}
+      </p>
+    {/if}
+    <!-- Путь к истории — прямо из момента интереса к ней: раньше подробная
+         статистика доставалась только из выпадающего меню аватара. -->
+    <a class="more" href={resolve('/stats')}>{t.more}</a>
+  </div>
+</section>
 
 <style>
   .stats-display {
     width: 100%;
     max-width: 640px;
-    padding: var(--spacing-6);
     background: var(--session-stats-display-background);
-    border-radius: var(--radius-4);
     border: var(--session-stats-display-border);
+    border-radius: var(--radius-4);
   }
 
-  .title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-4);
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-4);
-  }
-
-  @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-4);
-    background: var(--session-stats-display-item-background);
-    border-radius: var(--radius-3);
-    /* `min-width: 0` отключает grid-default min-content sizing — без него
-     * stat-item не сжимается ниже ширины своего контента и весь grid
-     * расширяется за пределы родителя при длинных значениях. */
-    min-width: 0;
-  }
-
-  .stat-label {
-    font-size: 0.875rem;
+  /* ── Общий словарь ────────────────────────────────────────────────────────
+   * ИДЁТ ПЕРВЫМ, до ярусных правил, и это не стилистика: `.value` и
+   * `.hero-value` — одна специфичность, поэтому решает порядок в файле. Стоя
+   * ниже, базовый `.value` молча перебивал бы размеры ярусов, и вся иерархия
+   * схлопывалась бы в один кегль. Модификаторы — только ПОСЛЕ базы. */
+  .label {
+    font-size: var(--font-size-sm);
     color: var(--session-stats-display-label-color);
   }
 
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
+  .value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
     color: var(--session-stats-display-value-color);
+    /* Числа — данные: цифры обязаны стоять в колонку, как в таблице /stats. */
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
   }
 
-  .stat-unit {
-    font-size: 1rem;
-    font-weight: 500;
+  .unit {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-regular);
     color: var(--session-stats-display-unit-color);
     margin-left: var(--spacing-1);
+    letter-spacing: normal;
+    /* Единица не отрывается от числа: «72 зн/мин» рвалось пополам. */
+    white-space: nowrap;
+  }
+
+  .note {
+    font-size: var(--font-size-sm);
+    color: var(--session-stats-display-note-color);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Ярус 1 ──────────────────────────────────────────────────────────────
+   * Сетка, а не flex-wrap: иначе траектория срывается под число и повисает.
+   * Слева число и дельта, справа траектория, строка вывода — под обоими. */
+  .hero {
+    padding: var(--spacing-6);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3) var(--spacing-6);
+    align-items: end;
+  }
+
+  @media (min-width: 560px) {
+    .hero {
+      grid-template-columns: auto 1fr;
+      grid-template-areas: 'main trend' 'derive derive';
+    }
+    .hero-main { grid-area: main; }
+    .trend { grid-area: trend; justify-self: end; }
+    .derive { grid-area: derive; }
+    /* Пояснение — во всю ширину своей неявной строкой под выводом. */
+    .hero-info { grid-column: 1 / -1; }
+  }
+
+  .hero-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+  }
+
+  .hero-value {
+    font-size: 3rem;
+  }
+
+  /* ── Траектория ── */
+  .trend {
+    min-width: 0;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .trend-svg {
+    display: block;
+    width: 100%;
+    height: 56px;
+    color: var(--session-stats-display-trend-color);
+  }
+
+  .trend-caption {
+    margin-top: var(--spacing-1);
+    text-align: right;
+    font-size: var(--font-size-xs);
+  }
+
+  /* ── Ярусы 2 и 3 ─────────────────────────────────────────────────────────
+   * Ритм занимает две строки слева — вес ему даёт размер и место, не цвет.
+   * Ячейки разделены линиями и своего фона не имеют: вложенные карточки
+   * против «плоско по умолчанию» (DESIGN.md). */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: var(--session-stats-display-divider);
+  }
+
+  .cell {
+    padding: var(--spacing-4) var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+  }
+
+  .cell-rhythm {
+    grid-row: span 2;
+    border-right: var(--session-stats-display-divider);
+    justify-content: center;
+  }
+
+  .cell-pace {
+    border-top: var(--session-stats-display-divider);
+  }
+
+  .rhythm-value {
+    font-size: 2.25rem;
+  }
+
+  @media (max-width: 520px) {
+    .grid { grid-template-columns: 1fr; }
+    .cell-rhythm {
+      grid-row: auto;
+      border-right: 0;
+      border-bottom: var(--session-stats-display-divider);
+    }
+    .cell-pace { border-top: var(--session-stats-display-divider); }
+  }
+
+  .foot {
+    padding: var(--spacing-3) var(--spacing-6);
+    border-top: var(--session-stats-display-divider);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+  }
+
+  /* ── Кнопка (i) и пояснение ── */
+  .info {
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-bold);
+    font-style: italic;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    margin-left: var(--spacing-1);
+    border: var(--session-stats-display-info-border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--session-stats-display-info-color);
+    cursor: pointer;
+    vertical-align: middle;
+    line-height: 1;
+    transition: background-color 0.1s ease, color 0.1s ease;
+  }
+
+  .info:hover {
+    background: var(--session-stats-display-info-hover-background);
+  }
+
+  .info:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .info[aria-expanded='true'] {
+    background: var(--session-stats-display-info-open-background);
+    color: var(--session-stats-display-info-open-color);
+  }
+
+  /* Раскрытие — в потоке, не absolute: обрезаться нечему, и высота честная. */
+  .info-body {
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+    color: var(--session-stats-display-info-body-color);
+    max-width: 46ch;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-left: var(--session-stats-display-info-body-border);
+  }
+
+  .info-body b {
+    color: var(--session-stats-display-value-color);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* ── Ссылка на историю ── */
+  .more {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--session-stats-display-link-color);
+    text-decoration: none;
+    border-bottom: var(--session-stats-display-link-border);
+    padding-bottom: 1px;
+    transition: border-color 0.1s ease;
+  }
+
+  .more:hover {
+    border-bottom: var(--session-stats-display-link-hover-border);
+  }
+
+  .more:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .info,
+    .more {
+      transition: none;
+    }
   }
 </style>

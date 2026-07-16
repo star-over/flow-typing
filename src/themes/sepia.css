@@ -298,12 +298,24 @@
   --select-arrow-background: var(--color-text-secondary);
 
   /* SessionStatsDisplay */
-  --session-stats-display-background     : var(--color-surface);
-  --session-stats-display-border         : 1px solid var(--color-border);
-  --session-stats-display-item-background: var(--color-bg);
-  --session-stats-display-label-color    : var(--color-text-muted);
-  --session-stats-display-value-color    : var(--color-text-primary);
-  --session-stats-display-unit-color     : var(--color-text-secondary);
+  --session-stats-display-background            : var(--color-surface);
+  --session-stats-display-border                : 1px solid var(--color-border);
+  --session-stats-display-divider               : 1px solid var(--color-border);
+  --session-stats-display-label-color           : var(--color-text-secondary);
+  --session-stats-display-value-color           : var(--color-text-primary);
+  --session-stats-display-unit-color            : var(--color-text-secondary);
+  --session-stats-display-note-color            : var(--color-text-secondary);
+  --session-stats-display-trend-color           : var(--color-text-secondary);
+  --session-stats-display-info-border           : 1px solid var(--color-border);
+  --session-stats-display-info-color            : var(--color-text-secondary);
+  --session-stats-display-info-hover-background : var(--color-surface-hover);
+  --session-stats-display-info-open-background  : var(--color-text-primary);
+  --session-stats-display-info-open-color       : var(--color-surface);
+  --session-stats-display-info-body-color       : var(--color-text-secondary);
+  --session-stats-display-info-body-border      : 1px solid var(--color-border);
+  --session-stats-display-link-color            : var(--color-text-primary);
+  --session-stats-display-link-border           : 1px solid var(--color-border);
+  --session-stats-display-link-hover-border     : 1px solid var(--color-text-primary);
 
   /* RepertoireProgress */
   --repertoire-progress-background  : var(--color-surface);
