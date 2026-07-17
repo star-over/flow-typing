@@ -1,6 +1,6 @@
 # FlowTyping: Приложение для тренировки слепой печати
 
-Это клиентский SPA-тренажёр слепой печати, разработанный с использованием **SvelteKit 5 + Svelte 5 (runes)** и **TypeScript**.
+Это клиентский SPA-тренажёр слепой печати на **SvelteKit + Svelte (runes)** и **TypeScript**. Версии — в `package.json`.
 
 ## 1. Философия проекта
 
@@ -12,10 +12,10 @@
 
 ## 2. Технологический стек
 
-*   **Фреймворк:** [SvelteKit 2](https://svelte.dev/docs/kit) (SPA-режим, статическая сборка через `@sveltejs/adapter-static`)
+*   **Фреймворк:** [SvelteKit](https://svelte.dev/docs/kit) (SPA-режим, статическая сборка через `@sveltejs/adapter-static`)
 *   **Язык:** [TypeScript](https://www.typescriptlang.org/) (strict), `svelte-check` для типов
-*   **Библиотека UI:** [Svelte 5 (runes)](https://svelte.dev/)
-*   **Управление состоянием:** [XState v5](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
+*   **Библиотека UI:** [Svelte (runes)](https://svelte.dev/)
+*   **Управление состоянием:** [XState](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
 *   **Стилизация:** CSS без фреймворков. `src/app.css` — primitives (typography/radius/spacing/shadow/motion) и body fallback; цвета и декорации компонентов выносятся в темы (`src/themes/<id>.css`) через **компонентные контракты** (`*.contract.ts` рядом с компонентом). Подробности — `docs/06-component-contracts-and-themes.md`.
 *   **Тестирование:** [Vitest](https://vitest.dev/)
 *   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)

@@ -2,7 +2,7 @@
 
 Backend для синхронизированных данных (auth с Phase 2, settings sync, sessions). Запускается отдельным процессом параллельно с Vite.
 
-- **Mode:** cloud dev deployment (`CONVEX_DEPLOYMENT=dev:wandering-ocelot-9` в `.env.local`, EU-West-1). Production-deployment — отдельный cloud-deployment позже.
+- **Mode:** cloud dev deployment (`CONVEX_DEPLOYMENT` в `.env.local` — конкретный id и регион там). Production-deployment — отдельный cloud-deployment позже.
 - **Конфиг:** schema в `convex/schema.ts`. Функции — `convex/<module>.ts`, queries и mutations.
 - **Клиент:** singleton `src/lib/convex.ts` экспортирует `convex` (ConvexClient) и `api` (типизированный ref). Компоненты импортируют `import { convex, api } from '@/lib/convex'`.
 - **Env vars (.env.local, gitignored):**
@@ -17,7 +17,7 @@ Backend для синхронизированных данных (auth с Phase 
 - Правило **«провайдер = аккаунт»**: явно НЕ делаем link-by-email. Один email через GitHub и Google = два разных юзера. См. `docs/plans/auth.md` (Зафиксированные решения).
 - Issuer whitelist: `convex/auth.config.ts`.
 - HTTP routes: `convex/http.ts` (`auth.addHttpRoutes(http)`).
-- Текущие провайдеры: GitHub, Google, Yandex. Apple/SberID — Roadmap V2.
+- Настроенные провайдеры — в `convex/auth.ts` (`buildProviders`). Apple/SberID — Roadmap V2.
 - **Dev-вход (ADR 0012; механизм — ADR 0024):** стоковый Password-провайдер за единственным признаком не-prod (`convex/auth.ts:buildProviders` требует `!isProduction()`; fail-closed `DEPLOY_ENV`, ADR 0023). На production провайдера нет: без явного `DEPLOY_ENV=development` deployment трактуется как prod. Кнопка на `/signin` — за `import.meta.env.DEV` (нет в prod-сборке; единообразно с `window.__*` dev-helper'ами, `appActor.ts`), тестовый dev-аккаунт зашит в компонент. Ноль env-флагов клиенту, ноль `.env.local`. Пара к нему — `resetMyProfile` («чистый лист» прогонов). Инструмент для ИИ-агентов/E2E (тренировка требует входа — `/train` и `drill*` auth-required), не продуктовый режим.
 
 **Add new OAuth provider:**
@@ -31,7 +31,7 @@ Backend для синхронизированных данных (auth с Phase 
 - `SITE_URL` — куда Convex перенаправляет после auth (Vite origin в dev: `http://localhost:5173`).
 - `JWT_PRIVATE_KEY` + `JWKS` — RS256-ключи для self-issued JWT, генерируются `npx @convex-dev/auth`.
 - `CONVEX_SITE_URL` — issuer URL, **НЕ устанавливать руками** (Convex выставляет автоматически для cloud).
-- `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTH_YANDEX_ID`, `AUTH_YANDEX_SECRET` — credentials OAuth Apps (см. `Add new OAuth provider`).
+- `AUTH_<PROVIDER>_ID` / `AUTH_<PROVIDER>_SECRET` — credentials OAuth Apps, по паре на каждый настроенный провайдер (перечень провайдеров — `convex/auth.ts`; см. `Add new OAuth provider`).
 - `DEPLOY_ENV` — признак окружения деплоя для gating dev-инструментов (ADR 0023). **fail-closed**: `development` на dev-deployment снимает prod-предохранители; не задан (или `production`) на боевом = закрыто. Читается чистым helper'ом `convex/lib/env.ts` (`isProduction()`/`assertNonProd()`) — единый гейт `resetMyProfile`/`setMyOpenedSteps` **и** Password-провайдера dev-входа (ADR 0024 снял отдельный `AUTH_DEV_LOGIN_ENABLED`). **На dev-deployment обязателен** (`npx convex env set DEPLOY_ENV development`), иначе dev-двери на нём выключены.
 
 **Viewer query:** `api.users.viewer` возвращает текущего юзера (документ из `users`) или `null`.

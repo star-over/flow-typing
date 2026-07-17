@@ -1,6 +1,6 @@
 # src/layouts — данные раскладок (JSON)
 
-Здесь только **данные**: `physical-layout-ansi.json`, `symbol-layout-{qwerty,jcuken}.json`, `finger-layout-{asdf,sdfv}.json` + `layouts.test.ts`. Единый язык типов — `src/interfaces/CLAUDE.md`.
+Здесь только **данные** — JSON-раскладки трёх слоёв (physical / symbol / finger, файлы в этом каталоге) + `layouts.test.ts`. Единый язык типов — `src/interfaces/CLAUDE.md`.
 
 - **Только данные, доступ — через геттеры.** Код приложения **не импортирует JSON напрямую** — только через `src/lib/layouts.ts` (`getPhysicalLayout` / `getSymbolLayout` / `getFingerLayout` / `getSymbolLayoutDescriptor` и производные). JSON импортируют лишь тесты. Имя файла = id; поля `id` внутри записей нет.
 - **Инварианты** (проверяются zod-схемами в `layouts.ts`, бросают при нарушении): физический/пальцевый — уникальность `keyCapId`; символьный — уникальность `symbol`; символьная запись = `{ symbol, keyCaps }` — клиентская схема **отбрасывает** `ladderStep` (серверная/инструментальная забота, ADR 0020).
