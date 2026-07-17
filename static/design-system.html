@@ -88,11 +88,11 @@
     .keycap { --keycap-unit: 2.25rem; display: flex; align-items: center; justify-content: center; position: relative; box-sizing: border-box; border-radius: var(--radius-2); height: 2rem; width: calc(var(--keycap-unit) * var(--unit-multiplier, 1)); padding: 0 var(--spacing-2); background-color: transparent; border: 1px solid transparent; color: var(--color-keycap-label); font-weight: 200; font-size: 0.8125rem; user-select: none; }
     .keycap.color-SECONDARY { background-color: var(--color-keycap-secondary-bg); color: var(--color-keycap-secondary-fg); border-color: var(--color-keycap-secondary-border); }
     .keycap.color-ACCENT { background-color: var(--color-keycap-accent-bg); color: var(--color-keycap-accent-fg); border-color: var(--color-keycap-accent-border); }
-    .keycap[data-finger-id="L1"], .keycap[data-finger-id="R1"] { background-color: var(--color-keycap-group-neutral-bg); border-color: var(--color-keycap-group-neutral-border); }
-    .keycap[data-finger-id="L2"], .keycap[data-finger-id="R2"] { background-color: var(--color-keycap-group-yellow-bg); border-color: var(--color-keycap-group-yellow-border); }
-    .keycap[data-finger-id="L3"], .keycap[data-finger-id="R3"] { background-color: var(--color-keycap-group-sky-bg); border-color: var(--color-keycap-group-sky-border); }
-    .keycap[data-finger-id="L4"], .keycap[data-finger-id="R4"] { background-color: var(--color-keycap-group-indigo-bg); border-color: var(--color-keycap-group-indigo-border); }
-    .keycap[data-finger-id="L5"], .keycap[data-finger-id="R5"] { background-color: var(--color-keycap-group-purple-bg); border-color: var(--color-keycap-group-purple-border); }
+    .keycap[data-finger-id="L1"], .keycap[data-finger-id="R1"] { background-color: var(--color-keycap-group-1-bg); border-color: var(--color-keycap-group-1-border); }
+    .keycap[data-finger-id="L2"], .keycap[data-finger-id="R2"] { background-color: var(--color-keycap-group-2-bg); border-color: var(--color-keycap-group-2-border); }
+    .keycap[data-finger-id="L3"], .keycap[data-finger-id="R3"] { background-color: var(--color-keycap-group-3-bg); border-color: var(--color-keycap-group-3-border); }
+    .keycap[data-finger-id="L4"], .keycap[data-finger-id="R4"] { background-color: var(--color-keycap-group-4-bg); border-color: var(--color-keycap-group-4-border); }
+    .keycap[data-finger-id="L5"], .keycap[data-finger-id="R5"] { background-color: var(--color-keycap-group-5-bg); border-color: var(--color-keycap-group-5-border); }
     .keycap.home { box-shadow: 0 0 0 0.125rem var(--color-keycap-label); }
     .keycap.role-path { box-shadow: 0 0 0 0.25rem var(--color-keycap-label); font-weight: 700; }
     .keycap.role-target { background-color: var(--color-keycap-role-target-bg); color: var(--color-keycap-role-target-fg); box-shadow: 0 0 0 0.25rem var(--color-keycap-role-target-bg); font-weight: 900; }
@@ -277,13 +277,13 @@
       <div class="swatch"><div class="chip" style="background: var(--color-keycap-marker)"></div><div class="name">keycap-marker</div><code>--color-keycap-marker</code></div>
     </div>
 
-    <h3>KeyCap color groups · per-finger column</h3>
+    <h3>KeyCap groups · per-finger column</h3>
     <div class="grid">
-      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-neutral-bg); border-color: var(--color-keycap-group-neutral-border)"></div><div class="name">neutral · L1/R1 thumb</div></div>
-      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-yellow-bg); border-color: var(--color-keycap-group-yellow-border)"></div><div class="name">yellow · L2/R2 index</div></div>
-      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-sky-bg); border-color: var(--color-keycap-group-sky-border)"></div><div class="name">sky · L3/R3 middle</div></div>
-      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-indigo-bg); border-color: var(--color-keycap-group-indigo-border)"></div><div class="name">indigo · L4/R4 ring</div></div>
-      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-purple-bg); border-color: var(--color-keycap-group-purple-border)"></div><div class="name">purple · L5/R5 pinky</div></div>
+      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-1-bg); border-color: var(--color-keycap-group-1-border)"></div><div class="name">group 1 · L1/R1 thumb</div></div>
+      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-2-bg); border-color: var(--color-keycap-group-2-border)"></div><div class="name">group 2 · L2/R2 index</div></div>
+      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-3-bg); border-color: var(--color-keycap-group-3-border)"></div><div class="name">group 3 · L3/R3 middle</div></div>
+      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-4-bg); border-color: var(--color-keycap-group-4-border)"></div><div class="name">group 4 · L4/R4 ring</div></div>
+      <div class="swatch"><div class="chip" style="background: var(--color-keycap-group-5-bg); border-color: var(--color-keycap-group-5-border)"></div><div class="name">group 5 · L5/R5 pinky</div></div>
     </div>
 
     <h3>KeyCap overrides · secondary, accent, role-target, correct, error</h3>

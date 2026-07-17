@@ -73,22 +73,20 @@
   --color-keycap-label : var(--color-text-primary);
   --color-keycap-marker: var(--color-text-primary);
 
-  /* --- Domain · KeyCap color groups (гербарий, ADR 0026) --- */
+  /* --- Domain · KeyCap groups (гербарий, ADR 0026) --- */
   /* Тон клавиши = бледное эхо цвета пальца («плотнее»): выводим из --color-finger-N,
      фиксируя светлоту/хрому, берём только оттенок — клавиша под пальцем совпадает.
-     Имена-слоты (yellow/sky/indigo/purple/neutral) старые; в sepia несут гербарий:
-     neutral=терракота, yellow=петроль, sky=шалфей, indigo=фиалка, purple=роза.
-     Переименование слотов — при переносе модели на все темы. */
-  --color-keycap-group-neutral-bg    : oklch(from var(--color-finger-1) 0.89 0.06 h / 0.78);
-  --color-keycap-group-neutral-border: oklch(from var(--color-finger-1) 0.78 0.12 h);
-  --color-keycap-group-yellow-bg     : oklch(from var(--color-finger-2) 0.89 0.06 h / 0.78);
-  --color-keycap-group-yellow-border : oklch(from var(--color-finger-2) 0.78 0.12 h);
-  --color-keycap-group-sky-bg        : oklch(from var(--color-finger-3) 0.89 0.06 h / 0.78);
-  --color-keycap-group-sky-border    : oklch(from var(--color-finger-3) 0.78 0.12 h);
-  --color-keycap-group-indigo-bg     : oklch(from var(--color-finger-4) 0.89 0.06 h / 0.78);
-  --color-keycap-group-indigo-border : oklch(from var(--color-finger-4) 0.78 0.12 h);
-  --color-keycap-group-purple-bg     : oklch(from var(--color-finger-5) 0.89 0.06 h / 0.78);
-  --color-keycap-group-purple-border : oklch(from var(--color-finger-5) 0.78 0.12 h);
+     Номер группы = номер пальца (1 = большой … 5 = мизинец), L/R зеркальны. */
+  --color-keycap-group-1-bg    : oklch(from var(--color-finger-1) 0.89 0.06 h / 0.78);
+  --color-keycap-group-1-border: oklch(from var(--color-finger-1) 0.78 0.12 h);
+  --color-keycap-group-2-bg    : oklch(from var(--color-finger-2) 0.89 0.06 h / 0.78);
+  --color-keycap-group-2-border: oklch(from var(--color-finger-2) 0.78 0.12 h);
+  --color-keycap-group-3-bg    : oklch(from var(--color-finger-3) 0.89 0.06 h / 0.78);
+  --color-keycap-group-3-border: oklch(from var(--color-finger-3) 0.78 0.12 h);
+  --color-keycap-group-4-bg    : oklch(from var(--color-finger-4) 0.89 0.06 h / 0.78);
+  --color-keycap-group-4-border: oklch(from var(--color-finger-4) 0.78 0.12 h);
+  --color-keycap-group-5-bg    : oklch(from var(--color-finger-5) 0.89 0.06 h / 0.78);
+  --color-keycap-group-5-border: oklch(from var(--color-finger-5) 0.78 0.12 h);
 
   /* --- Domain · KeyCap secondary --- */
   --color-keycap-secondary-bg    : oklch(0.92 0.03 80);
@@ -123,35 +121,35 @@
   --keycap-path-ring        : 0 0 0 0.15rem var(--color-keycap-role-target-bg);
 
   /* KeyCap — per-position fill/border/color */
-  --keycap-l1-background: var(--color-keycap-group-neutral-bg);
-  --keycap-l1-border    : 1px solid var(--color-keycap-group-neutral-border);
+  --keycap-l1-background: var(--color-keycap-group-1-bg);
+  --keycap-l1-border    : 1px solid var(--color-keycap-group-1-border);
   --keycap-l1-color     : var(--color-keycap-label);
-  --keycap-r1-background: var(--color-keycap-group-neutral-bg);
-  --keycap-r1-border    : 1px solid var(--color-keycap-group-neutral-border);
+  --keycap-r1-background: var(--color-keycap-group-1-bg);
+  --keycap-r1-border    : 1px solid var(--color-keycap-group-1-border);
   --keycap-r1-color     : var(--color-keycap-label);
-  --keycap-l2-background: var(--color-keycap-group-yellow-bg);
-  --keycap-l2-border    : 1px solid var(--color-keycap-group-yellow-border);
+  --keycap-l2-background: var(--color-keycap-group-2-bg);
+  --keycap-l2-border    : 1px solid var(--color-keycap-group-2-border);
   --keycap-l2-color     : var(--color-keycap-label);
-  --keycap-r2-background: var(--color-keycap-group-yellow-bg);
-  --keycap-r2-border    : 1px solid var(--color-keycap-group-yellow-border);
+  --keycap-r2-background: var(--color-keycap-group-2-bg);
+  --keycap-r2-border    : 1px solid var(--color-keycap-group-2-border);
   --keycap-r2-color     : var(--color-keycap-label);
-  --keycap-l3-background: var(--color-keycap-group-sky-bg);
-  --keycap-l3-border    : 1px solid var(--color-keycap-group-sky-border);
+  --keycap-l3-background: var(--color-keycap-group-3-bg);
+  --keycap-l3-border    : 1px solid var(--color-keycap-group-3-border);
   --keycap-l3-color     : var(--color-keycap-label);
-  --keycap-r3-background: var(--color-keycap-group-sky-bg);
-  --keycap-r3-border    : 1px solid var(--color-keycap-group-sky-border);
+  --keycap-r3-background: var(--color-keycap-group-3-bg);
+  --keycap-r3-border    : 1px solid var(--color-keycap-group-3-border);
   --keycap-r3-color     : var(--color-keycap-label);
-  --keycap-l4-background: var(--color-keycap-group-indigo-bg);
-  --keycap-l4-border    : 1px solid var(--color-keycap-group-indigo-border);
+  --keycap-l4-background: var(--color-keycap-group-4-bg);
+  --keycap-l4-border    : 1px solid var(--color-keycap-group-4-border);
   --keycap-l4-color     : var(--color-keycap-label);
-  --keycap-r4-background: var(--color-keycap-group-indigo-bg);
-  --keycap-r4-border    : 1px solid var(--color-keycap-group-indigo-border);
+  --keycap-r4-background: var(--color-keycap-group-4-bg);
+  --keycap-r4-border    : 1px solid var(--color-keycap-group-4-border);
   --keycap-r4-color     : var(--color-keycap-label);
-  --keycap-l5-background: var(--color-keycap-group-purple-bg);
-  --keycap-l5-border    : 1px solid var(--color-keycap-group-purple-border);
+  --keycap-l5-background: var(--color-keycap-group-5-bg);
+  --keycap-l5-border    : 1px solid var(--color-keycap-group-5-border);
   --keycap-l5-color     : var(--color-keycap-label);
-  --keycap-r5-background: var(--color-keycap-group-purple-bg);
-  --keycap-r5-border    : 1px solid var(--color-keycap-group-purple-border);
+  --keycap-r5-background: var(--color-keycap-group-5-bg);
+  --keycap-r5-border    : 1px solid var(--color-keycap-group-5-border);
   --keycap-r5-color     : var(--color-keycap-label);
 
   /* KeyCap — per-position target */

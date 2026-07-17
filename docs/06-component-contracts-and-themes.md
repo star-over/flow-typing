@@ -71,8 +71,8 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 
   /* Контракт — ссылки на палитру */
   --body-background          : var(--color-bg);
-  --keycap-l2-background     : var(--color-keycap-group-yellow-bg);
-  --keycap-l2-border         : 1px solid var(--color-keycap-group-yellow-border);
+  --keycap-l2-background     : var(--color-keycap-group-2-bg);
+  --keycap-l2-border         : 1px solid var(--color-keycap-group-2-border);
   --footer-actions-btn-success-background: var(--color-success);
   /* … */
 }
