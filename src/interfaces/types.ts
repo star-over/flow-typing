@@ -33,19 +33,6 @@ export const KEY_CAP_NAVIGATION_ROLES = [
 export type KeyCapNavigationRole = typeof KEY_CAP_NAVIGATION_ROLES[number];
 
 
-/**
- * Направление стрелки-подсказки для клавиши относительно текущей цели набора.
- * Используется для визуальных стрелок направления движения пальца к клавише.
- */
-export const KEY_CAP_NAVIGATION_ARROWS = [
-  "NONE",   // Стрелка не отображается.
-  "UP",     // Отображается стрелка c верху.
-  "RIGHT",  // Отображается стрелка с права.
-  "DOWN",   // Отображается стрелка с низу.
-  "LEFT",   // Отображается стрелка с лева.
-] as const;
-export type KeyCapNavigationArrow = typeof KEY_CAP_NAVIGATION_ARROWS[number];
-
 /** Результат нажатия клавиши пользователем. */
 export const KEY_CAP_PRESS_RESULTS = [
   "NONE", // Нейтральное состояние, нажатие еще не оценено.
@@ -259,8 +246,6 @@ export interface KeyboardSceneKey {
   pressResult?: KeyCapPressResult;
   /** Навигационная роль клавиши относительно текущей цели набора. */
   navigationRole?: KeyCapNavigationRole;
-  /** Стрелка направления движения пальца к клавише. */
-  navigationArrow?: KeyCapNavigationArrow;
 }
 /**
  * Виртуальный макет клавиатуры.
@@ -283,7 +268,6 @@ export type Dictionary = typeof en;
 export interface KeySceneState {
   visibility: Visibility;
   navigationRole: KeyCapNavigationRole;
-  navigationArrow: KeyCapNavigationArrow;
   pressResult: KeyCapPressResult;
 }
 

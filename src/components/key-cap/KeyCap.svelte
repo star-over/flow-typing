@@ -1,12 +1,10 @@
 <script lang="ts">
   import type {
     KeyCapHomeKeyMarker,
-    KeyCapNavigationArrow,
     KeyCapNavigationRole,
     KeyCapSymbolSize,
     KeyCapUnitWidth,
   } from '@/interfaces/types';
-  import NavArrow from './NavArrow.svelte';
 
   interface Props {
     symbol: string;
@@ -19,7 +17,6 @@
     symbolSize?: KeyCapSymbolSize;
     homeKeyMarker?: KeyCapHomeKeyMarker;
     navigationRole?: KeyCapNavigationRole;
-    navigationArrow?: KeyCapNavigationArrow;
   }
 
   const {
@@ -33,7 +30,6 @@
     symbolSize = 'MD',
     homeKeyMarker = 'NONE',
     navigationRole = 'NONE',
-    navigationArrow = 'NONE',
   }: Props = $props();
 
   const unitMultiplier = $derived(parseFloat(unitWidth));
@@ -54,8 +50,6 @@
   <span class="keycap-label">{symbol}</span>
 
   <div class="keycap-marker"></div>
-
-  <NavArrow direction={navigationArrow} />
 
   <!-- Center point anchor used by HandsScene positioning logic -->
   <div class="keycap-center-point"></div>

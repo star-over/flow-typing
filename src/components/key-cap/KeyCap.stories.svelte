@@ -3,7 +3,6 @@
   import KeyCap from "./KeyCap.svelte";
   import {
     KEY_CAP_HOME_KEY_MARKERS,
-    KEY_CAP_NAVIGATION_ARROWS,
     KEY_CAP_NAVIGATION_ROLES,
     KEY_CAP_PRESS_RESULTS,
     KEY_CAP_SYMBOL_SIZES,
@@ -35,7 +34,6 @@
         control: "inline-radio",
       },
       navigationRole: { options: KEY_CAP_NAVIGATION_ROLES, control: "inline-radio" },
-      navigationArrow: { options: KEY_CAP_NAVIGATION_ARROWS, control: "inline-radio" },
       homeKeyMarker: { options: KEY_CAP_HOME_KEY_MARKERS, control: "inline-radio" },
       unitWidth: { options: KEY_CAP_UNIT_WIDTHS, control: "inline-radio" },
       symbolSize: { options: KEY_CAP_SYMBOL_SIZES, control: "inline-radio" },

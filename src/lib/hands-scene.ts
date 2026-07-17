@@ -70,7 +70,6 @@ import {
   getHomeKeyForFinger,
   isLeftHandFinger,
 } from "./finger";
-import type { KeyCoordinateMap } from "./layout-utils";
 import { type AdjacencyList, findOptimalPath } from "./pathfinding";
 import { areKeyCapIdArraysEqual, keyCapHasSymbol } from "./key-cap";
 
@@ -291,7 +290,6 @@ function buildVisibleClusters({
           visibility: "VISIBLE",
           navigationRole: "NONE",
           pressResult: "NONE",
-          navigationArrow: "NONE",
         };
       });
 
@@ -324,46 +322,17 @@ function _applyNavigationRoles({
   });
 }
 
-function _applyNavigationArrows({
-  fingerData,
-  path,
-  keyCoordinateMap,
-}: {
-  fingerData: FingerSceneDraft;
-  path: KeyCapId[];
-  keyCoordinateMap: KeyCoordinateMap;
-}) {
-  const { keyCapStates } = fingerData;
-  if (!keyCapStates) return;
-  path.forEach((keyCapId, index) => {
-    const nextKeyInPath = path[index + 1];
-    if (nextKeyInPath) {
-      const keyState = keyCapStates[keyCapId];
-      const currentCoords = keyCoordinateMap.get(keyCapId);
-      const nextCoords = keyCoordinateMap.get(nextKeyInPath);
-      if (keyState && currentCoords && nextCoords) {
-        if (nextCoords.r < currentCoords.r) keyState.navigationArrow = "UP";
-        else if (nextCoords.r > currentCoords.r) keyState.navigationArrow = "DOWN";
-        else if (nextCoords.c < currentCoords.c) keyState.navigationArrow = "LEFT";
-        else if (nextCoords.c > currentCoords.c) keyState.navigationArrow = "RIGHT";
-      }
-    }
-  });
-}
-
 // STAGE 4: Apply navigation paths and roles to visible clusters
 function applyNavigationPaths({
   viewModel,
   typingContext,
   fingerLayout,
   keyboardGraph,
-  keyCoordinateMap,
 }: {
   viewModel: HandsSceneViewModelDraft;
   typingContext: TypingContext;
   fingerLayout: FingerLayout;
   keyboardGraph: AdjacencyList;
-  keyCoordinateMap: KeyCoordinateMap;
 }): HandsSceneViewModelDraft {
   const newViewModel = { ...viewModel };
   const { targetKeyCaps } = typingContext;
@@ -390,12 +359,11 @@ function applyNavigationPaths({
     }
 
     // Храним уже посчитанный путь на TARGET-пальце: UI рисует MovementPath по готовому
-    // массиву и не пересобирает граф (docs/03 §3.3 п. 6). Разбросанные роли/стрелки
-    // (п. 4) остаются как есть.
+    // массиву и не пересобирает граф (docs/03 §3.3 п. 6). Разбросанные пер-клавишные
+    // роли (п. 4) остаются как есть.
     fingerData.navigationPath = path;
 
     _applyNavigationRoles({ fingerData, path, targetKey });
-    _applyNavigationArrows({ fingerData, path, keyCoordinateMap });
   }
   return newViewModel;
 }
@@ -477,13 +445,11 @@ export function createHandsSceneViewModel({
   fingerLayout,
   symbolLayout,
   keyboardGraph,
-  keyCoordinateMap,
 }: {
   currentStreamSymbol: StreamSymbol | undefined;
   fingerLayout: FingerLayout;
   symbolLayout: SymbolLayout;
   keyboardGraph: AdjacencyList;
-  keyCoordinateMap: KeyCoordinateMap;
 }): HandsSceneViewModel {
   // If training is not active or there's no symbol, return a completely idle view.
   if (!currentStreamSymbol) {
@@ -515,7 +481,6 @@ export function createHandsSceneViewModel({
     typingContext,
     fingerLayout,
     keyboardGraph,
-    keyCoordinateMap,
   });
 
   // Stage 4: Apply feedback - incorrect fingers

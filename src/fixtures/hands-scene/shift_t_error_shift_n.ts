@@ -14,14 +14,14 @@ export const shift_t_error_shift_n: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyF", "KeyR", "KeyT"],
       keyCapStates: {
-        Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyR: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "RIGHT" },
-        KeyT: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyF: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "UP" },
-        KeyG: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyV: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
+        Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyR: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        KeyT: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" },
+        KeyF: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        KeyG: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyV: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" }
       }
     },
     L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" }, L5: { navigationRole: "ERROR" }, LB: { navigationRole: "INACTIVE" },
@@ -30,17 +30,17 @@ export const shift_t_error_shift_n: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["Semicolon", "Slash", "ShiftRight"],
       keyCapStates: {
-        Digit0: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Minus: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Equal: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyP: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        BracketLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        BracketRight: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Backslash: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Semicolon: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "DOWN" },
-        Quote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Slash: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "RIGHT" },
-        ShiftRight: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" }
+        Digit0: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Minus: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Equal: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyP: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        BracketLeft: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        BracketRight: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Backslash: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Semicolon: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        Quote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Slash: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        ShiftRight: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" }
       }
     },
     RB: { navigationRole: "INACTIVE" }

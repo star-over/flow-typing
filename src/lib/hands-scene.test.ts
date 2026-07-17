@@ -4,7 +4,6 @@ import {
   fingerLayout,
   handsSceneFixtures,
   keyboardGraph,
-  keyCoordinateMap,
   simple_k,
   symbolLayout,
 } from '@/fixtures/hands-scene';
@@ -19,7 +18,6 @@ describe('createHandsSceneViewModel', () => {
       fingerLayout,
       symbolLayout,
       keyboardGraph,
-      keyCoordinateMap,
     });
     expect(viewModel).toEqual(fixture.expectedOutput);
   });
@@ -34,7 +32,6 @@ describe('createHandsSceneViewModel', () => {
       fingerLayout,
       symbolLayout,
       keyboardGraph,
-      keyCoordinateMap,
     });
     const r3 = viewModel.R3;
     expect(r3.navigationRole).toBe('TARGET');
@@ -53,7 +50,6 @@ describe('buildVisibleClusters — фильтр не-символьных кла
       fingerLayout,
       symbolLayout,
       keyboardGraph,
-      keyCoordinateMap,
     });
     const l5 = viewModel.L5;
     if (l5.navigationRole !== 'TARGET') throw new Error('expected L5 to be TARGET');
@@ -75,7 +71,6 @@ describe('buildVisibleClusters — фильтр не-символьных кла
       fingerLayout,
       symbolLayout,
       keyboardGraph,
-      keyCoordinateMap,
     });
     const r5 = viewModel.R5;
     if (r5.navigationRole !== 'TARGET') throw new Error('expected R5 to be TARGET');

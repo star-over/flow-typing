@@ -102,11 +102,6 @@
   --color-keycap-error-fg      : unset;
   --color-keycap-error-border  : unset;
 
-  /* --- Domain · Navigation arrow marker --- */
-  --color-arrow-fill    : unset;
-  --color-arrow-stroke  : unset;
-  --color-arrow-gradient: unset;
-
   /* ============================================================
    * COMPONENT CONTRACT TOKENS — см. light.css для описания.
    * Эти токены образуют контракт каждой темы (см. src/themes/contract.ts
@@ -192,11 +187,6 @@
   --regular-symbol-corrected-color: unset;
   --regular-symbol-error-color    : unset;
   --regular-symbol-errors-color   : unset;
-
-  /* NavArrow */
-  --nav-arrow-fill          : unset;
-  --nav-arrow-outline       : unset;
-  --nav-arrow-gradient-start: unset;
 
   /* FooterActions */
   --footer-actions-btn-background        : unset;

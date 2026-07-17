@@ -12,10 +12,10 @@ export const simple_e_error_simple_d: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyD", "KeyE"],
       keyCapStates: {
-        Digit3: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyE: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyD: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "ERROR", navigationArrow: "UP" },
-        KeyC: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" }
+        Digit3: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyE: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" },
+        KeyD: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "ERROR" },
+        KeyC: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" }
       }
     },
     L4: { navigationRole: "INACTIVE" }, L5: { navigationRole: "INACTIVE" }, LB: { navigationRole: "INACTIVE" },

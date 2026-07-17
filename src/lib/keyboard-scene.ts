@@ -131,7 +131,6 @@ export const createKeyboardSceneForFinger = ({
         home: keyCapId === homeKeyForFinger,
         visibility,
         navigationRole: keyCapState?.navigationRole || "NONE",
-        navigationArrow: keyCapState?.navigationArrow || "NONE",
         pressResult: keyCapState?.pressResult || "NONE",
       };
     })

@@ -6,7 +6,6 @@
   import { selectTrainingActor } from '@/machines/selectors';
   import { inState } from '@/lib/state-utils';
   import { createKeyboardGraph } from '@/lib/pathfinding';
-  import { createKeyCoordinateMap } from '@/lib/layout-utils';
   import { createHandsSceneViewModel } from '@/lib/hands-scene';
   import { enrichStreamSymbols, getPressResult } from '@/lib/typing-stream';
   import { getSymbolLayout } from '@/lib/layouts';
@@ -70,18 +69,17 @@
   const currentSymbolLayoutId = $derived(trainingSnap?.context.currentSymbolLayoutId ?? 'qwerty');
 
   const keyboardGraph = $derived(createKeyboardGraph(physicalLayout));
-  const keyCoordinateMap = $derived(createKeyCoordinateMap(physicalLayout));
   const symbolLayout = $derived(getSymbolLayout(currentSymbolLayoutId));
   const currentSymbol = $derived(stream[currentIndex]);
   const handsScene = $derived(
-    createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, symbolLayout, keyboardGraph, keyCoordinateMap })
+    createHandsSceneViewModel({ currentStreamSymbol: currentSymbol, fingerLayout, symbolLayout, keyboardGraph })
   );
   // Только что завершённый символ (предыдущий): его ViewModel несёт CORRECT на цели
   // (последняя попытка верна) → HandsScene рисует «призрак» уходящего кластера зелёным.
   const previousSymbol = $derived(currentIndex > 0 ? stream[currentIndex - 1] : undefined);
   const outgoingHandsScene = $derived(
     previousSymbol
-      ? createHandsSceneViewModel({ currentStreamSymbol: previousSymbol, fingerLayout, symbolLayout, keyboardGraph, keyCoordinateMap })
+      ? createHandsSceneViewModel({ currentStreamSymbol: previousSymbol, fingerLayout, symbolLayout, keyboardGraph })
       : undefined
   );
   const pressResult = $derived(getPressResult(currentSymbol));

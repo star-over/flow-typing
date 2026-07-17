@@ -12,14 +12,14 @@ export const simple_t: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyF", "KeyR", "KeyT"],
       keyCapStates: {
-        Digit4: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
-        Digit5: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
-        KeyR: { visibility: "VISIBLE", navigationRole: "PATH", navigationArrow: "RIGHT", pressResult: "NONE" },
-        KeyT: { visibility: "VISIBLE", navigationRole: "TARGET", navigationArrow: "NONE", pressResult: "NONE" },
-        KeyF: { visibility: "VISIBLE", navigationRole: "PATH", navigationArrow: "UP", pressResult: "NONE" },
-        KeyG: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
-        KeyV: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" },
-        KeyB: { visibility: "VISIBLE", navigationRole: "NONE", navigationArrow: "NONE", pressResult: "NONE" }
+        Digit4: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Digit5: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyR: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        KeyT: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" },
+        KeyF: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        KeyG: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyV: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyB: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" }
       },
     },
     L3: { navigationRole: "INACTIVE" }, L4: { navigationRole: "INACTIVE" }, L5: { navigationRole: "INACTIVE" }, LB: { navigationRole: "INACTIVE" },

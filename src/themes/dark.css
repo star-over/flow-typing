@@ -15,7 +15,6 @@
  *   - keycap label/marker: invert L
  *   - keycap groups: bg = oklch(0.22 chroma hue / 0.7), border = oklch(0.40 chroma hue)
  *   - keycap secondary/accent/role-target/correct/error: hue сохранить, L пересчитан
- *   - arrow: hue сохранить, L поднять
  */
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -106,11 +105,6 @@
   --color-keycap-error-bg      : oklch(0.65 0.20 30 / 0.8);
   --color-keycap-error-fg      : oklch(0.97 0.0 20);
   --color-keycap-error-border  : oklch(0.72 0.17 20);
-
-  /* --- Domain · Navigation arrow marker --- */
-  --color-arrow-fill    : oklch(0.75 0.16 150);
-  --color-arrow-stroke  : oklch(0.70 0.14 150);
-  --color-arrow-gradient: oklch(0.90 0.29 140);
 
   /* ============================================================
    * COMPONENT CONTRACT TOKENS — см. light.css для описания.
@@ -248,11 +242,6 @@
   --regular-symbol-corrected-color: var(--color-symbol-corrected);
   --regular-symbol-error-color    : var(--color-symbol-error);
   --regular-symbol-errors-color   : var(--color-symbol-errors);
-
-  /* NavArrow */
-  --nav-arrow-fill          : var(--color-arrow-fill);
-  --nav-arrow-outline       : var(--color-arrow-stroke);
-  --nav-arrow-gradient-start: var(--color-arrow-gradient);
 
   /* FooterActions */
   --footer-actions-btn-background        : var(--color-surface);

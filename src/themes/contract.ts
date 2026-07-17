@@ -6,7 +6,6 @@ import { FLOW_LINE_CONTRACT } from '@/components/flow-line/FlowLine.contract';
 import { RHYTHM_CHANNEL_CONTRACT } from '@/components/rhythm-channel/RhythmChannel.contract';
 import { CURSOR_SYMBOL_CONTRACT } from '@/components/flow-line/CursorSymbol.contract';
 import { REGULAR_SYMBOL_CONTRACT } from '@/components/flow-line/RegularSymbol.contract';
-import { NAV_ARROW_CONTRACT } from '@/components/key-cap/NavArrow.contract';
 import { SELECT_CONTRACT } from '@/components/ui/Select.contract';
 import { AVATAR_CONTRACT } from '@/components/ui/Avatar.contract';
 import { SESSION_STATS_DISPLAY_CONTRACT } from '@/components/train/SessionStatsDisplay.contract';
@@ -45,7 +44,6 @@ export const THEME_CONTRACT = [
   ...RHYTHM_CHANNEL_CONTRACT,
   ...CURSOR_SYMBOL_CONTRACT,
   ...REGULAR_SYMBOL_CONTRACT,
-  ...NAV_ARROW_CONTRACT,
   ...FOOTER_ACTIONS_CONTRACT,
   ...HEADER_CONTRACT,
   ...MAIN_CONTENT_CONTRACT,

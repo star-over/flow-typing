@@ -192,7 +192,7 @@
                   duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
                 }}
               >
-                <KeyboardScene {keyboardScene} {keyLabels} hideNavArrows />
+                <KeyboardScene {keyboardScene} {keyLabels} />
                 {#if movementPath.length >= 1}
                   <MovementPath path={movementPath} {fingerId} />
                 {/if}
@@ -222,7 +222,7 @@
                 {@const ghostScene = createKeyboardSceneForFinger({ fingerId, handsScene: outgoingHandsScene, fingerLayout, physicalLayout })}
                 <div class="cluster-container" style:transform={`translate(${gt.dx}px, ${gt.dy}px)`}>
                   <div class="cluster-inner">
-                    <KeyboardScene keyboardScene={ghostScene} {keyLabels} hideNavArrows />
+                    <KeyboardScene keyboardScene={ghostScene} {keyLabels} />
                   </div>
                 </div>
               {/if}

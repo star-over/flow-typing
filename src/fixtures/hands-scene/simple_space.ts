@@ -9,7 +9,7 @@ export const simple_space: HandsSceneFixture = {
     R1: {
       navigationRole: "TARGET",
       navigationPath: ["Space"],
-      keyCapStates: { Space: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE", navigationArrow: "NONE" } }
+      keyCapStates: { Space: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" } }
     },
     R2: { navigationRole: "INACTIVE" }, R3: { navigationRole: "INACTIVE" }, R4: { navigationRole: "INACTIVE" }, R5: { navigationRole: "INACTIVE" }, RB: { navigationRole: "INACTIVE" }
   },

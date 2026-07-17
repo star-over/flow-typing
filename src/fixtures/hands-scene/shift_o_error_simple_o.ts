@@ -12,12 +12,12 @@ export const shift_o_error_simple_o: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyA", "KeyZ", "ShiftLeft"],
       keyCapStates: {
-        Backquote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        Digit1: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyQ: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyA: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "DOWN" },
-        KeyZ: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "LEFT" },
-        ShiftLeft: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "ERROR", navigationArrow: "NONE" }
+        Backquote: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        Digit1: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyQ: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyA: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        KeyZ: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        ShiftLeft: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "ERROR" }
       }
     },
     LB: { navigationRole: "INACTIVE" },
@@ -26,10 +26,10 @@ export const shift_o_error_simple_o: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyL", "KeyO"],
       keyCapStates: {
-        Digit9: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
-        KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "CORRECT", navigationArrow: "NONE" },
-        KeyL: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE", navigationArrow: "UP" },
-        Period: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE", navigationArrow: "NONE" },
+        Digit9: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyO: { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "CORRECT" },
+        KeyL: { visibility: "VISIBLE", navigationRole: "PATH", pressResult: "NONE" },
+        Period: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
       }
     },
     R5: { navigationRole: "INACTIVE" }, RB: { navigationRole: "INACTIVE" }

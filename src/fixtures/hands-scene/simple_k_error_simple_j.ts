@@ -19,10 +19,10 @@ export const simple_k_error_simple_j: HandsSceneFixture = {
       navigationRole: "TARGET",
       navigationPath: ["KeyK"],
       keyCapStates: {
-        Digit8: { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },
-        KeyI:   { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" },
-        KeyK:   { visibility: "VISIBLE", navigationRole: "TARGET",    navigationArrow: "NONE", pressResult: "NONE" },
-        Comma:  { visibility: "VISIBLE", navigationRole: "NONE",      navigationArrow: "NONE", pressResult: "NONE" }
+        Digit8: { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyI:   { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" },
+        KeyK:   { visibility: "VISIBLE", navigationRole: "TARGET", pressResult: "NONE" },
+        Comma:  { visibility: "VISIBLE", navigationRole: "NONE", pressResult: "NONE" }
       }
     },
     R4: { navigationRole: "INACTIVE" }, R5: { navigationRole: "INACTIVE" }, RB: { navigationRole: "INACTIVE" },
