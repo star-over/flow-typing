@@ -129,6 +129,10 @@
   --color-target-4: oklch(from var(--route-4) 0.50 calc(c * 0.9) h);
   --color-target-5: oklch(from var(--route-5) 0.50 calc(c * 0.9) h);
   --color-target-fg: var(--color-primary-fg); /* светлый символ на плотной цели — инверсия */
+  --color-gap      : var(--color-bg);         /* просвет: отделяет клавишу от пальца под ней.
+                                                 На пергаменте невидим, на пальце режет силуэт —
+                                                 без него цель и палец одного оттенка сливаются
+                                                 (контраст был 1.10:1 у большого). */
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
   --color-finger-inactive: oklch(from var(--parchment) calc(l * .90) c h);
@@ -202,18 +206,18 @@
   /* KeyCap — base */
   --keycap-color            : var(--color-keycap-label);
   --keycap-marker-background: var(--color-keycap-marker);
-  --keycap-home-ring        : 0 0 0 0.1rem  var(--color-keycap-label);
+  --keycap-home-ring        : 0 0 0 0.1rem var(--color-keycap-label), 0 0 0 0.17rem var(--color-gap);
   /* Путь ведёт кольцом цвета пальца-владельца; цель — заливка плотнее (ADR 0028) */
-  --keycap-l1-path-ring: 0 0 0 0.15rem var(--color-route-1);
-  --keycap-r1-path-ring: 0 0 0 0.15rem var(--color-route-1);
-  --keycap-l2-path-ring: 0 0 0 0.15rem var(--color-route-2);
-  --keycap-r2-path-ring: 0 0 0 0.15rem var(--color-route-2);
-  --keycap-l3-path-ring: 0 0 0 0.15rem var(--color-route-3);
-  --keycap-r3-path-ring: 0 0 0 0.15rem var(--color-route-3);
-  --keycap-l4-path-ring: 0 0 0 0.15rem var(--color-route-4);
-  --keycap-r4-path-ring: 0 0 0 0.15rem var(--color-route-4);
-  --keycap-l5-path-ring: 0 0 0 0.15rem var(--color-route-5);
-  --keycap-r5-path-ring: 0 0 0 0.15rem var(--color-route-5);
+  --keycap-l1-path-ring: 0 0 0 0.12rem var(--color-route-1), 0 0 0 0.2rem var(--color-gap);
+  --keycap-r1-path-ring: 0 0 0 0.12rem var(--color-route-1), 0 0 0 0.2rem var(--color-gap);
+  --keycap-l2-path-ring: 0 0 0 0.12rem var(--color-route-2), 0 0 0 0.2rem var(--color-gap);
+  --keycap-r2-path-ring: 0 0 0 0.12rem var(--color-route-2), 0 0 0 0.2rem var(--color-gap);
+  --keycap-l3-path-ring: 0 0 0 0.12rem var(--color-route-3), 0 0 0 0.2rem var(--color-gap);
+  --keycap-r3-path-ring: 0 0 0 0.12rem var(--color-route-3), 0 0 0 0.2rem var(--color-gap);
+  --keycap-l4-path-ring: 0 0 0 0.12rem var(--color-route-4), 0 0 0 0.2rem var(--color-gap);
+  --keycap-r4-path-ring: 0 0 0 0.12rem var(--color-route-4), 0 0 0 0.2rem var(--color-gap);
+  --keycap-l5-path-ring: 0 0 0 0.12rem var(--color-route-5), 0 0 0 0.2rem var(--color-gap);
+  --keycap-r5-path-ring: 0 0 0 0.12rem var(--color-route-5), 0 0 0 0.2rem var(--color-gap);
 
   /* KeyCap — per-position fill/border/color */
   --keycap-l1-background: var(--color-keycap-group-1-bg);
@@ -250,34 +254,34 @@
   /* KeyCap — per-position target */
   --keycap-l1-target-background: var(--color-target-1);
   --keycap-l1-target-color     : var(--color-target-fg);
-  --keycap-l1-target-ring      : 0 0 0 0.15rem var(--color-target-1);
+  --keycap-l1-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-r1-target-background: var(--color-target-1);
   --keycap-r1-target-color     : var(--color-target-fg);
-  --keycap-r1-target-ring      : 0 0 0 0.15rem var(--color-target-1);
+  --keycap-r1-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-l2-target-background: var(--color-target-2);
   --keycap-l2-target-color     : var(--color-target-fg);
-  --keycap-l2-target-ring      : 0 0 0 0.15rem var(--color-target-2);
+  --keycap-l2-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-r2-target-background: var(--color-target-2);
   --keycap-r2-target-color     : var(--color-target-fg);
-  --keycap-r2-target-ring      : 0 0 0 0.15rem var(--color-target-2);
+  --keycap-r2-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-l3-target-background: var(--color-target-3);
   --keycap-l3-target-color     : var(--color-target-fg);
-  --keycap-l3-target-ring      : 0 0 0 0.15rem var(--color-target-3);
+  --keycap-l3-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-r3-target-background: var(--color-target-3);
   --keycap-r3-target-color     : var(--color-target-fg);
-  --keycap-r3-target-ring      : 0 0 0 0.15rem var(--color-target-3);
+  --keycap-r3-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-l4-target-background: var(--color-target-4);
   --keycap-l4-target-color     : var(--color-target-fg);
-  --keycap-l4-target-ring      : 0 0 0 0.15rem var(--color-target-4);
+  --keycap-l4-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-r4-target-background: var(--color-target-4);
   --keycap-r4-target-color     : var(--color-target-fg);
-  --keycap-r4-target-ring      : 0 0 0 0.15rem var(--color-target-4);
+  --keycap-r4-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-l5-target-background: var(--color-target-5);
   --keycap-l5-target-color     : var(--color-target-fg);
-  --keycap-l5-target-ring      : 0 0 0 0.15rem var(--color-target-5);
+  --keycap-l5-target-ring      : 0 0 0 0.14rem var(--color-gap);
   --keycap-r5-target-background: var(--color-target-5);
   --keycap-r5-target-color     : var(--color-target-fg);
-  --keycap-r5-target-ring      : 0 0 0 0.15rem var(--color-target-5);
+  --keycap-r5-target-ring      : 0 0 0 0.14rem var(--color-gap);
 
   /* KeyCap — press result */
   --keycap-correct-background: var(--color-keycap-correct-bg);
