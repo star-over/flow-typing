@@ -1,53 +1,61 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { calculateClusterTranslation } from './cluster-translation';
 
-// Мок DOM-элементов с `getBoundingClientRect`
-const createMockElement = (rect: DOMRect) => ({
-  getBoundingClientRect: () => rect,
-});
+/**
+ * Мок DOM-элемента с `getBoundingClientRect`.
+ *
+ * Размеры задаются ОТДЕЛЬНО для пальца и клавиши намеренно: якоря разной природы —
+ * `.finger-center-point` это SVG-круг `r="2"` в координатах viewBox (на экране ~4.6px),
+ * `.keycap-center-point` — блок ровно 2×2 CSS-px. Прежние тесты давали обоим `width: 10`,
+ * половина разницы обнулялась, и совмещение по углам проходило как верное.
+ */
+const mockElement = ({ left, top, size }: { left: number; top: number; size: number }) =>
+  ({
+    getBoundingClientRect: () => ({
+      x: left, y: top, width: size, height: size,
+      top, left, right: left + size, bottom: top + size,
+      toJSON: () => '',
+    }),
+  }) as Element;
+
+const container = mockElement({ left: 0, top: 0, size: 500 });
 
 describe('calculateClusterTranslation', () => {
-  it('should calculate the correct translation', () => {
-    const fingerElement = createMockElement({ x: 200, y: 100, width: 10, height: 10, top: 100, left: 200, right: 210, bottom: 110, toJSON: () => '' });
-    const keyElement = createMockElement({ x: 50, y: 50, width: 10, height: 10, top: 50, left: 50, right: 60, bottom: 60, toJSON: () => '' });
-    const containerElement = createMockElement({ x: 0, y: 0, width: 500, height: 500, top: 0, left: 0, right: 500, bottom: 500, toJSON: () => '' });
+  it('совмещает ЦЕНТРЫ якорей, а не их углы', () => {
+    // Центр пальца: 200 + 4.6/2 = 202.3 · центр клавиши: 50 + 2/2 = 51 → 151.3
+    const finger = mockElement({ left: 200, top: 100, size: 4.6 });
+    const key = mockElement({ left: 50, top: 50, size: 2 });
 
-    const result = calculateClusterTranslation({ fingerElement: fingerElement as Element, keyElement: keyElement as Element, containerElement: containerElement as Element });
+    const result = calculateClusterTranslation({ fingerElement: finger, keyElement: key, containerElement: container });
 
-    // deltaX = (fingerLeft - containerLeft) - (keyLeft - containerLeft)
-    // deltaX = (200 - 0) - (50 - 0) = 150
-    // deltaY = (fingerTop - containerTop) - (keyTop - containerTop)
-    // deltaY = (100 - 0) - (50 - 0) = 50
+    expect(result).toEqual({ deltaX: 151.3, deltaY: 51.3 });
+    // По углам вышло бы ровно 150/50 — на половину разницы размеров мимо центра пальца.
+  });
+
+  it('якоря одного размера — центры и углы совпадают', () => {
+    const finger = mockElement({ left: 250, top: 150, size: 2 });
+    const key = mockElement({ left: 100, top: 100, size: 2 });
+
+    const result = calculateClusterTranslation({ fingerElement: finger, keyElement: key, containerElement: container });
+
     expect(result).toEqual({ deltaX: 150, deltaY: 50 });
   });
 
-  it('should handle different container positions', () => {
-    const fingerElement = createMockElement({ x: 250, y: 150, width: 10, height: 10, top: 150, left: 250, right: 260, bottom: 160, toJSON: () => '' });
-    const keyElement = createMockElement({ x: 100, y: 100, width: 10, height: 10, top: 100, left: 100, right: 110, bottom: 110, toJSON: () => '' });
-    const containerElement = createMockElement({ x: 50, y: 50, width: 500, height: 500, top: 50, left: 50, right: 550, bottom: 550, toJSON: () => '' });
+  it('не зависит от положения контейнера', () => {
+    const finger = mockElement({ left: 250, top: 150, size: 4.6 });
+    const key = mockElement({ left: 100, top: 100, size: 2 });
+    const shifted = mockElement({ left: 50, top: 50, size: 500 });
 
-    const result = calculateClusterTranslation({ fingerElement: fingerElement as Element, keyElement: keyElement as Element, containerElement: containerElement as Element });
+    const atOrigin = calculateClusterTranslation({ fingerElement: finger, keyElement: key, containerElement: container });
+    const atShifted = calculateClusterTranslation({ fingerElement: finger, keyElement: key, containerElement: shifted });
 
-    // deltaX = (250 - 50) - (100 - 50) = 200 - 50 = 150
-    // deltaY = (150 - 50) - (100 - 50) = 100 - 50 = 50
-    expect(result).toEqual({ deltaX: 150, deltaY: 50 });
+    expect(atShifted).toEqual(atOrigin);
   });
 
-  it('should return null if containerRect is not available (though getBoundingClientRect always returns a rect)', () => {
-    const fingerElement = createMockElement({ x: 200, y: 100, width: 10, height: 10, top: 100, left: 200, right: 210, bottom: 110, toJSON: () => '' });
-    const keyElement = createMockElement({ x: 50, y: 50, width: 10, height: 10, top: 50, left: 50, right: 60, bottom: 60, toJSON: () => '' });
-    
-    // Мок элемента, где getBoundingClientRect возвращает "пустой" Rect,
-    // что в реальности маловероятно, но проверяем крайний случай.
-    const containerElement = {
-      getBoundingClientRect: () => ({ x: 0, y: 0, width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0, toJSON: () => '' })
-    };
-    
-    // В нашей реализации `calculateClusterTranslation` мы проверяем `containerRect`,
-    // но `getBoundingClientRect` всегда возвращает объект. Для симуляции `null`
-    // нам пришлось бы изменить мок, но это выходит за рамки реального поведения DOM.
-    // Вместо этого, мы просто убедимся, что с нулевыми размерами расчеты корректны.
-    const resultWithZeroSizedContainer = calculateClusterTranslation({ fingerElement: fingerElement as Element, keyElement: keyElement as Element, containerElement: containerElement as Element });
-    expect(resultWithZeroSizedContainer).toEqual({ deltaX: 150, deltaY: 50 });
+  it('без контейнера смещения нет', () => {
+    const finger = mockElement({ left: 200, top: 100, size: 4.6 });
+    const key = mockElement({ left: 50, top: 50, size: 2 });
+
+    expect(calculateClusterTranslation({ fingerElement: finger, keyElement: key, containerElement: null })).toBeNull();
   });
 });

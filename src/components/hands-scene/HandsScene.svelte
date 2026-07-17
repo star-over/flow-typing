@@ -183,11 +183,14 @@
               style:visibility={t ? 'visible' : 'hidden'}
             >
               <!-- Внутренняя обёртка несёт scale «предъявления» отдельно от transform:translate
-                   контейнера (иначе конфликт за одно свойство transform). -->
+                   контейнера (иначе конфликт за одно свойство transform).
+                   `start: 1` пока смещение не измерено: обёртка — это ВСЯ клавиатура
+                   (~826px), домашняя клавиша далеко от её центра, а scale тянет к центру.
+                   Замер внутри анимации промахивался на ~16px и застревал в кэше. -->
               <div
                 class="cluster-inner"
                 in:scale={{
-                  start: reduceMotion ? 1 : CLUSTER_SCALE_FROM,
+                  start: reduceMotion || !t ? 1 : CLUSTER_SCALE_FROM,
                   opacity: 0,
                   duration: reduceMotion ? 0 : CLUSTER_FADE_IN_MS,
                 }}
