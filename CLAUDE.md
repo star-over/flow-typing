@@ -58,7 +58,7 @@
 - `src/machines/CLAUDE.md` — XState-машины (`appMachine` / `keyboardMachine` / `sessionMachine` / `trainingMachine`), подписки из Svelte, machine-Gotchas (HMR, `stream`, `Space`).
 - `src/lib/CLAUDE.md` — ViewModel pipeline, settings + i18n + cross-device sync, клиентский Auth UI.
 - `src/routes/CLAUDE.md` — четыре роута, `+layout` (appActor, keyboard listener, Header), `TrainingScene`.
-- `src/themes/CLAUDE.md` — темы и компонентные контракты (`*.contract.ts`, `THEME_CONTRACT`, 115 токенов).
+- `src/themes/CLAUDE.md` — темы и компонентные контракты (`*.contract.ts`, `THEME_CONTRACT`).
 - `convex/CLAUDE.md` — backend: deployment, схема, auth-провайдеры, dev-вход, env vars, `userSettings`, convex-тесты.
 
 ### Domain language
