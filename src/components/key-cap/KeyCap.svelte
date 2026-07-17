@@ -223,9 +223,9 @@
      до (0,3,0), чтобы перебить per-position-target
      `.keycap[data-finger-id="…"].role-target` (тоже 0,3,0) по заливке / цвету /
      границе — result объявлен ниже по исходнику и выигрывает.
-     CORRECT перекрывает и `box-shadow`: кольцо становится зелёным в тон заливке
-     (единый зелёный отклик), а не остаётся янтарным target-ring. ERROR ниже
-     `box-shadow` не трогает — там target-ring цели осознанно переживает результат. */
+     CORRECT перекрывает и `box-shadow` — тема вправе дать результату собственное
+     кольцо. ERROR ниже `box-shadow` не трогает: там кольцо цели осознанно
+     переживает результат. */
   .keycap.CORRECT.CORRECT {
     background: var(--keycap-correct-background);
     color: var(--keycap-correct-color);
