@@ -6,7 +6,6 @@
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
 
   interface Props {
-    onBack: () => void;
     dictionary: Dictionary;
     /**
      * Оригинальное имя текущего юзера от провайдера (`users.name ?? email`).
@@ -22,7 +21,7 @@
     onDeleteAccount?: (() => Promise<void>) | null;
   }
 
-  const { onBack, dictionary, accountName = null, onDeleteAccount = null }: Props = $props();
+  const { dictionary, accountName = null, onDeleteAccount = null }: Props = $props();
 
   // Двухшаговое подтверждение удаления: idle → confirming → deleting.
   let confirming = $state(false);
@@ -86,10 +85,6 @@
   </label>
 
   <TrainingSettingsSection {dictionary} />
-
-  <button type="button" class="btn" onclick={onBack}>
-    {dictionary.settings.back_button}
-  </button>
 
   {#if onDeleteAccount !== null}
     <div class="danger-zone">

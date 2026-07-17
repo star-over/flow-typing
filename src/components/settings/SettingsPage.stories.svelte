@@ -8,12 +8,10 @@
     component: SettingsPage,
     argTypes: {
       dictionary: { table: { disable: true } },
-      onBack: { table: { disable: true } },
       onDeleteAccount: { table: { disable: true } },
     },
     args: {
       dictionary: enDictionary,
-      onBack: () => {},
     },
   });
 </script>

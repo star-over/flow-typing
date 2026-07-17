@@ -34,9 +34,4 @@
   );
 </script>
 
-<SettingsPage
-  dictionary={$dictionary}
-  {accountName}
-  {onDeleteAccount}
-  onBack={() => goto(resolve('/'))}
-/>
+<SettingsPage dictionary={$dictionary} {accountName} {onDeleteAccount} />
