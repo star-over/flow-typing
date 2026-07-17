@@ -19,7 +19,15 @@ export const KEY_CAP_CONTRACT = [
   '--keycap-color', // color для клавиш без data-finger-id
   '--keycap-marker-background', // background маркера .keycap-marker (home dot/bar)
   '--keycap-home-ring', // box-shadow для .home (тонкое кольцо домашних клавиш)
-  '--keycap-path-ring', // box-shadow для .role-path (кольцо клавиш на пути пальца)
+
+  // --- Per-position path ring (10) ---
+  // box-shadow для .role-path — кольцо клавиш на пути пальца. Пер-позиционное,
+  // потому что тема вправе вести маршрут цветом пальца-владельца (ADR 0028).
+  '--keycap-l1-path-ring', '--keycap-r1-path-ring',
+  '--keycap-l2-path-ring', '--keycap-r2-path-ring',
+  '--keycap-l3-path-ring', '--keycap-r3-path-ring',
+  '--keycap-l4-path-ring', '--keycap-r4-path-ring',
+  '--keycap-l5-path-ring', '--keycap-r5-path-ring',
 
   // --- Per-position fill/border/color (10 × 3 = 30) ---
   // Заливка / обводка / текст клавиши по позиции пальца.

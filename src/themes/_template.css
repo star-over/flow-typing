@@ -116,7 +116,16 @@
   --keycap-color            : unset;
   --keycap-marker-background: unset;
   --keycap-home-ring        : unset;
-  --keycap-path-ring        : unset;
+  --keycap-l1-path-ring: unset;
+  --keycap-r1-path-ring: unset;
+  --keycap-l2-path-ring: unset;
+  --keycap-r2-path-ring: unset;
+  --keycap-l3-path-ring: unset;
+  --keycap-r3-path-ring: unset;
+  --keycap-l4-path-ring: unset;
+  --keycap-r4-path-ring: unset;
+  --keycap-l5-path-ring: unset;
+  --keycap-r5-path-ring: unset;
 
   /* KeyCap — per-position fill/border/color */
   --keycap-l1-background: unset; --keycap-l1-border: unset; --keycap-l1-color: unset;

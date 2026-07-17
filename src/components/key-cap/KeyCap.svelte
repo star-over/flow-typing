@@ -141,11 +141,21 @@
     box-shadow: var(--keycap-home-ring);
   }
 
-  /* --- Navigation role (overridden by press result below) --- */
+  /* --- Navigation role PATH — per-position (тема вправе вести маршрут цветом
+         пальца-владельца, ADR 0028). Перекрывается press result ниже. --- */
   .keycap.role-path {
-    box-shadow: var(--keycap-path-ring);
     font-weight: 700;
   }
+  .keycap[data-finger-id="L1"].role-path { box-shadow: var(--keycap-l1-path-ring); }
+  .keycap[data-finger-id="R1"].role-path { box-shadow: var(--keycap-r1-path-ring); }
+  .keycap[data-finger-id="L2"].role-path { box-shadow: var(--keycap-l2-path-ring); }
+  .keycap[data-finger-id="R2"].role-path { box-shadow: var(--keycap-r2-path-ring); }
+  .keycap[data-finger-id="L3"].role-path { box-shadow: var(--keycap-l3-path-ring); }
+  .keycap[data-finger-id="R3"].role-path { box-shadow: var(--keycap-r3-path-ring); }
+  .keycap[data-finger-id="L4"].role-path { box-shadow: var(--keycap-l4-path-ring); }
+  .keycap[data-finger-id="R4"].role-path { box-shadow: var(--keycap-r4-path-ring); }
+  .keycap[data-finger-id="L5"].role-path { box-shadow: var(--keycap-l5-path-ring); }
+  .keycap[data-finger-id="R5"].role-path { box-shadow: var(--keycap-r5-path-ring); }
 
   /* --- Navigation role TARGET — per-position --- */
   .keycap[data-finger-id="L1"].role-target {
