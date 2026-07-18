@@ -359,12 +359,6 @@
   --footer-actions-btn-success-background: var(--color-success);
   --footer-actions-btn-success-color     : var(--color-bg);
   --footer-actions-btn-success-border    : 1px solid var(--color-success);
-  --footer-actions-btn-warning-background: var(--color-warning);
-  --footer-actions-btn-warning-color     : var(--color-bg);
-  --footer-actions-btn-warning-border    : 1px solid var(--color-warning);
-  --footer-actions-btn-danger-background : var(--color-error);
-  --footer-actions-btn-danger-color      : var(--color-bg);
-  --footer-actions-btn-danger-border     : 1px solid var(--color-error);
 
   /* Header */
   --header-border          : 1px solid var(--color-border);
