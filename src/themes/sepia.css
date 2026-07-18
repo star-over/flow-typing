@@ -67,7 +67,7 @@
    * ============================================================ */
 
   /* --- Поверхности: лестница пергамента вниз --- */
-  --color-bg            : var(--parchment);
+  --color-background            : var(--parchment);
   --color-surface-raised: oklch(from var(--parchment) calc(l - 0.01) calc(c - 0.01) h); /* выпуклая: меню поверх фона */
   --color-surface       : oklch(from var(--parchment) calc(l - 0.04) c h);
   --color-surface-hover : oklch(from var(--parchment) calc(l - 0.08) c h);
@@ -79,8 +79,8 @@
   --color-text-muted    : oklch(from var(--ink) calc(l + 0.30) c h);
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
-  --color-primary-bg    : var(--ink);
-  --color-primary-fg    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.03) h);
+  --color-primary-background    : var(--ink);
+  --color-primary-foreground    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.03) h);
   --color-primary-border: oklch(from var(--ink) calc(l - 0.05) c h);
   --color-primary-hover : oklch(from var(--ink) calc(l + 0.12) c h);
 
@@ -97,7 +97,7 @@
   --color-success    : var(--green);
   --color-success-dim: oklch(from var(--green) l c h / 0.16);  /* α симметрична --color-error-dim; та же роль красит и пояс-допуск ритма */
   --color-error      : var(--red);
-  --color-error-fg   : oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
+  --color-error-foreground   : oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
   --color-error-hover: oklch(from var(--red) calc(l - 0.06) c h);
   /* Исход как приглушённая поверхность (вспышка строки FlowLine при ошибке) —
      зеркало --color-success-dim: сам цвет ошибки под низкой альфой, подкрашен фоном.
@@ -140,8 +140,8 @@
   --color-target-3: oklch(from var(--route-3) 0.50 calc(c * 0.9) h);
   --color-target-4: oklch(from var(--route-4) 0.50 calc(c * 0.9) h);
   --color-target-5: oklch(from var(--route-5) 0.50 calc(c * 0.9) h);
-  --color-target-fg: var(--color-primary-fg); /* светлый символ на плотной цели — инверсия */
-  --color-gap      : var(--color-bg);         /* просвет: отделяет клавишу от пальца под ней.
+  --color-target-foreground: var(--color-primary-foreground); /* светлый символ на плотной цели — инверсия */
+  --color-gap      : var(--color-background);         /* просвет: отделяет клавишу от пальца под ней.
                                                  На пергаменте невидим, на пальце режет силуэт —
                                                  без него цель и палец одного оттенка сливаются
                                                  (контраст был 1.10:1 у большого). */
@@ -172,8 +172,8 @@
   --color-symbol-many-errors    : oklch(from var(--red) calc(l - 0.05) c calc(h - 5));
 
   /* --- Домен · блок курсора --- */
-  --color-cursor-bg: var(--color-brand-accent);  /* пока янтарь: см. «акцент бренда» выше */
-  --color-cursor-fg: var(--ink);                 /* тёмное на янтаре — те же чернила, что каретка логотипа и CTA */
+  --color-cursor-background: var(--color-brand-accent);  /* пока янтарь: см. «акцент бренда» выше */
+  --color-cursor-foreground: var(--ink);                 /* тёмное на янтаре — те же чернила, что каретка логотипа и CTA */
 
   /* --- Домен · клавиша, база --- */
   --color-keycap-label : var(--color-text-primary);
@@ -183,23 +183,23 @@
   /* Тон клавиши = бледное эхо цвета пальца («плотнее»): выводим из --color-finger-N,
      фиксируя светлоту/хрому, берём только оттенок — клавиша под пальцем совпадает.
      Номер группы = номер пальца (1 = большой … 5 = мизинец), L/R зеркальны. */
-  --color-keycap-group-1-bg    : oklch(from var(--color-finger-1) 0.89 0.06 h / 0.78);
+  --color-keycap-group-1-background    : oklch(from var(--color-finger-1) 0.89 0.06 h / 0.78);
   --color-keycap-group-1-border: oklch(from var(--color-finger-1) 0.78 0.12 h);
-  --color-keycap-group-2-bg    : oklch(from var(--color-finger-2) 0.89 0.06 h / 0.78);
+  --color-keycap-group-2-background    : oklch(from var(--color-finger-2) 0.89 0.06 h / 0.78);
   --color-keycap-group-2-border: oklch(from var(--color-finger-2) 0.78 0.12 h);
-  --color-keycap-group-3-bg    : oklch(from var(--color-finger-3) 0.89 0.06 h / 0.78);
+  --color-keycap-group-3-background    : oklch(from var(--color-finger-3) 0.89 0.06 h / 0.78);
   --color-keycap-group-3-border: oklch(from var(--color-finger-3) 0.78 0.12 h);
-  --color-keycap-group-4-bg    : oklch(from var(--color-finger-4) 0.89 0.06 h / 0.78);
+  --color-keycap-group-4-background    : oklch(from var(--color-finger-4) 0.89 0.06 h / 0.78);
   --color-keycap-group-4-border: oklch(from var(--color-finger-4) 0.78 0.12 h);
-  --color-keycap-group-5-bg    : oklch(from var(--color-finger-5) 0.89 0.06 h / 0.78);
+  --color-keycap-group-5-background    : oklch(from var(--color-finger-5) 0.89 0.06 h / 0.78);
   --color-keycap-group-5-border: oklch(from var(--color-finger-5) 0.78 0.12 h);
 
   /* --- Клавиша · результат нажатия --- */
-  --color-keycap-correct-bg    : oklch(from var(--green) calc(l - 0.10) c h / 0.8);
-  --color-keycap-correct-fg    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.01) h);
+  --color-keycap-correct-background    : oklch(from var(--green) calc(l - 0.10) c h / 0.8);
+  --color-keycap-correct-foreground    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.01) h);
   --color-keycap-correct-border: oklch(from var(--green) calc(l + 0.05) calc(c + 0.02) h);
-  --color-keycap-error-bg      : oklch(from var(--red) calc(l + 0.05) c h / 0.8);
-  --color-keycap-error-fg      : var(--color-error-fg);
+  --color-keycap-error-background      : oklch(from var(--red) calc(l + 0.05) c h / 0.8);
+  --color-keycap-error-foreground      : var(--color-error-foreground);
   --color-keycap-error-border  : oklch(from var(--red) calc(l + 0.15) calc(c - 0.03) calc(h - 5));
 
   /* ============================================================
@@ -209,7 +209,7 @@
    * ============================================================ */
 
   /* Root (body fallback) */
-  --body-background: var(--color-bg);
+  --body-background: var(--color-background);
   --body-color     : var(--color-text-primary);
 
   /* KeyCap — base */
@@ -232,76 +232,76 @@
   --keycap-r5-path-ring: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap);
 
   /* KeyCap — per-position fill/border/color */
-  --keycap-l1-background: var(--color-keycap-group-1-bg);
+  --keycap-l1-background: var(--color-keycap-group-1-background);
   --keycap-l1-border    : 1px solid var(--color-keycap-group-1-border);
   --keycap-l1-color     : var(--color-keycap-label);
-  --keycap-r1-background: var(--color-keycap-group-1-bg);
+  --keycap-r1-background: var(--color-keycap-group-1-background);
   --keycap-r1-border    : 1px solid var(--color-keycap-group-1-border);
   --keycap-r1-color     : var(--color-keycap-label);
-  --keycap-l2-background: var(--color-keycap-group-2-bg);
+  --keycap-l2-background: var(--color-keycap-group-2-background);
   --keycap-l2-border    : 1px solid var(--color-keycap-group-2-border);
   --keycap-l2-color     : var(--color-keycap-label);
-  --keycap-r2-background: var(--color-keycap-group-2-bg);
+  --keycap-r2-background: var(--color-keycap-group-2-background);
   --keycap-r2-border    : 1px solid var(--color-keycap-group-2-border);
   --keycap-r2-color     : var(--color-keycap-label);
-  --keycap-l3-background: var(--color-keycap-group-3-bg);
+  --keycap-l3-background: var(--color-keycap-group-3-background);
   --keycap-l3-border    : 1px solid var(--color-keycap-group-3-border);
   --keycap-l3-color     : var(--color-keycap-label);
-  --keycap-r3-background: var(--color-keycap-group-3-bg);
+  --keycap-r3-background: var(--color-keycap-group-3-background);
   --keycap-r3-border    : 1px solid var(--color-keycap-group-3-border);
   --keycap-r3-color     : var(--color-keycap-label);
-  --keycap-l4-background: var(--color-keycap-group-4-bg);
+  --keycap-l4-background: var(--color-keycap-group-4-background);
   --keycap-l4-border    : 1px solid var(--color-keycap-group-4-border);
   --keycap-l4-color     : var(--color-keycap-label);
-  --keycap-r4-background: var(--color-keycap-group-4-bg);
+  --keycap-r4-background: var(--color-keycap-group-4-background);
   --keycap-r4-border    : 1px solid var(--color-keycap-group-4-border);
   --keycap-r4-color     : var(--color-keycap-label);
-  --keycap-l5-background: var(--color-keycap-group-5-bg);
+  --keycap-l5-background: var(--color-keycap-group-5-background);
   --keycap-l5-border    : 1px solid var(--color-keycap-group-5-border);
   --keycap-l5-color     : var(--color-keycap-label);
-  --keycap-r5-background: var(--color-keycap-group-5-bg);
+  --keycap-r5-background: var(--color-keycap-group-5-background);
   --keycap-r5-border    : 1px solid var(--color-keycap-group-5-border);
   --keycap-r5-color     : var(--color-keycap-label);
 
   /* KeyCap — per-position target */
   --keycap-l1-target-background: var(--color-target-1);
-  --keycap-l1-target-color     : var(--color-target-fg);
+  --keycap-l1-target-color     : var(--color-target-foreground);
   --keycap-l1-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r1-target-background: var(--color-target-1);
-  --keycap-r1-target-color     : var(--color-target-fg);
+  --keycap-r1-target-color     : var(--color-target-foreground);
   --keycap-r1-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l2-target-background: var(--color-target-2);
-  --keycap-l2-target-color     : var(--color-target-fg);
+  --keycap-l2-target-color     : var(--color-target-foreground);
   --keycap-l2-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r2-target-background: var(--color-target-2);
-  --keycap-r2-target-color     : var(--color-target-fg);
+  --keycap-r2-target-color     : var(--color-target-foreground);
   --keycap-r2-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l3-target-background: var(--color-target-3);
-  --keycap-l3-target-color     : var(--color-target-fg);
+  --keycap-l3-target-color     : var(--color-target-foreground);
   --keycap-l3-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r3-target-background: var(--color-target-3);
-  --keycap-r3-target-color     : var(--color-target-fg);
+  --keycap-r3-target-color     : var(--color-target-foreground);
   --keycap-r3-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l4-target-background: var(--color-target-4);
-  --keycap-l4-target-color     : var(--color-target-fg);
+  --keycap-l4-target-color     : var(--color-target-foreground);
   --keycap-l4-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r4-target-background: var(--color-target-4);
-  --keycap-r4-target-color     : var(--color-target-fg);
+  --keycap-r4-target-color     : var(--color-target-foreground);
   --keycap-r4-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l5-target-background: var(--color-target-5);
-  --keycap-l5-target-color     : var(--color-target-fg);
+  --keycap-l5-target-color     : var(--color-target-foreground);
   --keycap-l5-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r5-target-background: var(--color-target-5);
-  --keycap-r5-target-color     : var(--color-target-fg);
+  --keycap-r5-target-color     : var(--color-target-foreground);
   --keycap-r5-target-ring      : 0 0 0 0.15rem var(--color-gap);
 
   /* KeyCap — press result */
-  --keycap-correct-background: var(--color-keycap-correct-bg);
-  --keycap-correct-color     : var(--color-keycap-correct-fg);
+  --keycap-correct-background: var(--color-keycap-correct-background);
+  --keycap-correct-color     : var(--color-keycap-correct-foreground);
   --keycap-correct-border    : 1px solid var(--color-keycap-correct-border);
   --keycap-correct-ring      : 0 0 0 0.15rem var(--color-gap); /* тот же габарит, что у прочих состояний: отклик несёт заливка, не размер */
-  --keycap-error-background  : var(--color-keycap-error-bg);
-  --keycap-error-color       : var(--color-keycap-error-fg);
+  --keycap-error-background  : var(--color-keycap-error-background);
+  --keycap-error-color       : var(--color-keycap-error-foreground);
   --keycap-error-border      : 1px solid var(--color-keycap-error-border);
 
   /* Finger */
@@ -348,8 +348,8 @@
   --flow-line-error-background  : var(--color-error-dim);
 
   /* CursorSymbol */
-  --cursor-symbol-background: var(--color-cursor-bg);
-  --cursor-symbol-color     : var(--color-cursor-fg);
+  --cursor-symbol-background: var(--color-cursor-background);
+  --cursor-symbol-color     : var(--color-cursor-foreground);
 
   /* RegularSymbol */
   --regular-symbol-pending-color  : var(--color-symbol-pending);
@@ -363,11 +363,11 @@
   --footer-actions-btn-color             : var(--color-text-primary);
   --footer-actions-btn-border            : 1px solid var(--color-border);
   --footer-actions-btn-hover-background  : var(--color-surface-hover);
-  --footer-actions-btn-primary-background: var(--color-primary-bg);
-  --footer-actions-btn-primary-color     : var(--color-bg);
-  --footer-actions-btn-primary-border    : 1px solid var(--color-primary-bg);
+  --footer-actions-btn-primary-background: var(--color-primary-background);
+  --footer-actions-btn-primary-color     : var(--color-background);
+  --footer-actions-btn-primary-border    : 1px solid var(--color-primary-background);
   --footer-actions-btn-success-background: var(--color-success);
-  --footer-actions-btn-success-color     : var(--color-bg);
+  --footer-actions-btn-success-color     : var(--color-background);
   --footer-actions-btn-success-border    : 1px solid var(--color-success);
 
   /* Header */
@@ -408,7 +408,7 @@
   --repertoire-progress-border      : 1px solid var(--color-border);
   --repertoire-progress-label-color : var(--color-text-muted);
   --repertoire-progress-value-color : var(--color-text-primary);
-  --repertoire-progress-bar-track   : var(--color-bg);
+  --repertoire-progress-bar-track   : var(--color-background);
   --repertoire-progress-bar-fill    : var(--color-success);
   --repertoire-progress-accent-color: var(--color-success);
 
@@ -416,7 +416,7 @@
   --survey-prompt-background             : var(--color-surface);
   --survey-prompt-border                 : 1px solid var(--color-border);
   --survey-prompt-question-color         : var(--color-text-primary);
-  --survey-prompt-button-background      : var(--color-bg);
+  --survey-prompt-button-background      : var(--color-background);
   --survey-prompt-button-border          : 1px solid var(--color-border);
   --survey-prompt-button-color           : var(--color-text-primary);
   --survey-prompt-button-hover-background: var(--color-surface-hover);
@@ -433,7 +433,7 @@
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
   --settings-page-danger-btn-background      : var(--color-error);
-  --settings-page-danger-btn-color           : var(--color-error-fg);
+  --settings-page-danger-btn-color           : var(--color-error-foreground);
   --settings-page-danger-btn-border          : 1px solid var(--color-error);
   --settings-page-danger-btn-hover-background : var(--color-error-hover);
   --settings-page-danger-text-color          : var(--color-error);
@@ -442,16 +442,16 @@
   --sign-in-screen-background            : var(--color-surface);
   --sign-in-screen-title-color           : var(--color-text-primary);
   --sign-in-screen-disclaimer-color      : var(--color-text-secondary);
-  --sign-in-screen-btn-github-background : var(--color-primary-bg);
-  --sign-in-screen-btn-github-color      : var(--color-primary-fg);
+  --sign-in-screen-btn-github-background : var(--color-primary-background);
+  --sign-in-screen-btn-github-color      : var(--color-primary-foreground);
   --sign-in-screen-btn-github-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-github-hover-background: var(--color-primary-hover);
-  --sign-in-screen-btn-google-background : var(--color-primary-bg);
-  --sign-in-screen-btn-google-color      : var(--color-primary-fg);
+  --sign-in-screen-btn-google-background : var(--color-primary-background);
+  --sign-in-screen-btn-google-color      : var(--color-primary-foreground);
   --sign-in-screen-btn-google-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-google-hover-background: var(--color-primary-hover);
-  --sign-in-screen-btn-yandex-background : var(--color-primary-bg);
-  --sign-in-screen-btn-yandex-color      : var(--color-primary-fg);
+  --sign-in-screen-btn-yandex-background : var(--color-primary-background);
+  --sign-in-screen-btn-yandex-color      : var(--color-primary-foreground);
   --sign-in-screen-btn-yandex-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-yandex-hover-background: var(--color-primary-hover);
 

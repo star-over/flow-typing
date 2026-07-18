@@ -64,14 +64,14 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 ```css
 :root[data-theme="light"] {
   /* Внутренняя палитра темы — не контракт */
-  --color-bg     : oklch(1 0 0);
+  --color-background: oklch(1 0 0);
   --color-surface: oklch(0.95 0 0);
   --color-success: oklch(0.72 0.19 150);
   /* … */
 
   /* Контракт — ссылки на палитру */
-  --body-background          : var(--color-bg);
-  --keycap-l2-background     : var(--color-keycap-group-2-bg);
+  --body-background          : var(--color-background);
+  --keycap-l2-background     : var(--color-keycap-group-2-background);
   --keycap-l2-border         : 1px solid var(--color-keycap-group-2-border);
   --footer-actions-btn-success-background: var(--color-success);
   /* … */
