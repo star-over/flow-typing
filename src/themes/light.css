@@ -1,12 +1,15 @@
 /* cSpell:ignore oklch */
 
 /*
- * Light theme — полный color snapshot базы из src/app.css.
+ * Light theme (colorScheme=light) — дефолт для светлого режима.
  *
- * Значения здесь должны быть идентичны соответствующим color-токенам
- * в `:root` в `src/app.css`; equality проверяется contract-тестом
- * (см. src/themes/contract.test.ts). Базовый `:root` оставлен в app.css
- * как fallback для бесатрибутного режима (краткое окно до inline-script).
+ * Тема — самостоятельный снимок значений. Контракт-тест
+ * (src/themes/contract.test.ts) проверяет лишь, что декларированы все токены
+ * THEME_CONTRACT; значения свободны и между файлами не сверяются.
+ * В `:root` в `src/app.css` цветов больше нет — там только primitives и
+ * body-fallback (`--body-background` / `--body-color`) на тонкое окно до
+ * inline-bootstrap-script; эти два литерала совпадают со значениями `light`
+ * вручную, тестом это не связано.
  */
 :root[data-theme="light"] {
   color-scheme: light;

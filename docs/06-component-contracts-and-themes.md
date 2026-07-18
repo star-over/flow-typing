@@ -20,11 +20,11 @@
 
 ```
 src/components/key-cap/KeyCap.svelte
-src/components/key-cap/KeyCap.contract.ts     ← 30 токенов
+src/components/key-cap/KeyCap.contract.ts     ← 80 токенов
 src/components/hands-scene/Finger.svelte
-src/components/hands-scene/Finger.contract.ts ← 9 токенов
+src/components/hands-scene/Finger.contract.ts ← 15 токенов
 src/components/app/FooterActions.svelte
-src/components/app/FooterActions.contract.ts  ← 16 токенов
+src/components/app/FooterActions.contract.ts  ← 10 токенов
 …
 src/Root.contract.ts                          ← body fallback (2 токена)
 ```
@@ -47,9 +47,9 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 
 | Шаблон | Когда используется | Пример |
 |---|---|---|
-| `--<component>-<element>-<property>` | свойство конкретного элемента компонента | `--keycap-l2-background`, `--cursor-symbol-color`, `--session-stats-display-item-background` |
+| `--<component>-<element>-<property>` | свойство конкретного элемента компонента | `--keycap-l2-background`, `--cursor-symbol-color`, `--session-stats-display-label-color` |
 | `--<component>-<element>-<state>-<property>` | свойство элемента в конкретном состоянии | `--keycap-l2-target-background`, `--footer-actions-btn-hover-background` |
-| `--<component>-<semantic-role>` | декоративная роль, без явного CSS-свойства | `--keycap-home-ring`, `--keycap-path-ring`, `--nav-arrow-outline` |
+| `--<component>-<semantic-role>` | декоративная роль, без явного CSS-свойства | `--keycap-home-ring`, `--keycap-l2-path-ring`, `--select-focus-outline` |
 
 - Для `background`, `border`, `color` имя совпадает с CSS-свойством — однозначно, читается естественно.
 - Для `box-shadow` имя описывает визуальную роль (`ring`, `outline`), потому что одно CSS-свойство используется в разных смыслах — «обводка home-клавиши» vs «обводка path-клавиши».
@@ -59,7 +59,7 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 
 Тема — самостоятельный CSS-файл `src/themes/<id>.css` с селектором `:root[data-theme="<id>"]`. Внутри неё могут жить любые `--*` переменные — это не нарушение контракта. Тест проверяет только, что **все токены из `THEME_CONTRACT` декларированы**.
 
-Сейчас все 4 темы внутри себя держат «палитру» с префиксом `--color-*` (legacy):
+Целевая внутренняя структура темы задана трёхслойной схемой (ADR 0029, эталон — `sepia.css`): слой читается из префикса имени токена — голое имя = ядро (приватная палитра темы, абсолютные значения), `--color-*` = роль (семантика, фиксированный словарь), `--<компонент>-*` = контракт. Пока на схему переведена только `sepia`; `light`/`dark`/`nord` держат расходящуюся «палитру» с префиксом `--color-*` и подтягиваются к эталону позже. Пример незавершённой формы (`light`):
 
 ```css
 :root[data-theme="light"] {
@@ -78,7 +78,7 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 }
 ```
 
-Эта структура — не обязательная. Тема может быть и литералами без промежуточных переменных, и через формулы `oklch(from var(--key) …)` из 4 ключевых цветов. См. `light.css` для «плоской» формы и потенциальный пример с формулами в комментарии к `_template.css`.
+Свобода — только пока миграция не закончена: `light`/`dark`/`nord` держат более рыхлую форму (литералы без промежуточных переменных или формулы `oklch(from …)` вперемешку). Целевая же форма (ADR 0029) фиксирует три слоя: новые абсолюты — только в ядре, роли — калькуляции от ядра или другой роли, контракт — `var()` на роль плюс структурные литералы. Эталон схемы — `sepia.css`; скелет для новой темы — `_template.css`.
 
 ## 6.5. Глобальный `:root` и body fallback
 
@@ -123,4 +123,4 @@ export type FlowLineContractToken = (typeof FLOW_LINE_CONTRACT)[number];
 | Per-position для KeyCap (10 × `--keycap-l1..r5-*`) | Per-finger-num (5 × `--keycap-1..5-*`) | Возможность разделить L и R руки в теме (например, левая в одной тональности, правая — в другой). |
 | Общий target/correct/error в KeyCap не per-position | Полностью per-position | Состояние перекрывает позицию: «правильно нажато» важнее, на каком пальце. Per-position только для `target` — поведение цели читается как «эта L2 — цель», и тема может выделять L2 уникальным glow. |
 | `--keycap-home-ring` несёт полное `box-shadow` | Только цвет | Геометрия рамок — визуальное решение, должна управляться темой. Тема «sharp» может иметь узкие ring, «glow» — широкие. |
-| Темы независимы (нет общего production-ready `:root` для цветов) | Один общий `:root` с переопределениями в темах | Темы могут радикально различаться по структуре (light — 4 ключа + формулы, nord — 50 литералов). Общий шаблон ограничивал бы свободу. |
+| Темы независимы (нет общего production-ready `:root` для цветов) | Один общий `:root` с переопределениями в темах | Ядро каждой темы приватно — свои абсолютные цвета (`sepia` — пергамент/чернила/янтарь, `nord` — своя палитра). Общий `:root` навязал бы единую палитру. Трёхслойную схему ADR 0029 унифицирует, но значения ядра остаются за темой. |
