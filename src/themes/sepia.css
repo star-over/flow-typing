@@ -92,10 +92,16 @@
 
   /* --- Исходы --- */
   --color-success    : var(--green);
-  --color-success-dim: oklch(from var(--green) l c h / 0.2);
+  --color-success-dim: oklch(from var(--green) l c h / 0.16);  /* α симметрична --color-error-dim; та же роль красит и пояс-допуск ритма */
   --color-error      : var(--red);
   --color-error-fg   : oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
   --color-error-hover: oklch(from var(--red) calc(l - 0.06) c h);
+  /* Исход как приглушённая поверхность (вспышка строки FlowLine при ошибке) —
+     зеркало --color-success-dim: сам цвет ошибки под низкой альфой, подкрашен фоном.
+     Не осветление-до-непрозрачного (оно на светлой теме теряет хрому за охватом sRGB
+     и уходит в холодную лаванду) — а честное наследование error с той же α, что успех. */
+  --color-error-dim  : oklch(from var(--red) l c h / 0.16);
+
   /* Мягкая ошибка: светлее жёсткой, тот же красный. Для «вне зоны» ритма на sepia:
      мягкий янтарь на пергаменте невидим (обратной связи нет вовсе), красный —
      видимая, но негромкая замена. Контраст к дорожке 3.02 против ~2.2 у янтаря. */
@@ -161,8 +167,6 @@
   --color-symbol-corrected : oklch(from var(--red) calc(l - 0.05) calc(c - 0.02) calc(h - 5));
   --color-symbol-error     : var(--mustard); /* единичный промах = warning-горчица (ADR 0028: не бренд) */
   --color-symbol-errors    : oklch(from var(--red) calc(l - 0.05) c calc(h - 5));
-  --color-symbol-correct-bg: oklch(from var(--green) calc(l + 0.32) calc(c - 0.08) h);
-  --color-symbol-error-bg  : oklch(from var(--red) calc(l + 0.37) calc(c - 0.13) calc(h - 5));
 
   /* --- Домен · блок курсора --- */
   --color-cursor-bg: var(--color-brand-accent);  /* пока янтарь: см. «акцент бренда» выше */
@@ -336,8 +340,9 @@
   /* FlowLine — рельс дорожки (верх/низ) нейтральным хромом: это каркас потока,
      не движение и не курсор (ADR 0028), поэтому --color-border, не оттенок. */
   --flow-line-border            : 2px solid var(--color-border);
-  --flow-line-correct-background: var(--color-symbol-correct-bg);
-  --flow-line-error-background  : var(--color-symbol-error-bg);
+  /* Вспышка строки = исход приглушённой поверхностью, симметрично (success/error-dim) */
+  --flow-line-correct-background: var(--color-success-dim);
+  --flow-line-error-background  : var(--color-error-dim);
 
   /* CursorSymbol */
   --cursor-symbol-background: var(--color-cursor-bg);
