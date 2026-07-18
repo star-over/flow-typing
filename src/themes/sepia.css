@@ -35,7 +35,7 @@
   /* Акценты — по одному на смысл. */
   --amber     : oklch(0.68 0.15 66);   /* акцент бренда: каретка логотипа, CTA */
   --green     : oklch(0.60 0.13 145);  /* успех */
-  --red       : oklch(0.55 0.18 30);   /* ошибка */
+  --red       : oklch(0.55 0.14 30);   /* ошибка · хрома приглушена (0.18→0.14): «насыщенность только на движении», ошибка не кричит */
 
   /* Маршруты — по одному на палец (ADR 0028): движение и цель несут оттенок
      пальца-владельца, различает форма (путь — кольцо, цель — заливка).
@@ -50,13 +50,13 @@
   --route-4   : oklch(0.55 0.170 295);  /* безымянный */
   --route-5   : oklch(0.55 0.170 340);  /* мизинец */
 
-  /* Тёплые соседи янтаря. ДОЛГ (аудит 2026-07-17): `--ochre` отличается от
-     `--amber` на ΔE 0.05 при том, что DESIGN объявляет янтарь предупреждения
-     совпадающим с янтарём цели намеренно; `--honey` — рамка курсора. Сведение —
-     решение владельца, поэтому пока это отдельные цвета ядра: структура
-     показывает долг, а не прячет его. */
-  --ochre     : oklch(0.70 0.13 75);   /* предупреждение */
-  --honey     : oklch(0.78 0.15 80);   /* рамка фокуса FlowLine */
+  /* Предупреждение (единичный промах символа). Свой цвет, не янтарь: янтарь занят
+     брендом/курсором, и на пергаменте тёплый коридор тесен (ошибка h30 … янтарь
+     h66) — оттенок warning уведён в жёлто-оливковую зону h100, ΔE 0.13 к бренду и
+     0.19–0.22 к красным-соседям (оба выше системного минимума 0.119). Хрома 0.115 —
+     потолок sRGB на этой светлоте: читаемого яркого жёлтого здесь нет, отсюда
+     приглушённая горчица. */
+  --mustard   : oklch(0.57 0.115 100);  /* предупреждение (warning) */
 
 
   /* ============================================================
@@ -96,8 +96,11 @@
   --color-error      : var(--red);
   --color-error-fg   : oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
   --color-error-hover: oklch(from var(--red) calc(l - 0.06) c h);
-  --color-warning    : var(--ochre);
-  --color-warning-dim: oklch(from var(--ochre) l c h / 0.22);
+  /* Мягкая ошибка: светлее жёсткой, тот же красный. Для «вне зоны» ритма на sepia:
+     мягкий янтарь на пергаменте невидим (обратной связи нет вовсе), красный —
+     видимая, но негромкая замена. Контраст к дорожке 3.02 против ~2.2 у янтаря. */
+  --color-error-soft    : oklch(from var(--red) calc(l + 0.05) c calc(h + 2));
+  --color-error-soft-dim: oklch(from var(--red) calc(l + 0.05) c calc(h + 2) / 0.22);
 
   /* --- Приглушённый текст-след ритма --- */
   --color-text-dim: oklch(from var(--ink) calc(l + 0.20) c h / 0.16);
@@ -151,13 +154,12 @@
      курсора на цвет пальца требует пер-позиционного контракта CursorSymbol. */
   --color-brand-accent      : var(--amber);
   --color-brand-accent-hover: oklch(from var(--amber) calc(l * 1.07) c h);
-  --color-cursor-border     : var(--honey);
 
   /* --- Домен · статусы символа в потоке --- */
   --color-symbol-pending   : oklch(from var(--ink) calc(l + 0.25) c calc(h + 10));
   --color-symbol-correct   : oklch(from var(--green) calc(l - 0.10) c h);
-  --color-symbol-corrected : oklch(from var(--red) calc(l - 0.05) calc(c - 0.03) calc(h - 5));
-  --color-symbol-error     : oklch(from var(--ochre) calc(l - 0.05) c h);
+  --color-symbol-corrected : oklch(from var(--red) calc(l - 0.05) calc(c - 0.02) calc(h - 5));
+  --color-symbol-error     : var(--mustard); /* единичный промах = warning-горчица (ADR 0028: не бренд) */
   --color-symbol-errors    : oklch(from var(--red) calc(l - 0.05) c calc(h - 5));
   --color-symbol-correct-bg: oklch(from var(--green) calc(l + 0.32) calc(c - 0.08) h);
   --color-symbol-error-bg  : oklch(from var(--red) calc(l + 0.37) calc(c - 0.13) calc(h - 5));
@@ -478,14 +480,16 @@
   --landing-demo-surface         : var(--color-surface);
 
   /* RhythmChannel — рецептор ритма под курсором FlowLine. Зелёный = кромка в зоне
-     (держишь темп); янтарь = вне зоны в любую сторону — частишь/тормозишь различает
-     позиция и сторона заливки, не оттенок (замедление не наказываем). */
+     (держишь темп); мягкий красный = вне зоны в любую сторону — частишь/тормозишь.
+     Сторону сноса несёт позиция маркера и сторона заливки, не оттенок. Мягче
+     ошибки набора, но виден (DESIGN «Правило мягкости ритма»): янтарь на пергаменте
+     тонет, поэтому в sepia сигнал несёт мягкий красный. */
   --rhythm-channel-track-background: var(--color-surface);
   --rhythm-channel-track-border   : 1px solid var(--color-border);
   --rhythm-channel-zone-fill      : var(--color-success-dim);
   --rhythm-channel-marker-in      : var(--color-success);
-  --rhythm-channel-marker-outside : var(--color-warning);
-  --rhythm-channel-state-fill     : var(--color-warning-dim);
+  --rhythm-channel-marker-outside : var(--color-error-soft);
+  --rhythm-channel-state-fill     : var(--color-error-soft-dim);
   --rhythm-channel-anchor         : var(--color-text-secondary);
   --rhythm-channel-trail          : var(--color-text-dim);
 }

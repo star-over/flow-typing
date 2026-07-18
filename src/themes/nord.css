@@ -378,7 +378,8 @@
 
   /* RhythmChannel — рецептор ритма под курсором FlowLine. Зелёный = кромка в зоне
      (держишь темп); янтарь = вне зоны в любую сторону — частишь/тормозишь различает
-     позиция и сторона заливки, не оттенок (замедление не наказываем). */
+     позиция и сторона заливки, не оттенок. Мягче ошибки набора, но виден (DESIGN
+     «Правило мягкости ритма»). */
   --rhythm-channel-track-background: var(--color-surface);
   --rhythm-channel-track-border   : 1px solid var(--color-border);
   --rhythm-channel-zone-fill      : oklch(from var(--color-success) l c h / 0.18);
