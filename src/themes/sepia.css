@@ -78,9 +78,17 @@
   --color-text-secondary: oklch(from var(--ink) calc(l + 0.20) c h);
   --color-text-muted    : oklch(from var(--ink) calc(l + 0.30) c h);
 
+  /* --- Светлый текст/символ на плотной заливке (единая роль, ADR 0029) ---
+     Один пергаментный тон текста/символа для всех плотных заливок: primary/провайдеры
+     (--ink), ошибка (--red), правильная клавиша (зелёный) и цели пальцев
+     (--color-target-*). Раньше — четыре near-identical роли с микро-дельтами
+     (±0.01 l/c), аудит признал их визуально неразличимыми. Светлота l+0.03 взята
+     по самому тесному фону (красный): WCAG 4.62:1 к --red (текст, ≥4.5), 11.9:1
+     к --ink, ≥4.9:1 к зелёному и целям (крупный символ, ≥3). */
+  --color-on-dense: oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
+
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background    : var(--ink);
-  --color-primary-foreground    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.03) h);
   --color-primary-border: oklch(from var(--ink) calc(l - 0.05) c h);
   --color-primary-hover : oklch(from var(--ink) calc(l + 0.12) c h);
 
@@ -97,7 +105,6 @@
   --color-success    : var(--green);
   --color-success-dim: oklch(from var(--green) l c h / 0.16);  /* α симметрична --color-error-dim; та же роль красит и пояс-допуск ритма */
   --color-error      : var(--red);
-  --color-error-foreground   : oklch(from var(--parchment) calc(l + 0.03) calc(c - 0.02) h);
   --color-error-hover: oklch(from var(--red) calc(l - 0.06) c h);
   /* Исход как приглушённая поверхность (вспышка строки FlowLine при ошибке) —
      зеркало --color-success-dim: сам цвет ошибки под низкой альфой, подкрашен фоном.
@@ -140,7 +147,6 @@
   --color-target-3: oklch(from var(--route-3) 0.50 calc(c * 0.9) h);
   --color-target-4: oklch(from var(--route-4) 0.50 calc(c * 0.9) h);
   --color-target-5: oklch(from var(--route-5) 0.50 calc(c * 0.9) h);
-  --color-target-foreground: var(--color-primary-foreground); /* светлый символ на плотной цели — инверсия */
   --color-gap      : var(--color-background);         /* просвет: отделяет клавишу от пальца под ней.
                                                  На пергаменте невидим, на пальце режет силуэт —
                                                  без него цель и палец одного оттенка сливаются
@@ -196,10 +202,9 @@
 
   /* --- Клавиша · результат нажатия --- */
   --color-keycap-correct-background    : oklch(from var(--green) calc(l - 0.10) c h / 0.8);
-  --color-keycap-correct-foreground    : oklch(from var(--parchment) calc(l + 0.02) calc(c - 0.01) h);
   --color-keycap-correct-border: oklch(from var(--green) calc(l + 0.05) calc(c + 0.02) h);
   --color-keycap-error-background      : oklch(from var(--red) calc(l + 0.05) c h / 0.8);
-  --color-keycap-error-foreground      : var(--color-error-foreground);
+  --color-keycap-error-foreground      : var(--color-on-dense);
   --color-keycap-error-border  : oklch(from var(--red) calc(l + 0.15) calc(c - 0.03) calc(h - 5));
 
   /* ============================================================
@@ -265,39 +270,39 @@
 
   /* KeyCap — per-position target */
   --keycap-l1-target-background: var(--color-target-1);
-  --keycap-l1-target-color     : var(--color-target-foreground);
+  --keycap-l1-target-color     : var(--color-on-dense);
   --keycap-l1-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r1-target-background: var(--color-target-1);
-  --keycap-r1-target-color     : var(--color-target-foreground);
+  --keycap-r1-target-color     : var(--color-on-dense);
   --keycap-r1-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l2-target-background: var(--color-target-2);
-  --keycap-l2-target-color     : var(--color-target-foreground);
+  --keycap-l2-target-color     : var(--color-on-dense);
   --keycap-l2-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r2-target-background: var(--color-target-2);
-  --keycap-r2-target-color     : var(--color-target-foreground);
+  --keycap-r2-target-color     : var(--color-on-dense);
   --keycap-r2-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l3-target-background: var(--color-target-3);
-  --keycap-l3-target-color     : var(--color-target-foreground);
+  --keycap-l3-target-color     : var(--color-on-dense);
   --keycap-l3-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r3-target-background: var(--color-target-3);
-  --keycap-r3-target-color     : var(--color-target-foreground);
+  --keycap-r3-target-color     : var(--color-on-dense);
   --keycap-r3-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l4-target-background: var(--color-target-4);
-  --keycap-l4-target-color     : var(--color-target-foreground);
+  --keycap-l4-target-color     : var(--color-on-dense);
   --keycap-l4-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r4-target-background: var(--color-target-4);
-  --keycap-r4-target-color     : var(--color-target-foreground);
+  --keycap-r4-target-color     : var(--color-on-dense);
   --keycap-r4-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-l5-target-background: var(--color-target-5);
-  --keycap-l5-target-color     : var(--color-target-foreground);
+  --keycap-l5-target-color     : var(--color-on-dense);
   --keycap-l5-target-ring      : 0 0 0 0.15rem var(--color-gap);
   --keycap-r5-target-background: var(--color-target-5);
-  --keycap-r5-target-color     : var(--color-target-foreground);
+  --keycap-r5-target-color     : var(--color-on-dense);
   --keycap-r5-target-ring      : 0 0 0 0.15rem var(--color-gap);
 
   /* KeyCap — press result */
   --keycap-correct-background: var(--color-keycap-correct-background);
-  --keycap-correct-color     : var(--color-keycap-correct-foreground);
+  --keycap-correct-color     : var(--color-on-dense);
   --keycap-correct-border    : 1px solid var(--color-keycap-correct-border);
   --keycap-correct-ring      : 0 0 0 0.15rem var(--color-gap); /* тот же габарит, что у прочих состояний: отклик несёт заливка, не размер */
   --keycap-error-background  : var(--color-keycap-error-background);
@@ -433,7 +438,7 @@
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
   --settings-page-danger-btn-background      : var(--color-error);
-  --settings-page-danger-btn-color           : var(--color-error-foreground);
+  --settings-page-danger-btn-color           : var(--color-on-dense);
   --settings-page-danger-btn-border          : 1px solid var(--color-error);
   --settings-page-danger-btn-hover-background : var(--color-error-hover);
   --settings-page-danger-text-color          : var(--color-error);
@@ -443,15 +448,15 @@
   --sign-in-screen-title-color           : var(--color-text-primary);
   --sign-in-screen-disclaimer-color      : var(--color-text-secondary);
   --sign-in-screen-btn-github-background : var(--color-primary-background);
-  --sign-in-screen-btn-github-color      : var(--color-primary-foreground);
+  --sign-in-screen-btn-github-color      : var(--color-on-dense);
   --sign-in-screen-btn-github-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-github-hover-background: var(--color-primary-hover);
   --sign-in-screen-btn-google-background : var(--color-primary-background);
-  --sign-in-screen-btn-google-color      : var(--color-primary-foreground);
+  --sign-in-screen-btn-google-color      : var(--color-on-dense);
   --sign-in-screen-btn-google-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-google-hover-background: var(--color-primary-hover);
   --sign-in-screen-btn-yandex-background : var(--color-primary-background);
-  --sign-in-screen-btn-yandex-color      : var(--color-primary-foreground);
+  --sign-in-screen-btn-yandex-color      : var(--color-on-dense);
   --sign-in-screen-btn-yandex-border     : 1px solid var(--color-primary-border);
   --sign-in-screen-btn-yandex-hover-background: var(--color-primary-hover);
 
