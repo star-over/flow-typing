@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 
 import { THEMES } from './registry';
 import { THEME_CONTRACT } from './contract';
+import { ROLE_DICTIONARY } from './roles';
 
 /**
  * Парсит CSS-блок селектора и возвращает map `property → value`.
@@ -14,7 +15,10 @@ import { THEME_CONTRACT } from './contract';
  * не поймать упоминание селектора внутри JSDoc-комментария файла.
  */
 function parseRootTokens(path: string, selector: string): Record<string, string> {
-  const src = readFileSync(path, 'utf-8');
+  // Убираем CSS-комментарии: их текст может содержать `имя: значение;` (пример —
+  // пояснение к роли внутри `/* … */`), и жадное сопоставление значения проглотило
+  // бы соседнюю реальную декларацию. Комментарии CSS не вкладываются — `*?` корректен.
+  const src = readFileSync(path, 'utf-8').replace(/\/\*[\s\S]*?\*\//g, '');
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const selectorRe = new RegExp(escaped + '\\s*\\{', 'g');
   const match = selectorRe.exec(src);
@@ -106,6 +110,44 @@ describe('themes/*.css contract', () => {
       it(`declares color-scheme: ${theme.colorScheme}`, () => {
         expect(tokens['color-scheme']).toBe(theme.colorScheme);
       });
+    });
+  }
+});
+
+// Темы, приведённые к эталонному словарю ролей L2 (ADR 0029). Пока только sepia;
+// light/dark/nord держат расходящийся набор ролей — их выравнивание отдельная задача.
+const NORMALIZED = ['sepia'] as const;
+
+describe('L2 role dictionary — declaration', () => {
+  for (const id of NORMALIZED) {
+    it(`theme '${id}' declares every role in ROLE_DICTIONARY`, () => {
+      const tokens = parseRootTokens(themePath(id), `:root[data-theme="${id}"]`);
+      for (const role of ROLE_DICTIONARY) {
+        expect(tokens, `theme '${id}' is missing role ${role}`).toHaveProperty(role);
+      }
+    });
+  }
+});
+
+describe('L2 role dictionary — var() resolution (no dangling var(--color-*))', () => {
+  const varColorRe = /var\(\s*(--color-[a-z0-9-]+)/g;
+
+  for (const theme of THEMES) {
+    it(`theme '${theme.id}': every referenced --color-* is declared`, () => {
+      const tokens = parseRootTokens(themePath(theme.id), `:root[data-theme="${theme.id}"]`);
+      const declared = new Set(Object.keys(tokens).filter((k) => k.startsWith('--color-')));
+      const referenced = new Set<string>();
+      for (const value of Object.values(tokens)) {
+        for (const m of value.matchAll(varColorRe)) {
+          if (m[1]) referenced.add(m[1]);
+        }
+      }
+      for (const ref of referenced) {
+        expect(
+          declared,
+          `theme '${theme.id}': dangling var(${ref}) — role never declared`
+        ).toContain(ref);
+      }
     });
   }
 });

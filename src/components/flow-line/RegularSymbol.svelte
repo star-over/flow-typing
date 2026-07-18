@@ -30,11 +30,11 @@
     color: var(--regular-symbol-corrected-color);
   }
 
-  .ERROR {
-    color: var(--regular-symbol-error-color);
+  .ONE_ERROR {
+    color: var(--regular-symbol-one-error-color);
   }
 
-  .ERRORS {
-    color: var(--regular-symbol-errors-color);
+  .MANY_ERRORS {
+    color: var(--regular-symbol-many-errors-color);
   }
 </style>

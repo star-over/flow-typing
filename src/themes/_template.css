@@ -2,7 +2,8 @@
 
 /*
  * Template для новой темы. НЕ импортируется в build (имя начинается с `_`).
- * Contract-тест проверяет, что список токенов здесь совпадает с базой.
+ * Contract-тест проверяет, что здесь декларирован каждый токен THEME_CONTRACT
+ * (значения могут быть `unset` — важно только наличие имён).
  *
  * Чтобы создать тему:
  *   1. Скопировать файл в `src/themes/<id>.css`.
@@ -16,7 +17,7 @@
   /* color-scheme: light | dark; */
 
   /* --- Semantic surfaces --- */
-  --color-bg           : unset;
+  --color-background           : unset;
   --color-surface      : unset;
   --color-surface-hover: unset;
   --color-border       : unset;
@@ -55,51 +56,45 @@
   --color-symbol-pending   : unset;
   --color-symbol-correct   : unset;
   --color-symbol-corrected : unset;
-  --color-symbol-error     : unset;
-  --color-symbol-errors    : unset;
-  --color-symbol-correct-bg: unset;
-  --color-symbol-error-bg  : unset;
+  --color-symbol-one-error     : unset;
+  --color-symbol-many-errors    : unset;
+  --color-symbol-correct-background: unset;
+  --color-symbol-error-background  : unset;
 
   /* --- Domain · CursorSymbol block --- */
-  --color-cursor-bg: unset;
-  --color-cursor-fg: unset;
+  --color-cursor-background: unset;
+  --color-cursor-foreground: unset;
 
   /* --- Domain · KeyCap base --- */
   --color-keycap-label : unset;
   --color-keycap-marker: unset;
 
   /* --- Domain · KeyCap groups (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
-  --color-keycap-group-1-bg    : unset;
+  --color-keycap-group-1-background    : unset;
   --color-keycap-group-1-border: unset;
-  --color-keycap-group-2-bg    : unset;
+  --color-keycap-group-2-background    : unset;
   --color-keycap-group-2-border: unset;
-  --color-keycap-group-3-bg    : unset;
+  --color-keycap-group-3-background    : unset;
   --color-keycap-group-3-border: unset;
-  --color-keycap-group-4-bg    : unset;
+  --color-keycap-group-4-background    : unset;
   --color-keycap-group-4-border: unset;
-  --color-keycap-group-5-bg    : unset;
+  --color-keycap-group-5-background    : unset;
   --color-keycap-group-5-border: unset;
 
   /* --- Domain · KeyCap secondary --- */
-  --color-keycap-secondary-bg    : unset;
-  --color-keycap-secondary-fg    : unset;
-  --color-keycap-secondary-border: unset;
 
   /* --- Domain · KeyCap accent --- */
-  --color-keycap-accent-bg    : unset;
-  --color-keycap-accent-fg    : unset;
-  --color-keycap-accent-border: unset;
 
   /* --- Domain · KeyCap navigation role TARGET --- */
-  --color-keycap-role-target-bg: unset;
-  --color-keycap-role-target-fg: unset;
+  --color-keycap-role-target-background: unset;
+  --color-keycap-role-target-foreground: unset;
 
   /* --- Domain · KeyCap press results --- */
-  --color-keycap-correct-bg    : unset;
-  --color-keycap-correct-fg    : unset;
+  --color-keycap-correct-background    : unset;
+  --color-keycap-correct-foreground    : unset;
   --color-keycap-correct-border: unset;
-  --color-keycap-error-bg      : unset;
-  --color-keycap-error-fg      : unset;
+  --color-keycap-error-background      : unset;
+  --color-keycap-error-foreground      : unset;
   --color-keycap-error-border  : unset;
 
   /* ============================================================
@@ -194,8 +189,8 @@
   --regular-symbol-pending-color  : unset;
   --regular-symbol-correct-color  : unset;
   --regular-symbol-corrected-color: unset;
-  --regular-symbol-error-color    : unset;
-  --regular-symbol-errors-color   : unset;
+  --regular-symbol-one-error-color    : unset;
+  --regular-symbol-many-errors-color   : unset;
 
   /* FooterActions */
   --footer-actions-btn-background        : unset;
