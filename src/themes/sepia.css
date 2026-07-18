@@ -331,8 +331,9 @@
   --movement-path-r5-marker  : var(--color-route-5);
   --movement-path-marker-core: var(--ink); /* тело бусины нейтрально: палец несёт ободок (блик/терминатор выводит компонент) */
 
-  /* FlowLine */
-  --flow-line-border            : 2px solid var(--color-cursor-border);
+  /* FlowLine — рельс дорожки (верх/низ) нейтральным хромом: это каркас потока,
+     не движение и не курсор (ADR 0028), поэтому --color-border, не оттенок. */
+  --flow-line-border            : 2px solid var(--color-border);
   --flow-line-correct-background: var(--color-symbol-correct-bg);
   --flow-line-error-background  : var(--color-symbol-error-bg);
 

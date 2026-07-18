@@ -58,7 +58,13 @@
     width: 100vw;
     font-family: var(--font-mono);
     font-size: 1.875rem;
-    border: var(--flow-line-border);
+    /* Рельс: только верх и низ (дорожка потока). Боковые борта не рисуем —
+       строка тянется на 100vw, вертикали всё равно ушли бы за края экрана. */
+    border-block: var(--flow-line-border);
+    /* Ширина краевого растворения текста, в символах моноширинного шрифта:
+       ушедшее тает у левой кромки, приходящее проявляется у правой — вместо
+       резкого обрыва по overflow. Наследуется контейнерами символов. */
+    --edge-fade: 7ch;
   }
 
   .completed-symbols {
@@ -67,6 +73,9 @@
     white-space: nowrap;
     text-align: right;
     overflow: hidden;
+    /* Ушедший текст тает у левой кромки (маска — трафарет по альфе, не цвет) */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--edge-fade));
+    mask-image: linear-gradient(to right, transparent, #000 var(--edge-fade));
   }
 
   .pending-symbols {
@@ -75,6 +84,9 @@
     white-space: pre;
     text-align: left;
     overflow: hidden;
+    /* Приходящий текст проявляется из правой кромки */
+    -webkit-mask-image: linear-gradient(to left, transparent, #000 var(--edge-fade));
+    mask-image: linear-gradient(to left, transparent, #000 var(--edge-fade));
   }
 
   /* Cursor mode: always HALF */
