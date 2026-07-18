@@ -81,14 +81,8 @@
   --color-keycap-group-5-border: unset;
 
   /* --- Domain · KeyCap secondary --- */
-  --color-keycap-secondary-bg    : unset;
-  --color-keycap-secondary-fg    : unset;
-  --color-keycap-secondary-border: unset;
 
   /* --- Domain · KeyCap accent --- */
-  --color-keycap-accent-bg    : unset;
-  --color-keycap-accent-fg    : unset;
-  --color-keycap-accent-border: unset;
 
   /* --- Domain · KeyCap navigation role TARGET --- */
   --color-keycap-role-target-bg: unset;

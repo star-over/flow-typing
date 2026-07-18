@@ -85,14 +85,8 @@
   --color-keycap-group-5-border: oklch(0.40 0.11 300);
 
   /* --- Domain · KeyCap secondary --- */
-  --color-keycap-secondary-bg    : oklch(0.22 0 0);
-  --color-keycap-secondary-fg    : oklch(0.55 0 68);
-  --color-keycap-secondary-border: oklch(0.35 0 0);
 
   /* --- Domain · KeyCap accent --- */
-  --color-keycap-accent-bg    : oklch(0.25 0.02 74);
-  --color-keycap-accent-fg    : oklch(0.78 0.16 56);
-  --color-keycap-accent-border: oklch(0.40 0.07 71);
 
   /* --- Domain · KeyCap navigation role TARGET --- */
   --color-keycap-role-target-bg: oklch(0.55 0.10 243 / 0.7);
