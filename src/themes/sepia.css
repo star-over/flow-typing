@@ -168,8 +168,8 @@
   --color-symbol-pending   : oklch(from var(--ink) calc(l + 0.25) c calc(h + 10));
   --color-symbol-correct   : oklch(from var(--green) calc(l - 0.10) c h);
   --color-symbol-corrected : oklch(from var(--red) calc(l - 0.05) calc(c - 0.02) calc(h - 5));
-  --color-symbol-error     : var(--mustard); /* единичный промах = warning-горчица (ADR 0028: не бренд) */
-  --color-symbol-errors    : oklch(from var(--red) calc(l - 0.05) c calc(h - 5));
+  --color-symbol-one-error     : var(--mustard); /* единичный промах = warning-горчица (ADR 0028: не бренд) */
+  --color-symbol-many-errors    : oklch(from var(--red) calc(l - 0.05) c calc(h - 5));
 
   /* --- Домен · блок курсора --- */
   --color-cursor-bg: var(--color-brand-accent);  /* пока янтарь: см. «акцент бренда» выше */
@@ -355,8 +355,8 @@
   --regular-symbol-pending-color  : var(--color-symbol-pending);
   --regular-symbol-correct-color  : var(--color-symbol-correct);
   --regular-symbol-corrected-color: var(--color-symbol-corrected);
-  --regular-symbol-error-color    : var(--color-symbol-error);
-  --regular-symbol-errors-color   : var(--color-symbol-errors);
+  --regular-symbol-one-error-color    : var(--color-symbol-one-error);
+  --regular-symbol-many-errors-color   : var(--color-symbol-many-errors);
 
   /* FooterActions */
   --footer-actions-btn-background        : var(--color-surface);

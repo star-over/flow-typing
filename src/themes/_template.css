@@ -55,8 +55,8 @@
   --color-symbol-pending   : unset;
   --color-symbol-correct   : unset;
   --color-symbol-corrected : unset;
-  --color-symbol-error     : unset;
-  --color-symbol-errors    : unset;
+  --color-symbol-one-error     : unset;
+  --color-symbol-many-errors    : unset;
   --color-symbol-correct-bg: unset;
   --color-symbol-error-bg  : unset;
 
@@ -194,8 +194,8 @@
   --regular-symbol-pending-color  : unset;
   --regular-symbol-correct-color  : unset;
   --regular-symbol-corrected-color: unset;
-  --regular-symbol-error-color    : unset;
-  --regular-symbol-errors-color   : unset;
+  --regular-symbol-one-error-color    : unset;
+  --regular-symbol-many-errors-color   : unset;
 
   /* FooterActions */
   --footer-actions-btn-background        : unset;

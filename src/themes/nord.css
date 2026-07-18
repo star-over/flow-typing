@@ -52,8 +52,8 @@
   --color-symbol-pending   : oklch(0.78 0.01 240);
   --color-symbol-correct   : oklch(0.78 0.07 130);
   --color-symbol-corrected : oklch(0.72 0.09 50);
-  --color-symbol-error     : oklch(0.85 0.10 90);
-  --color-symbol-errors    : oklch(0.65 0.13 25);
+  --color-symbol-one-error     : oklch(0.85 0.10 90);
+  --color-symbol-many-errors    : oklch(0.65 0.13 25);
   --color-symbol-correct-bg: oklch(0.40 0.03 130);
   --color-symbol-error-bg  : oklch(0.40 0.05 25);
 
@@ -244,8 +244,8 @@
   --regular-symbol-pending-color  : var(--color-symbol-pending);
   --regular-symbol-correct-color  : var(--color-symbol-correct);
   --regular-symbol-corrected-color: var(--color-symbol-corrected);
-  --regular-symbol-error-color    : var(--color-symbol-error);
-  --regular-symbol-errors-color   : var(--color-symbol-errors);
+  --regular-symbol-one-error-color    : var(--color-symbol-one-error);
+  --regular-symbol-many-errors-color   : var(--color-symbol-many-errors);
 
   /* FooterActions */
   --footer-actions-btn-background        : var(--color-surface);

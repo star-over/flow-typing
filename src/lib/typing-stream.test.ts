@@ -96,13 +96,13 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
 
-  it('should return "ERROR" for an incorrect first attempt', () => {
+  it('should return "ONE_ERROR" for an incorrect first attempt', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
       attempts: [{ pressedKeyCaps: ["KeyB"] }],
     };
-    expect(getSymbolType(symbol)).toBe("ERROR");
+    expect(getSymbolType(symbol)).toBe("ONE_ERROR");
   });
 
   it('should return "CORRECTED" for a correct attempt after an incorrect one', () => {
@@ -117,7 +117,7 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECTED");
   });
 
-  it('should return "ERRORS" for multiple incorrect attempts', () => {
+  it('should return "MANY_ERRORS" for multiple incorrect attempts', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "a",
       targetKeyCaps: ["KeyA"],
@@ -126,7 +126,7 @@ describe("getSymbolType", () => {
         { pressedKeyCaps: ["KeyC"]},
       ],
     };
-    expect(getSymbolType(symbol)).toBe("ERRORS");
+    expect(getSymbolType(symbol)).toBe("MANY_ERRORS");
   });
 
   // --- Tests for Chord Presses (e.g., Shift + Key) ---
@@ -140,22 +140,22 @@ describe("getSymbolType", () => {
     expect(getSymbolType(symbol)).toBe("CORRECT");
   });
 
-  it('should return "ERROR" when a required modifier is missing', () => {
+  it('should return "ONE_ERROR" when a required modifier is missing', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
       attempts: [{ pressedKeyCaps: ["KeyA"] }],
     };
-    expect(getSymbolType(symbol)).toBe("ERROR");
+    expect(getSymbolType(symbol)).toBe("ONE_ERROR");
   });
 
-  it('should return "ERROR" when the wrong key is pressed with a correct modifier', () => {
+  it('should return "ONE_ERROR" when the wrong key is pressed with a correct modifier', () => {
     const symbol: StreamSymbol = {
       targetSymbol: "A",
       targetKeyCaps: ["ShiftLeft", "KeyA"],
       attempts: [{ pressedKeyCaps: ["ShiftLeft", "KeyB"] }],
     };
-    expect(getSymbolType(symbol)).toBe("ERROR");
+    expect(getSymbolType(symbol)).toBe("ONE_ERROR");
   });
 
   it('should return "CORRECTED" for a correct chord press after a failed attempt', () => {
