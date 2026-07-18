@@ -42,6 +42,7 @@
     "**/*.jsonl",
     ".agents/",
     "tmp/",
+    "docs/superpowers/plans/",
     "auto-flow/corpus/",
     "dist/",
     "coverage/",
