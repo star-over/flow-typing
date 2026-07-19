@@ -144,7 +144,7 @@
   .tagline {
     font-size: var(--font-size-lg);
     line-height: var(--line-height-normal);
-    color: var(--landing-muted-color);
+    color: var(--color-text-secondary);
     text-wrap: pretty;
     max-width: 34ch;
   }
@@ -155,9 +155,9 @@
     align-items: center;
     padding: var(--spacing-3) var(--spacing-6);
     border-radius: var(--radius-3);
-    background: var(--landing-cta-background);
-    color: var(--landing-cta-color);
-    border: var(--landing-cta-border);
+    background: var(--color-brand-accent);
+    color: var(--color-cursor-foreground);
+    border: 1px solid transparent;
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-semibold);
     text-decoration: none;
@@ -166,7 +166,7 @@
   }
 
   .cta:hover {
-    background: var(--landing-cta-hover-background);
+    background: var(--color-brand-accent-hover);
   }
 
   .cta:active {
@@ -174,7 +174,7 @@
   }
 
   .cta:focus-visible {
-    outline: 2px solid var(--landing-cta-background);
+    outline: 2px solid var(--color-brand-accent);
     outline-offset: 3px;
   }
 
@@ -206,18 +206,18 @@
     align-items: flex-start;
     gap: var(--spacing-6);
     padding: var(--spacing-6) 0;
-    border-top: var(--landing-rule);
+    border-top: 1px solid var(--color-border);
   }
 
   .principle:last-child {
-    border-bottom: var(--landing-rule);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .motif {
     flex-shrink: 0;
     width: 2.5rem;
     height: 2.5rem;
-    color: var(--landing-demo-path);
+    color: var(--color-path-highlight);
   }
 
   .motif svg {
@@ -250,7 +250,7 @@
   .principle-body {
     font-size: var(--font-size-md);
     line-height: var(--line-height-normal);
-    color: var(--landing-muted-color);
+    color: var(--color-text-secondary);
     text-wrap: pretty;
     max-width: 60ch;
   }
@@ -282,7 +282,7 @@
     flex-direction: column;
     gap: var(--spacing-2);
     padding-top: var(--spacing-4);
-    border-top: var(--landing-rule);
+    border-top: 1px solid var(--color-border);
   }
 
   .side-label {
@@ -293,15 +293,15 @@
 
   /* «Обычный тренажёр» — приглушён; «FlowTyping» — янтарная подпись-якорь. */
   .side-old {
-    color: var(--landing-muted-color);
+    color: var(--color-text-secondary);
   }
 
   .side-new {
-    border-top-color: var(--landing-cta-background);
+    border-top-color: var(--color-brand-accent);
   }
 
   .side-new .side-label {
-    color: var(--landing-cta-background);
+    color: var(--color-brand-accent);
   }
 
   .side-text {
@@ -373,12 +373,12 @@
     gap: var(--spacing-6);
     flex-wrap: wrap;
     padding-top: var(--spacing-6);
-    border-top: var(--landing-rule);
+    border-top: 1px solid var(--color-border);
   }
 
   .footer-link {
     font-size: var(--font-size-sm);
-    color: var(--landing-muted-color);
+    color: var(--color-text-secondary);
     text-decoration: none;
   }
 
