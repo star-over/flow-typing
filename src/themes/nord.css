@@ -101,11 +101,6 @@
   --keycap-tint-1: oklch(0.40 0.02 254 / 0.7);  /* нейтральный тон группы большого пальца (холодный Polar Night) */
   --keycap-edge-1: oklch(0.55 0.02 254);        /* нейтральная кромка группы большого пальца */
 
-  /* Результат нажатия. */
-  --keycap-correct-background: oklch(0.50 0.07 130 / 0.8);
-  --keycap-error-background  : oklch(0.55 0.13 25 / 0.8);
-  --keycap-error-foreground  : oklch(0.97 0.0 20);
-
 
   /* ============================================================
    * СЛОЙ 2 · РОЛИ — семантика (словарь 73: маппинг на ядро или
@@ -227,11 +222,15 @@
   --color-keycap-group-5-background: oklch(from var(--color-finger-5) 0.40 0.045 h / 0.7);
   --color-keycap-group-5-border    : oklch(from var(--color-finger-5) 0.60 0.13 h);
 
-  /* --- Клавиша · результат нажатия --- */
-  --color-keycap-correct-background: var(--keycap-correct-background);
+  /* --- Клавиша · результат нажатия ---
+     Значения в роли (как в light/dark/sepia), не в ядре: прежние core-токены
+     --keycap-correct/error-* совпадали по имени с контрактом → цикл → прозрачно.
+     Ярче под Polar Night (фон L0.32 светлее прочих тёмных тем): correct давал
+     композит-контраст 1.9:1 (невидим) → теперь 4.4:1, тёмный символ читается. */
+  --color-keycap-correct-background: oklch(from var(--aurora-green) 0.70 0.14 h / 0.85);
   --color-keycap-correct-border    : var(--aurora-green);
-  --color-keycap-error-background  : var(--keycap-error-background);
-  --color-keycap-error-foreground  : var(--keycap-error-foreground);
+  --color-keycap-error-background  : oklch(from var(--aurora-red) 0.62 0.17 h / 0.85);
+  --color-keycap-error-foreground  : oklch(from var(--snow-storm-1) 0.97 c h);
   --color-keycap-error-border      : var(--aurora-red);
 
   /* ============================================================
