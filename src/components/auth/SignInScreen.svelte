@@ -99,7 +99,7 @@
 
 <style>
   .sign-in-screen {
-    background: var(--sign-in-screen-background);
+    background: var(--color-surface);
     padding: var(--spacing-8);
     border-radius: var(--radius-md, 0.5rem);
     display: flex;
@@ -111,15 +111,15 @@
   }
 
   .sign-in-screen__title {
-    color: var(--sign-in-screen-title-color);
+    color: var(--color-text-primary);
     font-size: 1.5rem;
     margin: 0;
   }
 
   .sign-in-screen__btn-google {
-    background: var(--sign-in-screen-btn-google-background);
-    color: var(--sign-in-screen-btn-google-color);
-    border: var(--sign-in-screen-btn-google-border);
+    background: var(--color-primary-background);
+    color: var(--color-on-dense);
+    border: 1px solid var(--color-primary-border);
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-sm, 0.25rem);
     cursor: pointer;
@@ -127,7 +127,7 @@
   }
 
   .sign-in-screen__btn-google:hover {
-    background: var(--sign-in-screen-btn-google-hover-background);
+    background: var(--color-primary-hover);
   }
 
   .sign-in-screen__btn-google:disabled {
