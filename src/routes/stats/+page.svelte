@@ -275,13 +275,13 @@
   .btn {
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--settings-page-btn-border);
-    background: var(--settings-page-btn-background);
-    color: var(--settings-page-btn-color);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     cursor: pointer;
   }
 
   .btn:hover {
-    background: var(--settings-page-btn-hover-background);
+    background: var(--color-surface-hover);
   }
 </style>
