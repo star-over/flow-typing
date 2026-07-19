@@ -99,13 +99,19 @@
   }
 
   .btn.primary:hover {
-    opacity: 0.9;
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
   }
 
   .btn.success {
     background: var(--color-success);
     color: var(--color-background);
     border: 1px solid var(--color-success);
+  }
+
+  .btn.success:hover {
+    background: var(--color-success-hover);
+    border-color: var(--color-success-hover);
   }
 
 </style>

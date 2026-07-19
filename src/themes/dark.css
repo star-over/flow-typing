@@ -134,6 +134,7 @@
 
   /* --- Исходы --- */
   --color-success    : var(--green);
+  --color-success-hover: oklch(from var(--color-success) calc(l - 0.06) c h);  /* зеркало --color-error-hover */
   --color-success-dim: oklch(from var(--green) l c h / 0.2);  /* α как у error-dim; та же роль красит и пояс-допуск ритма */
   --color-error      : var(--red);
   --color-error-hover: oklch(from var(--color-error) calc(l - 0.06) c h);

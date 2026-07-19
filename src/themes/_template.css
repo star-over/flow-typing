@@ -69,6 +69,7 @@
   /* --- Исходы --- */
   --color-success: unset;
   --color-success-dim: unset;
+  --color-success-hover: unset;
   --color-error: unset;
   --color-error-hover: unset;
   --color-error-dim: unset;
