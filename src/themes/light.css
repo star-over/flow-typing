@@ -60,12 +60,15 @@
   --red-deep   : oklch(0.60 0.20 20);   /* ошибка пальца — темнее и холоднее основной */
   --clay       : oklch(0.62 0.15 32);   /* снос темпа ритма — мягкий красный, off-brand (решение 4) */
 
-  /* Пальцы — по одному на палец, спектр от жёлтого к пурпуру. */
-  --finger-1: oklch(0.86 0.17 92);    /* большой — жёлто-зелёный */
-  --finger-2: oklch(0.76 0.16 56);    /* указательный — оранжевый */
-  --finger-3: oklch(0.79 0.11 190);   /* средний — teal/петроль (уведён с успеха h150, «Правило разведения») */
-  --finger-4: oklch(0.65 0.15 255);   /* безымянный — синий, темнее (развод по светлоте от мизинца под дальтонизм) */
-  --finger-5: oklch(0.72 0.18 306);   /* мизинец — пурпурный */
+  /* Пальцы — по одному на палец. ОТТЕНКИ общие для всех тем (база sepia):
+     большой тёплый, дальше холодный веер teal→синий→пурпур→фуксия. Средний
+     h250 (синий) вне успеха/ошибки во всех темах. Светлота/хрома — своя у light
+     (ярче под белый фон), в охвате sRGB, разведение под дальтонизм. */
+  --finger-1: oklch(0.82 0.13 72);    /* большой — тёплый */
+  --finger-2: oklch(0.78 0.10 200);   /* указательный — teal */
+  --finger-3: oklch(0.70 0.135 250);  /* средний — синий */
+  --finger-4: oklch(0.74 0.14 295);   /* безымянный — пурпур */
+  --finger-5: oklch(0.68 0.155 340);  /* мизинец — фуксия */
 
   /* База и покой пальца: «неактивен» исторически совпадает с базой (тёплый
      cream), покой — холодный близнец той же светлоты. */
@@ -170,20 +173,20 @@
   /* --- Домен · маршрут по пальцу (ADR 0028) ---
      Кольцо пути и маркеры движения — оттенок пальца на L0.60: читаются на
      белом (≈4:1), в отличие от светлого цвета самого пальца. */
-  --color-route-1: oklch(from var(--color-finger-1) 0.60 0.11 h);
-  --color-route-2: oklch(from var(--color-finger-2) 0.60 0.135 h);
-  --color-route-3: oklch(from var(--color-finger-3) 0.60 0.095 h);
-  --color-route-4: oklch(from var(--color-finger-4) 0.60 0.16 h);
-  --color-route-5: oklch(from var(--color-finger-5) 0.60 0.18 h);
+  --color-route-1: oklch(from var(--color-finger-1) 0.60 0.12 h);
+  --color-route-2: oklch(from var(--color-finger-2) 0.60 0.10 h);
+  --color-route-3: oklch(from var(--color-finger-3) 0.60 0.16 h);
+  --color-route-4: oklch(from var(--color-finger-4) 0.60 0.17 h);
+  --color-route-5: oklch(from var(--color-finger-5) 0.60 0.17 h);
   /* Цель — тот же оттенок пальца, но плотная (L0.47) со светлым символом
      («Правило инверсии цели»): тёмное пятно берёт контраст и к фону, и к
      символу. Форма (заливка vs кольцо) + просвет отделяют её от пути и пальца.
      Хрома по охвату каждого оттенка (teal беднее, синий/пурпур щедрее). */
   --color-target-1: oklch(from var(--color-finger-1) 0.47 0.09 h);
-  --color-target-2: oklch(from var(--color-finger-2) 0.47 0.105 h);
-  --color-target-3: oklch(from var(--color-finger-3) 0.47 0.075 h);
-  --color-target-4: oklch(from var(--color-finger-4) 0.47 0.14 h);
-  --color-target-5: oklch(from var(--color-finger-5) 0.47 0.18 h);
+  --color-target-2: oklch(from var(--color-finger-2) 0.47 0.075 h);
+  --color-target-3: oklch(from var(--color-finger-3) 0.47 0.09 h);
+  --color-target-4: oklch(from var(--color-finger-4) 0.47 0.10 h);
+  --color-target-5: oklch(from var(--color-finger-5) 0.47 0.12 h);
   --color-gap     : var(--color-background);  /* просвет: отделяет клавишу от пальца под ней */
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
@@ -231,13 +234,13 @@
   --color-keycap-group-1-background: var(--keycap-tint-1);
   --color-keycap-group-1-border    : var(--paper-border);
   --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.93 0.028 h / 0.7);
-  --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.84 0.09 h);
+  --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.76 0.09 h);
   --color-keycap-group-3-background: oklch(from var(--color-finger-3) 0.93 0.028 h / 0.7);
-  --color-keycap-group-3-border    : oklch(from var(--color-finger-3) 0.85 0.11 h);
+  --color-keycap-group-3-border    : oklch(from var(--color-finger-3) 0.66 0.11 h);
   --color-keycap-group-4-background: oklch(from var(--color-finger-4) 0.93 0.028 h / 0.7);
-  --color-keycap-group-4-border    : oklch(from var(--color-finger-4) 0.80 0.10 h);
+  --color-keycap-group-4-border    : oklch(from var(--color-finger-4) 0.66 0.12 h);
   --color-keycap-group-5-background: oklch(from var(--color-finger-5) 0.93 0.028 h / 0.7);
-  --color-keycap-group-5-border    : oklch(from var(--color-finger-5) 0.84 0.09 h);
+  --color-keycap-group-5-border    : oklch(from var(--color-finger-5) 0.68 0.11 h);
 
   /* --- Клавиша · результат нажатия ---
      Заливки и кромка ошибки выведены из ядра исхода, значения 1:1 с прежними
