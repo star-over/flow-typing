@@ -181,13 +181,12 @@ describe('app.html inline bootstrap', () => {
   });
 });
 
-
 describe('layer discipline (NORMALIZED themes)', () => {
   // L1: голое имя (не --color-*, не токен контракта) — только абсолюты, ни одного var()
   // L2: --color-* — значение начинается с `var(` или `oklch(from var(` (нет новых абсолютов)
-  // L3: токен из THEME_CONTRACT — цветовой слот только var(); запрещены oklch(/rgb(/hsl(/#hex; литерал `transparent` разрешён (ADR 0029)
+  // L3: токен из THEME_CONTRACT — цветовой слот только var(); запрещены oklch(/rgb(/hsl(/#hex/именованные цвета/currentColor; литерал `transparent` разрешён (ADR 0029)
   const L2_FORM = /^(var\(|oklch\(from var\()/;
-  const COLOR_LITERAL = /(?:oklch|rgb|rgba|hsl|hsla)\(|#[0-9a-fA-F]{3,8}\b/;
+  const COLOR_LITERAL = /(?:oklch|rgb|rgba|hsl|hsla|hwb|lab|lch|color)\(|#[0-9a-fA-F]{3,8}\b|\b(?:red|blue|green|black|white|yellow|cyan|magenta|orange|purple|brown|pink|gray|grey|lime|navy|teal|olive|silver|gold|indigo|violet|currentColor)\b/i;
 
   for (const id of NORMALIZED) {
     const tokens = parseRootTokens(themePath(id), `:root[data-theme="${id}"]`);
@@ -196,7 +195,7 @@ describe('layer discipline (NORMALIZED themes)', () => {
     it(`theme '${id}': L1 (ядро) не ссылается ни на что`, () => {
       for (const [name, value] of Object.entries(tokens)) {
         if (name.startsWith('--color-') || contractSet.has(name) || name === 'color-scheme') continue;
-        expect(value, `${id}: ядровой ${name} содержит var()`).not.toContain('var(');
+        expect(value, `${id}: ядерный ${name} содержит var()`).not.toContain('var(');
       }
     });
 
@@ -210,7 +209,8 @@ describe('layer discipline (NORMALIZED themes)', () => {
     it(`theme '${id}': L3 (контракт) — без цветовых литералов`, () => {
       for (const [name, value] of Object.entries(tokens)) {
         if (!contractSet.has(name)) continue;
-        expect(value, `${id}: контракт ${name} с цветовым литералом: ${value}`).not.toMatch(COLOR_LITERAL);
+        const valueWithoutVarRefs = value.replace(/var\(--[\w-]+\)/g, '');
+        expect(valueWithoutVarRefs, `${id}: контракт ${name} с цветовым литералом: ${value}`).not.toMatch(COLOR_LITERAL);
       }
     });
   }
