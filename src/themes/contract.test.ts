@@ -180,3 +180,38 @@ describe('app.html inline bootstrap', () => {
     expect(html).toMatch(/prefers-color-scheme:\s*dark/);
   });
 });
+
+
+describe('layer discipline (NORMALIZED themes)', () => {
+  // L1: голое имя (не --color-*, не токен контракта) — только абсолюты, ни одного var()
+  // L2: --color-* — значение начинается с `var(` или `oklch(from var(` (нет новых абсолютов)
+  // L3: токен из THEME_CONTRACT — цветовой слот только var(); запрещены oklch(/rgb(/hsl(/#hex; литерал `transparent` разрешён (ADR 0029)
+  const L2_FORM = /^(var\(|oklch\(from var\()/;
+  const COLOR_LITERAL = /(?:oklch|rgb|rgba|hsl|hsla)\(|#[0-9a-fA-F]{3,8}\b/;
+
+  for (const id of NORMALIZED) {
+    const tokens = parseRootTokens(themePath(id), `:root[data-theme="${id}"]`);
+    const contractSet = new Set<string>(THEME_CONTRACT);
+
+    it(`theme '${id}': L1 (ядро) не ссылается ни на что`, () => {
+      for (const [name, value] of Object.entries(tokens)) {
+        if (name.startsWith('--color-') || contractSet.has(name) || name === 'color-scheme') continue;
+        expect(value, `${id}: ядровой ${name} содержит var()`).not.toContain('var(');
+      }
+    });
+
+    it(`theme '${id}': L2 (роли) — только var()/oklch(from var()`, () => {
+      for (const [name, value] of Object.entries(tokens)) {
+        if (!name.startsWith('--color-')) continue;
+        expect(value, `${id}: роль ${name} с абсолютом: ${value}`).toMatch(L2_FORM);
+      }
+    });
+
+    it(`theme '${id}': L3 (контракт) — без цветовых литералов`, () => {
+      for (const [name, value] of Object.entries(tokens)) {
+        if (!contractSet.has(name)) continue;
+        expect(value, `${id}: контракт ${name} с цветовым литералом: ${value}`).not.toMatch(COLOR_LITERAL);
+      }
+    });
+  }
+});
