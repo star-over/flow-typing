@@ -48,7 +48,7 @@
 <style>
   .header {
     width: 100%;
-    border-bottom: var(--header-border);
+    border-bottom: 1px solid var(--color-border);
   }
 
   /* Inner row ограничен по ширине, чтобы бренд и меню не разъезжались по краям
@@ -93,7 +93,7 @@
     font-weight: 500;
     line-height: 1;
     padding: var(--spacing-1) var(--spacing-3);
-    border: var(--header-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-2);
     background: transparent;
     color: inherit;
