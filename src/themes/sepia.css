@@ -103,6 +103,7 @@
 
   /* --- Исходы --- */
   --color-success    : var(--green);
+  --color-success-hover: oklch(from var(--green) calc(l - 0.06) c h);  /* зеркало --color-error-hover: исход темнеет на hover */
   --color-success-dim: oklch(from var(--green) l c h / 0.16);  /* α симметрична --color-error-dim; та же роль красит и пояс-допуск ритма */
   --color-error      : var(--red);
   --color-error-hover: oklch(from var(--red) calc(l - 0.06) c h);
@@ -206,7 +207,10 @@
   --color-keycap-group-5-border: oklch(from var(--color-finger-5) 0.78 0.12 h);
 
   /* --- Клавиша · результат нажатия --- */
-  --color-keycap-correct-background    : oklch(from var(--green) calc(l - 0.10) c h / 0.8);
+  /* Светлота l-0.10→l-0.14: метка красится светлой ролью --color-on-dense, и над
+     пергаментом заливка контрастировала на 3.59:1 — ниже целевых 4:1. Темнее → 4.10:1.
+     α не тронута (translucent-«вспышка» сохранена). */
+  --color-keycap-correct-background    : oklch(from var(--green) calc(l - 0.14) c h / 0.8);
   --color-keycap-correct-border: oklch(from var(--green) calc(l + 0.05) calc(c + 0.02) h);
   --color-keycap-error-background      : oklch(from var(--red) calc(l + 0.05) c h / 0.8);
   --color-keycap-error-foreground      : var(--color-on-dense);

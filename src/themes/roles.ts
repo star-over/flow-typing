@@ -56,6 +56,7 @@ export const ROLE_DICTIONARY = [
   '--color-route-5',
   '--color-success',
   '--color-success-dim',
+  '--color-success-hover',
   '--color-surface',
   '--color-surface-accent',
   '--color-surface-hover',

@@ -70,6 +70,11 @@
     padding: 0 var(--spacing-2);
     background: transparent;
     border: 1px solid transparent;
+    /* Системный «ров»: полоска цвета фона (--color-gap = фон) по контуру отделяет
+       клавишу от пальца под ней. Один для ВСЕХ клавиш, роль ни при чём. Роль-
+       специфичный внутренний ободок (маркер дома / цвет маршрута) роли докладывают
+       через --kc-inner-ring; box-shadow — список теней, поэтому композиция корректна. */
+    box-shadow: var(--kc-inner-ring, 0 0 0 0 transparent), 0 0 0 0.15rem var(--color-gap);
     color: var(--color-keycap-label);
     font-weight: 200;
     user-select: none;
@@ -136,77 +141,68 @@
     color: var(--color-keycap-label);
   }
 
-  /* --- Home key ring --- */
+  /* --- Home key marker (внутренний ободок; внешний ров — системный, на базе) --- */
   .keycap.home {
-    box-shadow: inset 0 0 0 0.1rem var(--color-keycap-label), 0 0 0 0.15rem var(--color-gap);
+    --kc-inner-ring: inset 0 0 0 0.1rem var(--color-keycap-label);
   }
 
-  /* --- Navigation role PATH — per-position (тема вправе вести маршрут цветом
-         пальца-владельца, ADR 0028). Перекрывается press result ниже. --- */
+  /* --- Navigation role PATH — per-position внутренний ободок цветом маршрута
+         пальца-владельца (ADR 0028); внешний ров системный (на базе).
+         Перекрывается press result ниже. --- */
   .keycap.role-path {
     font-weight: 700;
   }
-  .keycap[data-finger-id="L1"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="R1"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="L2"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="R2"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="L3"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="R3"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="L4"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="R4"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="L5"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap); }
-  .keycap[data-finger-id="R5"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="L1"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-1); }
+  .keycap[data-finger-id="R1"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-1); }
+  .keycap[data-finger-id="L2"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-2); }
+  .keycap[data-finger-id="R2"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-2); }
+  .keycap[data-finger-id="L3"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-3); }
+  .keycap[data-finger-id="R3"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-3); }
+  .keycap[data-finger-id="L4"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-4); }
+  .keycap[data-finger-id="R4"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-4); }
+  .keycap[data-finger-id="L5"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-5); }
+  .keycap[data-finger-id="R5"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-5); }
 
-  /* --- Navigation role TARGET — per-position --- */
+  /* --- Navigation role TARGET — per-position заливка (внешний ров — на базе) --- */
   .keycap[data-finger-id="L1"].role-target {
     background: var(--color-target-1);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R1"].role-target {
     background: var(--color-target-1);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L2"].role-target {
     background: var(--color-target-2);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R2"].role-target {
     background: var(--color-target-2);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L3"].role-target {
     background: var(--color-target-3);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R3"].role-target {
     background: var(--color-target-3);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L4"].role-target {
     background: var(--color-target-4);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R4"].role-target {
     background: var(--color-target-4);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L5"].role-target {
     background: var(--color-target-5);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R5"].role-target {
     background: var(--color-target-5);
     color: var(--color-on-dense);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
 
   /* `border-color: transparent` снимает тонкий border кластера
@@ -218,19 +214,17 @@
     font-weight: 900;
   }
 
-  /* --- Press result (заливка + кольцо перекрывают navigation role) ---
+  /* --- Press result (заливка перекрывает navigation role) ---
      Класс продублирован (`.CORRECT.CORRECT`) намеренно: поднимает specificity
      до (0,3,0), чтобы перебить per-position-target
      `.keycap[data-finger-id="…"].role-target` (тоже 0,3,0) по заливке / цвету /
      границе — result объявлен ниже по исходнику и выигрывает.
-     CORRECT перекрывает и `box-shadow` — тема вправе дать результату собственное
-     кольцо. ERROR ниже `box-shadow` не трогает: там кольцо цели осознанно
-     переживает результат. */
+     Ров ни correct, ни error не задают: он системный (на базе `.keycap`), поэтому
+     силуэт исхода совпадает по габариту с целью/путём/home автоматически. */
   .keycap.CORRECT.CORRECT {
     background: var(--color-keycap-correct-background);
     color: var(--color-on-dense);
     border: 1px solid var(--color-keycap-correct-border);
-    box-shadow: 0 0 0 0.15rem var(--color-gap);
     font-weight: 800;
   }
 
