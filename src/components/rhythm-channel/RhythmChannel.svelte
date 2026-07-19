@@ -142,9 +142,9 @@
     position: relative;
     width: min(36rem, 80vw);
     height: 1rem;
-    border: var(--rhythm-channel-track-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-3);
-    background: var(--rhythm-channel-track-background);
+    background: var(--color-surface);
     overflow: hidden;
   }
 
@@ -156,11 +156,11 @@
   }
   .track.state-above .wash {
     opacity: 1;
-    background: linear-gradient(90deg, transparent 42%, var(--rhythm-channel-state-fill));
+    background: linear-gradient(90deg, transparent 42%, var(--color-rhythm-outside-dim));
   }
   .track.state-below .wash {
     opacity: 1;
-    background: linear-gradient(270deg, transparent 42%, var(--rhythm-channel-state-fill));
+    background: linear-gradient(270deg, transparent 42%, var(--color-rhythm-outside-dim));
   }
 
   /* Мягкий пояс-допуск: цвет держится в середине, левый/правый края уходят в
@@ -172,8 +172,8 @@
     background: linear-gradient(
       90deg,
       transparent,
-      var(--rhythm-channel-zone-fill) 30%,
-      var(--rhythm-channel-zone-fill) 70%,
+      var(--color-success-dim) 30%,
+      var(--color-success-dim) 70%,
       transparent
     );
   }
@@ -188,12 +188,12 @@
   .trail-right {
     left: 50%;
     transform-origin: left center;
-    background: linear-gradient(90deg, transparent, var(--rhythm-channel-trail));
+    background: linear-gradient(90deg, transparent, var(--color-text-dim));
   }
   .trail-left {
     right: 50%;
     transform-origin: right center;
-    background: linear-gradient(270deg, transparent, var(--rhythm-channel-trail));
+    background: linear-gradient(270deg, transparent, var(--color-text-dim));
   }
 
   /* Рецептор «сейчас»: неподвижная вертикаль по центру, вспыхивает зелёным на проходе. */
@@ -204,14 +204,14 @@
     left: 50%;
     width: 2px;
     transform: translateX(-50%);
-    background: var(--rhythm-channel-anchor);
+    background: var(--color-text-secondary);
     transition:
       background-color var(--motion-duration-fast) var(--motion-ease-standard),
       box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
   }
   .anchor.lit {
-    background: var(--rhythm-channel-marker-in);
-    box-shadow: 0 0 0 4px var(--rhythm-channel-zone-fill);
+    background: var(--color-success);
+    box-shadow: 0 0 0 4px var(--color-success-dim);
   }
 
   .sweep {
@@ -232,11 +232,11 @@
   }
   /* Цвет маркера — по зоне тапа: в зоне зелёный (держишь), вне — янтарь (в любую сторону). */
   .track.state-in .marker {
-    background: var(--rhythm-channel-marker-in);
+    background: var(--color-success);
   }
   .track.state-above .marker,
   .track.state-below .marker {
-    background: var(--rhythm-channel-marker-outside);
+    background: var(--color-rhythm-outside);
   }
 
   @media (prefers-reduced-motion: reduce) {
