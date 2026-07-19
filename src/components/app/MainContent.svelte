@@ -169,7 +169,7 @@
   }
 
   .pause {
-    color: var(--main-content-pause-color);
+    color: var(--color-text-secondary);
   }
 
   .session-error {

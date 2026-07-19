@@ -14,9 +14,11 @@
   prefers-reduced-motion: движение отключается — статичная линия дом→цель + точка у цели
   («откуда→куда» без анимации, PRODUCT §Accessibility).
 
-  Цвет — контракт темы: путь `--movement-path-guide` (индиго), движение по пальцу
-  `--movement-path-<pos>-marker` (спектр), тело бусины-ядра `--movement-path-marker-core`
-  (блик/терминатор выводятся из него сферической огранкой — см. секцию стилей ниже).
+  Цвет — роли темы: путь `--color-guide` (индиго), движение по пальцу — цвет
+  позиции маршрута `--color-route-N`, где N = цифра пальца (`fingerId.charAt(1)`). Букву руки
+  (L/R) роняем намеренно — цвет позиционный, `--color-route-N` одинаков для обеих рук;
+  у больших пальцев (N = B) роли нет → fallback на currentColor. Тело бусины-ядра —
+  `--color-marker-core` (блик/терминатор выводятся из него сферической огранкой — см. секцию стилей ниже).
 -->
 <script lang="ts">
   import { onMount, tick } from 'svelte';
@@ -41,10 +43,10 @@
 
   const { path, fingerId }: Props = $props();
 
-  const markerColor = $derived(`var(--movement-path-${fingerId.toLowerCase()}-marker, currentColor)`);
+  const markerColor = $derived(`var(--color-route-${fingerId.charAt(1).toLowerCase()}, currentColor)`);
 
   // Ядро точки — сферическая бусина: блик / тело / терминатор выводятся из одного цвета
-  // тела `--movement-path-marker-core` через `oklch(from …)` (см. секцию стилей). Тело
+  // тела `--color-marker-core` через `oklch(from …)` (см. секцию стилей). Тело
   // контрастно фону и гамме пальца, чтобы движение было заметно; идентичность — в ободке (stroke).
   const uid = $props.id();
   const coreGradId = `marker-core-grad-${uid}`;
@@ -144,7 +146,7 @@
 >
   <defs>
     <!-- Сферическая огранка ядра: блик (св.-верх), тело, терминатор — из одного цвета
-         тела `--movement-path-marker-core`. Светлые темы дают тёмное тело → бронза;
+         тела `--color-marker-core`. Светлые темы дают тёмное тело → бронза;
          тёмные — светлое тело → жемчужина. Уникальный id на экземпляр кластера. -->
     <radialGradient id={coreGradId} cx="34%" cy="30%" r="72%">
       <stop class="mc-specular" offset="0%" />
@@ -207,7 +209,7 @@
   /* Линия-маршрут дом→цель — тонкий индиго-пунктир (путь виден и в паузе). */
   .guide {
     fill: none;
-    stroke: var(--movement-path-guide);
+    stroke: var(--color-guide);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -239,12 +241,12 @@
     stroke-width: 2;
   }
 
-  /* Сферическая огранка ядра из одного цвета тела `--movement-path-marker-core`:
+  /* Сферическая огранка ядра из одного цвета тела `--color-marker-core`:
      блик — светлее и почти без хромы (тёплый белый блик), тело — как есть,
      терминатор — темнее. Один рецепт даёт бронзу на светлых темах (тёмное тело)
      и жемчужину на тёмных (светлое тело — блик упирается в белый). */
-  .mc-specular { stop-color: oklch(from var(--movement-path-marker-core) calc(l + 0.37) calc(c * 0.30) h); }
-  .mc-upper    { stop-color: oklch(from var(--movement-path-marker-core) calc(l + 0.22) calc(c * 0.80) h); }
-  .mc-body     { stop-color: var(--movement-path-marker-core); }
-  .mc-edge     { stop-color: oklch(from var(--movement-path-marker-core) calc(l - 0.18) c h); }
+  .mc-specular { stop-color: oklch(from var(--color-marker-core) calc(l + 0.37) calc(c * 0.30) h); }
+  .mc-upper    { stop-color: oklch(from var(--color-marker-core) calc(l + 0.22) calc(c * 0.80) h); }
+  .mc-body     { stop-color: var(--color-marker-core); }
+  .mc-edge     { stop-color: oklch(from var(--color-marker-core) calc(l - 0.18) c h); }
 </style>

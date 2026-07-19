@@ -90,7 +90,7 @@
   }
 
   .user-menu__skeleton {
-    background: var(--user-menu-loading-color);
+    background: var(--color-symbol-pending);
     opacity: 0.3;
   }
 
@@ -119,12 +119,12 @@
   }
 
   .user-menu--guest-link {
-    color: var(--user-menu-guest-link-color);
+    color: var(--color-link);
     text-decoration: none;
   }
 
   .user-menu--guest-link:hover {
-    color: var(--user-menu-guest-link-hover-color);
+    color: var(--color-link-hover);
   }
 
   .user-menu--authenticated {
@@ -136,7 +136,7 @@
     align-items: center;
     gap: 0.5rem;
     max-width: 12rem;
-    color: var(--user-menu-authenticated-name-color);
+    color: var(--color-text-primary);
     cursor: pointer;
     list-style: none;
     padding: 0.25rem 0.5rem;
@@ -148,7 +148,7 @@
   }
 
   .user-menu__summary:focus-visible {
-    outline: 2px solid var(--user-menu-authenticated-name-color);
+    outline: 2px solid var(--color-text-primary);
     outline-offset: 2px;
   }
 
@@ -166,8 +166,8 @@
     right: 0;
     display: flex;
     flex-direction: column;
-    background: var(--user-menu-dropdown-background);
-    border: var(--user-menu-dropdown-border);
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border-accent);
     border-radius: var(--radius-3);
     padding: 0.25rem;
     min-width: 9rem;
@@ -175,7 +175,7 @@
   }
 
   .user-menu__item {
-    color: var(--user-menu-dropdown-item-color);
+    color: var(--color-text-primary);
     background: transparent;
     border: none;
     border-radius: var(--radius-2);
@@ -188,17 +188,17 @@
   }
 
   .user-menu__item:hover {
-    background: var(--user-menu-dropdown-item-hover-background);
+    background: var(--color-surface-hover);
   }
 
   .user-menu__item:focus-visible {
-    outline: 2px solid var(--user-menu-dropdown-item-color);
+    outline: 2px solid var(--color-text-primary);
     outline-offset: -2px;
   }
 
   .user-menu__divider {
     border: none;
-    border-top: var(--user-menu-dropdown-border);
+    border-top: 1px solid var(--color-border-accent);
     margin: 0.25rem 0;
   }
 </style>

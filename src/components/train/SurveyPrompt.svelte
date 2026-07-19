@@ -41,8 +41,8 @@
   .survey {
     max-width: 28rem;
     padding: var(--spacing-4);
-    background: var(--survey-prompt-background);
-    border: var(--survey-prompt-border);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-4);
   }
 
@@ -54,7 +54,7 @@
   }
 
   .question {
-    color: var(--survey-prompt-question-color);
+    color: var(--color-text-primary);
   }
 
   .answers {
@@ -65,25 +65,25 @@
 
   .answer {
     padding: var(--spacing-2) var(--spacing-4);
-    background: var(--survey-prompt-button-background);
-    border: var(--survey-prompt-button-border);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-3);
-    color: var(--survey-prompt-button-color);
+    color: var(--color-text-primary);
     cursor: pointer;
   }
 
   .answer:hover {
-    background: var(--survey-prompt-button-hover-background);
+    background: var(--color-surface-hover);
   }
 
   .dismiss {
-    color: var(--survey-prompt-dismiss-color);
+    color: var(--color-text-secondary);
     background: none;
     border: none;
     cursor: pointer;
   }
 
   .thanks {
-    color: var(--survey-prompt-thanks-color);
+    color: var(--color-text-secondary);
   }
 </style>

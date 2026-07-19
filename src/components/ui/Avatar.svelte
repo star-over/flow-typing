@@ -45,9 +45,9 @@
     flex-shrink: 0;
     border-radius: 50%;
     overflow: hidden;
-    background: var(--avatar-background);
-    color: var(--avatar-color);
-    border: var(--avatar-border);
+    background: var(--color-surface-accent);
+    color: var(--color-ink-strong);
+    border: 1px solid var(--color-border-accent);
     font-weight: 600;
     line-height: 1;
     user-select: none;

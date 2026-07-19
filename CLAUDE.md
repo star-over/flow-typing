@@ -23,7 +23,7 @@
 - **TypeScript** strict; типы Svelte — `svelte-check`.
 - **XState** — вся бизнес-логика, `src/machines/`.
 - **Vitest** + **Storybook** (`@storybook/sveltekit` + svelte-csf).
-- **CSS без фреймворков**: `src/app.css` держит только primitives (typography/radius/spacing/shadow/motion) + body fallback; цвета и декорация компонентов живут в темах через **компонентные контракты** (см. `src/themes/CLAUDE.md` и `docs/06`). **Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.**
+- **CSS без фреймворков**: `src/app.css` держит только primitives (typography/radius/spacing/shadow/motion); цвета и декорация компонентов живут в темах — компонент ссылается на роли `--color-*` напрямую (двухслойная модель ядро + роли, ADR 0029; см. `src/themes/CLAUDE.md` и `docs/06`). **Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.**
 - Хранение настроек — `localStorage` через собственный Svelte writable store.
 
 ## Commands
@@ -58,7 +58,7 @@
 - `src/machines/CLAUDE.md` — XState-машины (`appMachine` / `keyboardMachine` / `sessionMachine` / `trainingMachine`), подписки из Svelte, machine-Gotchas (HMR, `stream`, `Space`).
 - `src/lib/CLAUDE.md` — ViewModel pipeline, settings + i18n + cross-device sync, клиентский Auth UI.
 - `src/routes/CLAUDE.md` — роуты, `+layout` (appActor, keyboard listener, Header), `TrainingScene`.
-- `src/themes/CLAUDE.md` — темы и компонентные контракты (`*.contract.ts`, `THEME_CONTRACT`).
+- `src/themes/CLAUDE.md` — темы и роли (`--color-*`, словарь `ROLE_DICTIONARY`).
 - `convex/CLAUDE.md` — backend: deployment, схема, auth-провайдеры, dev-вход, env vars, `userSettings`, convex-тесты.
 
 ### Domain language

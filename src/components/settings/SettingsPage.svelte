@@ -149,47 +149,47 @@
 
   .label-text {
     font-size: 0.875rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 
   .text-input {
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--settings-page-input-border);
-    background: var(--settings-page-input-background);
-    color: var(--settings-page-input-color);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     font: inherit;
   }
 
   .text-input::placeholder {
-    color: var(--settings-page-input-color);
+    color: var(--color-text-primary);
     opacity: 0.5;
   }
 
   .hint {
     font-size: 0.75rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 
   .btn {
     margin-top: var(--spacing-4);
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--settings-page-btn-border);
-    background: var(--settings-page-btn-background);
-    color: var(--settings-page-btn-color);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     cursor: pointer;
     align-self: flex-start;
   }
 
   .btn:hover {
-    background: var(--settings-page-btn-hover-background);
+    background: var(--color-surface-hover);
   }
 
   .danger-zone {
     margin-top: var(--spacing-6);
     padding-top: var(--spacing-6);
-    border-top: var(--settings-page-input-border);
+    border-top: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
@@ -199,16 +199,16 @@
   .btn-danger {
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--settings-page-danger-btn-border);
-    background: var(--settings-page-danger-btn-background);
-    color: var(--settings-page-danger-btn-color);
+    border: 1px solid var(--color-error);
+    background: var(--color-error);
+    color: var(--color-on-dense);
     cursor: pointer;
     align-self: flex-start;
     font: inherit;
   }
 
   .btn-danger:hover:not(:disabled) {
-    background: var(--settings-page-danger-btn-hover-background);
+    background: var(--color-error-hover);
   }
 
   .btn-danger:disabled,
@@ -229,18 +229,18 @@
 
   .danger-warning {
     font-size: 0.875rem;
-    color: var(--settings-page-danger-text-color);
+    color: var(--color-error);
     max-width: 100%;
   }
 
   .danger-error {
     font-size: 0.75rem;
-    color: var(--settings-page-danger-text-color);
+    color: var(--color-error);
   }
 
   .privacy-link {
     font-size: 0.75rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
     text-decoration: underline;
     text-underline-offset: 2px;
     align-self: flex-start;

@@ -19,22 +19,22 @@
   }
 
   .PENDING {
-    color: var(--regular-symbol-pending-color);
+    color: var(--color-symbol-pending);
   }
 
   .CORRECT {
-    color: var(--regular-symbol-correct-color);
+    color: var(--color-symbol-correct);
   }
 
   .CORRECTED {
-    color: var(--regular-symbol-corrected-color);
+    color: var(--color-symbol-corrected);
   }
 
   .ONE_ERROR {
-    color: var(--regular-symbol-one-error-color);
+    color: var(--color-symbol-one-error);
   }
 
   .MANY_ERRORS {
-    color: var(--regular-symbol-many-errors-color);
+    color: var(--color-symbol-many-errors);
   }
 </style>

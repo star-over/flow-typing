@@ -130,7 +130,14 @@
     };
   });
 
-  const dotColor = $derived(targetKey ? `var(--finger-${targetKey.finger.toLowerCase()}-fill)` : 'transparent');
+  // Позиция пальца (цифра '1'..'5') → --color-finger-N. Ветку 'b'→base держим для
+  // безопасности, хотя цели этого компонента — не большие пальцы. Букву руки
+  // роняем намеренно — цвет позиционный (--color-finger-N одинаков для L/R).
+  const dotColor = $derived.by(() => {
+    if (!targetKey) return 'transparent';
+    const pos = targetKey.finger.charAt(1).toLowerCase(); // '1'..'5' | 'b'
+    return `var(--color-finger-${pos === 'b' ? 'base' : pos})`;
+  });
 
   // Длительности фаз кадра (мс) — спокойные, как метроном.
   const OUT = 520;
@@ -256,8 +263,8 @@
        панель. Держим собственный размер; видимый масштаб даёт transform. */
     flex-shrink: 0;
     transform-origin: top center;
-    background: var(--landing-demo-surface);
-    border: var(--landing-rule);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-4);
   }
 
@@ -274,7 +281,7 @@
 
   .trail {
     fill: none;
-    stroke: var(--landing-demo-path);
+    stroke: var(--color-guide);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-dasharray: 2 6;
@@ -282,6 +289,6 @@
   }
 
   .tip {
-    filter: drop-shadow(0 0 0.35rem var(--landing-demo-path));
+    filter: drop-shadow(0 0 0.35rem var(--color-guide));
   }
 </style>

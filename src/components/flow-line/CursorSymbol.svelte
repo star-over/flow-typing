@@ -40,7 +40,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    background: var(--cursor-symbol-background);
+    background: var(--color-cursor-background);
     border-radius: var(--radius);
     opacity: 0;
     transition: opacity 0.1s;
@@ -68,6 +68,6 @@
   .char {
     position: relative;
     z-index: 1;
-    color: var(--cursor-symbol-color);
+    color: var(--color-cursor-foreground);
   }
 </style>

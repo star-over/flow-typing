@@ -274,8 +274,8 @@
   .stats-display {
     width: 100%;
     max-width: 640px;
-    background: var(--session-stats-display-background);
-    border: var(--session-stats-display-border);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-4);
   }
 
@@ -286,13 +286,13 @@
    * схлопывалась бы в один кегль. Модификаторы — только ПОСЛЕ базы. */
   .label {
     font-size: var(--font-size-sm);
-    color: var(--session-stats-display-label-color);
+    color: var(--color-text-secondary);
   }
 
   .value {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-semibold);
-    color: var(--session-stats-display-value-color);
+    color: var(--color-text-primary);
     /* Числа — данные: цифры обязаны стоять в колонку, как в таблице /stats. */
     font-variant-numeric: tabular-nums;
     line-height: 1.2;
@@ -302,7 +302,7 @@
   .unit {
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-regular);
-    color: var(--session-stats-display-unit-color);
+    color: var(--color-text-secondary);
     margin-left: var(--spacing-1);
     letter-spacing: normal;
     /* Единица не отрывается от числа: «72 зн/мин» рвалось пополам. */
@@ -311,7 +311,7 @@
 
   .note {
     font-size: var(--font-size-sm);
-    color: var(--session-stats-display-note-color);
+    color: var(--color-text-secondary);
     font-variant-numeric: tabular-nums;
   }
 
@@ -360,7 +360,7 @@
     display: block;
     width: 100%;
     height: 56px;
-    color: var(--session-stats-display-trend-color);
+    color: var(--color-text-secondary);
   }
 
   .trend-caption {
@@ -376,7 +376,7 @@
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-top: var(--session-stats-display-divider);
+    border-top: 1px solid var(--color-border);
   }
 
   .cell {
@@ -389,12 +389,12 @@
 
   .cell-rhythm {
     grid-row: span 2;
-    border-right: var(--session-stats-display-divider);
+    border-right: 1px solid var(--color-border);
     justify-content: center;
   }
 
   .cell-pace {
-    border-top: var(--session-stats-display-divider);
+    border-top: 1px solid var(--color-border);
   }
 
   .rhythm-value {
@@ -406,14 +406,14 @@
     .cell-rhythm {
       grid-row: auto;
       border-right: 0;
-      border-bottom: var(--session-stats-display-divider);
+      border-bottom: 1px solid var(--color-border);
     }
-    .cell-pace { border-top: var(--session-stats-display-divider); }
+    .cell-pace { border-top: 1px solid var(--color-border); }
   }
 
   .foot {
     padding: var(--spacing-3) var(--spacing-6);
-    border-top: var(--session-stats-display-divider);
+    border-top: 1px solid var(--color-border);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -431,10 +431,10 @@
     height: 1.125rem;
     padding: 0;
     margin-left: var(--spacing-1);
-    border: var(--session-stats-display-info-border);
+    border: 1px solid var(--color-border);
     border-radius: 50%;
     background: transparent;
-    color: var(--session-stats-display-info-color);
+    color: var(--color-text-secondary);
     cursor: pointer;
     vertical-align: middle;
     line-height: 1;
@@ -442,7 +442,7 @@
   }
 
   .info:hover {
-    background: var(--session-stats-display-info-hover-background);
+    background: var(--color-surface-hover);
   }
 
   .info:focus-visible {
@@ -451,22 +451,22 @@
   }
 
   .info[aria-expanded='true'] {
-    background: var(--session-stats-display-info-open-background);
-    color: var(--session-stats-display-info-open-color);
+    background: var(--color-text-primary);
+    color: var(--color-surface);
   }
 
   /* Раскрытие — в потоке, не absolute: обрезаться нечему, и высота честная. */
   .info-body {
     font-size: var(--font-size-xs);
     line-height: var(--line-height-normal);
-    color: var(--session-stats-display-info-body-color);
+    color: var(--color-text-secondary);
     max-width: 46ch;
     padding: var(--spacing-2) var(--spacing-3);
-    border-left: var(--session-stats-display-info-body-border);
+    border-left: 1px solid var(--color-border);
   }
 
   .info-body b {
-    color: var(--session-stats-display-value-color);
+    color: var(--color-text-primary);
     font-weight: var(--font-weight-semibold);
   }
 
@@ -474,15 +474,15 @@
   .more {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    color: var(--session-stats-display-link-color);
+    color: var(--color-text-primary);
     text-decoration: none;
-    border-bottom: var(--session-stats-display-link-border);
+    border-bottom: 1px solid var(--color-border);
     padding-bottom: 1px;
     transition: border-color 0.1s ease;
   }
 
   .more:hover {
-    border-bottom: var(--session-stats-display-link-hover-border);
+    border-bottom: 1px solid var(--color-text-primary);
   }
 
   .more:focus-visible {

@@ -43,7 +43,7 @@ export const ROLE_DICTIONARY = [
   '--color-link-hover',
   '--color-marker-core',
   '--color-on-dense',
-  '--color-path-highlight',
+  '--color-guide',
   '--color-primary-background',
   '--color-primary-border',
   '--color-primary-hover',

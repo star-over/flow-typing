@@ -7,10 +7,10 @@
    *  - «F» несёт засечку home-ряда (как клавиши F/J) — знак слепой печати;
    *  - «Flow» — набранное (плотное);
    *  - «T» — текущий символ внутри блочного курсора (инвертирован);
-   *  - «yping» — предстоящее (затухает, opacity из токена).
+   *  - «yping» — предстоящее (затухает, opacity 0.38).
    *
    * Масштабируется через font-size контейнера: все размеры в em.
-   * Цвета — только через контракт-токены (см. Wordmark.contract.ts).
+   * Цвета — напрямую через var(--color-*) ролевые токены, без слоя контракта.
    */
 
   interface Props {
@@ -33,7 +33,7 @@
     font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1;
-    color: var(--wordmark-ink);
+    color: var(--color-text-primary);
     white-space: nowrap;
   }
 
@@ -51,7 +51,7 @@
     width: 0.46em;
     height: 0.1em;
     border-radius: 999px;
-    background: var(--wordmark-bar-background);
+    background: var(--color-guide);
   }
 
   /* Блочный курсор на текущем символе */
@@ -62,8 +62,8 @@
     padding: 0.13em 0.07em;
     margin: 0 0.07em;
     border-radius: 0.14em;
-    background: var(--wordmark-caret-background);
-    color: var(--wordmark-caret-color);
+    background: var(--color-brand-accent);
+    color: var(--color-cursor-foreground);
   }
 
   .pending {
@@ -71,6 +71,6 @@
   }
 
   .fade-pending .pending {
-    opacity: var(--wordmark-pending-opacity, 0.38);
+    opacity: 0.38;
   }
 </style>

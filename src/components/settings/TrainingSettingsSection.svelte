@@ -126,7 +126,7 @@
   .section-heading {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 
   .field {
@@ -137,11 +137,11 @@
 
   .label-text {
     font-size: 0.875rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 
   .hint {
     font-size: 0.75rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 </style>

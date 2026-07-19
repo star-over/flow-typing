@@ -83,15 +83,15 @@
     width: 100%;
     max-width: 640px;
     padding: var(--spacing-6);
-    background: var(--repertoire-progress-background);
-    border: var(--repertoire-progress-border);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-4);
   }
 
   .title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--repertoire-progress-value-color);
+    color: var(--color-text-primary);
     margin-bottom: var(--spacing-3);
   }
 
@@ -104,19 +104,19 @@
 
   .label {
     font-size: 0.875rem;
-    color: var(--repertoire-progress-label-color);
+    color: var(--color-text-muted);
   }
 
   .value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--repertoire-progress-value-color);
+    color: var(--color-text-primary);
   }
 
   .bar-track {
     width: 100%;
     height: 0.5rem;
-    background: var(--repertoire-progress-bar-track);
+    background: var(--color-background);
     border-radius: var(--radius-2);
     overflow: hidden;
     margin-bottom: var(--spacing-3);
@@ -125,7 +125,7 @@
   .bar-fill {
     width: 100%;
     height: 100%;
-    background: var(--repertoire-progress-bar-fill);
+    background: var(--color-success);
     border-radius: var(--radius-2);
     transform-origin: left;
     transition: transform 0.3s ease;
@@ -133,16 +133,16 @@
 
   .status {
     font-size: 0.875rem;
-    color: var(--repertoire-progress-label-color);
+    color: var(--color-text-muted);
   }
 
   .status-accent {
-    color: var(--repertoire-progress-accent-color);
+    color: var(--color-success);
     font-weight: 600;
   }
 
   .status-ready {
-    color: var(--repertoire-progress-accent-color);
+    color: var(--color-success);
   }
 
   .status-maturing {
@@ -161,7 +161,7 @@
 
   .guest-invite {
     font-size: 0.875rem;
-    color: var(--repertoire-progress-label-color);
+    color: var(--color-text-muted);
     text-align: center;
   }
 </style>

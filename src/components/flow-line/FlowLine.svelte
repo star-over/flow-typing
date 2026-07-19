@@ -60,7 +60,7 @@
     font-size: 1.875rem;
     /* Рельс: только верх и низ (дорожка потока). Боковые борта не рисуем —
        строка тянется на 100vw, вертикали всё равно ушли бы за края экрана. */
-    border-block: var(--flow-line-border);
+    border-block: 2px solid var(--color-border);
     /* Ширина краевого растворения текста, в символах моноширинного шрифта:
        ушедшее тает у левой кромки, приходящее проявляется у правой — вместо
        резкого обрыва по overflow. Наследуется контейнерами символов. */
@@ -95,6 +95,6 @@
 
   /* Press result variants */
   .NONE { background: transparent; }
-  .CORRECT { background: var(--flow-line-correct-background); }
-  .ERROR { background: var(--flow-line-error-background); }
+  .CORRECT { background: var(--color-success-dim); }
+  .ERROR { background: var(--color-error-dim); }
 </style>

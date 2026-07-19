@@ -43,7 +43,7 @@
     align-items: center;
     gap: var(--spacing-1);
     padding: var(--spacing-1) var(--spacing-2);
-    border: var(--header-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-2);
     color: inherit;
   }
