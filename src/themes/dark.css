@@ -4,8 +4,8 @@
  * Dark theme (colorScheme=dark) — дефолт для тёмного режима.
  *
  * Тёмная тема: глубокий сланцевый фон, светлый текст, янтарный бренд-курсор.
- * Движение красится цветом пальца-владельца (ADR 0028); цель пока едина для всех
- * пальцев (индиго-заливка).
+ * Движение и цель красятся оттенком пальца-владельца (ADR 0028): на тёмном фоне
+ * архитектура перевёрнута — цель это светлая заливка (L0.78) с тёмным символом.
  *
  * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
  *
@@ -50,34 +50,34 @@
   /* Акценты — по одному на смысл. */
   --amber      : oklch(0.72 0.16 70);   /* бренд: каретка логотипа, CTA, курсор */
   --amber-hover: oklch(0.66 0.16 70);   /* hover CTA */
-  --amber-warn : oklch(0.80 0.16 70);   /* предупреждение / снос ритма */
+  --clay       : oklch(0.66 0.15 32);   /* снос темпа ритма — мягкий красный, off-brand (решение 4) */
   --green      : oklch(0.76 0.19 150);  /* успех */
   --red        : oklch(0.70 0.21 25);   /* ошибка набора */
   --red-deep   : oklch(0.65 0.20 20);   /* ошибка пальца */
   --error-ink  : oklch(0.97 0 20);      /* текст на заливке ошибки */
 
-  /* Пальцы — по одному на палец, спектр от жёлтого к пурпуру. */
-  --finger-1: oklch(0.81 0.15 92);     /* большой */
-  --finger-2: oklch(0.71 0.14 56);     /* указательный */
-  --finger-3: oklch(0.75 0.16 152);    /* средний */
-  --finger-4: oklch(0.66 0.12 255);    /* безымянный */
-  --finger-5: oklch(0.67 0.16 306);    /* мизинец */
+  /* Пальцы — оттенки общие для всех тем (база sepia): большой тёплый, дальше
+     холодный веер teal→синий→пурпур→фуксия. Средний h250 (синий) вне
+     успеха/ошибки. Светлота/хрома своя у dark (ярче под тёмный фон). */
+  --finger-1: oklch(0.82 0.13 72);     /* большой — тёплый */
+  --finger-2: oklch(0.78 0.10 200);    /* указательный — teal */
+  --finger-3: oklch(0.72 0.14 250);    /* средний — синий */
+  --finger-4: oklch(0.74 0.12 295);    /* безымянный — пурпур */
+  --finger-5: oklch(0.70 0.16 340);    /* мизинец — фуксия */
 
   /* База и покой пальца. */
   --cream: oklch(0.30 0.02 75);        /* база пальца = неактивный */
   --mist : oklch(0.25 0.02 260);       /* палец в покое */
 
-  /* Навигация: тихая направляющая, единая индиго-заливка цели и жемчужная
-     бусина движения. */
-  --iris         : oklch(0.55 0.19 260);        /* направляющая и подсветка пути */
-  --target-indigo: oklch(0.55 0.10 243 / 0.7);  /* заливка цели — одна на все пальцы */
-  --bead         : oklch(0.90 0.03 85);         /* тело бусины — тёплая жемчужина */
+  /* Навигация: заливка цели по пальцу в слое ролей (светлая на тёмном + тёмный
+     символ); направляющая и тело бусины нейтральны (решения 6-7). */
+  --bead: oklch(0.88 0 0);  /* тело бусины — нейтральная (светлая на тёмном) */
 
   /* Статусы символов в потоке. */
   --steel  : oklch(0.70 0.03 257);     /* pending — серо-синий */
   --pine   : oklch(0.78 0.11 151);     /* correct — зелёный */
   --brick  : oklch(0.75 0.15 10);      /* corrected — кирпичный */
-  --ochre  : oklch(0.78 0.14 76);      /* один промах — тёплый янтарь */
+  --ochre  : oklch(0.82 0.13 95);      /* один промах — золото-warning, разведён с брендом-янтарём h70 (ADR 0030) */
   --crimson: oklch(0.72 0.20 17);      /* много ошибок — глубокий красный */
 
   /* Клавиши: метка и маркер — холодное navy; тона групп — приглушённое эхо
@@ -85,16 +85,8 @@
      нейтральна. */
   --navy         : oklch(0.78 0.08 241);
   --navy-deep    : oklch(0.85 0.04 266);
-  --keycap-tint-1: oklch(0.22 0    0 / 0.7);
-  --keycap-tint-2: oklch(0.22 0.03 95 / 0.7);
-  --keycap-tint-3: oklch(0.22 0.03 235 / 0.7);
-  --keycap-tint-4: oklch(0.22 0.03 275 / 0.7);
-  --keycap-tint-5: oklch(0.22 0.03 300 / 0.7);
-  --keycap-edge-1: oklch(0.40 0    0);
-  --keycap-edge-2: oklch(0.40 0.15 90);
-  --keycap-edge-3: oklch(0.40 0.10 230);
-  --keycap-edge-4: oklch(0.40 0.10 275);
-  --keycap-edge-5: oklch(0.40 0.11 300);
+  --keycap-tint-1: oklch(0.22 0 0 / 0.7);  /* нейтральный тон группы большого пальца */
+  --keycap-edge-1: oklch(0.40 0 0);        /* нейтральная кромка группы большого пальца */
 
   /* Холодная ветка 280° — экран входа, меню, аватар, ссылки, инициалы. */
   --primary-border: oklch(0.70 0.01 280);
@@ -148,8 +140,9 @@
   --color-error-dim  : oklch(from var(--red) l c h / 0.2);
 
   /* Ритм «вне зоны» (снос темпа): мягче ошибки набора, но виден (DESIGN
-     «Правило мягкости ритма»). В dark это янтарь — он же был warning. */
-  --color-rhythm-outside    : var(--amber-warn);
+     «Правило мягкости ритма»). Свой мягкий красный, отвязан от бренда
+     (решение 4, логика sepia). */
+  --color-rhythm-outside    : var(--clay);
   --color-rhythm-outside-dim: oklch(from var(--color-rhythm-outside) l c h / 0.22);
 
   /* --- Приглушённый текст-след ритма --- */
@@ -166,18 +159,20 @@
   /* --- Домен · маршрут по пальцу (ADR 0028) ---
      Маркеры движения в dark и раньше красились finger-N — ссылка роль→роль
      сохраняет их цвет 1:1. */
-  --color-route-1: var(--color-finger-1);
-  --color-route-2: var(--color-finger-2);
-  --color-route-3: var(--color-finger-3);
-  --color-route-4: var(--color-finger-4);
-  --color-route-5: var(--color-finger-5);
-  /* Цель пока едина: все пять ролей ссылаются на один индиго (бывший
-     keycap-role-target) — пер-пальцевую цель решит визуальная сессия. */
-  --color-target-1: var(--target-indigo);
-  --color-target-2: var(--target-indigo);
-  --color-target-3: var(--target-indigo);
-  --color-target-4: var(--target-indigo);
-  --color-target-5: var(--target-indigo);
+  --color-route-1: oklch(from var(--color-finger-1) 0.62 0.12 h);
+  --color-route-2: oklch(from var(--color-finger-2) 0.62 0.10 h);
+  --color-route-3: oklch(from var(--color-finger-3) 0.62 0.16 h);
+  --color-route-4: oklch(from var(--color-finger-4) 0.62 0.16 h);
+  --color-route-5: oklch(from var(--color-finger-5) 0.62 0.16 h);
+  /* Цель — тот же оттенок пальца, но светлая (L0.78) с тёмным символом
+     («Правило инверсии» на тёмном фоне: светлое пятно берёт контраст и к фону,
+     и к тёмному символу; чинит просадку прежней мид-индиго-цели). Хрома по
+     охвату каждого оттенка. */
+  --color-target-1: oklch(from var(--color-finger-1) 0.78 0.13 h);
+  --color-target-2: oklch(from var(--color-finger-2) 0.78 0.12 h);
+  --color-target-3: oklch(from var(--color-finger-3) 0.78 0.11 h);
+  --color-target-4: oklch(from var(--color-finger-4) 0.78 0.12 h);
+  --color-target-5: oklch(from var(--color-finger-5) 0.78 0.13 h);
   --color-gap     : var(--color-background);  /* просвет: отделяет клавишу от пальца под ней */
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
@@ -188,10 +183,11 @@
   /* --- Домен · тихая направляющая --- */
   /* Линия дом→цель и якоря сцены. Идентичность пальца несут маркеры движения
      и кольца клавиш (ADR 0028), сама направляющая молчит. */
-  --color-path-highlight: var(--iris);
+  --color-path-highlight: oklch(from var(--snow) 0.55 c h); /* нейтральный серый (решение 7): молчит, не сливается с синим пальцем */
 
-  /* Тело бегущей бусины — тёплая жемчужина: идентичность пальца держат маркеры
-     движения (ободок), не тело (блик/терминатор выводит компонент). */
+  /* Тело бегущей бусины нейтрально (решение 6, как sepia): идентичность пальца
+     держат маркеры движения (след/ободок), не тело (блик/терминатор выводит
+     компонент). */
   --color-marker-core: var(--bead);
 
   /* --- Домен · акцент бренда --- */
@@ -220,14 +216,14 @@
      группа 1 нейтральна. */
   --color-keycap-group-1-background: var(--keycap-tint-1);
   --color-keycap-group-1-border    : var(--keycap-edge-1);
-  --color-keycap-group-2-background: var(--keycap-tint-2);
-  --color-keycap-group-2-border    : var(--keycap-edge-2);
-  --color-keycap-group-3-background: var(--keycap-tint-3);
-  --color-keycap-group-3-border    : var(--keycap-edge-3);
-  --color-keycap-group-4-background: var(--keycap-tint-4);
-  --color-keycap-group-4-border    : var(--keycap-edge-4);
-  --color-keycap-group-5-background: var(--keycap-tint-5);
-  --color-keycap-group-5-border    : var(--keycap-edge-5);
+  --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.24 0.035 h / 0.7);
+  --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.50 0.08 h);
+  --color-keycap-group-3-background: oklch(from var(--color-finger-3) 0.24 0.035 h / 0.7);
+  --color-keycap-group-3-border    : oklch(from var(--color-finger-3) 0.50 0.13 h);
+  --color-keycap-group-4-background: oklch(from var(--color-finger-4) 0.24 0.035 h / 0.7);
+  --color-keycap-group-4-border    : oklch(from var(--color-finger-4) 0.50 0.13 h);
+  --color-keycap-group-5-background: oklch(from var(--color-finger-5) 0.24 0.035 h / 0.7);
+  --color-keycap-group-5-border    : oklch(from var(--color-finger-5) 0.50 0.13 h);
 
   /* --- Клавиша · результат нажатия ---
      Заливки и кромка выведены из ядра исхода, значения 1:1 с прежними
@@ -361,8 +357,8 @@
   --hands-center-point-fill: var(--color-path-highlight);
 
   /* MovementPath (ADR 0028): движение несёт оттенок пальца-владельца — след, кольцо
-     тапа, гало и ободок точки. Линия-направляющая молчит, тело бусины — тёплая
-     жемчужина: идентичность держится на маркерах, а не на всей графике разом. */
+     тапа, гало и ободок точки. Линия-направляющая молчит, тело бусины
+     нейтрально: идентичность держится на маркерах, а не на всей графике разом. */
   --movement-path-guide      : var(--color-path-highlight);
   --movement-path-l1-marker  : var(--color-route-1);
   --movement-path-r1-marker  : var(--color-route-1);
@@ -374,7 +370,7 @@
   --movement-path-r4-marker  : var(--color-route-4);
   --movement-path-l5-marker  : var(--color-route-5);
   --movement-path-r5-marker  : var(--color-route-5);
-  --movement-path-marker-core: var(--color-marker-core); /* тело бусины — тёплая жемчужина (блик/терминатор выводит компонент) */
+  --movement-path-marker-core: var(--color-marker-core); /* тело бусины нейтрально (блик/терминатор выводит компонент) */
 
   /* FlowLine — рельс дорожки (верх/низ) нейтральным хромом: это каркас потока,
      не движение и не курсор (ADR 0028), поэтому --color-border, не оттенок. */
