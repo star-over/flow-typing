@@ -137,7 +137,7 @@ UI: вместо нашей кнопки `<button>Войти через ...</but
 
 **Что:** В `dictionaries/{en,ru}.json` есть ключи, которые grep по `src` не находит:
 - `app.loading`, `app.error_title` — оставались с MVP-1 эпохи (loading screen, error boundary), сейчас не подключены.
-- `app.back_to_menu` — осиротел с упразднением кнопки «В меню» (ADR 0025); заодно осиротели CSS-контракт-токены `--footer-actions-btn-danger-*` (`FooterActions.contract.ts` + 5 тем) — убрать вместе.
+- `app.back_to_menu` — осиротел с упразднением кнопки «В меню» (ADR 0025).
 - `settings.*_placeholder`, `settings.theme_description`, `settings.interface_language_description` — заполнители/описания, которые UI не рендерит (тренировочные `settings.*_description` теперь используются как hint'ы на `/settings` — P0-11(a), уже не сироты).
 
 **Почему отложено:** Не баг и не utilization: ничего не ломает, переводы аккуратные. Удаление ключей до окончательной кристаллизации UI = риск удалить то, что вот-вот понадобится при добавлении описаний/заполнителей.
