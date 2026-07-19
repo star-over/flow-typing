@@ -173,8 +173,10 @@ Grep после: `grep -nE "var\(\s*--(finger|hands)-" src/components/hands-scen
 // БЫЛО:
 const markerColor = $derived(`var(--movement-path-${fingerId.toLowerCase()}-marker, currentColor)`);
 // СТАЛО:
-const markerColor = $derived(`var(--color-route-${fingerId[1].toLowerCase()}, currentColor)`);
+const markerColor = $derived(`var(--color-route-${fingerId.charAt(1).toLowerCase()}, currentColor)`);
 ```
+
+**`charAt(1)`, не `[1]`:** у проекта `noUncheckedIndexedAccess: true` → `fingerId[1]` типизируется `string | undefined`, `.toLowerCase()` не проходит `make check`; escape-hatch запрещён. `charAt(1)` возвращает `string` (для 2-символьного `FingerId` индекс 1 всегда цифра/`B`), рантайм-идентично. *(Находка реализации A3.)*
 
 Эквивалентность: `L1`→`var(--color-route-1, currentColor)` (= прежний `--movement-path-l1-marker` = route-1); `LB`→`var(--color-route-b, currentColor)` — роли `--color-route-b` нет → `currentColor` (прежний `--movement-path-lb-marker` не существовал → `currentColor`). Значение сохранено для всех позиций.
 
@@ -401,7 +403,7 @@ const dotColor = $derived(targetKey ? `var(--finger-${targetKey.finger.toLowerCa
 // СТАЛО:
 const dotColor = $derived.by(() => {
   if (!targetKey) return 'transparent';
-  const pos = targetKey.finger[1].toLowerCase(); // '1'..'5' | 'b'
+  const pos = targetKey.finger.charAt(1).toLowerCase(); // '1'..'5' | 'b'  (charAt: noUncheckedIndexedAccess, как в A3)
   return `var(--color-finger-${pos === 'b' ? 'base' : pos})`;
 });
 ```
