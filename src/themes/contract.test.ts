@@ -6,16 +6,16 @@ import { THEMES } from './registry';
 import { ROLE_DICTIONARY } from './roles';
 
 /**
- * Контракт-тест 2-слойной модели (ADR 0029, после растворения L3).
+ * Контракт-тест двухслойной модели (ADR 0029, после растворения L3).
  *
  * Слой 3 (компонентные токены `--<компонент>-*`) растворён: компоненты ссылаются
  * на роли L2 (`--color-*`) напрямую, темы несут только ядро (L1) + роли (L2).
  * Здесь НЕТ префиксных эвристик «имя с префиксом ⇒ L3» — они не отличают L3 от
  * приватного ядра тем (у light/dark/nord ядро зовётся `--finger-1`, `--keycap-tint-1`…)
- * и от компонентных локалей (`--keycap-unit`, `--avatar-size`). Вместо этого:
- *   - остаток недосрезанного L3 В ТЕМЕ ловит L1-дисциплина (ядерный токен со
- *     значением-`var()` — это и есть недосрезанный контракт);
- *   - остаток L3-ссылок В КОМПОНЕНТАХ — прямой скан с исключением двух локалей.
+ * и от компонентных локальных переменных (`--keycap-unit`, `--avatar-size`). Вместо этого:
+ *   - остаток оставшегося L3 В ТЕМЕ ловит L1-дисциплина (ядерный токен со
+ *     значением-`var()` — это и есть не срезанный до конца контракт);
+ *   - остаток L3-ссылок В КОМПОНЕНТАХ — прямой скан с исключением двух локальных переменных.
  */
 
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -75,10 +75,10 @@ function parseRootTokens(path: string, selector: string): Record<string, string>
   return out;
 }
 
-/** dup-preserving: пары `[name, value]` в исходном порядке (для детекта дублей). */
-function parseRawDeclarations(path: string, selector: string): Array<[string, string]> {
+/** dup-preserving: пары `[name, value]` в исходном порядке (для обнаружения дублей). */
+function parseRawDeclarations(path: string, selector: string): [string, string][] {
   const body = selectorBody(stripComments(readFileSync(path, 'utf-8')), selector, path);
-  const out: Array<[string, string]> = [];
+  const out: [string, string][] = [];
   const decl = /([a-zA-Z-][\w-]*)\s*:\s*([^;]+);/g;
   for (const m of body.matchAll(decl)) {
     const [, name, value] = m;
@@ -159,7 +159,7 @@ describe('L2 role dictionary — declaration', () => {
 // ============================================================
 // Дисциплина слоёв (реальные темы)
 //   L1: токен НЕ --color-* и НЕ color-scheme = ядро → значение без var().
-//       Недосрезанный L3 (`--keycap-l1-background: var(...)`) падает здесь —
+//       Оставшийся L3 (`--keycap-l1-background: var(...)`) падает здесь —
 //       это RED-драйвер до среза (Task B2).
 //   L2: --color-* начинается с var( или oklch(from var(.
 // ============================================================
@@ -169,7 +169,7 @@ describe('layer discipline (real themes)', () => {
   for (const id of REQUIRED_THEMES) {
     const tokens = parseRootTokens(themePath(id), themeSelector(id));
 
-    it(`'${id}': L1 core tokens carry no var() (also catches un-stripped L3)`, () => {
+    it(`'${id}': L1 core tokens carry no var() (also catches non-fully-stripped L3)`, () => {
       for (const [name, value] of Object.entries(tokens)) {
         if (name.startsWith('--color-') || name === 'color-scheme') continue;
         expect(
@@ -189,7 +189,7 @@ describe('layer discipline (real themes)', () => {
 });
 
 // ============================================================
-// L2: ссылки на роли внутри темы резолвятся (нет висячих var(--color-*))
+// L2: ссылки на роли внутри темы разрешаются (нет висячих var(--color-*))
 // ============================================================
 describe('themes: referenced --color-* roles are declared in the same theme', () => {
   const varColorRe = /var\(\s*(--color-[a-z0-9-]+)/g;
@@ -208,20 +208,20 @@ describe('themes: referenced --color-* roles are declared in the same theme', ()
 });
 
 // ============================================================
-// Дубли имён + циклы var() (реальные темы) — фолд backlog «усилить контракт-тест»
+// Дубли имён + циклы var() (реальные темы) — вобран backlog «усилить контракт-тест»
 // ============================================================
 describe('themes: no duplicate names, no var() cycles', () => {
   for (const id of REQUIRED_THEMES) {
     it(`'${id}': no duplicate custom-property names`, () => {
       const decls = parseRawDeclarations(themePath(id), themeSelector(id));
       const seen = new Set<string>();
-      const dups: string[] = [];
+      const duplicates: string[] = [];
       for (const [name] of decls) {
         if (!name.startsWith('--')) continue;
-        if (seen.has(name)) dups.push(name);
+        if (seen.has(name)) duplicates.push(name);
         seen.add(name);
       }
-      expect(dups, `${id}: duplicate names: ${dups.join(', ')}`).toEqual([]);
+      expect(duplicates, `${id}: duplicate names: ${duplicates.join(', ')}`).toEqual([]);
     });
 
     it(`'${id}': no var() reference cycles`, () => {
@@ -291,9 +291,8 @@ describe('components: valid role references, no leftover L3', () => {
     for (const file of files) {
       const src = readFileSync(file, 'utf-8');
       for (const m of src.matchAll(colorRefRe)) {
-        const idx = m.index ?? 0;
         // Пропускаем динамические шаблоны: var(--color-finger-${…}) / var(--color-route-${…})
-        if (src[idx + m[0].length] === '$') continue;
+        if (src[m.index + m[0].length] === '$') continue;
         if (m[1] && !ROLE_SET.has(m[1])) bad.push(`${relative(file)}: ${m[1]}`);
       }
     }
