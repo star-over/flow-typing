@@ -281,7 +281,7 @@
 
   .trail {
     fill: none;
-    stroke: var(--color-path-highlight);
+    stroke: var(--color-guide);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-dasharray: 2 6;
@@ -289,6 +289,6 @@
   }
 
   .tip {
-    filter: drop-shadow(0 0 0.35rem var(--color-path-highlight));
+    filter: drop-shadow(0 0 0.35rem var(--color-guide));
   }
 </style>

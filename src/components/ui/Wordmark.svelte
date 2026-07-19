@@ -51,7 +51,7 @@
     width: 0.46em;
     height: 0.1em;
     border-radius: 999px;
-    background: var(--color-path-highlight);
+    background: var(--color-guide);
   }
 
   /* Блочный курсор на текущем символе */

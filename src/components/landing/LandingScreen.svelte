@@ -217,7 +217,7 @@
     flex-shrink: 0;
     width: 2.5rem;
     height: 2.5rem;
-    color: var(--color-path-highlight);
+    color: var(--color-guide);
   }
 
   .motif svg {

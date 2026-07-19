@@ -14,7 +14,7 @@
   prefers-reduced-motion: движение отключается — статичная линия дом→цель + точка у цели
   («откуда→куда» без анимации, PRODUCT §Accessibility).
 
-  Цвет — роли темы: путь `--color-path-highlight` (индиго), движение по пальцу — цвет
+  Цвет — роли темы: путь `--color-guide` (индиго), движение по пальцу — цвет
   позиции маршрута `--color-route-N`, где N = цифра пальца (`fingerId.charAt(1)`). Букву руки
   (L/R) роняем намеренно — цвет позиционный, `--color-route-N` одинаков для обеих рук;
   у больших пальцев (N = B) роли нет → fallback на currentColor. Тело бусины-ядра —
@@ -209,7 +209,7 @@
   /* Линия-маршрут дом→цель — тонкий индиго-пунктир (путь виден и в паузе). */
   .guide {
     fill: none;
-    stroke: var(--color-path-highlight);
+    stroke: var(--color-guide);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
