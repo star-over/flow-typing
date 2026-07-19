@@ -55,19 +55,15 @@
 }
 
 /*
- * Глобальный :root — primitives + body fallback.
+ * Глобальный :root — primitives.
  *
  * PRIMITIVES (typography/radius/spacing/shadow/motion) — общие для всех
  *   тем, не зависят от продуктовой палитры.
- * BODY FALLBACK (--body-background, --body-color) — тонкое окно между paint
- *   и inline-bootstrap-script в `src/app.html`, который выставляет
- *   data-theme. Без fallback body выглядел бы голым (transparent + черным
- *   текстом). Литералы совпадают с темой `light`.
  *
- * Компонентные контрактные токены (--keycap-*, --finger-*, и т.д.) живут
- * ТОЛЬКО в темах (`src/themes/<id>.css`); авторитетный список — `src/themes/contract.ts`.
- * Прямые `--color-*` переменные тоже живут только в темах как их внутренняя
- * палитра, не входят в контракт.
+ * Компоненты ссылаются на роли `--color-*` напрямую (целевая 2-слойная модель,
+ * ADR 0029) — слой компонентных контрактных токенов (--keycap-*, --finger-*
+ * и т.д.) сейчас растворяется. Роли `--color-*` живут в файлах тем
+ * (`src/themes/<id>.css`).
  */
 :root {
   color-scheme: light;
@@ -145,12 +141,9 @@
   --motion-ease-decelerate: cubic-bezier(0, 0, 0, 1);
   --motion-ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
 
-  /* ============================================================
-   * BODY FALLBACK — тонкое окно до inline-bootstrap-script
-   * Литералы совпадают с темой `light`.
-   * ============================================================ */
-  --body-background: oklch(1 0 0);
-  --body-color     : oklch(0.14 0 0);
+  /* Тему ставит синхронный head-скрипт (src/app.html) ДО инъекции CSS-link —
+   * data-theme установлен к первому применению стилей, окна без темы нет.
+   * Поэтому body ссылается на роли напрямую, fallback-литералы не нужны. */
 }
 
 * {
@@ -161,8 +154,8 @@
 
 body {
   font-family: var(--font-sans);
-  background: var(--body-background);
-  color: var(--body-color);
+  background: var(--color-background);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
