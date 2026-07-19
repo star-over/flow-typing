@@ -40,7 +40,6 @@
   --polar-night-2: oklch(0.38 0.02 254);  /* поверхность */
   --polar-night-3: oklch(0.44 0.02 254);  /* hover поверхности */
   --polar-night-4: oklch(0.50 0.02 254);  /* базовая граница */
-  --polar-border : oklch(0.50 0.02 254);  /* акцентная граница аватара/меню */
   --menu-fill    : oklch(0.33 0.02 254);  /* выпуклое меню */
 
   /* Текст: Snow Storm — лестница светлых чернил вверх. */
@@ -112,7 +111,7 @@
 
   /* --- Поверхности: лестница Polar Night вниз --- */
   --color-background    : var(--polar-night-1);
-  --color-surface-raised: var(--menu-fill);   /* выпуклая: меню поверх фона */
+  --color-surface-raised: var(--menu-fill); /* выпуклая: меню поверх фона */
   --color-surface       : var(--polar-night-2);
   --color-surface-hover : var(--polar-night-3);
   --color-border        : var(--polar-night-4);
@@ -137,7 +136,7 @@
 
   /* --- Плашки с акцентом (аватар, обвязка меню) --- */
   --color-surface-accent: var(--avatar-fill);
-  --color-border-accent : var(--polar-border);
+  --color-border-accent : var(--polar-night-4);  /* акцентная граница аватара/меню совпадает с базовой границей в nord */
 
   /* --- Исходы --- */
   --color-success    : var(--aurora-green);
