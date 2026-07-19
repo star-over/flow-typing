@@ -121,7 +121,7 @@
     color: var(--color-on-dense);
     border: 1px solid var(--color-primary-border);
     padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-sm, 0.25rem);
+    border-radius: var(--radius-2);
     cursor: pointer;
     font-size: 1rem;
   }
@@ -142,7 +142,7 @@
     color: var(--color-text-secondary);
     border: 1px dashed var(--color-text-secondary);
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-sm, 0.25rem);
+    border-radius: var(--radius-2);
     cursor: pointer;
     font-size: 0.875rem;
   }
