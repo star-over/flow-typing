@@ -12,105 +12,144 @@
  *   4. Добавить запись `{ id, colorScheme }` в `THEMES` в `src/themes/registry.ts`.
  *   5. Добавить ключ `options.themes.<id>` в `dictionaries/{en,ru}.json` (Phase 1+).
  *   6. Добавить `@import url('./themes/<id>.css');` в `src/app.css`.
+ *
+ * ТРИ СЛОЯ (эталон схемы; light/dark/nord подтягиваются позже):
+ *
+ *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
+ *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый цвет.
+ *   2. РОЛИ — семантика, фиксированный словарь имён (общий для всех тем). Роль —
+ *      маппинг/калькуляция от ядра или от другой роли (`oklch(from …)`, тюнинг
+ *      светлоты/хромы/оттенка); новых абсолютов нет (ADR 0029).
+ *   3. КОНТРАКТ КОМПОНЕНТОВ — `var()` на роли + структурные литералы (геометрия:
+ *      числа width/offset/blur/spread, `solid`/`dashed`, `inset`, единицы).
+ *      Запрещён любой цветовой литерал (`oklch()`/`rgb()`/hex/именованные) —
+ *      каждый цветовой слот только `var()` на роль; единственный whitelist —
+ *      `transparent` (ADR 0029).
+ *
+ * Правило границы: цвет заводится в ядре, смысл — в роли, компонент только
+ * ссылается. Так тема перекрашивается из ядра, а не правкой 200 строк.
  */
 :root[data-theme="__TEMPLATE__"] {
   /* color-scheme: light | dark; */
 
-  /* --- Semantic surfaces --- */
-  --color-background           : unset;
-  --color-surface      : unset;
-  --color-surface-hover: unset;
-  --color-border       : unset;
+  /* ============================================================
+   * СЛОЙ 1 · ЯДРО — приватная палитра темы (только абсолютные значения)
+   * ============================================================ */
 
-  /* --- Semantic text --- */
-  --color-text-primary  : unset;
-  --color-text-secondary: unset;
-  --color-text-muted    : unset;
-
-  /* --- Semantic outcomes --- */
-  --color-success    : unset;
-  --color-success-dim: unset;
-  --color-error      : unset;
-  --color-error-dim  : unset;
-  --color-warning    : unset;
-
-  /* --- Domain · Finger palette --- */
-  --color-finger-1   : unset;
-  --color-finger-2   : unset;
-  --color-finger-3   : unset;
-  --color-finger-4   : unset;
-  --color-finger-5   : unset;
-  --color-finger-base: unset;
-
-  /* --- Domain · Finger state (non-TARGET) --- */
-  --color-finger-inactive: unset;
-  --color-finger-idle    : unset;
-  --color-finger-error   : unset;
-
-  /* --- Domain · Navigation visualization --- */
-  --color-path-highlight: unset;
-  --color-target-marker : unset;
-  --color-cursor-border : unset;
-
-  /* --- Domain · Typing-stream symbol statuses --- */
-  --color-symbol-pending   : unset;
-  --color-symbol-correct   : unset;
-  --color-symbol-corrected : unset;
-  --color-symbol-one-error     : unset;
-  --color-symbol-many-errors    : unset;
-  --color-symbol-correct-background: unset;
-  --color-symbol-error-background  : unset;
-
-  /* --- Domain · CursorSymbol block --- */
-  --color-cursor-background: unset;
-  --color-cursor-foreground: unset;
-
-  /* --- Domain · KeyCap base --- */
-  --color-keycap-label : unset;
-  --color-keycap-marker: unset;
-
-  /* --- Domain · KeyCap groups (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
-  --color-keycap-group-1-background    : unset;
-  --color-keycap-group-1-border: unset;
-  --color-keycap-group-2-background    : unset;
-  --color-keycap-group-2-border: unset;
-  --color-keycap-group-3-background    : unset;
-  --color-keycap-group-3-border: unset;
-  --color-keycap-group-4-background    : unset;
-  --color-keycap-group-4-border: unset;
-  --color-keycap-group-5-background    : unset;
-  --color-keycap-group-5-border: unset;
-
-  /* --- Domain · KeyCap secondary --- */
-
-  /* --- Domain · KeyCap accent --- */
-
-  /* --- Domain · KeyCap navigation role TARGET --- */
-  --color-keycap-role-target-background: unset;
-  --color-keycap-role-target-foreground: unset;
-
-  /* --- Domain · KeyCap press results --- */
-  --color-keycap-correct-background    : unset;
-  --color-keycap-correct-foreground    : unset;
-  --color-keycap-correct-border: unset;
-  --color-keycap-error-background      : unset;
-  --color-keycap-error-foreground      : unset;
-  --color-keycap-error-border  : unset;
+  /* Приватная палитра темы: только абсолютные oklch(...) значения.
+     Имена и количество произвольны — пример: --paper, --ink, --amber. */
 
   /* ============================================================
-   * COMPONENT CONTRACT TOKENS — см. light.css для описания.
-   * Эти токены образуют контракт каждой темы (см. src/themes/contract.ts
-   * и `<Component>.contract.ts` рядом с компонентами).
+   * СЛОЙ 2 · РОЛИ — семантика (маппинг на ядро или калькуляция от него)
+   * ============================================================ */
+
+  /* --- Поверхности --- */
+  --color-background: unset;
+  --color-surface-raised: unset;
+  --color-surface: unset;
+  --color-surface-hover: unset;
+  --color-border: unset;
+  /* --- Текст --- */
+  --color-text-primary: unset;
+  --color-text-secondary: unset;
+  --color-text-muted: unset;
+  /* --- on-dense --- */
+  --color-on-dense: unset;
+  /* --- primary --- */
+  --color-primary-background: unset;
+  --color-primary-border: unset;
+  --color-primary-hover: unset;
+  /* --- Ссылки --- */
+  --color-ink-strong: unset;
+  --color-link: unset;
+  --color-link-hover: unset;
+  /* --- Акцентные поверхности / обводки --- */
+  --color-surface-accent: unset;
+  --color-border-accent: unset;
+  /* --- Исходы --- */
+  --color-success: unset;
+  --color-success-dim: unset;
+  --color-error: unset;
+  --color-error-hover: unset;
+  --color-error-dim: unset;
+  /* --- Ритм --- */
+  --color-rhythm-outside: unset;
+  --color-rhythm-outside-dim: unset;
+  /* --- Приглушённый текст-след ритма --- */
+  --color-text-dim: unset;
+  /* --- Пальцы --- */
+  --color-finger-1: unset;
+  --color-finger-2: unset;
+  --color-finger-3: unset;
+  --color-finger-4: unset;
+  --color-finger-5: unset;
+  --color-finger-base: unset;
+  /* --- Маршруты / цели --- */
+  --color-route-1: unset;
+  --color-route-2: unset;
+  --color-route-3: unset;
+  --color-route-4: unset;
+  --color-route-5: unset;
+  --color-target-1: unset;
+  --color-target-2: unset;
+  --color-target-3: unset;
+  --color-target-4: unset;
+  --color-target-5: unset;
+  --color-gap: unset;
+  /* --- Состояния пальца --- */
+  --color-finger-inactive: unset;
+  --color-finger-idle: unset;
+  --color-finger-error: unset;
+  /* --- Направляющая --- */
+  --color-path-highlight: unset;
+  /* --- Ядро маркера --- */
+  --color-marker-core: unset;
+  /* --- Акцент бренда --- */
+  --color-brand-accent: unset;
+  --color-brand-accent-hover: unset;
+  /* --- Статусы символа в потоке --- */
+  --color-symbol-pending: unset;
+  --color-symbol-correct: unset;
+  --color-symbol-corrected: unset;
+  --color-symbol-one-error: unset;
+  --color-symbol-many-errors: unset;
+  /* --- Блок курсора --- */
+  --color-cursor-background: unset;
+  --color-cursor-foreground: unset;
+  /* --- Клавиша, база --- */
+  --color-keycap-label: unset;
+  --color-keycap-marker: unset;
+  /* --- Группы клавиш --- */
+  --color-keycap-group-1-background: unset;
+  --color-keycap-group-1-border: unset;
+  --color-keycap-group-2-background: unset;
+  --color-keycap-group-2-border: unset;
+  --color-keycap-group-3-background: unset;
+  --color-keycap-group-3-border: unset;
+  --color-keycap-group-4-background: unset;
+  --color-keycap-group-4-border: unset;
+  --color-keycap-group-5-background: unset;
+  --color-keycap-group-5-border: unset;
+  /* --- Результат нажатия --- */
+  --color-keycap-correct-background: unset;
+  --color-keycap-correct-border: unset;
+  --color-keycap-error-background: unset;
+  --color-keycap-error-foreground: unset;
+  --color-keycap-error-border: unset;
+
+  /* ============================================================
+   * СЛОЙ 3 · КОНТРАКТ КОМПОНЕНТОВ — только var() на роли слоя 2.
+   * Ни абсолютов, ни формул: нужна калькуляция → заводи роль выше.
+   * Описание контракта — см. light.css.
    * ============================================================ */
 
   /* Root */
   --body-background: unset;
-  --body-color     : unset;
-
+  --body-color: unset;
   /* KeyCap — base */
-  --keycap-color            : unset;
+  --keycap-color: unset;
   --keycap-marker-background: unset;
-  --keycap-home-ring        : unset;
+  --keycap-home-ring: unset;
   --keycap-l1-path-ring: unset;
   --keycap-r1-path-ring: unset;
   --keycap-l2-path-ring: unset;
@@ -121,213 +160,264 @@
   --keycap-r4-path-ring: unset;
   --keycap-l5-path-ring: unset;
   --keycap-r5-path-ring: unset;
-
   /* KeyCap — per-position fill/border/color */
-  --keycap-l1-background: unset; --keycap-l1-border: unset; --keycap-l1-color: unset;
-  --keycap-r1-background: unset; --keycap-r1-border: unset; --keycap-r1-color: unset;
-  --keycap-l2-background: unset; --keycap-l2-border: unset; --keycap-l2-color: unset;
-  --keycap-r2-background: unset; --keycap-r2-border: unset; --keycap-r2-color: unset;
-  --keycap-l3-background: unset; --keycap-l3-border: unset; --keycap-l3-color: unset;
-  --keycap-r3-background: unset; --keycap-r3-border: unset; --keycap-r3-color: unset;
-  --keycap-l4-background: unset; --keycap-l4-border: unset; --keycap-l4-color: unset;
-  --keycap-r4-background: unset; --keycap-r4-border: unset; --keycap-r4-color: unset;
-  --keycap-l5-background: unset; --keycap-l5-border: unset; --keycap-l5-color: unset;
-  --keycap-r5-background: unset; --keycap-r5-border: unset; --keycap-r5-color: unset;
-
+  --keycap-l1-background: unset;
+  --keycap-l1-border: unset;
+  --keycap-l1-color: unset;
+  --keycap-r1-background: unset;
+  --keycap-r1-border: unset;
+  --keycap-r1-color: unset;
+  --keycap-l2-background: unset;
+  --keycap-l2-border: unset;
+  --keycap-l2-color: unset;
+  --keycap-r2-background: unset;
+  --keycap-r2-border: unset;
+  --keycap-r2-color: unset;
+  --keycap-l3-background: unset;
+  --keycap-l3-border: unset;
+  --keycap-l3-color: unset;
+  --keycap-r3-background: unset;
+  --keycap-r3-border: unset;
+  --keycap-r3-color: unset;
+  --keycap-l4-background: unset;
+  --keycap-l4-border: unset;
+  --keycap-l4-color: unset;
+  --keycap-r4-background: unset;
+  --keycap-r4-border: unset;
+  --keycap-r4-color: unset;
+  --keycap-l5-background: unset;
+  --keycap-l5-border: unset;
+  --keycap-l5-color: unset;
+  --keycap-r5-background: unset;
+  --keycap-r5-border: unset;
+  --keycap-r5-color: unset;
   /* KeyCap — per-position target */
-  --keycap-l1-target-background: unset; --keycap-l1-target-color: unset; --keycap-l1-target-ring: unset;
-  --keycap-r1-target-background: unset; --keycap-r1-target-color: unset; --keycap-r1-target-ring: unset;
-  --keycap-l2-target-background: unset; --keycap-l2-target-color: unset; --keycap-l2-target-ring: unset;
-  --keycap-r2-target-background: unset; --keycap-r2-target-color: unset; --keycap-r2-target-ring: unset;
-  --keycap-l3-target-background: unset; --keycap-l3-target-color: unset; --keycap-l3-target-ring: unset;
-  --keycap-r3-target-background: unset; --keycap-r3-target-color: unset; --keycap-r3-target-ring: unset;
-  --keycap-l4-target-background: unset; --keycap-l4-target-color: unset; --keycap-l4-target-ring: unset;
-  --keycap-r4-target-background: unset; --keycap-r4-target-color: unset; --keycap-r4-target-ring: unset;
-  --keycap-l5-target-background: unset; --keycap-l5-target-color: unset; --keycap-l5-target-ring: unset;
-  --keycap-r5-target-background: unset; --keycap-r5-target-color: unset; --keycap-r5-target-ring: unset;
-
+  --keycap-l1-target-background: unset;
+  --keycap-l1-target-color: unset;
+  --keycap-l1-target-ring: unset;
+  --keycap-r1-target-background: unset;
+  --keycap-r1-target-color: unset;
+  --keycap-r1-target-ring: unset;
+  --keycap-l2-target-background: unset;
+  --keycap-l2-target-color: unset;
+  --keycap-l2-target-ring: unset;
+  --keycap-r2-target-background: unset;
+  --keycap-r2-target-color: unset;
+  --keycap-r2-target-ring: unset;
+  --keycap-l3-target-background: unset;
+  --keycap-l3-target-color: unset;
+  --keycap-l3-target-ring: unset;
+  --keycap-r3-target-background: unset;
+  --keycap-r3-target-color: unset;
+  --keycap-r3-target-ring: unset;
+  --keycap-l4-target-background: unset;
+  --keycap-l4-target-color: unset;
+  --keycap-l4-target-ring: unset;
+  --keycap-r4-target-background: unset;
+  --keycap-r4-target-color: unset;
+  --keycap-r4-target-ring: unset;
+  --keycap-l5-target-background: unset;
+  --keycap-l5-target-color: unset;
+  --keycap-l5-target-ring: unset;
+  --keycap-r5-target-background: unset;
+  --keycap-r5-target-color: unset;
+  --keycap-r5-target-ring: unset;
   /* KeyCap — press result */
-  --keycap-correct-background: unset; --keycap-correct-color: unset; --keycap-correct-border: unset; --keycap-correct-ring: unset;
-  --keycap-error-background  : unset; --keycap-error-color  : unset; --keycap-error-border  : unset;
+  --keycap-correct-background: unset;
+  --keycap-correct-color: unset;
+  --keycap-correct-border: unset;
+  --keycap-correct-ring: unset;
+  --keycap-error-background: unset;
+  --keycap-error-color: unset;
+  --keycap-error-border: unset;
 
   /* Finger */
-  --finger-l1-fill: unset; --finger-r1-fill: unset;
-  --finger-l2-fill: unset; --finger-r2-fill: unset;
-  --finger-l3-fill: unset; --finger-r3-fill: unset;
-  --finger-l4-fill: unset; --finger-r4-fill: unset;
-  --finger-l5-fill: unset; --finger-r5-fill: unset;
-  --finger-lb-fill: unset; --finger-rb-fill: unset;
-  --finger-inactive-fill: unset; --finger-idle-fill: unset; --finger-error-fill: unset;
+  --finger-l1-fill: unset;
+  --finger-r1-fill: unset;
+  --finger-l2-fill: unset;
+  --finger-r2-fill: unset;
+  --finger-l3-fill: unset;
+  --finger-r3-fill: unset;
+  --finger-l4-fill: unset;
+  --finger-r4-fill: unset;
+  --finger-l5-fill: unset;
+  --finger-r5-fill: unset;
+  --finger-lb-fill: unset;
+  --finger-rb-fill: unset;
+  --finger-inactive-fill: unset;
+  --finger-idle-fill: unset;
+  --finger-error-fill: unset;
 
   /* HandsScene */
   --hands-center-point-fill: unset;
 
   /* MovementPath */
-  --movement-path-guide      : unset;
-  --movement-path-l1-marker  : unset;
-  --movement-path-r1-marker  : unset;
-  --movement-path-l2-marker  : unset;
-  --movement-path-r2-marker  : unset;
-  --movement-path-l3-marker  : unset;
-  --movement-path-r3-marker  : unset;
-  --movement-path-l4-marker  : unset;
-  --movement-path-r4-marker  : unset;
-  --movement-path-l5-marker  : unset;
-  --movement-path-r5-marker  : unset;
+  --movement-path-guide: unset;
+  --movement-path-l1-marker: unset;
+  --movement-path-r1-marker: unset;
+  --movement-path-l2-marker: unset;
+  --movement-path-r2-marker: unset;
+  --movement-path-l3-marker: unset;
+  --movement-path-r3-marker: unset;
+  --movement-path-l4-marker: unset;
+  --movement-path-r4-marker: unset;
+  --movement-path-l5-marker: unset;
+  --movement-path-r5-marker: unset;
   --movement-path-marker-core: unset;
 
   /* FlowLine */
-  --flow-line-border            : unset;
+  --flow-line-border: unset;
   --flow-line-correct-background: unset;
-  --flow-line-error-background  : unset;
+  --flow-line-error-background: unset;
 
   /* CursorSymbol */
   --cursor-symbol-background: unset;
-  --cursor-symbol-color     : unset;
+  --cursor-symbol-color: unset;
 
   /* RegularSymbol */
-  --regular-symbol-pending-color  : unset;
-  --regular-symbol-correct-color  : unset;
+  --regular-symbol-pending-color: unset;
+  --regular-symbol-correct-color: unset;
   --regular-symbol-corrected-color: unset;
-  --regular-symbol-one-error-color    : unset;
-  --regular-symbol-many-errors-color   : unset;
+  --regular-symbol-one-error-color: unset;
+  --regular-symbol-many-errors-color: unset;
 
   /* FooterActions */
-  --footer-actions-btn-background        : unset;
-  --footer-actions-btn-color             : unset;
-  --footer-actions-btn-border            : unset;
-  --footer-actions-btn-hover-background  : unset;
+  --footer-actions-btn-background: unset;
+  --footer-actions-btn-color: unset;
+  --footer-actions-btn-border: unset;
+  --footer-actions-btn-hover-background: unset;
   --footer-actions-btn-primary-background: unset;
-  --footer-actions-btn-primary-color     : unset;
-  --footer-actions-btn-primary-border    : unset;
+  --footer-actions-btn-primary-color: unset;
+  --footer-actions-btn-primary-border: unset;
   --footer-actions-btn-success-background: unset;
-  --footer-actions-btn-success-color     : unset;
-  --footer-actions-btn-success-border    : unset;
+  --footer-actions-btn-success-color: unset;
+  --footer-actions-btn-success-border: unset;
 
   /* Header */
-  --header-border          : unset;
+  --header-border: unset;
 
   /* MainContent */
-  --main-content-pause-color  : unset;
+  --main-content-pause-color: unset;
 
   /* Select */
-  --select-background      : unset;
-  --select-border          : unset;
-  --select-color           : unset;
-  --select-focus-outline   : unset;
+  --select-background: unset;
+  --select-border: unset;
+  --select-color: unset;
+  --select-focus-outline: unset;
   --select-arrow-background: unset;
 
   /* SessionStatsDisplay */
-  --session-stats-display-background           : unset;
-  --session-stats-display-border               : unset;
-  --session-stats-display-divider              : unset;
-  --session-stats-display-label-color          : unset;
-  --session-stats-display-value-color          : unset;
-  --session-stats-display-unit-color           : unset;
-  --session-stats-display-note-color           : unset;
-  --session-stats-display-trend-color          : unset;
-  --session-stats-display-info-border          : unset;
-  --session-stats-display-info-color           : unset;
+  --session-stats-display-background: unset;
+  --session-stats-display-border: unset;
+  --session-stats-display-divider: unset;
+  --session-stats-display-label-color: unset;
+  --session-stats-display-value-color: unset;
+  --session-stats-display-unit-color: unset;
+  --session-stats-display-note-color: unset;
+  --session-stats-display-trend-color: unset;
+  --session-stats-display-info-border: unset;
+  --session-stats-display-info-color: unset;
   --session-stats-display-info-hover-background: unset;
-  --session-stats-display-info-open-background : unset;
-  --session-stats-display-info-open-color      : unset;
-  --session-stats-display-info-body-color      : unset;
-  --session-stats-display-info-body-border     : unset;
-  --session-stats-display-link-color           : unset;
-  --session-stats-display-link-border          : unset;
-  --session-stats-display-link-hover-border    : unset;
+  --session-stats-display-info-open-background: unset;
+  --session-stats-display-info-open-color: unset;
+  --session-stats-display-info-body-color: unset;
+  --session-stats-display-info-body-border: unset;
+  --session-stats-display-link-color: unset;
+  --session-stats-display-link-border: unset;
+  --session-stats-display-link-hover-border: unset;
 
   /* RepertoireProgress */
-  --repertoire-progress-background  : unset;
-  --repertoire-progress-border      : unset;
-  --repertoire-progress-label-color : unset;
-  --repertoire-progress-value-color : unset;
-  --repertoire-progress-bar-track   : unset;
-  --repertoire-progress-bar-fill    : unset;
+  --repertoire-progress-background: unset;
+  --repertoire-progress-border: unset;
+  --repertoire-progress-label-color: unset;
+  --repertoire-progress-value-color: unset;
+  --repertoire-progress-bar-track: unset;
+  --repertoire-progress-bar-fill: unset;
   --repertoire-progress-accent-color: unset;
 
   /* SurveyPrompt */
-  --survey-prompt-background             : unset;
-  --survey-prompt-border                 : unset;
-  --survey-prompt-question-color         : unset;
-  --survey-prompt-button-background      : unset;
-  --survey-prompt-button-border          : unset;
-  --survey-prompt-button-color           : unset;
+  --survey-prompt-background: unset;
+  --survey-prompt-border: unset;
+  --survey-prompt-question-color: unset;
+  --survey-prompt-button-background: unset;
+  --survey-prompt-button-border: unset;
+  --survey-prompt-button-color: unset;
   --survey-prompt-button-hover-background: unset;
-  --survey-prompt-thanks-color           : unset;
-  --survey-prompt-dismiss-color          : unset;
+  --survey-prompt-thanks-color: unset;
+  --survey-prompt-dismiss-color: unset;
 
   /* SettingsPage */
-  --settings-page-label-color         : unset;
-  --settings-page-input-background    : unset;
-  --settings-page-input-color         : unset;
-  --settings-page-input-border        : unset;
-  --settings-page-btn-background      : unset;
-  --settings-page-btn-color           : unset;
-  --settings-page-btn-border          : unset;
+  --settings-page-label-color: unset;
+  --settings-page-input-background: unset;
+  --settings-page-input-color: unset;
+  --settings-page-input-border: unset;
+  --settings-page-btn-background: unset;
+  --settings-page-btn-color: unset;
+  --settings-page-btn-border: unset;
   --settings-page-btn-hover-background: unset;
-  --settings-page-danger-btn-background      : unset;
-  --settings-page-danger-btn-color           : unset;
-  --settings-page-danger-btn-border          : unset;
-  --settings-page-danger-btn-hover-background : unset;
-  --settings-page-danger-text-color          : unset;
+  --settings-page-danger-btn-background: unset;
+  --settings-page-danger-btn-color: unset;
+  --settings-page-danger-btn-border: unset;
+  --settings-page-danger-btn-hover-background: unset;
+  --settings-page-danger-text-color: unset;
 
   /* SignInScreen */
-  --sign-in-screen-background            : unset;
-  --sign-in-screen-title-color           : unset;
-  --sign-in-screen-disclaimer-color      : unset;
-  --sign-in-screen-btn-github-background : unset;
-  --sign-in-screen-btn-github-color      : unset;
-  --sign-in-screen-btn-github-border     : unset;
+  --sign-in-screen-background: unset;
+  --sign-in-screen-title-color: unset;
+  --sign-in-screen-disclaimer-color: unset;
+  --sign-in-screen-btn-github-background: unset;
+  --sign-in-screen-btn-github-color: unset;
+  --sign-in-screen-btn-github-border: unset;
   --sign-in-screen-btn-github-hover-background: unset;
-  --sign-in-screen-btn-google-background : unset;
-  --sign-in-screen-btn-google-color      : unset;
-  --sign-in-screen-btn-google-border     : unset;
+  --sign-in-screen-btn-google-background: unset;
+  --sign-in-screen-btn-google-color: unset;
+  --sign-in-screen-btn-google-border: unset;
   --sign-in-screen-btn-google-hover-background: unset;
-  --sign-in-screen-btn-yandex-background : unset;
-  --sign-in-screen-btn-yandex-color      : unset;
-  --sign-in-screen-btn-yandex-border     : unset;
+  --sign-in-screen-btn-yandex-background: unset;
+  --sign-in-screen-btn-yandex-color: unset;
+  --sign-in-screen-btn-yandex-border: unset;
   --sign-in-screen-btn-yandex-hover-background: unset;
 
   /* UserMenu */
-  --user-menu-loading-color               : unset;
-  --user-menu-guest-link-color            : unset;
-  --user-menu-guest-link-hover-color      : unset;
-  --user-menu-authenticated-name-color    : unset;
-  --user-menu-dropdown-background         : unset;
-  --user-menu-dropdown-border             : unset;
-  --user-menu-dropdown-item-color         : unset;
+  --user-menu-loading-color: unset;
+  --user-menu-guest-link-color: unset;
+  --user-menu-guest-link-hover-color: unset;
+  --user-menu-authenticated-name-color: unset;
+  --user-menu-dropdown-background: unset;
+  --user-menu-dropdown-border: unset;
+  --user-menu-dropdown-item-color: unset;
   --user-menu-dropdown-item-hover-background: unset;
 
   /* Avatar */
-  --avatar-background                      : unset;
-  --avatar-color                          : unset;
-  --avatar-border                         : unset;
+  --avatar-background: unset;
+  --avatar-color: unset;
+  --avatar-border: unset;
 
-  /* Wordmark (логотип) */
-  --wordmark-ink             : unset;
+  /* Wordmark */
+  --wordmark-ink: unset;
   --wordmark-caret-background: unset;
-  --wordmark-caret-color     : unset;
-  --wordmark-bar-background  : unset;
-  --wordmark-pending-opacity : unset;
+  --wordmark-caret-color: unset;
+  --wordmark-bar-background: unset;
+  --wordmark-pending-opacity: unset;
 
   /* Landing */
-  --landing-cta-background       : unset;
-  --landing-cta-color            : unset;
-  --landing-cta-border           : unset;
-  --landing-cta-hover-background : unset;
-  --landing-muted-color          : unset;
-  --landing-rule                 : unset;
-  --landing-demo-path            : unset;
-  --landing-demo-surface         : unset;
+  --landing-cta-background: unset;
+  --landing-cta-color: unset;
+  --landing-cta-border: unset;
+  --landing-cta-hover-background: unset;
+  --landing-muted-color: unset;
+  --landing-rule: unset;
+  --landing-demo-path: unset;
+  --landing-demo-surface: unset;
 
   /* RhythmChannel */
   --rhythm-channel-track-background: unset;
-  --rhythm-channel-track-border   : unset;
-  --rhythm-channel-zone-fill      : unset;
-  --rhythm-channel-marker-in      : unset;
-  --rhythm-channel-marker-outside : unset;
-  --rhythm-channel-state-fill     : unset;
-  --rhythm-channel-anchor         : unset;
-  --rhythm-channel-trail          : unset;
+  --rhythm-channel-track-border: unset;
+  --rhythm-channel-zone-fill: unset;
+  --rhythm-channel-marker-in: unset;
+  --rhythm-channel-marker-outside: unset;
+  --rhythm-channel-state-fill: unset;
+  --rhythm-channel-anchor: unset;
+  --rhythm-channel-trail: unset;
+
 }
