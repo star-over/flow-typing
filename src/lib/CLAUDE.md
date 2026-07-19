@@ -38,7 +38,7 @@ XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`
 - `src/lib/auth/auth-store.svelte.ts` — wrapper над `useAuth()` + `api.users.viewer` query. Сводит `AuthState` (тип в самом файле): состояния loading / authenticated / guest. Loading удерживается до получения user-документа.
 - `src/components/auth/SignInScreen.svelte` — экран входа на маршруте `/signin`.
 - `src/components/auth/UserMenu.svelte` — компактный UI текущего юзера в Header (loading/guest/authenticated состояния).
-- Контракт-токены: `SIGN_IN_SCREEN_CONTRACT` + `USER_MENU_CONTRACT` агрегированы в `THEME_CONTRACT`.
+- Темизация: оба компонента ссылаются на роли `--color-*` напрямую из своего `<style>` (двухслойная модель, ADR 0029) — отдельных контракт-токенов у них нет.
 - Тесты: `auth-state.test.ts` покрывает `computeAuthState` pure-функцию (state derivation). Компоненты — Storybook stories.
 
 ## Cloud-read стор — общий шов `gated-query`
