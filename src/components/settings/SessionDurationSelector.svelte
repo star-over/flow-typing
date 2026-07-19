@@ -36,7 +36,7 @@
 
   .label {
     font-size: 0.8125rem;
-    color: var(--settings-page-label-color);
+    color: var(--color-text-secondary);
   }
 
   .segments {
@@ -49,17 +49,17 @@
     padding: var(--spacing-1) var(--spacing-2);
     font-size: 0.75rem;
     font-family: var(--font-sans);
-    color: var(--select-color);
-    background: var(--select-background);
-    border: var(--select-border);
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-3);
     cursor: pointer;
   }
 
   .segment.selected {
-    background: var(--landing-cta-background);
-    color: var(--landing-cta-color);
-    border-color: var(--landing-cta-background);
+    background: var(--color-brand-accent);
+    color: var(--color-cursor-foreground);
+    border-color: var(--color-brand-accent);
   }
 
   .segment:hover:not(.selected) {
@@ -67,7 +67,7 @@
   }
 
   .segment:focus-visible {
-    outline: var(--select-focus-outline);
+    outline: 2px solid var(--color-border);
     outline-offset: 2px;
   }
 </style>
