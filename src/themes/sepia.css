@@ -7,7 +7,7 @@
  * оттенок пальца-владельца, различает форма: путь — кольцо, цель — заливка
  * плотнее со светлым символом (ADR 0028). Янтарь — знак бренда, не цель.
  *
- * ТРИ СЛОЯ (эталон схемы; light/dark/nord подтягиваются позже):
+ * ТРИ СЛОЯ (эталон схемы; все темы на ней):
  *
  *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
  *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый цвет.
@@ -112,11 +112,12 @@
      и уходит в холодную лаванду) — а честное наследование error с той же α, что успех. */
   --color-error-dim  : oklch(from var(--red) l c h / 0.16);
 
-  /* Мягкая ошибка: светлее жёсткой, тот же красный. Для «вне зоны» ритма на sepia:
-     мягкий янтарь на пергаменте невидим (обратной связи нет вовсе), красный —
-     видимая, но негромкая замена. Контраст к дорожке 3.02 против ~2.2 у янтаря. */
-  --color-error-soft    : oklch(from var(--red) calc(l + 0.05) c calc(h + 2));
-  --color-error-soft-dim: oklch(from var(--red) calc(l + 0.05) c calc(h + 2) / 0.22);
+  /* Ритм «вне зоны» (снос темпа): цвет соответствует теме и мягче ошибки на
+     клавише (DESIGN «Правило мягкости ритма»); других правил нет. В sepia это
+     мягкий красный: мягкий янтарь на пергаменте невидим, красный — видимая,
+     но негромкая замена. Контраст к дорожке 3.02 против ~2.2 у янтаря. */
+  --color-rhythm-outside    : oklch(from var(--red) calc(l + 0.05) c calc(h + 2));
+  --color-rhythm-outside-dim: oklch(from var(--red) calc(l + 0.05) c calc(h + 2) / 0.22);
 
   /* --- Приглушённый текст-след ритма --- */
   --color-text-dim: oklch(from var(--ink) calc(l + 0.20) c h / 0.16);
@@ -162,6 +163,10 @@
      и кольца клавиш (ADR 0028), поэтому сама направляющая молчит. Холодный
      индиго не исчез — он растворился в маршруте среднего пальца (hue 250). */
   --color-path-highlight: oklch(from var(--ink) calc(l + 0.30) c h);
+
+  /* Тело бегущей бусины — нейтрально: идентичность пальца держат маркеры
+     движения (ободок), не тело (блик/терминатор выводит компонент). */
+  --color-marker-core: var(--ink);
 
   /* --- Домен · акцент бренда --- */
   /* Янтарь больше не цель (ADR 0028) — он остался знаком бренда. Курсор потока
@@ -210,7 +215,7 @@
   /* ============================================================
    * СЛОЙ 3 · КОНТРАКТ КОМПОНЕНТОВ — только var() на роли слоя 2.
    * Ни абсолютов, ни формул: нужна калькуляция → заводи роль выше.
-   * Описание контракта — см. light.css.
+   * Описание контракта — docs/06-component-contracts-and-themes.md.
    * ============================================================ */
 
   /* Root (body fallback) */
@@ -343,7 +348,7 @@
   --movement-path-r4-marker  : var(--color-route-4);
   --movement-path-l5-marker  : var(--color-route-5);
   --movement-path-r5-marker  : var(--color-route-5);
-  --movement-path-marker-core: var(--ink); /* тело бусины нейтрально: палец несёт ободок (блик/терминатор выводит компонент) */
+  --movement-path-marker-core: var(--color-marker-core); /* тело бусины нейтрально: палец несёт ободок (блик/терминатор выводит компонент) */
 
   /* FlowLine — рельс дорожки (верх/низ) нейтральным хромом: это каркас потока,
      не движение и не курсор (ADR 0028), поэтому --color-border, не оттенок. */
@@ -478,13 +483,13 @@
   /* Wordmark (логотип) */
   --wordmark-ink             : var(--color-text-primary);
   --wordmark-caret-background: var(--color-brand-accent);
-  --wordmark-caret-color     : var(--color-text-primary); /* тёмный на янтаре во всех темах */
+  --wordmark-caret-color     : var(--color-cursor-foreground); /* тёмный на янтаре во всех темах */
   --wordmark-bar-background  : var(--color-path-highlight);
   --wordmark-pending-opacity : 0.38;
 
   /* Landing */
   --landing-cta-background       : var(--color-brand-accent);
-  --landing-cta-color            : var(--color-text-primary);
+  --landing-cta-color            : var(--color-cursor-foreground);
   --landing-cta-border           : 1px solid transparent;
   --landing-cta-hover-background : var(--color-brand-accent-hover);
   --landing-muted-color          : var(--color-text-secondary);
@@ -494,15 +499,15 @@
 
   /* RhythmChannel — рецептор ритма под курсором FlowLine. Зелёный = кромка в зоне
      (держишь темп); мягкий красный = вне зоны в любую сторону — частишь/тормозишь.
-     Сторону сноса несёт позиция маркера и сторона заливки, не оттенок. Мягче
-     ошибки набора, но виден (DESIGN «Правило мягкости ритма»): янтарь на пергаменте
-     тонет, поэтому в sepia сигнал несёт мягкий красный. */
+     Сторону сноса несёт позиция маркера и сторона заливки, не оттенок. Цвет сноса
+     соответствует теме (DESIGN «Правило мягкости ритма»); в sepia это мягкий красный:
+     мягче ошибки набора, но виден — янтарь на пергаменте тонет. */
   --rhythm-channel-track-background: var(--color-surface);
   --rhythm-channel-track-border   : 1px solid var(--color-border);
   --rhythm-channel-zone-fill      : var(--color-success-dim);
   --rhythm-channel-marker-in      : var(--color-success);
-  --rhythm-channel-marker-outside : var(--color-error-soft);
-  --rhythm-channel-state-fill     : var(--color-error-soft-dim);
+  --rhythm-channel-marker-outside : var(--color-rhythm-outside);
+  --rhythm-channel-state-fill     : var(--color-rhythm-outside-dim);
   --rhythm-channel-anchor         : var(--color-text-secondary);
   --rhythm-channel-trail          : var(--color-text-dim);
 }
