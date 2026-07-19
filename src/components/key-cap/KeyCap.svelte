@@ -70,7 +70,7 @@
     padding: 0 var(--spacing-2);
     background: transparent;
     border: 1px solid transparent;
-    color: var(--keycap-color);
+    color: var(--color-keycap-label);
     font-weight: 200;
     user-select: none;
   }
@@ -86,59 +86,59 @@
 
   /* --- Per-position fill/border/color --- */
   .keycap[data-finger-id="L1"] {
-    background: var(--keycap-l1-background);
-    border: var(--keycap-l1-border);
-    color: var(--keycap-l1-color);
+    background: var(--color-keycap-group-1-background);
+    border: 1px solid var(--color-keycap-group-1-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="R1"] {
-    background: var(--keycap-r1-background);
-    border: var(--keycap-r1-border);
-    color: var(--keycap-r1-color);
+    background: var(--color-keycap-group-1-background);
+    border: 1px solid var(--color-keycap-group-1-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="L2"] {
-    background: var(--keycap-l2-background);
-    border: var(--keycap-l2-border);
-    color: var(--keycap-l2-color);
+    background: var(--color-keycap-group-2-background);
+    border: 1px solid var(--color-keycap-group-2-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="R2"] {
-    background: var(--keycap-r2-background);
-    border: var(--keycap-r2-border);
-    color: var(--keycap-r2-color);
+    background: var(--color-keycap-group-2-background);
+    border: 1px solid var(--color-keycap-group-2-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="L3"] {
-    background: var(--keycap-l3-background);
-    border: var(--keycap-l3-border);
-    color: var(--keycap-l3-color);
+    background: var(--color-keycap-group-3-background);
+    border: 1px solid var(--color-keycap-group-3-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="R3"] {
-    background: var(--keycap-r3-background);
-    border: var(--keycap-r3-border);
-    color: var(--keycap-r3-color);
+    background: var(--color-keycap-group-3-background);
+    border: 1px solid var(--color-keycap-group-3-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="L4"] {
-    background: var(--keycap-l4-background);
-    border: var(--keycap-l4-border);
-    color: var(--keycap-l4-color);
+    background: var(--color-keycap-group-4-background);
+    border: 1px solid var(--color-keycap-group-4-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="R4"] {
-    background: var(--keycap-r4-background);
-    border: var(--keycap-r4-border);
-    color: var(--keycap-r4-color);
+    background: var(--color-keycap-group-4-background);
+    border: 1px solid var(--color-keycap-group-4-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="L5"] {
-    background: var(--keycap-l5-background);
-    border: var(--keycap-l5-border);
-    color: var(--keycap-l5-color);
+    background: var(--color-keycap-group-5-background);
+    border: 1px solid var(--color-keycap-group-5-border);
+    color: var(--color-keycap-label);
   }
   .keycap[data-finger-id="R5"] {
-    background: var(--keycap-r5-background);
-    border: var(--keycap-r5-border);
-    color: var(--keycap-r5-color);
+    background: var(--color-keycap-group-5-background);
+    border: 1px solid var(--color-keycap-group-5-border);
+    color: var(--color-keycap-label);
   }
 
   /* --- Home key ring --- */
   .keycap.home {
-    box-shadow: var(--keycap-home-ring);
+    box-shadow: inset 0 0 0 0.1rem var(--color-keycap-label), 0 0 0 0.15rem var(--color-gap);
   }
 
   /* --- Navigation role PATH — per-position (тема вправе вести маршрут цветом
@@ -146,67 +146,67 @@
   .keycap.role-path {
     font-weight: 700;
   }
-  .keycap[data-finger-id="L1"].role-path { box-shadow: var(--keycap-l1-path-ring); }
-  .keycap[data-finger-id="R1"].role-path { box-shadow: var(--keycap-r1-path-ring); }
-  .keycap[data-finger-id="L2"].role-path { box-shadow: var(--keycap-l2-path-ring); }
-  .keycap[data-finger-id="R2"].role-path { box-shadow: var(--keycap-r2-path-ring); }
-  .keycap[data-finger-id="L3"].role-path { box-shadow: var(--keycap-l3-path-ring); }
-  .keycap[data-finger-id="R3"].role-path { box-shadow: var(--keycap-r3-path-ring); }
-  .keycap[data-finger-id="L4"].role-path { box-shadow: var(--keycap-l4-path-ring); }
-  .keycap[data-finger-id="R4"].role-path { box-shadow: var(--keycap-r4-path-ring); }
-  .keycap[data-finger-id="L5"].role-path { box-shadow: var(--keycap-l5-path-ring); }
-  .keycap[data-finger-id="R5"].role-path { box-shadow: var(--keycap-r5-path-ring); }
+  .keycap[data-finger-id="L1"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="R1"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="L2"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="R2"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="L3"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="R3"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="L4"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="R4"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="L5"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap); }
+  .keycap[data-finger-id="R5"].role-path { box-shadow: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap); }
 
   /* --- Navigation role TARGET — per-position --- */
   .keycap[data-finger-id="L1"].role-target {
-    background: var(--keycap-l1-target-background);
-    color: var(--keycap-l1-target-color);
-    box-shadow: var(--keycap-l1-target-ring);
+    background: var(--color-target-1);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R1"].role-target {
-    background: var(--keycap-r1-target-background);
-    color: var(--keycap-r1-target-color);
-    box-shadow: var(--keycap-r1-target-ring);
+    background: var(--color-target-1);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L2"].role-target {
-    background: var(--keycap-l2-target-background);
-    color: var(--keycap-l2-target-color);
-    box-shadow: var(--keycap-l2-target-ring);
+    background: var(--color-target-2);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R2"].role-target {
-    background: var(--keycap-r2-target-background);
-    color: var(--keycap-r2-target-color);
-    box-shadow: var(--keycap-r2-target-ring);
+    background: var(--color-target-2);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L3"].role-target {
-    background: var(--keycap-l3-target-background);
-    color: var(--keycap-l3-target-color);
-    box-shadow: var(--keycap-l3-target-ring);
+    background: var(--color-target-3);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R3"].role-target {
-    background: var(--keycap-r3-target-background);
-    color: var(--keycap-r3-target-color);
-    box-shadow: var(--keycap-r3-target-ring);
+    background: var(--color-target-3);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L4"].role-target {
-    background: var(--keycap-l4-target-background);
-    color: var(--keycap-l4-target-color);
-    box-shadow: var(--keycap-l4-target-ring);
+    background: var(--color-target-4);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R4"].role-target {
-    background: var(--keycap-r4-target-background);
-    color: var(--keycap-r4-target-color);
-    box-shadow: var(--keycap-r4-target-ring);
+    background: var(--color-target-4);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="L5"].role-target {
-    background: var(--keycap-l5-target-background);
-    color: var(--keycap-l5-target-color);
-    box-shadow: var(--keycap-l5-target-ring);
+    background: var(--color-target-5);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
   .keycap[data-finger-id="R5"].role-target {
-    background: var(--keycap-r5-target-background);
-    color: var(--keycap-r5-target-color);
-    box-shadow: var(--keycap-r5-target-ring);
+    background: var(--color-target-5);
+    color: var(--color-on-dense);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
   }
 
   /* `border-color: transparent` снимает тонкий border кластера
@@ -227,17 +227,17 @@
      кольцо. ERROR ниже `box-shadow` не трогает: там кольцо цели осознанно
      переживает результат. */
   .keycap.CORRECT.CORRECT {
-    background: var(--keycap-correct-background);
-    color: var(--keycap-correct-color);
-    border: var(--keycap-correct-border);
-    box-shadow: var(--keycap-correct-ring);
+    background: var(--color-keycap-correct-background);
+    color: var(--color-on-dense);
+    border: 1px solid var(--color-keycap-correct-border);
+    box-shadow: 0 0 0 0.15rem var(--color-gap);
     font-weight: 800;
   }
 
   .keycap.ERROR.ERROR {
-    background: var(--keycap-error-background);
-    color: var(--keycap-error-color);
-    border: var(--keycap-error-border);
+    background: var(--color-keycap-error-background);
+    color: var(--color-keycap-error-foreground);
+    border: 1px solid var(--color-keycap-error-border);
     font-weight: 800;
   }
 
@@ -251,7 +251,7 @@
     bottom: 2px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--keycap-marker-background);
+    background: var(--color-keycap-marker);
     border-radius: 9999px;
   }
 
