@@ -226,9 +226,14 @@
   --color-keycap-group-5-border    : oklch(from var(--color-finger-5) 0.50 0.13 h);
 
   /* --- Клавиша · результат нажатия ---
-     Заливки и кромка выведены из ядра исхода, значения 1:1 с прежними
-     абсолютами. */
-  --color-keycap-correct-background: oklch(from var(--green) 0.50 0.11 h / 0.8);
+     Заливки и кромка выведены из ядра исхода. Ошибка — 1:1 с прежним абсолютом;
+     correct поднят по светлоте (см. ниже). */
+  /* Светлота 0.50→0.68: метка на correct-клавише красится тёмной ролью
+     --color-on-dense (oklch 0.15), а прежняя средне-зелёная заливка над почти-чёрным
+     фоном давала эффективную светлоту ~0.30 → контраст метки 2.58:1, ниже порога 3:1 для крупного
+     символа. Светлее → 4.87:1. α не тронута (translucent-«вспышка» сохранена); теперь
+     dark следует канону тёмных тем «светлая заливка + тёмный символ», как nord. */
+  --color-keycap-correct-background: oklch(from var(--green) 0.68 0.11 h / 0.8);
   --color-keycap-correct-border    : oklch(from var(--green) calc(l - 0.01) c h);
   --color-keycap-error-background  : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h + 5) / 0.8);
   --color-keycap-error-foreground  : var(--error-ink);
