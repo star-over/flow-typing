@@ -79,9 +79,12 @@
 
 <style>
   /* Loading: скелетон в форме итогового summary (аватар-кружок + полоса-имя),
-     чтобы переход loading → authenticated не сдвигал раскладку. Заливка блоков —
-     токен темы, мягкость даёт opacity: статичный fallback + пульсация только
-     при разрешённой анимации (reduced-motion видит ровный приглушённый блок). */
+     чтобы переход loading → authenticated не сдвигал раскладку. Заливка —
+     --color-surface-accent (тон плашки аватара): скелетон стоит за аватаром и
+     красится его же тоном, оставаясь в хроме меню, а не в типографском домене
+     потока (был --color-symbol-pending — статус символа в потоке). Мягкость даёт
+     opacity: статичный fallback + пульсация только при разрешённой анимации
+     (reduced-motion видит ровный приглушённый блок). */
   .user-menu--loading {
     display: inline-flex;
     align-items: center;
@@ -90,7 +93,7 @@
   }
 
   .user-menu__skeleton {
-    background: var(--color-symbol-pending);
+    background: var(--color-surface-accent);
     opacity: 0.3;
   }
 
