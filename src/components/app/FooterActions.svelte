@@ -78,9 +78,9 @@
   .btn {
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
-    border: var(--footer-actions-btn-border);
-    background: var(--footer-actions-btn-background);
-    color: var(--footer-actions-btn-color);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
     font-family: var(--font-sans);
     font-size: 0.875rem;
     font-weight: 500;
@@ -89,13 +89,13 @@
   }
 
   .btn:hover {
-    background: var(--footer-actions-btn-hover-background);
+    background: var(--color-surface-hover);
   }
 
   .btn.primary {
-    background: var(--footer-actions-btn-primary-background);
-    color: var(--footer-actions-btn-primary-color);
-    border: var(--footer-actions-btn-primary-border);
+    background: var(--color-primary-background);
+    color: var(--color-background);
+    border: 1px solid var(--color-primary-background);
   }
 
   .btn.primary:hover {
@@ -103,9 +103,9 @@
   }
 
   .btn.success {
-    background: var(--footer-actions-btn-success-background);
-    color: var(--footer-actions-btn-success-color);
-    border: var(--footer-actions-btn-success-border);
+    background: var(--color-success);
+    color: var(--color-background);
+    border: 1px solid var(--color-success);
   }
 
 </style>
