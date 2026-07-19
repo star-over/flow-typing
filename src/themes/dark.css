@@ -5,7 +5,7 @@
  *
  * Тёмная тема: глубокий сланцевый фон, светлый текст, янтарный бренд-курсор.
  * Движение и цель красятся оттенком пальца-владельца (ADR 0028): на тёмном фоне
- * архитектура перевёрнута — цель это светлая заливка (L0.78) с тёмным символом.
+ * архитектура перевёрнута — цель это светлая заливка (L0.72) с тёмным символом.
  *
  * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
  *
@@ -157,22 +157,22 @@
   --color-finger-base: var(--cream);
 
   /* --- Домен · маршрут по пальцу (ADR 0028) ---
-     Маркеры движения в dark и раньше красились finger-N — ссылка роль→роль
-     сохраняет их цвет 1:1. */
-  --color-route-1: oklch(from var(--color-finger-1) 0.62 0.12 h);
-  --color-route-2: oklch(from var(--color-finger-2) 0.62 0.10 h);
-  --color-route-3: oklch(from var(--color-finger-3) 0.62 0.16 h);
-  --color-route-4: oklch(from var(--color-finger-4) 0.62 0.16 h);
-  --color-route-5: oklch(from var(--color-finger-5) 0.62 0.16 h);
-  /* Цель — тот же оттенок пальца, но светлая (L0.78) с тёмным символом
-     («Правило инверсии» на тёмном фоне: светлое пятно берёт контраст и к фону,
-     и к тёмному символу; чинит просадку прежней мид-индиго-цели). Хрома по
-     охвату каждого оттенка. */
-  --color-target-1: oklch(from var(--color-finger-1) 0.78 0.13 h);
-  --color-target-2: oklch(from var(--color-finger-2) 0.78 0.12 h);
-  --color-target-3: oklch(from var(--color-finger-3) 0.78 0.11 h);
-  --color-target-4: oklch(from var(--color-finger-4) 0.78 0.12 h);
-  --color-target-5: oklch(from var(--color-finger-5) 0.78 0.13 h);
+     Кольцо пути и маркеры — оттенок пальца, приглушённо на L0.58 (низкая
+     хрома): читается на клавишах/фоне, но не бьёт по глазам на тёмном. */
+  --color-route-1: oklch(from var(--color-finger-1) 0.58 0.075 h);
+  --color-route-2: oklch(from var(--color-finger-2) 0.58 0.065 h);
+  --color-route-3: oklch(from var(--color-finger-3) 0.58 0.10 h);
+  --color-route-4: oklch(from var(--color-finger-4) 0.58 0.10 h);
+  --color-route-5: oklch(from var(--color-finger-5) 0.58 0.10 h);
+  /* Цель — тот же оттенок пальца, светлая (L0.72) с тёмным символом («Правило
+     инверсии» на тёмном фоне: светлое пятно берёт контраст и к фону, и к тёмному
+     символу; чинит просадку прежней мид-индиго-цели). Хрома приглушена, чтобы
+     не бить по глазам на тёмном; по охвату каждого оттенка. */
+  --color-target-1: oklch(from var(--color-finger-1) 0.72 0.08 h);
+  --color-target-2: oklch(from var(--color-finger-2) 0.72 0.075 h);
+  --color-target-3: oklch(from var(--color-finger-3) 0.72 0.07 h);
+  --color-target-4: oklch(from var(--color-finger-4) 0.72 0.075 h);
+  --color-target-5: oklch(from var(--color-finger-5) 0.72 0.08 h);
   --color-gap     : var(--color-background);  /* просвет: отделяет клавишу от пальца под ней */
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
