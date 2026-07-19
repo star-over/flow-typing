@@ -13,7 +13,7 @@
  *   5. Добавить ключ `options.themes.<id>` в `dictionaries/{en,ru}.json` (Phase 1+).
  *   6. Добавить `@import url('./themes/<id>.css');` в `src/app.css`.
  *
- * ТРИ СЛОЯ (эталон схемы; light/dark/nord подтягиваются позже):
+ * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
  *
  *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
  *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый цвет.
@@ -100,9 +100,8 @@
   --color-finger-inactive: unset;
   --color-finger-idle: unset;
   --color-finger-error: unset;
-  /* --- Направляющая --- */
+  /* --- Домен · тихая направляющая --- */
   --color-path-highlight: unset;
-  /* --- Ядро маркера --- */
   --color-marker-core: unset;
   /* --- Акцент бренда --- */
   --color-brand-accent: unset;
