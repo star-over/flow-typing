@@ -114,10 +114,9 @@ describe('themes/*.css contract', () => {
   }
 });
 
-// Темы, приведённые к эталонному словарю ролей L2 (ADR 0029): sepia, light и
-// dark — все декларируют все 73 роли и держат трёхслойную структуру. nord
-// пока держит расходящийся набор ролей — его выравнивание отдельная задача.
-const NORMALIZED = ['sepia', 'light', 'dark'] as const;
+// Темы, приведённые к эталонному словарю ролей L2 (ADR 0029): все темы
+// декларируют все 73 роли и держат трёхслойную структуру.
+const NORMALIZED = ['sepia', 'light', 'dark', 'nord'] as const;
 
 describe('L2 role dictionary — declaration', () => {
   for (const id of NORMALIZED) {

@@ -8,93 +8,227 @@
  * colorScheme: dark. Finger palette переложена на Aurora с сохранением
  * анатомической логики (thumb=yellow, index=orange, middle=green,
  * ring=blue, pinky=purple) — Active Hand Rule остаётся читаемой.
+ *
+ * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
+ *
+ *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
+ *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый
+ *      цвет. Значения перенесены из прежнего nord 1:1, токены сгруппированы по
+ *      смыслу (механика, без пересмотра значений).
+ *   2. РОЛИ — семантика, фиксированный словарь имён (73, общий для всех тем).
+ *      Роль — маппинг на ядро или калькуляция от него либо от другой роли
+ *      (`oklch(from …)`); новых абсолютов нет.
+ *   3. КОНТРАКТ КОМПОНЕНТОВ — `var()` на роли + структурные литералы (геометрия:
+ *      числа width/offset/blur/spread, `solid`/`dashed`, `inset`, единицы).
+ *      Запрещён любой цветовой литерал (`oklch()`/`rgb()`/hex/именованные) —
+ *      каждый цветовой слот только `var()` на роль; единственный whitelist —
+ *      `transparent`. Слой совпадает с sepia дословно: различия тем живут
+ *      в слоях 1–2.
+ *
+ * Правило границы: цвет заводится в ядре, смысл — в роли, компонент только
+ * ссылается. Так тема перекрашивается из ядра, а не правкой 200 строк.
  */
 :root[data-theme="nord"] {
   color-scheme: dark;
 
-  /* --- Semantic surfaces — Polar Night --- */
-  --color-background           : oklch(0.32 0.02 254);
-  --color-surface      : oklch(0.38 0.02 254);
-  --color-surface-hover: oklch(0.44 0.02 254);
-  --color-border       : oklch(0.50 0.02 254);
+  /* ============================================================
+   * СЛОЙ 1 · ЯДРО — приватная палитра nord (только абсолютные значения)
+   * ============================================================ */
 
-  /* --- Semantic text — Snow Storm --- */
-  --color-text-primary  : oklch(0.95 0.01 234);
-  --color-text-secondary: oklch(0.85 0.01 234);
-  --color-text-muted    : oklch(0.75 0.01 240);
+  /* Основа: Polar Night — лестница тёмных поверхностей вниз. */
+  --polar-night-1: oklch(0.32 0.02 254);  /* фон */
+  --polar-night-2: oklch(0.38 0.02 254);  /* поверхность */
+  --polar-night-3: oklch(0.44 0.02 254);  /* hover поверхности */
+  --polar-night-4: oklch(0.50 0.02 254);  /* базовая граница */
+  --polar-border : oklch(0.50 0.02 254);  /* акцентная граница аватара/меню */
+  --menu-fill    : oklch(0.33 0.02 254);  /* выпуклое меню */
 
-  /* --- Semantic outcomes — Aurora --- */
-  --color-success    : oklch(0.78 0.07 130);
-  --color-success-dim: oklch(0.78 0.07 130 / 0.2);
-  --color-error      : oklch(0.65 0.13 25);
-  --color-error-dim  : oklch(0.65 0.13 25 / 0.2);
-  --color-warning    : oklch(0.85 0.10 90);
+  /* Текст: Snow Storm — лестница светлых чернил вверх. */
+  --snow-storm-1: oklch(0.95 0.01 234);  /* основной текст */
+  --snow-storm-2: oklch(0.85 0.01 234);  /* вторичный текст */
+  --snow-storm-3: oklch(0.75 0.01 240);  /* приглушённый текст */
 
-  /* --- Domain · Finger palette — Aurora --- */
-  --color-finger-1   : oklch(0.85 0.10 90);
-  --color-finger-2   : oklch(0.72 0.09 50);
-  --color-finger-3   : oklch(0.78 0.07 130);
-  --color-finger-4   : oklch(0.69 0.07 245);
-  --color-finger-5   : oklch(0.66 0.09 320);
-  --color-finger-base: oklch(0.50 0.02 254);
+  /* Акценты: Aurora — по одному на смысл. */
+  --aurora-red      : oklch(0.65 0.13 25);
+  --aurora-red-dim  : oklch(0.65 0.13 25 / 0.2);
+  --aurora-orange   : oklch(0.72 0.09 50);
+  --aurora-orange-hover: oklch(0.66 0.09 50);
+  --aurora-yellow   : oklch(0.85 0.10 90);
+  --aurora-green    : oklch(0.78 0.07 130);
+  --aurora-green-dim: oklch(0.78 0.07 130 / 0.2);
+  --aurora-purple   : oklch(0.66 0.09 320);
 
-  /* --- Domain · Finger state (non-TARGET) --- */
-  --color-finger-inactive: oklch(0.50 0.02 254);
-  --color-finger-idle    : oklch(0.44 0.02 254);
-  --color-finger-error   : oklch(0.65 0.13 25);
+  /* Frost — холодная ветка навигации и безымянного пальца. */
+  --frost-cyan: oklch(0.55 0.10 250);  /* направляющая */
+  --frost-blue: oklch(0.69 0.07 245);  /* безымянный палец */
 
-  /* --- Domain · Navigation visualization --- */
-  --color-path-highlight: oklch(0.55 0.10 250);
-  --color-target-marker : oklch(0.72 0.09 50);
-  --color-cursor-border : oklch(0.85 0.10 90);
+  /* Навигация: единая индиго-заливка цели и жемчужная бусина движения. */
+  --target-indigo: oklch(0.55 0.10 245 / 0.7);
+  --bead         : oklch(0.89 0.03 82);
 
-  /* --- Domain · Typing-stream symbol statuses --- */
-  --color-symbol-pending   : oklch(0.78 0.01 240);
-  --color-symbol-correct   : oklch(0.78 0.07 130);
-  --color-symbol-corrected : oklch(0.72 0.09 50);
-  --color-symbol-one-error     : oklch(0.85 0.10 90);
-  --color-symbol-many-errors    : oklch(0.65 0.13 25);
-  --color-symbol-correct-background: oklch(0.40 0.03 130);
-  --color-symbol-error-background  : oklch(0.40 0.05 25);
+  /* Курсор потока — янтарный бренд-акцент; foreground тёмный. */
+  --cursor-background: oklch(0.77 0.16 70);
+  --cursor-foreground: oklch(0.14 0 0);
 
-  /* --- Domain · CursorSymbol block --- */
-  --color-cursor-background: oklch(0.77 0.16 70);
-  --color-cursor-foreground: oklch(0.14 0 0);
+  /* Холодная ветка 254° — экран входа, меню, аватар, ссылки, инициалы. */
+  --primary-border: oklch(0.70 0.02 254);
+  --primary-hover : oklch(0.88 0.01 234);
+  --link-ink      : oklch(0.75 0.06 254);
+  --link-ink-hover: oklch(0.88 0.08 250);
+  --avatar-fill   : oklch(0.45 0.04 254);
+  --avatar-ink    : oklch(0.94 0.02 234);
+  --on-dense-ink  : oklch(0.32 0.02 254);  /* тёмный текст на светлой плотной заливке */
 
-  /* --- Domain · KeyCap base --- */
-  --color-keycap-label : oklch(0.87 0.01 240);
-  --color-keycap-marker: oklch(0.95 0.01 234);
+  /* Статусы символов в потоке. */
+  --symbol-pending: oklch(0.78 0.01 240);
 
-  /* --- Domain · KeyCap groups (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
-  --color-keycap-group-1-background    : oklch(0.40 0.02 254 / 0.7);
-  --color-keycap-group-1-border: oklch(0.55 0.02 254);
-  --color-keycap-group-2-background    : oklch(0.40 0.04 90 / 0.7);
-  --color-keycap-group-2-border: oklch(0.60 0.10 90);
-  --color-keycap-group-3-background    : oklch(0.40 0.04 245 / 0.7);
-  --color-keycap-group-3-border: oklch(0.60 0.07 245);
-  --color-keycap-group-4-background    : oklch(0.40 0.04 275 / 0.7);
-  --color-keycap-group-4-border: oklch(0.60 0.07 275);
-  --color-keycap-group-5-background    : oklch(0.40 0.04 320 / 0.7);
-  --color-keycap-group-5-border: oklch(0.60 0.09 320);
+  /* Клавиши: метка и маркер. */
+  --keycap-label : oklch(0.87 0.01 240);
+  --keycap-marker: oklch(0.95 0.01 234);
 
-  /* --- Domain · KeyCap secondary --- */
+  /* Тона групп — приглушённое эхо пальца под альфой 0.7, кромки плотнее;
+     группа 1 нейтральна. */
+  --keycap-tint-1: oklch(0.40 0.02 254 / 0.7);
+  --keycap-edge-1: oklch(0.55 0.02 254);
+  --keycap-tint-2: oklch(0.40 0.04 90 / 0.7);
+  --keycap-edge-2: oklch(0.60 0.10 90);
+  --keycap-tint-3: oklch(0.40 0.04 245 / 0.7);
+  --keycap-edge-3: oklch(0.60 0.07 245);
+  --keycap-tint-4: oklch(0.40 0.04 275 / 0.7);
+  --keycap-edge-4: oklch(0.60 0.07 275);
+  --keycap-tint-5: oklch(0.40 0.04 320 / 0.7);
+  --keycap-edge-5: oklch(0.60 0.09 320);
 
-  /* --- Domain · KeyCap accent --- */
+  /* Результат нажатия. */
+  --keycap-correct-background: oklch(0.50 0.07 130 / 0.8);
+  --keycap-error-background  : oklch(0.55 0.13 25 / 0.8);
+  --keycap-error-foreground  : oklch(0.97 0.0 20);
 
-  /* --- Domain · KeyCap navigation role TARGET --- */
-  --color-keycap-role-target-background: oklch(0.55 0.10 245 / 0.7);
-  --color-keycap-role-target-foreground: oklch(0.95 0.01 234);
-
-  /* --- Domain · KeyCap press results --- */
-  --color-keycap-correct-background    : oklch(0.50 0.07 130 / 0.8);
-  --color-keycap-correct-foreground    : oklch(0.95 0.01 234);
-  --color-keycap-correct-border: oklch(0.78 0.07 130);
-  --color-keycap-error-background      : oklch(0.55 0.13 25 / 0.8);
-  --color-keycap-error-foreground      : oklch(0.97 0.0 20);
-  --color-keycap-error-border  : oklch(0.65 0.13 25);
 
   /* ============================================================
-   * COMPONENT CONTRACT TOKENS — см. light.css для описания.
+   * СЛОЙ 2 · РОЛИ — семантика (словарь 73: маппинг на ядро или
+   * калькуляция от него либо от роли; новых абсолютов нет, ADR 0029)
+   * ============================================================ */
+
+  /* --- Поверхности: лестница Polar Night вниз --- */
+  --color-background    : var(--polar-night-1);
+  --color-surface-raised: var(--menu-fill);   /* выпуклая: меню поверх фона */
+  --color-surface       : var(--polar-night-2);
+  --color-surface-hover : var(--polar-night-3);
+  --color-border        : var(--polar-night-4);
+
+  /* --- Текст: лестница Snow Storm вверх (primary — самые плотные) --- */
+  --color-text-primary  : var(--snow-storm-1);
+  --color-text-secondary: var(--snow-storm-2);
+  --color-text-muted    : var(--snow-storm-3);
+
+  /* --- Тёмный текст/символ на плотной заливке (единая роль, ADR 0029) --- */
+  --color-on-dense: var(--on-dense-ink);
+
+  /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
+  --color-primary-background: var(--color-text-primary);
+  --color-primary-border    : var(--primary-border);
+  --color-primary-hover     : var(--primary-hover);
+
+  /* --- Чернила с акцентом: ссылки и инициалы (ветка 254°) --- */
+  --color-ink-strong: var(--avatar-ink);
+  --color-link      : var(--link-ink);
+  --color-link-hover: var(--link-ink-hover);
+
+  /* --- Плашки с акцентом (аватар, обвязка меню) --- */
+  --color-surface-accent: var(--avatar-fill);
+  --color-border-accent : var(--polar-border);
+
+  /* --- Исходы --- */
+  --color-success    : var(--aurora-green);
+  --color-success-dim: var(--aurora-green-dim);
+  --color-error      : var(--aurora-red);
+  --color-error-hover: oklch(from var(--color-error) calc(l - 0.06) c h);
+  --color-error-dim  : var(--aurora-red-dim);
+
+  /* Ритм «вне зоны» (снос темпа): мягче ошибки набора, но виден. В nord это
+     янтарь — он же был warning. */
+  --color-rhythm-outside    : var(--aurora-yellow);
+  --color-rhythm-outside-dim: oklch(from var(--color-rhythm-outside) l c h / 0.22);
+
+  /* --- Приглушённый текст-след ритма --- */
+  --color-text-dim: oklch(from var(--color-text-secondary) l c h / 0.16);
+
+  /* --- Домен · пальцы --- */
+  --color-finger-1   : var(--aurora-yellow);  /* большой */
+  --color-finger-2   : var(--aurora-orange);  /* указательный */
+  --color-finger-3   : var(--aurora-green);   /* средний */
+  --color-finger-4   : var(--frost-blue);     /* безымянный */
+  --color-finger-5   : var(--aurora-purple);  /* мизинец */
+  --color-finger-base: var(--polar-night-4);
+
+  /* --- Домен · маршрут по пальцу (ADR 0028) --- */
+  --color-route-1: var(--color-finger-1);
+  --color-route-2: var(--color-finger-2);
+  --color-route-3: var(--color-finger-3);
+  --color-route-4: var(--color-finger-4);
+  --color-route-5: var(--color-finger-5);
+  /* Цель пока едина: все пять ролей ссылаются на один индиго. */
+  --color-target-1: var(--target-indigo);
+  --color-target-2: var(--target-indigo);
+  --color-target-3: var(--target-indigo);
+  --color-target-4: var(--target-indigo);
+  --color-target-5: var(--target-indigo);
+  --color-gap     : var(--color-background);
+
+  /* --- Домен · состояния пальца (не-TARGET) --- */
+  --color-finger-inactive: var(--polar-night-4);
+  --color-finger-idle    : var(--polar-night-3);
+  --color-finger-error   : var(--aurora-red);
+
+  /* --- Домен · тихая направляющая --- */
+  --color-path-highlight: var(--frost-cyan);
+
+  /* Тело бегущей бусины — тёплая жемчужина. */
+  --color-marker-core: var(--bead);
+
+  /* --- Домен · акцент бренда --- */
+  --color-brand-accent      : var(--aurora-orange);
+  --color-brand-accent-hover: var(--aurora-orange-hover);
+
+  /* --- Домен · статусы символа в потоке --- */
+  --color-symbol-pending   : var(--symbol-pending);
+  --color-symbol-correct   : var(--aurora-green);
+  --color-symbol-corrected : var(--aurora-orange);
+  --color-symbol-one-error : var(--aurora-yellow);
+  --color-symbol-many-errors: var(--aurora-red);
+
+  /* --- Домен · блок курсора --- */
+  --color-cursor-background: var(--cursor-background);
+  --color-cursor-foreground: var(--cursor-foreground);
+
+  /* --- Домен · клавиша, база --- */
+  --color-keycap-label : var(--keycap-label);
+  --color-keycap-marker: var(--keycap-marker);
+
+  /* --- Домен · группы клавиш (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
+  --color-keycap-group-1-background: var(--keycap-tint-1);
+  --color-keycap-group-1-border    : var(--keycap-edge-1);
+  --color-keycap-group-2-background: var(--keycap-tint-2);
+  --color-keycap-group-2-border    : var(--keycap-edge-2);
+  --color-keycap-group-3-background: var(--keycap-tint-3);
+  --color-keycap-group-3-border    : var(--keycap-edge-3);
+  --color-keycap-group-4-background: var(--keycap-tint-4);
+  --color-keycap-group-4-border    : var(--keycap-edge-4);
+  --color-keycap-group-5-background: var(--keycap-tint-5);
+  --color-keycap-group-5-border    : var(--keycap-edge-5);
+
+  /* --- Клавиша · результат нажатия --- */
+  --color-keycap-correct-background: var(--keycap-correct-background);
+  --color-keycap-correct-border    : var(--aurora-green);
+  --color-keycap-error-background  : var(--keycap-error-background);
+  --color-keycap-error-foreground  : var(--keycap-error-foreground);
+  --color-keycap-error-border      : var(--aurora-red);
+
+  /* ============================================================
+   * СЛОЙ 3 · КОНТРАКТ КОМПОНЕНТОВ — только var() на роли слоя 2.
+   * Ни абсолютов, ни формул: нужна калькуляция → заводи роль выше.
+   * Описание контракта — см. light.css.
    * ============================================================ */
 
   /* Root (body fallback) */
@@ -104,19 +238,21 @@
   /* KeyCap — base */
   --keycap-color            : var(--color-keycap-label);
   --keycap-marker-background: var(--color-keycap-marker);
-  --keycap-home-ring        : 0 0 0 0.125rem var(--color-keycap-label);
-  /* KeyCap — кольцо пути, пер-позиционное (ADR 0028). Тема ведёт маршрут одним
-     цветом — все десять одинаковы; sepia красит их по пальцу-владельцу. */
-  --keycap-l1-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-r1-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-l2-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-r2-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-l3-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-r3-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-l4-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-r4-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-l5-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
-  --keycap-r5-path-ring: 0 0 0 0.25rem var(--color-keycap-label);
+  /* Габарит всех состояний клавиши одинаков: просвет 0.15rem наружу (невидим на
+     фоне, режет силуэт на пальце). Видимое кольцо уходит ВНУТРЬ — иначе состояние
+     с кольцом выглядит крупнее состояния с заливкой, и кластер «дышит». */
+  --keycap-home-ring        : inset 0 0 0 0.1rem var(--color-keycap-label), 0 0 0 0.15rem var(--color-gap);
+  /* Путь ведёт кольцом цвета пальца-владельца; цель — заливка плотнее (ADR 0028) */
+  --keycap-l1-path-ring: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap);
+  --keycap-r1-path-ring: inset 0 0 0 0.14rem var(--color-route-1), 0 0 0 0.15rem var(--color-gap);
+  --keycap-l2-path-ring: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap);
+  --keycap-r2-path-ring: inset 0 0 0 0.14rem var(--color-route-2), 0 0 0 0.15rem var(--color-gap);
+  --keycap-l3-path-ring: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap);
+  --keycap-r3-path-ring: inset 0 0 0 0.14rem var(--color-route-3), 0 0 0 0.15rem var(--color-gap);
+  --keycap-l4-path-ring: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap);
+  --keycap-r4-path-ring: inset 0 0 0 0.14rem var(--color-route-4), 0 0 0 0.15rem var(--color-gap);
+  --keycap-l5-path-ring: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap);
+  --keycap-r5-path-ring: inset 0 0 0 0.14rem var(--color-route-5), 0 0 0 0.15rem var(--color-gap);
 
   /* KeyCap — per-position fill/border/color */
   --keycap-l1-background: var(--color-keycap-group-1-background);
@@ -151,42 +287,42 @@
   --keycap-r5-color     : var(--color-keycap-label);
 
   /* KeyCap — per-position target */
-  --keycap-l1-target-background: var(--color-keycap-role-target-background);
-  --keycap-l1-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-l1-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-r1-target-background: var(--color-keycap-role-target-background);
-  --keycap-r1-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-r1-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-l2-target-background: var(--color-keycap-role-target-background);
-  --keycap-l2-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-l2-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-r2-target-background: var(--color-keycap-role-target-background);
-  --keycap-r2-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-r2-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-l3-target-background: var(--color-keycap-role-target-background);
-  --keycap-l3-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-l3-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-r3-target-background: var(--color-keycap-role-target-background);
-  --keycap-r3-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-r3-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-l4-target-background: var(--color-keycap-role-target-background);
-  --keycap-l4-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-l4-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-r4-target-background: var(--color-keycap-role-target-background);
-  --keycap-r4-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-r4-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-l5-target-background: var(--color-keycap-role-target-background);
-  --keycap-l5-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-l5-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
-  --keycap-r5-target-background: var(--color-keycap-role-target-background);
-  --keycap-r5-target-color     : var(--color-keycap-role-target-foreground);
-  --keycap-r5-target-ring      : 0 0 0 0.25rem var(--color-keycap-role-target-background);
+  --keycap-l1-target-background: var(--color-target-1);
+  --keycap-l1-target-color     : var(--color-on-dense);
+  --keycap-l1-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-r1-target-background: var(--color-target-1);
+  --keycap-r1-target-color     : var(--color-on-dense);
+  --keycap-r1-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-l2-target-background: var(--color-target-2);
+  --keycap-l2-target-color     : var(--color-on-dense);
+  --keycap-l2-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-r2-target-background: var(--color-target-2);
+  --keycap-r2-target-color     : var(--color-on-dense);
+  --keycap-r2-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-l3-target-background: var(--color-target-3);
+  --keycap-l3-target-color     : var(--color-on-dense);
+  --keycap-l3-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-r3-target-background: var(--color-target-3);
+  --keycap-r3-target-color     : var(--color-on-dense);
+  --keycap-r3-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-l4-target-background: var(--color-target-4);
+  --keycap-l4-target-color     : var(--color-on-dense);
+  --keycap-l4-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-r4-target-background: var(--color-target-4);
+  --keycap-r4-target-color     : var(--color-on-dense);
+  --keycap-r4-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-l5-target-background: var(--color-target-5);
+  --keycap-l5-target-color     : var(--color-on-dense);
+  --keycap-l5-target-ring      : 0 0 0 0.15rem var(--color-gap);
+  --keycap-r5-target-background: var(--color-target-5);
+  --keycap-r5-target-color     : var(--color-on-dense);
+  --keycap-r5-target-ring      : 0 0 0 0.15rem var(--color-gap);
 
   /* KeyCap — press result */
   --keycap-correct-background: var(--color-keycap-correct-background);
-  --keycap-correct-color     : var(--color-keycap-correct-foreground);
+  --keycap-correct-color     : var(--color-on-dense);
   --keycap-correct-border    : 1px solid var(--color-keycap-correct-border);
-  --keycap-correct-ring      : 0 0 0 0.25rem var(--color-keycap-correct-background);
+  --keycap-correct-ring      : 0 0 0 0.15rem var(--color-gap); /* тот же габарит, что у прочих состояний: отклик несёт заливка, не размер */
   --keycap-error-background  : var(--color-keycap-error-background);
   --keycap-error-color       : var(--color-keycap-error-foreground);
   --keycap-error-border      : 1px solid var(--color-keycap-error-border);
@@ -211,24 +347,28 @@
   /* HandsScene */
   --hands-center-point-fill: var(--color-path-highlight);
 
-  /* MovementPath — движение по спектру пальцев; путь = индиго; тап = кольцо+пульс */
+  /* MovementPath (ADR 0028): движение несёт оттенок пальца-владельца — след, кольцо
+     тапа, гало и ободок точки. Линия-направляющая молчит, тело бусины — тёплая
+     жемчужина: идентичность держится на маркерах, а не на всей графике разом. */
   --movement-path-guide      : var(--color-path-highlight);
-  --movement-path-l1-marker  : var(--color-finger-1);
-  --movement-path-r1-marker  : var(--color-finger-1);
-  --movement-path-l2-marker  : var(--color-finger-2);
-  --movement-path-r2-marker  : var(--color-finger-2);
-  --movement-path-l3-marker  : var(--color-finger-3);
-  --movement-path-r3-marker  : var(--color-finger-3);
-  --movement-path-l4-marker  : var(--color-finger-4);
-  --movement-path-r4-marker  : var(--color-finger-4);
-  --movement-path-l5-marker  : var(--color-finger-5);
-  --movement-path-r5-marker  : var(--color-finger-5);
-  --movement-path-marker-core: oklch(0.89 0.03 82); /* тело бусины — тёплая жемчужина, попит на холодном фоне (блик/терминатор выводит компонент) */
+  --movement-path-l1-marker  : var(--color-route-1);
+  --movement-path-r1-marker  : var(--color-route-1);
+  --movement-path-l2-marker  : var(--color-route-2);
+  --movement-path-r2-marker  : var(--color-route-2);
+  --movement-path-l3-marker  : var(--color-route-3);
+  --movement-path-r3-marker  : var(--color-route-3);
+  --movement-path-l4-marker  : var(--color-route-4);
+  --movement-path-r4-marker  : var(--color-route-4);
+  --movement-path-l5-marker  : var(--color-route-5);
+  --movement-path-r5-marker  : var(--color-route-5);
+  --movement-path-marker-core: var(--color-marker-core); /* тело бусины — тёплая жемчужина (блик/терминатор выводит компонент) */
 
-  /* FlowLine */
-  --flow-line-border            : 2px solid var(--color-cursor-border);
-  --flow-line-correct-background: var(--color-symbol-correct-background);
-  --flow-line-error-background  : var(--color-symbol-error-background);
+  /* FlowLine — рельс дорожки (верх/низ) нейтральным хромом: это каркас потока,
+     не движение и не курсор (ADR 0028), поэтому --color-border, не оттенок. */
+  --flow-line-border            : 2px solid var(--color-border);
+  /* Вспышка строки = исход приглушённой поверхностью, симметрично (success/error-dim) */
+  --flow-line-correct-background: var(--color-success-dim);
+  --flow-line-error-background  : var(--color-error-dim);
 
   /* CursorSymbol */
   --cursor-symbol-background: var(--color-cursor-background);
@@ -246,9 +386,9 @@
   --footer-actions-btn-color             : var(--color-text-primary);
   --footer-actions-btn-border            : 1px solid var(--color-border);
   --footer-actions-btn-hover-background  : var(--color-surface-hover);
-  --footer-actions-btn-primary-background: var(--color-text-primary);
+  --footer-actions-btn-primary-background: var(--color-primary-background);
   --footer-actions-btn-primary-color     : var(--color-background);
-  --footer-actions-btn-primary-border    : 1px solid var(--color-text-primary);
+  --footer-actions-btn-primary-border    : 1px solid var(--color-primary-background);
   --footer-actions-btn-success-background: var(--color-success);
   --footer-actions-btn-success-color     : var(--color-background);
   --footer-actions-btn-success-border    : 1px solid var(--color-success);
@@ -316,70 +456,70 @@
   --settings-page-btn-border          : 1px solid var(--color-border);
   --settings-page-btn-hover-background: var(--color-surface-hover);
   --settings-page-danger-btn-background      : var(--color-error);
-  --settings-page-danger-btn-color           : var(--color-keycap-error-foreground);
+  --settings-page-danger-btn-color           : var(--color-on-dense);
   --settings-page-danger-btn-border          : 1px solid var(--color-error);
-  --settings-page-danger-btn-hover-background : oklch(from var(--color-error) calc(l - 0.06) c h);
+  --settings-page-danger-btn-hover-background : var(--color-error-hover);
   --settings-page-danger-text-color          : var(--color-error);
 
   /* SignInScreen */
-  --sign-in-screen-background            : oklch(38% 0.02 254);
-  --sign-in-screen-title-color           : oklch(95% 0.01 234);
-  --sign-in-screen-disclaimer-color      : oklch(85% 0.01 234);
-  --sign-in-screen-btn-github-background : oklch(90% 0.01 234);
-  --sign-in-screen-btn-github-color      : oklch(32% 0.02 254);
-  --sign-in-screen-btn-github-border     : 1px solid oklch(70% 0.02 254);
-  --sign-in-screen-btn-github-hover-background: oklch(97% 0 0);
-  --sign-in-screen-btn-google-background : oklch(90% 0.01 234);
-  --sign-in-screen-btn-google-color      : oklch(32% 0.02 254);
-  --sign-in-screen-btn-google-border     : 1px solid oklch(70% 0.02 254);
-  --sign-in-screen-btn-google-hover-background: oklch(97% 0 0);
-  --sign-in-screen-btn-yandex-background : oklch(95% 0.01 234);
-  --sign-in-screen-btn-yandex-color      : oklch(25% 0.02 254);
-  --sign-in-screen-btn-yandex-border     : 1px solid oklch(75% 0.01 234);
-  --sign-in-screen-btn-yandex-hover-background: oklch(88% 0.01 234);
+  --sign-in-screen-background            : var(--color-surface);
+  --sign-in-screen-title-color           : var(--color-text-primary);
+  --sign-in-screen-disclaimer-color      : var(--color-text-secondary);
+  --sign-in-screen-btn-github-background : var(--color-primary-background);
+  --sign-in-screen-btn-github-color      : var(--color-on-dense);
+  --sign-in-screen-btn-github-border     : 1px solid var(--color-primary-border);
+  --sign-in-screen-btn-github-hover-background: var(--color-primary-hover);
+  --sign-in-screen-btn-google-background : var(--color-primary-background);
+  --sign-in-screen-btn-google-color      : var(--color-on-dense);
+  --sign-in-screen-btn-google-border     : 1px solid var(--color-primary-border);
+  --sign-in-screen-btn-google-hover-background: var(--color-primary-hover);
+  --sign-in-screen-btn-yandex-background : var(--color-primary-background);
+  --sign-in-screen-btn-yandex-color      : var(--color-on-dense);
+  --sign-in-screen-btn-yandex-border     : 1px solid var(--color-primary-border);
+  --sign-in-screen-btn-yandex-hover-background: var(--color-primary-hover);
 
   /* UserMenu */
-  --user-menu-loading-color               : oklch(65% 0.02 234);
-  --user-menu-guest-link-color            : oklch(75% 0.06 254);
-  --user-menu-guest-link-hover-color      : oklch(88% 0.08 250);
-  --user-menu-authenticated-name-color    : oklch(92% 0.01 234);
-  --user-menu-dropdown-background         : oklch(33% 0.02 254);
-  --user-menu-dropdown-border             : 1px solid oklch(50% 0.02 254);
-  --user-menu-dropdown-item-color         : oklch(90% 0.01 234);
-  --user-menu-dropdown-item-hover-background: oklch(42% 0.03 254);
+  --user-menu-loading-color               : var(--color-symbol-pending);
+  --user-menu-guest-link-color            : var(--color-link);
+  --user-menu-guest-link-hover-color      : var(--color-link-hover);
+  --user-menu-authenticated-name-color    : var(--color-text-primary);
+  --user-menu-dropdown-background         : var(--color-surface-raised);
+  --user-menu-dropdown-border             : 1px solid var(--color-border-accent);
+  --user-menu-dropdown-item-color         : var(--color-text-primary);
+  --user-menu-dropdown-item-hover-background: var(--color-surface-hover);
 
   /* Avatar */
-  --avatar-background                      : oklch(45% 0.04 254);
-  --avatar-color                          : oklch(94% 0.02 234);
-  --avatar-border                         : 1px solid oklch(55% 0.03 254);
+  --avatar-background: var(--color-surface-accent);
+  --avatar-color     : var(--color-ink-strong);
+  --avatar-border    : 1px solid var(--color-border-accent);
 
   /* Wordmark (логотип) */
   --wordmark-ink             : var(--color-text-primary);
-  --wordmark-caret-background: var(--color-target-marker);
-  --wordmark-caret-color     : oklch(0.26 0.02 60); /* тёмный на янтаре во всех темах */
+  --wordmark-caret-background: var(--color-brand-accent);
+  --wordmark-caret-color     : var(--color-cursor-foreground); /* тёмный на янтаре во всех темах */
   --wordmark-bar-background  : var(--color-path-highlight);
   --wordmark-pending-opacity : 0.38;
 
   /* Landing */
-  --landing-cta-background       : var(--color-target-marker);
-  --landing-cta-color            : oklch(0.26 0.02 60);
+  --landing-cta-background       : var(--color-brand-accent);
+  --landing-cta-color            : var(--color-cursor-foreground);
   --landing-cta-border           : 1px solid transparent;
-  --landing-cta-hover-background : oklch(0.66 0.09 50);
+  --landing-cta-hover-background : var(--color-brand-accent-hover);
   --landing-muted-color          : var(--color-text-secondary);
   --landing-rule                 : 1px solid var(--color-border);
   --landing-demo-path            : var(--color-path-highlight);
   --landing-demo-surface         : var(--color-surface);
 
   /* RhythmChannel — рецептор ритма под курсором FlowLine. Зелёный = кромка в зоне
-     (держишь темп); янтарь = вне зоны в любую сторону — частишь/тормозишь различает
-     позиция и сторона заливки, не оттенок. Мягче ошибки набора, но виден (DESIGN
-     «Правило мягкости ритма»). */
+     (держишь темп); янтарь = вне зоны в любую сторону — частишь/тормозишь, различает
+     позиция маркера и сторона заливки, не оттенок. Мягче ошибки набора, но виден
+     (DESIGN «Правило мягкости ритма»). */
   --rhythm-channel-track-background: var(--color-surface);
   --rhythm-channel-track-border   : 1px solid var(--color-border);
-  --rhythm-channel-zone-fill      : oklch(from var(--color-success) l c h / 0.18);
+  --rhythm-channel-zone-fill      : var(--color-success-dim);
   --rhythm-channel-marker-in      : var(--color-success);
-  --rhythm-channel-marker-outside : var(--color-warning);
-  --rhythm-channel-state-fill     : oklch(from var(--color-warning) l c h / 0.22);
+  --rhythm-channel-marker-outside : var(--color-rhythm-outside);
+  --rhythm-channel-state-fill     : var(--color-rhythm-outside-dim);
   --rhythm-channel-anchor         : var(--color-text-secondary);
-  --rhythm-channel-trail          : oklch(from var(--color-text-secondary) l c h / 0.16);
+  --rhythm-channel-trail          : var(--color-text-dim);
 }
