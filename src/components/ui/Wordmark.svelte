@@ -33,7 +33,7 @@
     font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1;
-    color: var(--wordmark-ink);
+    color: var(--color-text-primary);
     white-space: nowrap;
   }
 
@@ -51,7 +51,7 @@
     width: 0.46em;
     height: 0.1em;
     border-radius: 999px;
-    background: var(--wordmark-bar-background);
+    background: var(--color-path-highlight);
   }
 
   /* Блочный курсор на текущем символе */
@@ -62,8 +62,8 @@
     padding: 0.13em 0.07em;
     margin: 0 0.07em;
     border-radius: 0.14em;
-    background: var(--wordmark-caret-background);
-    color: var(--wordmark-caret-color);
+    background: var(--color-brand-accent);
+    color: var(--color-cursor-foreground);
   }
 
   .pending {
@@ -71,6 +71,6 @@
   }
 
   .fade-pending .pending {
-    opacity: var(--wordmark-pending-opacity, 0.38);
+    opacity: 0.38;
   }
 </style>
