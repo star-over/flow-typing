@@ -48,7 +48,7 @@
     background: var(--color-surface-accent);
     color: var(--color-ink-strong);
     border: 1px solid var(--color-border-accent);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     line-height: 1;
     user-select: none;
   }

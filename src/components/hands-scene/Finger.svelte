@@ -36,7 +36,7 @@
 <style>
   .finger {
     fill: var(--color-finger-idle);
-    transition: fill 0.1s ease;
+    transition: fill var(--motion-duration-fast) ease;
   }
 
   /* TARGET — per-position fill */

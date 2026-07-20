@@ -62,7 +62,7 @@
     border: none;
     color: inherit;
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     line-height: 1;
     /* место справа под свою стрелку */
     padding: 0 var(--spacing-4) 0 0;

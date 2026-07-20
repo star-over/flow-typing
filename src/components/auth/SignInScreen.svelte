@@ -112,7 +112,7 @@
 
   .sign-in-screen__title {
     color: var(--color-text-primary);
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
     margin: 0;
   }
 
@@ -123,7 +123,7 @@
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-2);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: var(--font-size-md);
   }
 
   .sign-in-screen__btn-google:hover {
@@ -149,7 +149,7 @@
     padding: 0.5rem 1rem;
     border-radius: var(--radius-2);
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .sign-in-screen__btn-dev:disabled {
@@ -159,6 +159,6 @@
 
   .sign-in-screen__error {
     color: var(--color-error);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 </style>

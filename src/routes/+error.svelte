@@ -31,8 +31,8 @@
   }
 
   .error-page__title {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
   }
 
@@ -53,7 +53,7 @@
     background: transparent;
     color: var(--color-text-primary);
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
   }
 

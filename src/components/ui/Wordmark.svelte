@@ -30,7 +30,7 @@
     display: inline-flex;
     align-items: center;
     font-family: 'Geist Mono', ui-monospace, monospace;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     letter-spacing: -0.04em;
     line-height: 1;
     color: var(--color-text-primary);

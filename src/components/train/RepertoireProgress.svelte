@@ -89,8 +89,8 @@
   }
 
   .title {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
     color: var(--color-text-primary);
     margin-bottom: var(--spacing-3);
   }
@@ -103,13 +103,13 @@
   }
 
   .label {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-text-muted);
   }
 
   .value {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
   }
 
@@ -132,13 +132,13 @@
   }
 
   .status {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-text-muted);
   }
 
   .status-accent {
     color: var(--color-success);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   .status-ready {
@@ -160,7 +160,7 @@
   }
 
   .guest-invite {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-text-muted);
     text-align: center;
   }

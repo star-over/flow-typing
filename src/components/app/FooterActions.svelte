@@ -109,10 +109,10 @@
     background: var(--color-surface);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
-    transition: background-color 0.1s ease;
+    transition: background-color var(--motion-duration-fast) ease;
   }
 
   /* Подсказка на плотной цветной кнопке — без своей плашки: контур и текст

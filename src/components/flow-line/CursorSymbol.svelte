@@ -43,7 +43,7 @@
     background: var(--color-cursor-background);
     border-radius: var(--radius);
     opacity: 0;
-    transition: opacity 0.1s;
+    transition: opacity var(--motion-duration-fast);
   }
 
   .bar.visible {

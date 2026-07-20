@@ -148,7 +148,7 @@
   }
 
   .label-text {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
   }
 
@@ -172,7 +172,7 @@
   }
 
   .hint {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
   }
 
@@ -243,18 +243,18 @@
   }
 
   .danger-warning {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-error);
     max-width: 100%;
   }
 
   .danger-error {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--color-error);
   }
 
   .privacy-link {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
     text-decoration: underline;
     text-underline-offset: 2px;

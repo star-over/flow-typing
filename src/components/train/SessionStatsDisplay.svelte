@@ -437,7 +437,7 @@
     cursor: pointer;
     vertical-align: middle;
     line-height: 1;
-    transition: background-color 0.1s ease, color 0.1s ease;
+    transition: background-color var(--motion-duration-fast) ease, color var(--motion-duration-fast) ease;
   }
 
   .info:hover {
@@ -477,7 +477,7 @@
     text-decoration: none;
     border-bottom: 1px solid var(--color-border);
     padding-bottom: 1px;
-    transition: border-color 0.1s ease;
+    transition: border-color var(--motion-duration-fast) ease;
   }
 
   .more:hover {

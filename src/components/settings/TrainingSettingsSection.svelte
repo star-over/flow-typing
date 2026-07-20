@@ -124,8 +124,8 @@
   }
 
   .section-heading {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: var(--color-text-secondary);
   }
 
@@ -136,12 +136,12 @@
   }
 
   .label-text {
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
   }
 
   .hint {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
   }
 </style>

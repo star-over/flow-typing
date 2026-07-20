@@ -56,7 +56,7 @@
     padding: var(--spacing-1) var(--spacing-6) var(--spacing-1) var(--spacing-3);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
     background-image: none;
   }

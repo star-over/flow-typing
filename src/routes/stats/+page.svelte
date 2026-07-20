@@ -157,13 +157,13 @@
   }
 
   .screen-title {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
   }
 
   .section-title {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
     margin-bottom: var(--spacing-2);
   }
 

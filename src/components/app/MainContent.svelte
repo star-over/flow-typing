@@ -164,8 +164,8 @@
 
 <style>
   .screen-title {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
   }
 
   .pause {

@@ -47,7 +47,7 @@
   .segment {
     flex: 1;
     padding: var(--spacing-1) var(--spacing-2);
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     font-family: var(--font-sans);
     color: var(--color-text-primary);
     background: var(--color-surface);

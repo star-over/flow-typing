@@ -92,7 +92,7 @@
      фиксированную ширину цифр: число не дёргает соседей при тике. */
   .timer {
     font-family: var(--font-mono);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     line-height: 1;
     opacity: 0.7;
   }
@@ -103,8 +103,8 @@
      нейтральном хроме он бы спорил с «правилом тихого хрома». */
   .pause {
     font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     line-height: 1;
     display: inline-flex;
     align-items: center;
@@ -128,7 +128,7 @@
 
   .brand {
     display: inline-flex;
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
     text-decoration: none;
     line-height: 1;
     border-radius: var(--radius-2);
