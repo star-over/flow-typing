@@ -70,8 +70,8 @@
   }
 
   .language-switcher__select:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+    outline: var(--focus-ring-width) solid currentColor;
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Стрелка-шеврон mask-приёмом (как в Select.svelte), цвет из currentColor. */

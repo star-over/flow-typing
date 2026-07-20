@@ -67,7 +67,7 @@
   }
 
   .segment:focus-visible {
-    outline: 2px solid var(--color-border);
-    outline-offset: 2px;
+    outline: var(--focus-ring-width) solid var(--color-border);
+    outline-offset: var(--focus-ring-offset);
   }
 </style>

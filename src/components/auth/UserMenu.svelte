@@ -173,8 +173,8 @@
   }
 
   .user-menu__summary:focus-visible {
-    outline: 2px solid var(--color-text-primary);
-    outline-offset: 2px;
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Длинное имя (в т.ч. собственный displayName) обрезается, а не растягивает бар. */

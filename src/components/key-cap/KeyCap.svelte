@@ -150,7 +150,7 @@
          пальца-владельца (ADR 0028); внешний ров системный (на базе).
          Перекрывается press result ниже. --- */
   .keycap.role-path {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
   .keycap[data-finger-id="L1"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-1); }
   .keycap[data-finger-id="R1"].role-path { --kc-inner-ring: inset 0 0 0 0.14rem var(--color-route-1); }
