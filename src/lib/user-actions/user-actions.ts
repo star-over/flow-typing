@@ -1,7 +1,7 @@
 /**
- * @file Единый реестр команд приложения (ADR 0032): источник истины для
- * диспетчера сочетаний клавиш и визуальных подсказок (KeyHint). Новая команда =
- * одна запись в COMMANDS. Поля будущей палитры (group/keywords/titleKey)
+ * @file Единый реестр действий приложения (ADR 0032): источник истины для
+ * диспетчера сочетаний клавиш и визуальных подсказок (KeyHint). Новое действие =
+ * одна запись в USER_ACTIONS. Поля будущей палитры (group/keywords/titleKey)
  * осознанно НЕ заводятся до её появления (YAGNI) — добавятся вместе с ней.
  *
  * Распознавание — по `KeyboardEvent.code` (физическая позиция), НЕ по `key`:
@@ -12,7 +12,7 @@
 import type { KeyCapId } from '@/interfaces/key-cap-id';
 
 /**
- * Аккорд: физическая клавиша + обязательный командный модификатор (mod или
+ * Аккорд: физическая клавиша + обязательный модификатор действия (mod или
  * alt), опционально shift. Тип сужен под поведение диспетчера: binding из
  * одного shift не совпадёт с нажатием никогда (shift — канал печати
  * заглавных), поэтому запрещён типом — иначе KeyHint показывал бы сочетание,
@@ -26,28 +26,28 @@ export type KeyBinding = {
   | { readonly alt: true; readonly mod?: boolean }
 );
 
-export type CommandId = 'OPEN_SETTINGS' | 'OPEN_STATS';
+export type UserActionId = 'OPEN_SETTINGS' | 'OPEN_STATS';
 
-/** Роуты, в которые умеют уводить команды (значения resolve() из $app/paths). */
-export type CommandRoute = '/settings' | '/stats';
+/** Роуты, в которые умеют уводить действия (значения resolve() из $app/paths). */
+export type UserActionRoute = '/settings' | '/stats';
 
-export interface CommandContext {
+export interface UserActionContext {
   /** appActor в состоянии training — для гейта when: 'not-typing'. */
   readonly isTraining: boolean;
   /** Навигация на роут (в +layout — обёртка над goto(resolve(route))). */
-  readonly navigate: (route: CommandRoute) => void;
+  readonly navigate: (route: UserActionRoute) => void;
 }
 
-export interface Command {
-  readonly id: CommandId;
-  /** Нет binding → команда без сочетания и подсказки (заготовка под палитру). */
+export interface UserAction {
+  readonly id: UserActionId;
+  /** Нет binding → действие без сочетания и подсказки (заготовка под палитру). */
   readonly binding?: KeyBinding;
-  /** 'not-typing' глушит команду, пока appActor в training. */
+  /** 'not-typing' глушит действие, пока appActor в training. */
   readonly when: 'always' | 'not-typing';
-  readonly run: (context: CommandContext) => void;
+  readonly run: (context: UserActionContext) => void;
 }
 
-export const COMMANDS: readonly Command[] = [
+export const USER_ACTIONS: readonly UserAction[] = [
   {
     id: 'OPEN_SETTINGS',
     binding: { mod: true, code: 'Comma' },
@@ -62,9 +62,9 @@ export const COMMANDS: readonly Command[] = [
   },
 ];
 
-/** Достаёт команду по id; отсутствие — программная ошибка (реестр статичен). */
-export function getCommand(id: CommandId): Command {
-  const command = COMMANDS.find((candidate) => candidate.id === id);
-  if (!command) throw new Error(`Unknown command: ${id}`);
-  return command;
+/** Достаёт действие по id; отсутствие — программная ошибка (реестр статичен). */
+export function getUserAction(id: UserActionId): UserAction {
+  const action = USER_ACTIONS.find((candidate) => candidate.id === id);
+  if (!action) throw new Error(`Unknown user action: ${id}`);
+  return action;
 }

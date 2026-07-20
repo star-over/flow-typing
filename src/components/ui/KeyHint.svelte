@@ -1,11 +1,11 @@
 <script lang="ts">
   import type { KeyCapId } from '@/interfaces/key-cap-id';
-  import type { KeyBinding } from '@/lib/commands/registry';
+  import type { KeyBinding } from '@/lib/user-actions/user-actions';
   import { isTouchOnlyDevice } from '@/lib/device';
   import { formatBinding, formatKeyCapGlyph, getPlatform } from '@/lib/platform';
 
   /**
-   * Два режима: аккорд из реестра команд (`binding` — «⌘ + ,») или голая
+   * Два режима: аккорд из реестра действий (`binding` — «⌘ + ,») или голая
    * клавиша (`code` — «Esc») для навигационных клавиш FSM (пауза/рестарт,
    * app.machine). Синхронизация code с картой клавиш машины — ручная:
    * машины читают свои литералы, диспетчер реестра их не обрабатывает.

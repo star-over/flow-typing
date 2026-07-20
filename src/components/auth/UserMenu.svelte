@@ -6,21 +6,21 @@
   import KeyHint from '@/components/ui/KeyHint.svelte';
   import { settings } from '@/lib/settings';
   import { dictionary } from '@/lib/i18n';
-  import { getCommand } from '@/lib/commands/registry';
+  import { getUserAction } from '@/lib/user-actions/user-actions';
   import { formatAriaBinding, getPlatform } from '@/lib/platform';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
   const auth = getContext<AuthStore>('auth');
 
-  const settingsCommand = getCommand('OPEN_SETTINGS');
+  const settingsAction = getUserAction('OPEN_SETTINGS');
   const settingsAriaShortcut = formatAriaBinding({
-    binding: settingsCommand.binding,
+    binding: settingsAction.binding,
     platform: getPlatform(),
   });
 
-  const statsCommand = getCommand('OPEN_STATS');
+  const statsAction = getUserAction('OPEN_STATS');
   const statsAriaShortcut = formatAriaBinding({
-    binding: statsCommand.binding,
+    binding: statsAction.binding,
     platform: getPlatform(),
   });
 
@@ -85,8 +85,8 @@
         aria-keyshortcuts={settingsAriaShortcut}
       >
         <span>{$dictionary.app.settings}</span>
-        {#if settingsCommand.binding}
-          <KeyHint binding={settingsCommand.binding} />
+        {#if settingsAction.binding}
+          <KeyHint binding={settingsAction.binding} />
         {/if}
       </a>
       <a
@@ -96,8 +96,8 @@
         aria-keyshortcuts={statsAriaShortcut}
       >
         <span>{$dictionary.app.stats}</span>
-        {#if statsCommand.binding}
-          <KeyHint binding={statsCommand.binding} />
+        {#if statsAction.binding}
+          <KeyHint binding={statsAction.binding} />
         {/if}
       </a>
       <hr class="user-menu__divider" />

@@ -5,7 +5,7 @@
  * Паттерн stubGlobal-тестов — как src/lib/device.ts / device.test.ts.
  */
 import type { KeyCapId } from '@/interfaces/key-cap-id';
-import type { KeyBinding } from './commands/registry';
+import type { KeyBinding } from './user-actions/user-actions';
 
 export type Platform = 'mac' | 'other';
 

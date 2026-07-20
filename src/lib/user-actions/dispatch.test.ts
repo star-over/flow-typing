@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  dispatchCommand,
-  isCommandChord,
+  dispatchUserAction,
   isEditableTarget,
-  matchCommand,
-  type CommandKeyEvent,
+  isShortcutChord,
+  matchUserAction,
+  type UserActionKeyEvent,
 } from './dispatch';
-import { COMMANDS, type Command } from './registry';
+import { USER_ACTIONS, type UserAction } from './user-actions';
 
-function keyEvent(overrides: Partial<CommandKeyEvent> = {}): CommandKeyEvent {
+function keyEvent(overrides: Partial<UserActionKeyEvent> = {}): UserActionKeyEvent {
   return {
     code: 'KeyA',
     metaKey: false,
@@ -25,40 +25,40 @@ function keyEvent(overrides: Partial<CommandKeyEvent> = {}): CommandKeyEvent {
 // DOM-узлов — тесты идут в node-окружении без DOM-классов (паттерн device.test.ts).
 const inputTarget = { tagName: 'INPUT' } as unknown as EventTarget;
 
-describe('isCommandChord', () => {
+describe('isShortcutChord', () => {
   it('true для meta + текстовая клавиша', () => {
-    expect(isCommandChord(keyEvent({ metaKey: true }))).toBe(true);
+    expect(isShortcutChord(keyEvent({ metaKey: true }))).toBe(true);
   });
 
   it('true для ctrl и alt по отдельности', () => {
-    expect(isCommandChord(keyEvent({ ctrlKey: true }))).toBe(true);
-    expect(isCommandChord(keyEvent({ altKey: true }))).toBe(true);
+    expect(isShortcutChord(keyEvent({ ctrlKey: true }))).toBe(true);
+    expect(isShortcutChord(keyEvent({ altKey: true }))).toBe(true);
   });
 
   it('false без модификаторов', () => {
-    expect(isCommandChord(keyEvent())).toBe(false);
+    expect(isShortcutChord(keyEvent())).toBe(false);
   });
 
   it('false для shift-only — это канал печати (заглавные)', () => {
-    expect(isCommandChord(keyEvent({ shiftKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ shiftKey: true }))).toBe(false);
   });
 
   it('false для ctrl+alt вместе — это AltGr на Windows, канал печати', () => {
-    expect(isCommandChord(keyEvent({ ctrlKey: true, altKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ ctrlKey: true, altKey: true }))).toBe(false);
   });
 
   it('false при auto-repeat зажатого аккорда', () => {
-    expect(isCommandChord(keyEvent({ metaKey: true, repeat: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ metaKey: true, repeat: true }))).toBe(false);
   });
 
   it('false, когда сама нажатая клавиша — модификатор (keydown MetaLeft)', () => {
-    expect(isCommandChord(keyEvent({ code: 'MetaLeft', metaKey: true }))).toBe(false);
-    expect(isCommandChord(keyEvent({ code: 'ControlLeft', ctrlKey: true }))).toBe(false);
-    expect(isCommandChord(keyEvent({ code: 'AltLeft', altKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ code: 'MetaLeft', metaKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ code: 'ControlLeft', ctrlKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ code: 'AltLeft', altKey: true }))).toBe(false);
   });
 
   it('false для неизвестного code (F13, media-клавиши)', () => {
-    expect(isCommandChord(keyEvent({ code: 'F13', metaKey: true }))).toBe(false);
+    expect(isShortcutChord(keyEvent({ code: 'F13', metaKey: true }))).toBe(false);
   });
 });
 
@@ -82,119 +82,119 @@ describe('isEditableTarget', () => {
   });
 });
 
-describe('matchCommand', () => {
+describe('matchUserAction', () => {
   it('Cmd+, (meta) находит OPEN_SETTINGS', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command?.id).toBe('OPEN_SETTINGS');
+    expect(action?.id).toBe('OPEN_SETTINGS');
   });
 
   it('Ctrl+, находит OPEN_SETTINGS — mod распознаётся по metaKey || ctrlKey', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Comma', ctrlKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command?.id).toBe('OPEN_SETTINGS');
+    expect(action?.id).toBe('OPEN_SETTINGS');
   });
 
   it('Cmd+Ctrl+, тоже совпадает — mod снисходителен к лишнему meta/ctrl', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, ctrlKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command?.id).toBe('OPEN_SETTINGS');
+    expect(action?.id).toBe('OPEN_SETTINGS');
   });
 
   it('другой code не совпадает', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Slash', metaKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command).toBeUndefined();
+    expect(action).toBeUndefined();
   });
 
   it('лишний модификатор (shift) ломает аккорд', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, shiftKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command).toBeUndefined();
+    expect(action).toBeUndefined();
   });
 
   it('фокус в поле ввода глушит сочетание', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, target: inputTarget }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command).toBeUndefined();
+    expect(action).toBeUndefined();
   });
 
-  it("when: 'not-typing' глушит команду в training", () => {
-    const gated: Command = {
+  it("when: 'not-typing' глушит действие в training", () => {
+    const gated: UserAction = {
       id: 'OPEN_SETTINGS',
       binding: { mod: true, code: 'KeyP' },
       when: 'not-typing',
       run: () => undefined,
     };
     const event = keyEvent({ code: 'KeyP', metaKey: true });
-    expect(matchCommand({ event, commands: [gated], isTraining: true })).toBeUndefined();
-    expect(matchCommand({ event, commands: [gated], isTraining: false })?.id).toBe('OPEN_SETTINGS');
+    expect(matchUserAction({ event, actions: [gated], isTraining: true })).toBeUndefined();
+    expect(matchUserAction({ event, actions: [gated], isTraining: false })?.id).toBe('OPEN_SETTINGS');
   });
 
   it('alt-binding совпадает только по точному аккорду', () => {
-    const altCommand: Command = {
+    const altAction: UserAction = {
       id: 'OPEN_SETTINGS',
       binding: { alt: true, code: 'KeyX' },
       when: 'always',
       run: () => undefined,
     };
     expect(
-      matchCommand({ event: keyEvent({ code: 'KeyX', altKey: true }), commands: [altCommand], isTraining: false })?.id,
+      matchUserAction({ event: keyEvent({ code: 'KeyX', altKey: true }), actions: [altAction], isTraining: false })?.id,
     ).toBe('OPEN_SETTINGS');
     expect(
-      matchCommand({ event: keyEvent({ code: 'KeyX', altKey: true, metaKey: true }), commands: [altCommand], isTraining: false }),
+      matchUserAction({ event: keyEvent({ code: 'KeyX', altKey: true, metaKey: true }), actions: [altAction], isTraining: false }),
     ).toBeUndefined();
     expect(
-      matchCommand({ event: keyEvent({ code: 'KeyX' }), commands: [altCommand], isTraining: false }),
+      matchUserAction({ event: keyEvent({ code: 'KeyX' }), actions: [altAction], isTraining: false }),
     ).toBeUndefined();
   });
 
-  it('команда без binding никогда не совпадает (заготовка под палитру)', () => {
-    const paletteOnly: Command = {
+  it('действие без binding никогда не совпадает (заготовка под палитру)', () => {
+    const paletteOnly: UserAction = {
       id: 'OPEN_SETTINGS',
       when: 'always',
       run: () => undefined,
     };
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ metaKey: true }),
-      commands: [paletteOnly],
+      actions: [paletteOnly],
       isTraining: false,
     });
-    expect(command).toBeUndefined();
+    expect(action).toBeUndefined();
   });
 
   it('Cmd+. находит OPEN_STATS', () => {
-    const command = matchCommand({
+    const action = matchUserAction({
       event: keyEvent({ code: 'Period', metaKey: true }),
-      commands: COMMANDS,
+      actions: USER_ACTIONS,
       isTraining: false,
     });
-    expect(command?.id).toBe('OPEN_STATS');
+    expect(action?.id).toBe('OPEN_STATS');
   });
 });
 
-describe('dispatchCommand', () => {
-  it('выполняет команду и возвращает true при совпадении', () => {
+describe('dispatchUserAction', () => {
+  it('выполняет действие и возвращает true при совпадении', () => {
     const navigate = vi.fn();
-    const handled = dispatchCommand({
+    const handled = dispatchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true }),
       context: { isTraining: false, navigate },
     });
@@ -204,7 +204,7 @@ describe('dispatchCommand', () => {
 
   it('возвращает false и ничего не выполняет при промахе', () => {
     const navigate = vi.fn();
-    const handled = dispatchCommand({
+    const handled = dispatchUserAction({
       event: keyEvent({ code: 'KeyZ', metaKey: true }),
       context: { isTraining: false, navigate },
     });

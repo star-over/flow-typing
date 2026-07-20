@@ -4,10 +4,15 @@
  * Точка встраивания — handleKeyDown в src/routes/+layout.svelte.
  */
 import { isKnownKeyCapId, type KeyCapId } from '@/interfaces/key-cap-id';
-import { COMMANDS, type Command, type CommandContext, type KeyBinding } from './registry';
+import {
+  USER_ACTIONS,
+  type KeyBinding,
+  type UserAction,
+  type UserActionContext,
+} from './user-actions';
 
 /** Структурный срез KeyboardEvent — ровно то, что читает диспетчер. */
-export interface CommandKeyEvent {
+export interface UserActionKeyEvent {
   readonly code: string;
   readonly metaKey: boolean;
   readonly ctrlKey: boolean;
@@ -29,14 +34,14 @@ const MODIFIER_KEY_CAP_IDS: readonly KeyCapId[] = [
 ];
 
 /**
- * Аккорд-кандидат в команду: зажат Cmd/Ctrl/Alt и нажата клавиша, которая не
+ * Аккорд-кандидат в действие: зажат Cmd/Ctrl/Alt и нажата клавиша, которая не
  * является модификатором. Исключения: shift-only — канал печати заглавных; ctrl+alt вместе —
  * AltGr на Windows, тоже печать (ADR 0017); auto-repeat зажатого аккорда
- * гасится, чтобы команда не дёргалась в цикле. Keydown самого модификатора
+ * гасится, чтобы действие не дёргалось в цикле. Keydown самого модификатора
  * (MetaLeft с metaKey=true) — не аккорд: модификаторы продолжают жить в
  * keyboardMachine, как раньше.
  */
-export function isCommandChord(event: CommandKeyEvent): boolean {
+export function isShortcutChord(event: UserActionKeyEvent): boolean {
   if (event.repeat) return false;
   if (event.ctrlKey && event.altKey) return false;
   if (!event.metaKey && !event.ctrlKey && !event.altKey) return false;
@@ -66,7 +71,7 @@ function bindingsEqual({
   event,
   binding,
 }: {
-  event: CommandKeyEvent;
+  event: UserActionKeyEvent;
   binding: KeyBinding;
 }): boolean {
   return (
@@ -77,37 +82,37 @@ function bindingsEqual({
   );
 }
 
-export function matchCommand({
+export function matchUserAction({
   event,
-  commands,
+  actions,
   isTraining,
 }: {
-  event: CommandKeyEvent;
-  commands: readonly Command[];
+  event: UserActionKeyEvent;
+  actions: readonly UserAction[];
   isTraining: boolean;
-}): Command | undefined {
-  if (!isCommandChord(event)) return undefined;
+}): UserAction | undefined {
+  if (!isShortcutChord(event)) return undefined;
   if (isEditableTarget(event.target)) return undefined;
-  return commands.find((command) => {
-    if (command.binding === undefined) return false;
-    if (command.when === 'not-typing' && isTraining) return false;
-    return bindingsEqual({ event, binding: command.binding });
+  return actions.find((action) => {
+    if (action.binding === undefined) return false;
+    if (action.when === 'not-typing' && isTraining) return false;
+    return bindingsEqual({ event, binding: action.binding });
   });
 }
 
 /**
- * Совпадение → выполняет команду и возвращает true (вызывающий гасит
+ * Совпадение → выполняет действие и возвращает true (вызывающий гасит
  * браузерный дефолт через preventDefault). Промах → false.
  */
-export function dispatchCommand({
+export function dispatchUserAction({
   event,
   context,
 }: {
-  event: CommandKeyEvent;
-  context: CommandContext;
+  event: UserActionKeyEvent;
+  context: UserActionContext;
 }): boolean {
-  const command = matchCommand({ event, commands: COMMANDS, isTraining: context.isTraining });
-  if (!command) return false;
-  command.run(context);
+  const action = matchUserAction({ event, actions: USER_ACTIONS, isTraining: context.isTraining });
+  if (!action) return false;
+  action.run(context);
   return true;
 }

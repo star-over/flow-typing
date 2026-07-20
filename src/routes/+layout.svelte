@@ -22,7 +22,7 @@
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import { dispatchCommand, isCommandChord } from '@/lib/commands/dispatch';
+  import { dispatchUserAction, isShortcutChord } from '@/lib/user-actions/dispatch';
 
   import Header from '@/components/header/Header.svelte';
 
@@ -132,12 +132,12 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
-    // Аккорд с Cmd/Ctrl/Alt — канал команд, а не печать (ADR 0032). При
-    // совпадении команда выполняется, браузерный дефолт гасится; при промахе
+    // Аккорд с Cmd/Ctrl/Alt — канал действий, а не печать (ADR 0032). При
+    // совпадении действие выполняется, браузерный дефолт гасится; при промахе
     // клавиша всё равно НЕ уходит в appActor — иначе Cmd+K во время
     // тренировки засчитывался бы как опечатка.
-    if (isCommandChord(event)) {
-      const handled = dispatchCommand({
+    if (isShortcutChord(event)) {
+      const handled = dispatchUserAction({
         event,
         context: {
           isTraining: inState({ snapshot: appState, value: 'training' }),
