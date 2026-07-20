@@ -112,7 +112,7 @@ describe('matchCommand', () => {
 
   it('другой code не совпадает', () => {
     const command = matchCommand({
-      event: keyEvent({ code: 'Period', metaKey: true }),
+      event: keyEvent({ code: 'Slash', metaKey: true }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -179,6 +179,15 @@ describe('matchCommand', () => {
       isTraining: false,
     });
     expect(command).toBeUndefined();
+  });
+
+  it('Cmd+. находит OPEN_STATS', () => {
+    const command = matchCommand({
+      event: keyEvent({ code: 'Period', metaKey: true }),
+      commands: COMMANDS,
+      isTraining: false,
+    });
+    expect(command?.id).toBe('OPEN_STATS');
   });
 });
 

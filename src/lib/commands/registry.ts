@@ -54,6 +54,12 @@ export const COMMANDS: readonly Command[] = [
     when: 'always',
     run: ({ navigate }) => navigate('/settings'),
   },
+  {
+    id: 'OPEN_STATS',
+    binding: { mod: true, code: 'Period' },
+    when: 'always',
+    run: ({ navigate }) => navigate('/stats'),
+  },
 ];
 
 /** Достаёт команду по id; отсутствие — программная ошибка (реестр статичен). */

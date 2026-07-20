@@ -18,6 +18,12 @@
     platform: getPlatform(),
   });
 
+  const statsCommand = getCommand('OPEN_STATS');
+  const statsAriaShortcut = formatAriaBinding({
+    binding: statsCommand.binding,
+    platform: getPlatform(),
+  });
+
   // Override из настроек поверх оригинала провайдера; пустой override → имя провайдера.
   const displayName = $derived.by(() => {
     if (auth.state.status !== 'authenticated') return '';
@@ -83,8 +89,16 @@
           <KeyHint binding={settingsCommand.binding} />
         {/if}
       </a>
-      <a class="user-menu__item" href={resolve('/stats')} onclick={() => (open = false)}>
-        {$dictionary.app.stats}
+      <a
+        class="user-menu__item"
+        href={resolve('/stats')}
+        onclick={() => (open = false)}
+        aria-keyshortcuts={statsAriaShortcut}
+      >
+        <span>{$dictionary.app.stats}</span>
+        {#if statsCommand.binding}
+          <KeyHint binding={statsCommand.binding} />
+        {/if}
       </a>
       <hr class="user-menu__divider" />
       <button type="button" class="user-menu__item" onclick={handleSignOut}>

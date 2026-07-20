@@ -6,6 +6,13 @@ describe('COMMANDS', () => {
     const command = COMMANDS.find((candidate) => candidate.id === 'OPEN_SETTINGS');
     expect(command?.binding).toEqual({ mod: true, code: 'Comma' });
   });
+
+  it('аккорды команд уникальны', () => {
+    const chords = COMMANDS.filter((command) => command.binding).map((command) =>
+      JSON.stringify(command.binding),
+    );
+    expect(new Set(chords).size).toBe(chords.length);
+  });
 });
 
 describe('getCommand', () => {
