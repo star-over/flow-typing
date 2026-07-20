@@ -20,6 +20,9 @@
   import { on } from 'svelte/events';
   import { onDestroy, setContext } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
+  import { dispatchCommand, isCommandChord } from '@/lib/commands/dispatch';
 
   import Header from '@/components/header/Header.svelte';
 
@@ -129,6 +132,21 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
+    // Аккорд с Cmd/Ctrl/Alt — канал команд, а не печать (ADR 0032). При
+    // совпадении команда выполняется, браузерный дефолт гасится; при промахе
+    // клавиша всё равно НЕ уходит в appActor — иначе Cmd+K во время
+    // тренировки засчитывался бы как опечатка.
+    if (isCommandChord(event)) {
+      const handled = dispatchCommand({
+        event,
+        context: {
+          isTraining: inState({ snapshot: appState, value: 'training' }),
+          navigate: (route) => void goto(resolve(route)),
+        },
+      });
+      if (handled) event.preventDefault();
+      return;
+    }
     if (inState({ snapshot: appState, value: 'training' }) && event.code === 'Space') {
       event.preventDefault();
     }
