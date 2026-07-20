@@ -132,12 +132,17 @@ describe('appMachine', () => {
     it('START_TRAINING in training.paused → fresh training («Начать заново»), updates params', () => {
       const actor = enterTraining('йцукен');
       actor.send({ type: 'PAUSE' });
+      const pausedSession = actor.getSnapshot().children.sessionService;
 
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty', durationSeconds: 180 });
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('qwerty');
       expect(snap.context.sessionDurationSeconds).toBe(180);
+      // Рестарт — не воскрешение: sessionService пересоздан (новый актор), иначе
+      // «Начать заново» неотличимо от «Продолжить» (расследование 2026-07-20).
+      expect(snap.children.sessionService).toBeDefined();
+      expect(snap.children.sessionService === pausedSession).toBe(false);
     });
 
     it('NAVIGATION_KEY other than Escape/Enter does not transition from running', () => {
