@@ -3,11 +3,20 @@
   import { on } from 'svelte/events';
   import { resolve } from '$app/paths';
   import Avatar from '@/components/ui/Avatar.svelte';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
   import { settings } from '@/lib/settings';
   import { dictionary } from '@/lib/i18n';
+  import { getCommand } from '@/lib/commands/registry';
+  import { formatAriaBinding, getPlatform } from '@/lib/platform';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
   const auth = getContext<AuthStore>('auth');
+
+  const settingsCommand = getCommand('OPEN_SETTINGS');
+  const settingsAriaShortcut = formatAriaBinding({
+    binding: settingsCommand.binding,
+    platform: getPlatform(),
+  });
 
   // Override из настроек поверх оригинала провайдера; пустой override → имя провайдера.
   const displayName = $derived.by(() => {
@@ -63,8 +72,16 @@
       <span class="user-menu__name">{displayName}</span>
     </summary>
     <div class="user-menu__dropdown">
-      <a class="user-menu__item" href={resolve('/settings')} onclick={() => (open = false)}>
-        {$dictionary.app.settings}
+      <a
+        class="user-menu__item"
+        href={resolve('/settings')}
+        onclick={() => (open = false)}
+        aria-keyshortcuts={settingsAriaShortcut}
+      >
+        <span>{$dictionary.app.settings}</span>
+        {#if settingsCommand.binding}
+          <KeyHint binding={settingsCommand.binding} />
+        {/if}
       </a>
       <a class="user-menu__item" href={resolve('/stats')} onclick={() => (open = false)}>
         {$dictionary.app.stats}
@@ -173,7 +190,7 @@
     border: 1px solid var(--color-border-accent);
     border-radius: var(--radius-3);
     padding: 0.25rem;
-    min-width: 9rem;
+    min-width: 12rem;
     z-index: 10;
   }
 
@@ -188,6 +205,10 @@
     text-align: left;
     text-decoration: none;
     font: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
   }
 
   .user-menu__item:hover {
