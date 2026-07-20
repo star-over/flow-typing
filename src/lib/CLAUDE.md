@@ -11,6 +11,10 @@ XState-машины — `src/machines/CLAUDE.md`; backend — `convex/CLAUDE.md`
 - **survey (`survey/`):** весь домен в одном каталоге — `micro-survey.ts` (чистая логика показа, ADR 0013) + `survey-store.svelte.ts` (стор ответов). Асимметрия с плоской session-логикой сознательна: `survey/` уже существовал и домен крошечный, достроить дешевле, чем плодить `session/`.
 - **repertoire (`repertoire/`):** сторы репертуара и прогрессии (`repertoire-store.svelte.ts`, `progression-store.svelte.ts`) — cloud-read проекции. Чистая логика снимка/прогрессии живёт в `shared/repertoire/` (`computeRepertoireSnapshot`, граница `src`↮`shared` по ADR 0014), поэтому в `src/lib` каталог держит только сторы, как и соседние сиблинги `session-history/` и `survey/`.
 
+## Commands (`commands/`) — сочетания клавиш
+
+Единый реестр команд приложения (ADR 0032): `registry.ts` — данные (команда = `{ id, binding?, when, run }`), `dispatch.ts` — распознаватель аккордов по `event.code` (mod = `metaKey || ctrlKey`; фильтры repeat/AltGr/editable target). Точка встраивания — `handleKeyDown` в `src/routes/+layout.svelte` до `appActor.send`. Визуальные подсказки (`ui/KeyHint`) и `aria-keyshortcuts` читают `binding` из того же реестра — расхождение отображения и поведения исключено структурно. Каталог — исключение из правила «логика — плоско»: два файла образуют неделимую пару данные+диспетчер; функции форматирования платформы (`platform.ts`) лежат плоско, как соседи.
+
 ## ViewModel Pipeline + dumb UI
 
 Бизнес-логика — в XState-машинах, UI — «глупый». Между ними — pipeline в `src/lib/hands-scene.ts`: чистые трансформеры последовательно строят `HandsSceneViewModel` (idle → target finger states → visible clusters → navigation paths → error finger states → press results). Свойство `keyCapStates` определяется **только** у пальцев в состоянии `TARGET` (правило «Полного Кластера»). Правила формирования ViewModel и сценарии ошибок — `docs/03-ui-viewmodel-contract.md`, следовать буквально.
