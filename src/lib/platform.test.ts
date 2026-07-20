@@ -79,3 +79,35 @@ describe('formatAriaBinding', () => {
     ).toBe('Meta+Shift+K');
   });
 });
+
+describe('glyph-таблицы', () => {
+  it('Escape: визуальный глиф Esc, aria-значение Escape', () => {
+    expect(formatBinding({ binding: { mod: true, code: 'Escape' }, platform: 'mac' })).toEqual([
+      '⌘',
+      'Esc',
+    ]);
+    expect(formatAriaBinding({ binding: { mod: true, code: 'Escape' }, platform: 'mac' })).toBe(
+      'Meta+Escape',
+    );
+  });
+
+  it('Space: визуальный глиф ␣, aria-значение Space', () => {
+    expect(formatBinding({ binding: { mod: true, code: 'Space' }, platform: 'mac' })).toEqual([
+      '⌘',
+      '␣',
+    ]);
+    expect(formatAriaBinding({ binding: { mod: true, code: 'Space' }, platform: 'mac' })).toBe(
+      'Meta+Space',
+    );
+  });
+
+  it('код вне таблиц отдаётся как есть (fallback)', () => {
+    expect(formatBinding({ binding: { mod: true, code: 'ArrowDown' }, platform: 'mac' })).toEqual([
+      '⌘',
+      'ArrowDown',
+    ]);
+    expect(formatAriaBinding({ binding: { mod: true, code: 'ArrowDown' }, platform: 'mac' })).toBe(
+      'Meta+ArrowDown',
+    );
+  });
+});
