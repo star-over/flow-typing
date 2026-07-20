@@ -3,12 +3,14 @@
  * структурного среза KeyboardEvent — тестируемо в node-окружении без DOM.
  * Точка встраивания — handleKeyDown в src/routes/+layout.svelte.
  */
+import type { StateValue } from 'xstate';
 import { isKnownKeyCapId, type KeyCapId } from '@/interfaces/key-cap-id';
 import {
   USER_ACTIONS,
   type KeyBinding,
   type UserAction,
   type UserActionContext,
+  type UserActionTrigger,
 } from './user-actions';
 
 /** Структурный срез KeyboardEvent — ровно то, что читает диспетчер. */
@@ -67,6 +69,15 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+/**
+ * true, если код фигурирует как голый key-триггер хотя бы в одном действии
+ * реестра. Нужен +layout, чтобы гасить Escape/Enter глобально: иначе в
+ * неактивном для действия состоянии нажатие протечёт в keyboardMachine.
+ */
+export function isUserActionKey(code: KeyCapId): boolean {
+  return USER_ACTIONS.some((action) => action.trigger.key === code);
+}
+
 function bindingsEqual({
   event,
   binding,
@@ -82,21 +93,55 @@ function bindingsEqual({
   );
 }
 
+/** Голая клавиша: ни одного модификатора — иначе это уже не тот жест. */
+function isBareKeyPress(event: UserActionKeyEvent): boolean {
+  return !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey;
+}
+
+function matchesTrigger({
+  event,
+  trigger,
+}: {
+  event: UserActionKeyEvent;
+  trigger: UserActionTrigger;
+}): boolean {
+  if (trigger.binding !== undefined) {
+    return isShortcutChord(event) && bindingsEqual({ event, binding: trigger.binding });
+  }
+  return event.code === trigger.key && isBareKeyPress(event);
+}
+
+/** Гейт по состоянию appMachine: 'always' либо хотя бы одно StateValue из списка. */
+function passesWhen({
+  when,
+  context,
+}: {
+  when: UserAction['when'];
+  context: UserActionContext;
+}): boolean {
+  if (when === 'always') return true;
+  const values: readonly StateValue[] = Array.isArray(when) ? when : [when];
+  return values.some((value) => context.isActive(value));
+}
+
+/**
+ * Первое действие, чей гейт when открыт и триггер совпал. Auto-repeat и фокус
+ * в поле ввода глушат оба вида триггеров (аккорд и голую клавишу).
+ */
 export function matchUserAction({
   event,
   actions,
-  isTraining,
+  context,
 }: {
   event: UserActionKeyEvent;
   actions: readonly UserAction[];
-  isTraining: boolean;
+  context: UserActionContext;
 }): UserAction | undefined {
-  if (!isShortcutChord(event)) return undefined;
+  if (event.repeat) return undefined;
   if (isEditableTarget(event.target)) return undefined;
   return actions.find((action) => {
-    if (action.binding === undefined) return false;
-    if (action.when === 'not-typing' && isTraining) return false;
-    return bindingsEqual({ event, binding: action.binding });
+    if (!passesWhen({ when: action.when, context })) return false;
+    return matchesTrigger({ event, trigger: action.trigger });
   });
 }
 
@@ -111,7 +156,7 @@ export function dispatchUserAction({
   event: UserActionKeyEvent;
   context: UserActionContext;
 }): boolean {
-  const action = matchUserAction({ event, actions: USER_ACTIONS, isTraining: context.isTraining });
+  const action = matchUserAction({ event, actions: USER_ACTIONS, context });
   if (!action) return false;
   action.run(context);
   return true;

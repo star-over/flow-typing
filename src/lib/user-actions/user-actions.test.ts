@@ -1,17 +1,33 @@
 import { describe, expect, it } from 'vitest';
 import { USER_ACTIONS, getUserAction, type UserActionId } from './user-actions';
 
+function triggerOf(id: UserActionId) {
+  return USER_ACTIONS.find((candidate) => candidate.id === id)?.trigger;
+}
+
 describe('USER_ACTIONS', () => {
-  it('содержит OPEN_SETTINGS с аккордом mod+Comma', () => {
-    const action = USER_ACTIONS.find((candidate) => candidate.id === 'OPEN_SETTINGS');
-    expect(action?.binding).toEqual({ mod: true, code: 'Comma' });
+  it('содержит 5 действий: навигация и управление тренировкой', () => {
+    expect(USER_ACTIONS.map((action) => action.id)).toEqual([
+      'OPEN_SETTINGS',
+      'OPEN_STATS',
+      'PAUSE_TRAINING',
+      'RESUME_TRAINING',
+      'RESTART_TRAINING',
+    ]);
   });
 
-  it('аккорды действий уникальны', () => {
-    const chords = USER_ACTIONS.filter((action) => action.binding).map((action) =>
-      JSON.stringify(action.binding),
-    );
-    expect(new Set(chords).size).toBe(chords.length);
+  it('триггеры действий соответствуют заявленным', () => {
+    expect(triggerOf('OPEN_SETTINGS')).toEqual({ binding: { mod: true, code: 'Comma' } });
+    expect(triggerOf('OPEN_STATS')).toEqual({ binding: { mod: true, code: 'Period' } });
+    expect(triggerOf('PAUSE_TRAINING')).toEqual({ key: 'Escape' });
+    expect(triggerOf('RESUME_TRAINING')).toEqual({ key: 'Escape' });
+    expect(triggerOf('RESTART_TRAINING')).toEqual({ key: 'Enter' });
+  });
+
+  it('у каждого действия ровно один триггер — аккорд ИЛИ голая клавиша, без альтернатив', () => {
+    for (const action of USER_ACTIONS) {
+      expect('binding' in action.trigger).not.toBe('key' in action.trigger);
+    }
   });
 });
 

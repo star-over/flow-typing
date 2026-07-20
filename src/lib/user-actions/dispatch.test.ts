@@ -1,12 +1,14 @@
+import type { StateValue } from 'xstate';
 import { describe, expect, it, vi } from 'vitest';
 import {
   dispatchUserAction,
   isEditableTarget,
   isShortcutChord,
+  isUserActionKey,
   matchUserAction,
   type UserActionKeyEvent,
 } from './dispatch';
-import { USER_ACTIONS, type UserAction } from './user-actions';
+import { USER_ACTIONS, type UserAction, type UserActionContext } from './user-actions';
 
 function keyEvent(overrides: Partial<UserActionKeyEvent> = {}): UserActionKeyEvent {
   return {
@@ -24,6 +26,21 @@ function keyEvent(overrides: Partial<UserActionKeyEvent> = {}): UserActionKeyEve
 // Обоснование `as unknown as EventTarget`: структурные объекты вместо
 // DOM-узлов — тесты идут в node-окружении без DOM-классов (паттерн device.test.ts).
 const inputTarget = { tagName: 'INPUT' } as unknown as EventTarget;
+
+/**
+ * Контекст с заданными активными состояниями appMachine: isActive сравнивает
+ * StateValue структурно (объекты вида { training: 'running' } равны по
+ * содержимому, а не по ссылке).
+ */
+function makeContext(activeStates: readonly StateValue[] = []): UserActionContext {
+  return {
+    isActive: (value) =>
+      activeStates.some((active) => JSON.stringify(active) === JSON.stringify(value)),
+    send: vi.fn(),
+    navigate: vi.fn(),
+    trainingParams: { symbolLayoutId: 'qwerty', durationSeconds: 60 },
+  };
+}
 
 describe('isShortcutChord', () => {
   it('true для meta + текстовая клавиша', () => {
@@ -82,12 +99,24 @@ describe('isEditableTarget', () => {
   });
 });
 
+describe('isUserActionKey', () => {
+  it('true для Escape и Enter — голых триггеров реестра', () => {
+    expect(isUserActionKey('Escape')).toBe(true);
+    expect(isUserActionKey('Enter')).toBe(true);
+  });
+
+  it('false для клавиш из аккордов и прочих', () => {
+    expect(isUserActionKey('Comma')).toBe(false);
+    expect(isUserActionKey('KeyA')).toBe(false);
+  });
+});
+
 describe('matchUserAction', () => {
   it('Cmd+, (meta) находит OPEN_SETTINGS', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action?.id).toBe('OPEN_SETTINGS');
   });
@@ -96,7 +125,7 @@ describe('matchUserAction', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Comma', ctrlKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action?.id).toBe('OPEN_SETTINGS');
   });
@@ -105,7 +134,7 @@ describe('matchUserAction', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, ctrlKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action?.id).toBe('OPEN_SETTINGS');
   });
@@ -114,7 +143,7 @@ describe('matchUserAction', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Slash', metaKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action).toBeUndefined();
   });
@@ -123,7 +152,7 @@ describe('matchUserAction', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, shiftKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action).toBeUndefined();
   });
@@ -132,83 +161,186 @@ describe('matchUserAction', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true, target: inputTarget }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action).toBeUndefined();
-  });
-
-  it("when: 'not-typing' глушит действие в training", () => {
-    const gated: UserAction = {
-      id: 'OPEN_SETTINGS',
-      binding: { mod: true, code: 'KeyP' },
-      when: 'not-typing',
-      run: () => undefined,
-    };
-    const event = keyEvent({ code: 'KeyP', metaKey: true });
-    expect(matchUserAction({ event, actions: [gated], isTraining: true })).toBeUndefined();
-    expect(matchUserAction({ event, actions: [gated], isTraining: false })?.id).toBe('OPEN_SETTINGS');
   });
 
   it('alt-binding совпадает только по точному аккорду', () => {
     const altAction: UserAction = {
       id: 'OPEN_SETTINGS',
-      binding: { alt: true, code: 'KeyX' },
+      trigger: { binding: { alt: true, code: 'KeyX' } },
       when: 'always',
       run: () => undefined,
     };
     expect(
-      matchUserAction({ event: keyEvent({ code: 'KeyX', altKey: true }), actions: [altAction], isTraining: false })?.id,
+      matchUserAction({
+        event: keyEvent({ code: 'KeyX', altKey: true }),
+        actions: [altAction],
+        context: makeContext(),
+      })?.id,
     ).toBe('OPEN_SETTINGS');
     expect(
-      matchUserAction({ event: keyEvent({ code: 'KeyX', altKey: true, metaKey: true }), actions: [altAction], isTraining: false }),
+      matchUserAction({
+        event: keyEvent({ code: 'KeyX', altKey: true, metaKey: true }),
+        actions: [altAction],
+        context: makeContext(),
+      }),
     ).toBeUndefined();
     expect(
-      matchUserAction({ event: keyEvent({ code: 'KeyX' }), actions: [altAction], isTraining: false }),
+      matchUserAction({
+        event: keyEvent({ code: 'KeyX' }),
+        actions: [altAction],
+        context: makeContext(),
+      }),
     ).toBeUndefined();
-  });
-
-  it('действие без binding никогда не совпадает (заготовка под палитру)', () => {
-    const paletteOnly: UserAction = {
-      id: 'OPEN_SETTINGS',
-      when: 'always',
-      run: () => undefined,
-    };
-    const action = matchUserAction({
-      event: keyEvent({ metaKey: true }),
-      actions: [paletteOnly],
-      isTraining: false,
-    });
-    expect(action).toBeUndefined();
   });
 
   it('Cmd+. находит OPEN_STATS', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Period', metaKey: true }),
       actions: USER_ACTIONS,
-      isTraining: false,
+      context: makeContext(),
     });
     expect(action?.id).toBe('OPEN_STATS');
+  });
+
+  it('Escape без модификаторов в { training: running } находит PAUSE_TRAINING', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Escape' }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'running' }]),
+    });
+    expect(action?.id).toBe('PAUSE_TRAINING');
+  });
+
+  it('Escape в { training: paused } находит RESUME_TRAINING, а не PAUSE — гейт по состоянию', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Escape' }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'paused' }]),
+    });
+    expect(action?.id).toBe('RESUME_TRAINING');
+  });
+
+  it('Escape с shift не совпадает — голая клавиша требует ноль модификаторов', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Escape', shiftKey: true }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'running' }, { training: 'paused' }]),
+    });
+    expect(action).toBeUndefined();
+  });
+
+  it('Enter в { training: paused } находит RESTART_TRAINING', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Enter' }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'paused' }]),
+    });
+    expect(action?.id).toBe('RESTART_TRAINING');
+  });
+
+  it('Enter в sessionComplete и sessionError находит RESTART_TRAINING — when со списком состояний', () => {
+    for (const state of ['sessionComplete', 'sessionError'] as const) {
+      const action = matchUserAction({
+        event: keyEvent({ code: 'Enter' }),
+        actions: USER_ACTIONS,
+        context: makeContext([state]),
+      });
+      expect(action?.id).toBe('RESTART_TRAINING');
+    }
+  });
+
+  it('Enter в { training: running } не совпадает', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Enter' }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'running' }]),
+    });
+    expect(action).toBeUndefined();
+  });
+
+  it('auto-repeat гасится для обоих видов триггеров', () => {
+    expect(
+      matchUserAction({
+        event: keyEvent({ code: 'Escape', repeat: true }),
+        actions: USER_ACTIONS,
+        context: makeContext([{ training: 'running' }]),
+      }),
+    ).toBeUndefined();
+    expect(
+      matchUserAction({
+        event: keyEvent({ code: 'Comma', metaKey: true, repeat: true }),
+        actions: USER_ACTIONS,
+        context: makeContext(),
+      }),
+    ).toBeUndefined();
+  });
+
+  it('фокус в поле ввода глушит голую клавишу', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Escape', target: inputTarget }),
+      actions: USER_ACTIONS,
+      context: makeContext([{ training: 'running' }]),
+    });
+    expect(action).toBeUndefined();
+  });
+
+  it('when по состоянию: действие активно только в перечисленных состояниях', () => {
+    const gated: UserAction = {
+      id: 'PAUSE_TRAINING',
+      trigger: { key: 'Escape' },
+      when: { training: 'running' },
+      run: () => undefined,
+    };
+    const event = keyEvent({ code: 'Escape' });
+    expect(
+      matchUserAction({ event, actions: [gated], context: makeContext([{ training: 'running' }]) })?.id,
+    ).toBe('PAUSE_TRAINING');
+    expect(
+      matchUserAction({ event, actions: [gated], context: makeContext(['idle']) }),
+    ).toBeUndefined();
   });
 });
 
 describe('dispatchUserAction', () => {
-  it('выполняет действие и возвращает true при совпадении', () => {
-    const navigate = vi.fn();
+  it('выполняет действие и возвращает true при совпадении аккорда', () => {
+    const context = makeContext();
     const handled = dispatchUserAction({
       event: keyEvent({ code: 'Comma', metaKey: true }),
-      context: { isTraining: false, navigate },
+      context,
     });
     expect(handled).toBe(true);
-    expect(navigate).toHaveBeenCalledWith('/settings');
+    expect(context.navigate).toHaveBeenCalledWith('/settings');
   });
 
   it('возвращает false и ничего не выполняет при промахе', () => {
-    const navigate = vi.fn();
+    const context = makeContext();
     const handled = dispatchUserAction({
       event: keyEvent({ code: 'KeyZ', metaKey: true }),
-      context: { isTraining: false, navigate },
+      context,
     });
     expect(handled).toBe(false);
-    expect(navigate).not.toHaveBeenCalled();
+    expect(context.navigate).not.toHaveBeenCalled();
+    expect(context.send).not.toHaveBeenCalled();
+  });
+
+  it('Escape в { training: running } шлёт PAUSE в appMachine', () => {
+    const context = makeContext([{ training: 'running' }]);
+    const handled = dispatchUserAction({ event: keyEvent({ code: 'Escape' }), context });
+    expect(handled).toBe(true);
+    expect(context.send).toHaveBeenCalledWith({ type: 'PAUSE' });
+  });
+
+  it('Enter в { training: paused } шлёт START_TRAINING с параметрами свежей сессии', () => {
+    const context = makeContext([{ training: 'paused' }]);
+    const handled = dispatchUserAction({ event: keyEvent({ code: 'Enter' }), context });
+    expect(handled).toBe(true);
+    expect(context.send).toHaveBeenCalledWith({
+      type: 'START_TRAINING',
+      symbolLayoutId: 'qwerty',
+      durationSeconds: 60,
+    });
   });
 });
