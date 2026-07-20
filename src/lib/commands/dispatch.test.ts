@@ -10,7 +10,7 @@ import { COMMANDS, type Command } from './registry';
 
 function keyEvent(overrides: Partial<CommandKeyEvent> = {}): CommandKeyEvent {
   return {
-    code: 'Comma',
+    code: 'KeyA',
     metaKey: false,
     ctrlKey: false,
     altKey: false,
@@ -85,7 +85,7 @@ describe('isEditableTarget', () => {
 describe('matchCommand', () => {
   it('Cmd+, (meta) находит OPEN_SETTINGS', () => {
     const command = matchCommand({
-      event: keyEvent({ metaKey: true }),
+      event: keyEvent({ code: 'Comma', metaKey: true }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -94,7 +94,7 @@ describe('matchCommand', () => {
 
   it('Ctrl+, находит OPEN_SETTINGS — mod распознаётся по metaKey || ctrlKey', () => {
     const command = matchCommand({
-      event: keyEvent({ ctrlKey: true }),
+      event: keyEvent({ code: 'Comma', ctrlKey: true }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -103,7 +103,7 @@ describe('matchCommand', () => {
 
   it('Cmd+Ctrl+, тоже совпадает — mod снисходителен к лишнему meta/ctrl', () => {
     const command = matchCommand({
-      event: keyEvent({ metaKey: true, ctrlKey: true }),
+      event: keyEvent({ code: 'Comma', metaKey: true, ctrlKey: true }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -121,7 +121,7 @@ describe('matchCommand', () => {
 
   it('лишний модификатор (shift) ломает аккорд', () => {
     const command = matchCommand({
-      event: keyEvent({ metaKey: true, shiftKey: true }),
+      event: keyEvent({ code: 'Comma', metaKey: true, shiftKey: true }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -130,7 +130,7 @@ describe('matchCommand', () => {
 
   it('фокус в поле ввода глушит сочетание', () => {
     const command = matchCommand({
-      event: keyEvent({ metaKey: true, target: inputTarget }),
+      event: keyEvent({ code: 'Comma', metaKey: true, target: inputTarget }),
       commands: COMMANDS,
       isTraining: false,
     });
@@ -147,6 +147,24 @@ describe('matchCommand', () => {
     const event = keyEvent({ code: 'KeyP', metaKey: true });
     expect(matchCommand({ event, commands: [gated], isTraining: true })).toBeUndefined();
     expect(matchCommand({ event, commands: [gated], isTraining: false })?.id).toBe('OPEN_SETTINGS');
+  });
+
+  it('alt-binding совпадает только по точному аккорду', () => {
+    const altCommand: Command = {
+      id: 'OPEN_SETTINGS',
+      binding: { alt: true, code: 'KeyX' },
+      when: 'always',
+      run: () => undefined,
+    };
+    expect(
+      matchCommand({ event: keyEvent({ code: 'KeyX', altKey: true }), commands: [altCommand], isTraining: false })?.id,
+    ).toBe('OPEN_SETTINGS');
+    expect(
+      matchCommand({ event: keyEvent({ code: 'KeyX', altKey: true, metaKey: true }), commands: [altCommand], isTraining: false }),
+    ).toBeUndefined();
+    expect(
+      matchCommand({ event: keyEvent({ code: 'KeyX' }), commands: [altCommand], isTraining: false }),
+    ).toBeUndefined();
   });
 
   it('команда без binding никогда не совпадает (заготовка под палитру)', () => {
@@ -168,7 +186,7 @@ describe('dispatchCommand', () => {
   it('выполняет команду и возвращает true при совпадении', () => {
     const navigate = vi.fn();
     const handled = dispatchCommand({
-      event: keyEvent({ metaKey: true }),
+      event: keyEvent({ code: 'Comma', metaKey: true }),
       context: { isTraining: false, navigate },
     });
     expect(handled).toBe(true);
