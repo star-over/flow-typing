@@ -4,7 +4,7 @@
   import { on } from 'svelte/events';
   import App from '@/components/app/App.svelte';
   import SignInScreen from '@/components/auth/SignInScreen.svelte';
-  import KeyboardRequiredNotice from '@/components/device/KeyboardRequiredNotice.svelte';
+  import MessageScreen from '@/components/ui/MessageScreen.svelte';
   import { TOUCH_ONLY_QUERY, isTouchOnlyDevice } from '@/lib/device';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
@@ -41,11 +41,13 @@
 </script>
 
 {#if isTouchOnly && !keyboardConfirmed}
-  <KeyboardRequiredNotice
+  <!-- Мягкий гейт, не блок: «Продолжить всё равно» пропускает дальше, если
+       эвристика обнаружения соврала (планшет с клавиатурой). -->
+  <MessageScreen
     title={kb.title}
     body={kb.body}
-    continueLabel={kb.continue_anyway}
-    onContinue={() => (keyboardConfirmed = true)}
+    actionLabel={kb.continue_anyway}
+    onAction={() => (keyboardConfirmed = true)}
   />
 {:else if auth.state.status === 'guest'}
   <p class="train-gate__lead">{t.guest}</p>
