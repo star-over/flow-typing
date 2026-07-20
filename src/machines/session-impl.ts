@@ -12,20 +12,6 @@ import { glueServerDrills } from '@/lib/drill-stream';
 import { convex, api } from '@/lib/convex';
 import { sessionMachine } from './session.machine';
 
-/**
- * Наблюдаемость границы с Convex: лог момента запроса (→) и ответа (←) при
- * тренировке. Только в dev — в production консоль не шумит (деградации ниже идут
- * через console.warn и видны всегда). Фильтр в консоли браузера: `[convex]`.
- */
-const logConvex = import.meta.env.DEV
-  ? (line: string, ...rest: unknown[]) => {
-      // eslint-disable-next-line no-console
-      console.log(`[convex] ${line}`, ...rest);
-    }
-  : () => {
-      /* no-op в production */
-    };
-
 /** Серверный сбор порции через Convex drillNext (query со свежим seed, ADR 0009). */
 async function fetchServerDrillStream({
   symbolLayoutId,
@@ -37,13 +23,8 @@ async function fetchServerDrillStream({
   // Свежий seed на каждый поход → разный ключ кэша query → честная случайная выборка
   // (кэш Convex иначе заморозил бы порцию между записями в namespace).
   const seed = Math.floor(Math.random() * 0x7fffffff);
-  logConvex(`drillNext → budgetChars=${budgetChars} layout=${symbolLayoutId} seed=${seed}`);
-  const startedAt = performance.now();
   const response = await convex.query(api.drill.drillNext, { symbolLayoutId, budgetChars, seed });
-  const stream = glueServerDrills({ drills: response.drills, symbolLayoutId });
-  const elapsedMs = Math.round(performance.now() - startedAt);
-  logConvex(`drillNext ← ${response.drills.length} drill'ов → ${stream.length} символов за ${elapsedMs}ms`);
-  return stream;
+  return glueServerDrills({ drills: response.drills, symbolLayoutId });
 }
 
 export const sessionService = sessionMachine.provide({
@@ -62,27 +43,16 @@ export const sessionService = sessionMachine.provide({
     // (ADR 0015), потеря дельты допустима. Гостя на тренировке нет (ADR 0012).
     recordCheckpoint: (_, params) => {
       const { summary, symbolLayoutId } = params;
-      const { exposures, clean, accuracy } = summary.overall;
-      logConvex(
-        `drillRecord → ${summary.perSymbol.length} символов, exposures=${exposures} clean=${clean} acc=${accuracy.toFixed(2)}`,
-      );
-      const startedAt = performance.now();
       void convex
         .mutation(api.drill.drillRecord, { symbolLayoutId, summary })
-        .then(() => logConvex(`drillRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
         .catch((err) => console.warn('drillRecord пропущен (офлайн, at-most-once — ADR 0015)', err));
     },
     // Журнал сессии: fire-and-forget, как recordCheckpoint. capturedAt/openedSteps
     // ставит сервер. Офлайн → молча гасим (at-most-once, ADR 0015).
     recordSessionSummary: (_, params) => {
       const { summary, symbolLayoutId } = params;
-      logConvex(
-        `sessionRecord → ${summary.exposures} символов, cpm=${Math.round(summary.cpm)} confusions=${summary.confusions.length}`,
-      );
-      const startedAt = performance.now();
       void convex
         .mutation(api.sessions.record, { symbolLayoutId, ...summary })
-        .then(() => logConvex(`sessionRecord ← ok за ${Math.round(performance.now() - startedAt)}ms`))
         .catch((err) => console.warn('sessionSummary пропущен (офлайн, at-most-once — ADR 0015)', err));
     },
   },

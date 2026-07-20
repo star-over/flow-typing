@@ -1,3 +1,10 @@
+/**
+ * @file keyboardMachine — классификатор физических нажатий: собирает
+ * pressedKeys и шлёт родителю KEYBOARD.CHARACTER_INPUT (массив одновременно
+ * зажатых кодов). Escape/Enter сюда больше не приходят: их перехватывает
+ * диспетчер пользовательских действий в +layout (USER_ACTIONS, ADR 0032) —
+ * в машину протекает только печать и модификаторы.
+ */
 import { assign, sendTo, setup } from "xstate";
 
 import type { KeyCapId, ParentActor, PhysicalLayout } from "@/interfaces/types";
@@ -23,10 +30,7 @@ export const keyboardMachine = setup({
     context: {} as KeyboardMachineContext,
     events: {} as KeyboardMachineEvent,
     input: {} as { parentActor: ParentActor; physicalLayout: PhysicalLayout }, // Added
-    // New types for output events
-    output: {} as
-      | { type: "KEYBOARD.CHARACTER_INPUT"; keys: KeyCapId[] }
-      | { type: "KEYBOARD.NAVIGATION_KEY"; key: KeyCapId },
+    output: {} as { type: "KEYBOARD.CHARACTER_INPUT"; keys: KeyCapId[] },
   },
   actions: {
     addKeyCapId: assign(({
@@ -79,14 +83,6 @@ export const keyboardMachine = setup({
         keys: Array.from(context.pressedKeys),
       })
     ),
-    sendNavigationKey: sendTo(
-      ({ context, event: _event }) => context.parentActor, // Renamed event to _event
-      ({ event }) => ({
-        type: "KEYBOARD.NAVIGATION_KEY",
-        // Cast event to KEY_DOWN to access keyCapId
-        key: (event as { type: "KEY_DOWN"; keyCapId: KeyCapId }).keyCapId,
-      })
-    ),
   },
   guards: {
     isTextKeyGuard: ({
@@ -98,14 +94,6 @@ export const keyboardMachine = setup({
       // even though our keyboard scene uses 'SpaceLeft' and 'SpaceRight'.
       if (event.keyCapId === 'Space') return true;
       return isTextKey({ key: event.keyCapId, physicalLayout: context.physicalLayout });
-    },
-    isNavigationalKeyGuard: ({ context, event }) => {
-      if (event.type !== "KEY_DOWN") return false;
-      // Only recognize as navigational if it's a single key press (no modifiers)
-      if (context.pressedKeys.size > 0 && !context.pressedKeys.has(event.keyCapId)) return false; // Already pressing other keys
-
-      const navKeys: KeyCapId[] = ['Escape', 'Enter']; // Add other navigational keys here if needed
-      return navKeys.includes(event.keyCapId);
     },
     areKeysEmpty: ({
       context
@@ -142,11 +130,6 @@ export const keyboardMachine = setup({
     },
     KEY_DOWN: [
       {
-        target: ".recognizedNavigation",
-        guard: "isNavigationalKeyGuard",
-        actions: ["addKeyCapId", "sendNavigationKey", "clearKeys"],
-      },
-      {
         target: ".recognizedCharacter",
         guard: "isTextKeyGuard",
         actions: ["addKeyCapId", "sendCharacterInput", "clearKeys"], // Clear keys immediately after sending
@@ -170,12 +153,6 @@ export const keyboardMachine = setup({
       }, ],
     },
     recognizedCharacter: {
-      // Temporary state to send the event and then return to listening
-      always: {
-        target: "listening",
-      },
-    },
-    recognizedNavigation: {
       // Temporary state to send the event and then return to listening
       always: {
         target: "listening",

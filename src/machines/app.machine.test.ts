@@ -107,43 +107,20 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
     });
 
-    it('Escape in training.running → paused', () => {
-      const actor = enterTraining();
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().value).toEqual({ training: 'paused' });
-    });
-
-    it('Escape in training.paused → resumes running (pause toggle; no menu screen — ADR 0025)', () => {
-      const actor = enterTraining();
-      actor.send({ type: 'PAUSE' });
-
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
-    });
-
-    it('Enter in training.paused → resumes running', () => {
-      const actor = enterTraining();
-      actor.send({ type: 'PAUSE' });
-
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
-      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
-    });
-
     it('START_TRAINING in training.paused → fresh training («Начать заново»), updates params', () => {
       const actor = enterTraining('йцукен');
       actor.send({ type: 'PAUSE' });
+      const pausedSession = actor.getSnapshot().children.sessionService;
 
       actor.send({ type: 'START_TRAINING', symbolLayoutId: 'qwerty', durationSeconds: 180 });
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('qwerty');
       expect(snap.context.sessionDurationSeconds).toBe(180);
-    });
-
-    it('NAVIGATION_KEY other than Escape/Enter does not transition from running', () => {
-      const actor = enterTraining();
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Tab' });
-      expect(actor.getSnapshot().value).toEqual({ training: 'running' });
+      // Рестарт — не воскрешение: sessionService пересоздан (новый актор), иначе
+      // «Начать заново» неотличимо от «Продолжить» (расследование 2026-07-20).
+      expect(snap.children.sessionService).toBeDefined();
+      expect(snap.children.sessionService === pausedSession).toBe(false);
     });
   });
 
@@ -186,23 +163,7 @@ describe('appMachine', () => {
       expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
     });
 
-    it('Enter NAVIGATION_KEY restarts training and preserves currentSymbolLayoutId', () => {
-      const actor = arriveInSessionComplete('йцукен');
-
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
-      const snap = actor.getSnapshot();
-      expect(snap.value).toEqual({ training: 'running' });
-      expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
-    });
-
-    it('Escape NAVIGATION_KEY is inert (no menu screen — ADR 0025; уход через шапку)', () => {
-      const actor = arriveInSessionComplete();
-
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().value).toBe('sessionComplete');
-    });
-
-    it('a stray CHARACTER_INPUT does not freeze the machine; Enter still restarts', () => {
+    it('a stray CHARACTER_INPUT does not freeze the machine; START_TRAINING still restarts', () => {
       const actor = arriveInSessionComplete('йцукен');
 
       // Pressing a text key on the completion screen emits CHARACTER_INPUT.
@@ -211,8 +172,8 @@ describe('appMachine', () => {
       expect(actor.getSnapshot().status).toBe('active');
       expect(actor.getSnapshot().value).toBe('sessionComplete');
 
-      // The actor must still process navigation afterwards.
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
+      // The actor must still process a restart afterwards.
+      actor.send({ type: 'START_TRAINING', symbolLayoutId: 'йцукен', durationSeconds: 300 });
       expect(actor.getSnapshot().value).toEqual({ training: 'running' });
     });
   });
@@ -238,20 +199,6 @@ describe('appMachine', () => {
       const snap = actor.getSnapshot();
       expect(snap.value).toEqual({ training: 'running' });
       expect(snap.context.currentSymbolLayoutId).toBe('qwerty');
-    });
-
-    it('Enter NAVIGATION_KEY retries and preserves currentSymbolLayoutId', () => {
-      const actor = arriveInSessionError('йцукен');
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Enter' });
-      const snap = actor.getSnapshot();
-      expect(snap.value).toEqual({ training: 'running' });
-      expect(snap.context.currentSymbolLayoutId).toBe('йцукен');
-    });
-
-    it('Escape NAVIGATION_KEY is inert (no menu screen — ADR 0025)', () => {
-      const actor = arriveInSessionError();
-      actor.send({ type: 'KEYBOARD.NAVIGATION_KEY', key: 'Escape' });
-      expect(actor.getSnapshot().value).toBe('sessionError');
     });
 
     it('TRAINER_OPENED starts a fresh session on entry (never resurrects the error)', () => {

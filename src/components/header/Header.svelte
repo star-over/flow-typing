@@ -1,7 +1,10 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import UserMenu from '@/components/auth/UserMenu.svelte';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
   import Wordmark from '@/components/ui/Wordmark.svelte';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
   import LanguageSwitcher from './LanguageSwitcher.svelte';
 
   interface Props {
@@ -25,6 +28,9 @@
     onPause,
     showLanguageSwitcher = false,
   }: Props = $props();
+
+  const pauseAction = getUserAction('PAUSE_TRAINING');
+  const pauseAriaShortcut = formatAriaTrigger({ trigger: pauseAction.trigger, platform: getPlatform() });
 </script>
 
 <header class="header">
@@ -35,7 +41,15 @@
         <span class="timer" role="timer">{timerSeconds}s</span>
       {/if}
       {#if canPause}
-        <button type="button" class="pause" onclick={onPause}>{pauseLabel}</button>
+        <button
+          type="button"
+          class="pause"
+          onclick={onPause}
+          aria-keyshortcuts={pauseAriaShortcut}
+        >
+          {pauseLabel}
+          <KeyHint {...keyHintPropsForTrigger(pauseAction.trigger)} />
+        </button>
       {/if}
       {#if showLanguageSwitcher}
         <LanguageSwitcher />
@@ -92,6 +106,9 @@
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
     padding: var(--spacing-1) var(--spacing-3);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-2);

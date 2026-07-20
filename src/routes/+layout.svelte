@@ -20,6 +20,9 @@
   import { on } from 'svelte/events';
   import { onDestroy, setContext } from 'svelte';
   import { isKnownKeyCapId } from '@/interfaces/key-cap-id';
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
+  import { dispatchUserAction, isShortcutChord, isUserActionKey } from '@/lib/user-actions/dispatch';
 
   import Header from '@/components/header/Header.svelte';
 
@@ -129,6 +132,29 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!isKnownKeyCapId(event.code)) return;
+    // Все пользовательские действия — через диспетчер реестра (ADR 0032):
+    // аккорды (⌘,) и навигационные клавиши (Esc/Enter) единым каналом.
+    // Совпадение → действие + preventDefault; промах аккорда с модификатором
+    // или клавиши действия в неактивном состоянии гасится — в keyboardMachine
+    // протекает только печать (иначе Cmd+K был бы опечаткой, а Escape/Enter
+    // загрязняли бы pressedKeys).
+    const handled = dispatchUserAction({
+      event,
+      context: {
+        isActive: (value) => inState({ snapshot: appState, value }),
+        send: (appEvent) => appActor.send(appEvent),
+        navigate: (route) => void goto(resolve(route)),
+        trainingParams: {
+          symbolLayoutId: $settings.symbolLayoutId,
+          durationSeconds: $settings.sessionDurationSeconds,
+        },
+      },
+    });
+    if (handled) {
+      event.preventDefault();
+      return;
+    }
+    if (isShortcutChord(event) || isUserActionKey(event.code)) return;
     if (inState({ snapshot: appState, value: 'training' }) && event.code === 'Space') {
       event.preventDefault();
     }

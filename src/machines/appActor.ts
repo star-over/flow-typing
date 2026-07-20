@@ -29,6 +29,9 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   void import('@/lib/dev/opened-steps-set').then(({ attachOpenedStepsSet }) => {
     attachOpenedStepsSet();
   });
+  // Dev-only: диагностический доступ к машине из консоли (`__appActor.getSnapshot()`)
+  // — расследования вида «событие не даёт ожидаемого перехода» без правок кода.
+  (window as unknown as { __appActor: typeof actor }).__appActor = actor;
 }
 
 if (import.meta.hot) {

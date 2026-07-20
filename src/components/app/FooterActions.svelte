@@ -2,6 +2,9 @@
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { Dictionary, SymbolLayoutId } from '@/interfaces/types';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
   import { inState } from '@/lib/state-utils';
 
   interface Props {
@@ -31,19 +34,40 @@
     state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds }) ||
     state.can({ type: 'RESUME' })
   );
+
+  // Кнопка «Начать заново»/«Повторить» несёт триггер RESTART_TRAINING (Enter);
+  // «Продолжить» — RESUME_TRAINING (Escape). Подсказка и aria-keyshortcuts
+  // читаются из реестра действий — расхождение с диспетчером исключено.
+  const restartAction = getUserAction('RESTART_TRAINING');
+  const resumeAction = getUserAction('RESUME_TRAINING');
+  const platform = getPlatform();
+  const restartAriaShortcut = formatAriaTrigger({ trigger: restartAction.trigger, platform });
+  const resumeAriaShortcut = formatAriaTrigger({ trigger: resumeAction.trigger, platform });
 </script>
 
 {#if isVisible && hasActions}
   <footer class="footer">
     <div class="actions">
       {#if state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
-        <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}>
+        <button
+          type="button"
+          class="btn primary"
+          onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
+          aria-keyshortcuts={restartAriaShortcut}
+        >
           {isSessionError ? dictionary.app.retry : dictionary.app.start_again}
+          <KeyHint {...keyHintPropsForTrigger(restartAction.trigger)} />
         </button>
       {/if}
       {#if state.can({ type: 'RESUME' })}
-        <button type="button" class="btn success" onclick={() => send({ type: 'RESUME' })}>
+        <button
+          type="button"
+          class="btn success"
+          onclick={() => send({ type: 'RESUME' })}
+          aria-keyshortcuts={resumeAriaShortcut}
+        >
           {dictionary.app.resume}
+          <KeyHint {...keyHintPropsForTrigger(resumeAction.trigger)} />
         </button>
       {/if}
     </div>
@@ -76,6 +100,9 @@
   }
 
   .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
     border: 1px solid var(--color-border);
@@ -86,6 +113,16 @@
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.1s ease;
+  }
+
+  /* Подсказка на плотной цветной кнопке — без своей плашки: контур и текст
+     наследуются, иначе светлый бейдж спорит с заливкой кнопки. */
+  .btn.primary :global(.key-hint),
+  .btn.success :global(.key-hint) {
+    background: transparent;
+    border-color: currentColor;
+    color: inherit;
+    opacity: 0.85;
   }
 
   .btn:hover {

@@ -55,8 +55,4 @@ export function attachOpenedStepsSet(): void {
         return result;
       });
   };
-
-  console.info(
-    '[opened-steps-set] активен. window.__setOpenedSteps(n) — установить число открытых шагов.'
-  );
 }

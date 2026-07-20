@@ -29,6 +29,4 @@ export function attachProfileReset(): void {
       );
       return deleted;
     });
-
-  console.info('[profile-reset] активен. window.__resetProfile() — сбросить профиль текущего юзера.');
 }

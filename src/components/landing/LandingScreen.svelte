@@ -2,6 +2,9 @@
   import { resolve } from '$app/paths';
   import { env } from '$env/dynamic/public';
   import type { Dictionary } from '@/interfaces/types';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
   import LandingHandsDemo from './LandingHandsDemo.svelte';
 
   interface Props {
@@ -10,6 +13,14 @@
 
   const { dictionary }: Props = $props();
   const l = $derived(dictionary.landing);
+
+  // CTA «Начать тренировку» несёт триггер OPEN_TRAINING (Enter в покое — вход на
+  // /train, ADR 0025/0032). Подсказка и aria-keyshortcuts читаются из реестра.
+  const trainingAction = getUserAction('OPEN_TRAINING');
+  const trainingAriaShortcut = formatAriaTrigger({
+    trigger: trainingAction.trigger,
+    platform: getPlatform(),
+  });
 
   // Feedback-канал (P0-7): ссылка появляется, только если владелец задал контакт
   // (PUBLIC_FEEDBACK_URL — Telegram/email). Не задан → футера нет.
@@ -26,7 +37,10 @@
     <div class="hero-copy">
       <h1 class="hero-title">{l.hero_title}</h1>
       <p class="tagline">{l.tagline}</p>
-      <a class="cta" href={resolve('/train')}>{dictionary.app.start_training}</a>
+      <a class="cta" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
+        {dictionary.app.start_training}
+        <KeyHint {...keyHintPropsForTrigger(trainingAction.trigger)} />
+      </a>
     </div>
     <div class="hero-demo">
       <LandingHandsDemo label={l.demo_aria} />
@@ -77,7 +91,10 @@
   <section class="closing">
     <h2 class="closing-title">{l.closing_title}</h2>
     <p class="tagline">{l.closing_text}</p>
-    <a class="cta" href={resolve('/train')}>{dictionary.app.start_training}</a>
+    <a class="cta" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
+      {dictionary.app.start_training}
+      <KeyHint {...keyHintPropsForTrigger(trainingAction.trigger)} />
+    </a>
   </section>
 
   <footer class="site-footer">
@@ -153,6 +170,7 @@
   .cta {
     display: inline-flex;
     align-items: center;
+    gap: var(--spacing-2);
     padding: var(--spacing-3) var(--spacing-6);
     border-radius: var(--radius-3);
     background: var(--color-brand-accent);
@@ -163,6 +181,16 @@
     text-decoration: none;
     transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
       transform var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+
+  /* Подсказка на плотной янтарной CTA — без своей плашки: контур и текст
+     наследуются от кнопки (как primary/success в FooterActions), иначе светлый
+     бейдж спорит с заливкой. */
+  .cta :global(.key-hint) {
+    background: transparent;
+    border-color: currentColor;
+    color: inherit;
+    opacity: 0.85;
   }
 
   .cta:hover {
