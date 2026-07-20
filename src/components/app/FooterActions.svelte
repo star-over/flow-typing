@@ -3,7 +3,8 @@
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { Dictionary, SymbolLayoutId } from '@/interfaces/types';
   import KeyHint from '@/components/ui/KeyHint.svelte';
-  import { formatAriaKey } from '@/lib/platform';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
   import { inState } from '@/lib/state-utils';
 
   interface Props {
@@ -33,6 +34,15 @@
     state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds }) ||
     state.can({ type: 'RESUME' })
   );
+
+  // Кнопка «Начать заново»/«Повторить» несёт триггер RESTART_TRAINING (Enter);
+  // «Продолжить» — RESUME_TRAINING (Escape). Подсказка и aria-keyshortcuts
+  // читаются из реестра действий — расхождение с диспетчером исключено.
+  const restartAction = getUserAction('RESTART_TRAINING');
+  const resumeAction = getUserAction('RESUME_TRAINING');
+  const platform = getPlatform();
+  const restartAriaShortcut = formatAriaTrigger({ trigger: restartAction.trigger, platform });
+  const resumeAriaShortcut = formatAriaTrigger({ trigger: resumeAction.trigger, platform });
 </script>
 
 {#if isVisible && hasActions}
@@ -43,10 +53,10 @@
           type="button"
           class="btn primary"
           onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
-          aria-keyshortcuts={formatAriaKey('Enter')}
+          aria-keyshortcuts={restartAriaShortcut}
         >
           {isSessionError ? dictionary.app.retry : dictionary.app.start_again}
-          <KeyHint code="Enter" />
+          <KeyHint {...keyHintPropsForTrigger(restartAction.trigger)} />
         </button>
       {/if}
       {#if state.can({ type: 'RESUME' })}
@@ -54,10 +64,10 @@
           type="button"
           class="btn success"
           onclick={() => send({ type: 'RESUME' })}
-          aria-keyshortcuts={formatAriaKey('Escape')}
+          aria-keyshortcuts={resumeAriaShortcut}
         >
           {dictionary.app.resume}
-          <KeyHint code="Escape" />
+          <KeyHint {...keyHintPropsForTrigger(resumeAction.trigger)} />
         </button>
       {/if}
     </div>

@@ -6,23 +6,18 @@
   import KeyHint from '@/components/ui/KeyHint.svelte';
   import { settings } from '@/lib/settings';
   import { dictionary } from '@/lib/i18n';
-  import { getUserAction } from '@/lib/user-actions/user-actions';
-  import { formatAriaBinding, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
 
   const auth = getContext<AuthStore>('auth');
+  const platform = getPlatform();
 
   const settingsAction = getUserAction('OPEN_SETTINGS');
-  const settingsAriaShortcut = formatAriaBinding({
-    binding: settingsAction.binding,
-    platform: getPlatform(),
-  });
+  const settingsAriaShortcut = formatAriaTrigger({ trigger: settingsAction.trigger, platform });
 
   const statsAction = getUserAction('OPEN_STATS');
-  const statsAriaShortcut = formatAriaBinding({
-    binding: statsAction.binding,
-    platform: getPlatform(),
-  });
+  const statsAriaShortcut = formatAriaTrigger({ trigger: statsAction.trigger, platform });
 
   // Override из настроек поверх оригинала провайдера; пустой override → имя провайдера.
   const displayName = $derived.by(() => {
@@ -85,9 +80,7 @@
         aria-keyshortcuts={settingsAriaShortcut}
       >
         <span>{$dictionary.app.settings}</span>
-        {#if settingsAction.binding}
-          <KeyHint binding={settingsAction.binding} />
-        {/if}
+        <KeyHint {...keyHintPropsForTrigger(settingsAction.trigger)} />
       </a>
       <a
         class="user-menu__item"
@@ -96,9 +89,7 @@
         aria-keyshortcuts={statsAriaShortcut}
       >
         <span>{$dictionary.app.stats}</span>
-        {#if statsAction.binding}
-          <KeyHint binding={statsAction.binding} />
-        {/if}
+        <KeyHint {...keyHintPropsForTrigger(statsAction.trigger)} />
       </a>
       <hr class="user-menu__divider" />
       <button type="button" class="user-menu__item" onclick={handleSignOut}>

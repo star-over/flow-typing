@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { USER_ACTIONS, getUserAction, type UserActionId } from './user-actions';
+import {
+  USER_ACTIONS,
+  getUserAction,
+  keyHintPropsForTrigger,
+  type UserActionId,
+} from './user-actions';
 
 function triggerOf(id: UserActionId) {
   return USER_ACTIONS.find((candidate) => candidate.id === id)?.trigger;
@@ -39,5 +44,17 @@ describe('getUserAction', () => {
   it('бросает на неизвестном id — реестр статичен, это программная ошибка', () => {
     // Обоснование `as`: упражняем throw-ветку, недостижимую через типизированные id.
     expect(() => getUserAction('UNKNOWN' as UserActionId)).toThrow('Unknown user action: UNKNOWN');
+  });
+});
+
+describe('keyHintPropsForTrigger', () => {
+  it('аккорд → { binding }', () => {
+    expect(keyHintPropsForTrigger({ binding: { mod: true, code: 'Comma' } })).toEqual({
+      binding: { mod: true, code: 'Comma' },
+    });
+  });
+
+  it('голая клавиша → { code }', () => {
+    expect(keyHintPropsForTrigger({ key: 'Escape' })).toEqual({ code: 'Escape' });
   });
 });

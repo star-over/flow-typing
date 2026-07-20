@@ -113,3 +113,14 @@ export function getUserAction(id: UserActionId): UserAction {
   if (!action) throw new Error(`Unknown user action: ${id}`);
   return action;
 }
+
+/**
+ * Пропсы KeyHint для триггера действия: аккорд отдаётся как `binding`, голая
+ * клавиша — как `code` (форма пропсов KeyHint 1:1). Разбор формы триггера
+ * живёт здесь одним местом — компоненты его не повторяют.
+ */
+export function keyHintPropsForTrigger(
+  trigger: UserActionTrigger,
+): { binding: KeyBinding } | { code: KeyCapId } {
+  return trigger.binding !== undefined ? { binding: trigger.binding } : { code: trigger.key };
+}

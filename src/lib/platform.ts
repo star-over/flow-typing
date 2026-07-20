@@ -5,7 +5,7 @@
  * Паттерн stubGlobal-тестов — как src/lib/device.ts / device.test.ts.
  */
 import type { KeyCapId } from '@/interfaces/key-cap-id';
-import type { KeyBinding } from './user-actions/user-actions';
+import type { KeyBinding, UserActionTrigger } from './user-actions/user-actions';
 
 export type Platform = 'mac' | 'other';
 
@@ -116,4 +116,21 @@ export function formatAriaBinding({
   if (binding.shift) parts.push('Shift');
   parts.push(formatAriaKey(binding.code));
   return parts.join('+');
+}
+
+/**
+ * Значение `aria-keyshortcuts` для триггера действия любой формы: аккорд →
+ * `formatAriaBinding`, голая клавиша → `formatAriaKey`. Единый вход для кнопок
+ * и пунктов меню — UI не разбирает форму триггера у себя.
+ */
+export function formatAriaTrigger({
+  trigger,
+  platform,
+}: {
+  trigger: UserActionTrigger;
+  platform: Platform;
+}): string | undefined {
+  return trigger.binding !== undefined
+    ? formatAriaBinding({ binding: trigger.binding, platform })
+    : formatAriaKey(trigger.key);
 }

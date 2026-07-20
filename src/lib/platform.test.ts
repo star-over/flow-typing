@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatAriaBinding, formatAriaKey, formatBinding, formatKeyCapGlyph, getPlatform } from './platform';
+import {
+  formatAriaBinding,
+  formatAriaKey,
+  formatAriaTrigger,
+  formatBinding,
+  formatKeyCapGlyph,
+  getPlatform,
+} from './platform';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -123,5 +130,21 @@ describe('одиночная клавиша (без аккорда)', () => {
     expect(formatAriaKey('Escape')).toBe('Escape');
     expect(formatAriaKey('Enter')).toBe('Enter');
     expect(formatAriaKey('KeyK')).toBe('K');
+  });
+});
+
+describe('formatAriaTrigger', () => {
+  it('аккорд → как formatAriaBinding', () => {
+    expect(
+      formatAriaTrigger({ trigger: { binding: { mod: true, code: 'Comma' } }, platform: 'mac' }),
+    ).toBe('Meta+,');
+    expect(
+      formatAriaTrigger({ trigger: { binding: { mod: true, code: 'Comma' } }, platform: 'other' }),
+    ).toBe('Control+,');
+  });
+
+  it('голая клавиша → как formatAriaKey (платформа не влияет)', () => {
+    expect(formatAriaTrigger({ trigger: { key: 'Escape' }, platform: 'mac' })).toBe('Escape');
+    expect(formatAriaTrigger({ trigger: { key: 'Enter' }, platform: 'other' })).toBe('Enter');
   });
 });

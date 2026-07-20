@@ -3,7 +3,8 @@
   import UserMenu from '@/components/auth/UserMenu.svelte';
   import KeyHint from '@/components/ui/KeyHint.svelte';
   import Wordmark from '@/components/ui/Wordmark.svelte';
-  import { formatAriaKey } from '@/lib/platform';
+  import { formatAriaTrigger, getPlatform } from '@/lib/platform';
+  import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
   import LanguageSwitcher from './LanguageSwitcher.svelte';
 
   interface Props {
@@ -27,6 +28,9 @@
     onPause,
     showLanguageSwitcher = false,
   }: Props = $props();
+
+  const pauseAction = getUserAction('PAUSE_TRAINING');
+  const pauseAriaShortcut = formatAriaTrigger({ trigger: pauseAction.trigger, platform: getPlatform() });
 </script>
 
 <header class="header">
@@ -41,10 +45,10 @@
           type="button"
           class="pause"
           onclick={onPause}
-          aria-keyshortcuts={formatAriaKey('Escape')}
+          aria-keyshortcuts={pauseAriaShortcut}
         >
           {pauseLabel}
-          <KeyHint code="Escape" />
+          <KeyHint {...keyHintPropsForTrigger(pauseAction.trigger)} />
         </button>
       {/if}
       {#if showLanguageSwitcher}
