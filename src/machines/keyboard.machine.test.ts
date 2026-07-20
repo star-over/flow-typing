@@ -14,7 +14,6 @@ const testParentMachine = createMachine({
   initial: "active",
   context: {
     recognizedCharacterHistory: [] as KeyCapId[][],
-    recognizedNavigationHistory: [] as KeyCapId[],
   },
   types: {} as {
     events:
@@ -22,7 +21,6 @@ const testParentMachine = createMachine({
       | { type: "KEY_UP"; keyCapId: KeyCapId }
       | { type: "RESET" }
       | { type: "KEYBOARD.CHARACTER_INPUT"; keys: KeyCapId[] }
-      | { type: "KEYBOARD.NAVIGATION_KEY"; key: KeyCapId }
   },
   invoke: {
     id: "keyboard",
@@ -56,14 +54,6 @@ const testParentMachine = createMachine({
         ],
       }),
     },
-    "KEYBOARD.NAVIGATION_KEY": {
-      actions: assign({
-        recognizedNavigationHistory: ({ context, event }) => [
-          ...context.recognizedNavigationHistory,
-          event.key,
-        ],
-      }),
-    },
   },
   states: {
     active: {},
@@ -89,7 +79,6 @@ describe("keyboardMachine", () => {
       if (keyboardSnapshot?.matches('listening')) {
         expect(keyboardSnapshot.context.pressedKeys.has("ShiftLeft")).toBe(true);
         expect(snapshot.context.recognizedCharacterHistory).toEqual([]);
-        expect(snapshot.context.recognizedNavigationHistory).toEqual([]);
         resolve();
       }
     });
@@ -173,21 +162,6 @@ describe("keyboardMachine", () => {
     actor.start();
     actor.send({ type: "KEY_DOWN", keyCapId: "MetaLeft" });
     actor.send({ type: "KEY_DOWN", keyCapId: "KeyA" });
-  }));
-
-  it("should send NAVIGATION_KEY event when functional key (Escape) is pressed", () => new Promise<void>((resolve) => {
-    const actor = createActor(testParentMachine);
-    actor.subscribe((snapshot) => {
-        if (snapshot.context.recognizedNavigationHistory.length > 0) {
-            const keyboardSnapshot = snapshot.children.keyboard!.getSnapshot();
-            expect(keyboardSnapshot.value).toBe("idle"); // Should go back to idle
-            expect(keyboardSnapshot.context.pressedKeys.size).toBe(0); // Keys are cleared
-            expect(snapshot.context.recognizedNavigationHistory).toEqual(["Escape"]);
-            resolve();
-        }
-    });
-    actor.start();
-    actor.send({ type: "KEY_DOWN", keyCapId: "Escape" });
   }));
 
   it("should send CHARACTER_INPUT event for multiple modifier keys + text key chord", () => new Promise<void>((resolve) => {

@@ -38,8 +38,7 @@ export type AppEvent =
   | { type: 'KEY_DOWN'; keyCapId: KeyCapId }
   | { type: 'KEY_UP'; keyCapId: KeyCapId }
   | { type: 'RESET_KEYBOARD' }
-  | { type: 'KEYBOARD.CHARACTER_INPUT'; keys: KeyCapId[] }
-  | { type: 'KEYBOARD.NAVIGATION_KEY'; key: KeyCapId };
+  | { type: 'KEYBOARD.CHARACTER_INPUT'; keys: KeyCapId[] };
 
 export const appMachine = setup({
   types: {
@@ -63,12 +62,6 @@ export const appMachine = setup({
         lastSessionSummary: params.summary,
       }),
     ),
-  },
-  guards: {
-    isEscape: ({ event }) =>
-      event.type === 'KEYBOARD.NAVIGATION_KEY' && event.key === 'Escape',
-    isEnter: ({ event }) =>
-      event.type === 'KEYBOARD.NAVIGATION_KEY' && event.key === 'Enter',
   },
 }).createMachine({
   id: 'app',
@@ -178,8 +171,10 @@ export const appMachine = setup({
       states: {
         running: {
           on: {
+            // Escape в наборе шлёт PAUSE через диспетчер пользовательских
+            // действий в +layout (USER_ACTIONS, ADR 0032) — машина клавишу
+            // не видит, получает только готовое событие.
             PAUSE: 'paused',
-            'KEYBOARD.NAVIGATION_KEY': { guard: 'isEscape', target: 'paused' },
           },
         },
         paused: {
@@ -191,6 +186,9 @@ export const appMachine = setup({
           // заменяется — RESUME_TIMER отбрасывается умирающим актором.
           exit: sendTo('sessionService', { type: 'RESUME_TIMER' }),
           on: {
+            // Escape в паузе → RESUME, Enter → START_TRAINING: оба жеста
+            // разбирает диспетчер пользовательских действий в +layout
+            // (USER_ACTIONS, ADR 0032), машина видит только события.
             RESUME: 'running',
             // «Начать заново» из паузы: бросить текущую сессию, начать свежую.
             START_TRAINING: {
@@ -204,12 +202,8 @@ export const appMachine = setup({
                 }),
               },
             },
-            // Escape и Enter в паузе — оба возобновляют (тумблер паузы). «Уйти» —
-            // через шапку (ADR 0025): экрана-меню нет, отдельного abandon-перехода нет.
-            'KEYBOARD.NAVIGATION_KEY': [
-              { guard: 'isEscape', target: 'running' },
-              { guard: 'isEnter', target: 'running' },
-            ],
+            // «Уйти» — через шапку (ADR 0025): экрана-меню нет, отдельного
+            // abandon-перехода нет.
           },
         },
       },
@@ -217,6 +211,10 @@ export const appMachine = setup({
 
     sessionComplete: {
       on: {
+        // Enter на экране результатов → START_TRAINING через диспетчер
+        // пользовательских действий в +layout (USER_ACTIONS, ADR 0032);
+        // параметры сессии берутся из $settings на стороне UI. «Уйти» —
+        // через шапку (ADR 0025): экрана-меню нет, Escape инертен.
         START_TRAINING: {
           target: 'trainingStart',
           reenter: true,
@@ -228,26 +226,12 @@ export const appMachine = setup({
             }),
           },
         },
-        // Enter = «Начать заново» с сохранённой раскладкой. «Уйти» — через шапку
-        // (ADR 0025): экрана-меню нет, Escape инертен.
-        'KEYBOARD.NAVIGATION_KEY': [
-          {
-            guard: 'isEnter',
-            target: 'trainingStart',
-            actions: {
-              type: 'setTrainingParams',
-              params: ({ context }) => ({
-                symbolLayoutId: context.currentSymbolLayoutId,
-                durationSeconds: context.sessionDurationSeconds,
-              }),
-            },
-          },
-        ],
       },
     },
 
-    // Сетевой сбой старта сессии. START_TRAINING (кнопка «Повторить») / Enter —
-    // новая попытка с сохранённой раскладкой. «Уйти» — через шапку (ADR 0025).
+    // Сетевой сбой старта сессии. START_TRAINING (кнопка «Повторить» или Enter
+    // через диспетчер действий в +layout, ADR 0032) — новая попытка.
+    // «Уйти» — через шапку (ADR 0025).
     sessionError: {
       on: {
         START_TRAINING: {
@@ -261,19 +245,6 @@ export const appMachine = setup({
             }),
           },
         },
-        'KEYBOARD.NAVIGATION_KEY': [
-          {
-            guard: 'isEnter',
-            target: 'trainingStart',
-            actions: {
-              type: 'setTrainingParams',
-              params: ({ context }) => ({
-                symbolLayoutId: context.currentSymbolLayoutId,
-                durationSeconds: context.sessionDurationSeconds,
-              }),
-            },
-          },
-        ],
       },
     },
 
