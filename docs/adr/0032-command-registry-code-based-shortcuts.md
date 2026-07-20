@@ -1,6 +1,6 @@
 # Пользовательские действия: единый реестр, распознавание по event.code, триггер 1:1
 
-> Статус: предложен · 2026-07-20 · Реализация: src/lib/user-actions/, src/lib/platform.ts, src/components/ui/KeyHint.svelte
+> Статус: принят · 2026-07-20 · Реализация: src/lib/user-actions/, src/lib/platform.ts, src/components/ui/KeyHint.svelte
 
 ## Context
 
