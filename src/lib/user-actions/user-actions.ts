@@ -43,12 +43,13 @@ export type UserActionTrigger =
 export type UserActionId =
   | 'OPEN_SETTINGS'
   | 'OPEN_STATS'
+  | 'OPEN_TRAINING'
   | 'PAUSE_TRAINING'
   | 'RESUME_TRAINING'
   | 'RESTART_TRAINING';
 
 /** Роуты, в которые умеют уводить действия (значения resolve() из $app/paths). */
-export type UserActionRoute = '/settings' | '/stats';
+export type UserActionRoute = '/settings' | '/stats' | '/train';
 
 export interface UserActionContext {
   /** appMachine в указанном состоянии (обёртка inState над актуальным снимком). */
@@ -86,6 +87,15 @@ export const USER_ACTIONS: readonly UserAction[] = [
     trigger: { binding: { mod: true, code: 'Period' } },
     when: 'always',
     run: ({ navigate }) => navigate('/stats'),
+  },
+  {
+    // Лендинг (и любое состояние покоя): Enter уводит в тренировку — вход на
+    // /train запускает её автоматически (ADR 0025). Гейт `idle` не пересекается
+    // с training-состояниями, где тот же Enter разбирает RESTART_TRAINING.
+    id: 'OPEN_TRAINING',
+    trigger: { key: 'Enter' },
+    when: 'idle',
+    run: ({ navigate }) => navigate('/train'),
   },
   {
     id: 'PAUSE_TRAINING',

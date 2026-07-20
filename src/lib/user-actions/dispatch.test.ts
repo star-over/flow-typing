@@ -252,6 +252,15 @@ describe('matchUserAction', () => {
     }
   });
 
+  it('Enter в idle находит OPEN_TRAINING — покой уводит в тренировку', () => {
+    const action = matchUserAction({
+      event: keyEvent({ code: 'Enter' }),
+      actions: USER_ACTIONS,
+      context: makeContext(['idle']),
+    });
+    expect(action?.id).toBe('OPEN_TRAINING');
+  });
+
   it('Enter в { training: running } не совпадает', () => {
     const action = matchUserAction({
       event: keyEvent({ code: 'Enter' }),
@@ -342,5 +351,12 @@ describe('dispatchUserAction', () => {
       symbolLayoutId: 'qwerty',
       durationSeconds: 60,
     });
+  });
+
+  it('Enter в idle уводит на /train', () => {
+    const context = makeContext(['idle']);
+    const handled = dispatchUserAction({ event: keyEvent({ code: 'Enter' }), context });
+    expect(handled).toBe(true);
+    expect(context.navigate).toHaveBeenCalledWith('/train');
   });
 });

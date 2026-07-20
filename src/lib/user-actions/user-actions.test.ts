@@ -11,10 +11,11 @@ function triggerOf(id: UserActionId) {
 }
 
 describe('USER_ACTIONS', () => {
-  it('содержит 5 действий: навигация и управление тренировкой', () => {
+  it('содержит 6 действий: навигация и управление тренировкой', () => {
     expect(USER_ACTIONS.map((action) => action.id)).toEqual([
       'OPEN_SETTINGS',
       'OPEN_STATS',
+      'OPEN_TRAINING',
       'PAUSE_TRAINING',
       'RESUME_TRAINING',
       'RESTART_TRAINING',
@@ -24,6 +25,7 @@ describe('USER_ACTIONS', () => {
   it('триггеры действий соответствуют заявленным', () => {
     expect(triggerOf('OPEN_SETTINGS')).toEqual({ binding: { mod: true, code: 'Comma' } });
     expect(triggerOf('OPEN_STATS')).toEqual({ binding: { mod: true, code: 'Period' } });
+    expect(triggerOf('OPEN_TRAINING')).toEqual({ key: 'Enter' });
     expect(triggerOf('PAUSE_TRAINING')).toEqual({ key: 'Escape' });
     expect(triggerOf('RESUME_TRAINING')).toEqual({ key: 'Escape' });
     expect(triggerOf('RESTART_TRAINING')).toEqual({ key: 'Enter' });
