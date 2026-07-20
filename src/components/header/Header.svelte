@@ -1,7 +1,9 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import UserMenu from '@/components/auth/UserMenu.svelte';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
   import Wordmark from '@/components/ui/Wordmark.svelte';
+  import { formatAriaKey } from '@/lib/platform';
   import LanguageSwitcher from './LanguageSwitcher.svelte';
 
   interface Props {
@@ -35,7 +37,15 @@
         <span class="timer" role="timer">{timerSeconds}s</span>
       {/if}
       {#if canPause}
-        <button type="button" class="pause" onclick={onPause}>{pauseLabel}</button>
+        <button
+          type="button"
+          class="pause"
+          onclick={onPause}
+          aria-keyshortcuts={formatAriaKey('Escape')}
+        >
+          {pauseLabel}
+          <KeyHint code="Escape" />
+        </button>
       {/if}
       {#if showLanguageSwitcher}
         <LanguageSwitcher />
@@ -92,6 +102,9 @@
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
     padding: var(--spacing-1) var(--spacing-3);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-2);

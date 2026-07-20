@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatAriaBinding, formatBinding, getPlatform } from './platform';
+import { formatAriaBinding, formatAriaKey, formatBinding, formatKeyCapGlyph, getPlatform } from './platform';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -109,5 +109,19 @@ describe('glyph-таблицы', () => {
     expect(formatAriaBinding({ binding: { mod: true, code: 'ArrowDown' }, platform: 'mac' })).toBe(
       'Meta+ArrowDown',
     );
+  });
+});
+
+describe('одиночная клавиша (без аккорда)', () => {
+  it('formatKeyCapGlyph: визуальный глиф', () => {
+    expect(formatKeyCapGlyph('Escape')).toBe('Esc');
+    expect(formatKeyCapGlyph('Enter')).toBe('↵');
+    expect(formatKeyCapGlyph('KeyK')).toBe('K');
+  });
+
+  it('formatAriaKey: aria-значение', () => {
+    expect(formatAriaKey('Escape')).toBe('Escape');
+    expect(formatAriaKey('Enter')).toBe('Enter');
+    expect(formatAriaKey('KeyK')).toBe('K');
   });
 });

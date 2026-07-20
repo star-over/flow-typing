@@ -1,24 +1,34 @@
 <script lang="ts">
+  import type { KeyCapId } from '@/interfaces/key-cap-id';
   import type { KeyBinding } from '@/lib/commands/registry';
   import { isTouchOnlyDevice } from '@/lib/device';
-  import { formatBinding, getPlatform } from '@/lib/platform';
+  import { formatBinding, formatKeyCapGlyph, getPlatform } from '@/lib/platform';
 
-  interface Props {
-    binding: KeyBinding;
-  }
+  /**
+   * Два режима: аккорд из реестра команд (`binding` — «⌘ + ,») или голая
+   * клавиша (`code` — «Esc») для навигационных клавиш FSM (пауза/рестарт,
+   * app.machine). Синхронизация code с картой клавиш машины — ручная:
+   * машины читают свои литералы, диспетчер реестра их не обрабатывает.
+   */
+  type Props =
+    | { binding: KeyBinding; code?: never }
+    | { code: KeyCapId; binding?: never };
 
-  const { binding }: Props = $props();
+  const { binding, code }: Props = $props();
 
   // Глифы модификаторов (⌘⌥⇧) не входят в unicode-range Geist Mono —
   // рендерим --font-sans, а не --font-mono (system-ui на Mac их покрывает).
   // aria-hidden: подсказка — визуальный дубль; сочетание для AT объявлено
   // aria-keyshortcuts на триггере (кнопка/пункт меню).
-  const parts = $derived(formatBinding({ binding, platform: getPlatform() }));
   const touchOnly = isTouchOnlyDevice();
 
   // Одна пилюля на весь аккорд: «⌘ + ,» читается как одновременное
   // нажатие; раздельные <kbd> выглядели бы как последовательность.
-  const label = $derived(parts.join(' + '));
+  const label = $derived(
+    binding !== undefined
+      ? formatBinding({ binding, platform: getPlatform() }).join(' + ')
+      : formatKeyCapGlyph(code),
+  );
 </script>
 
 {#if !touchOnly}

@@ -11,3 +11,5 @@
 <Story name="Mod + comma" args={{ binding: { mod: true, code: 'Comma' } }} />
 <Story name="Mod + period" args={{ binding: { mod: true, code: 'Period' } }} />
 <Story name="Mod + shift + K" args={{ binding: { mod: true, shift: true, code: 'KeyK' } }} />
+<Story name="Bare Escape" args={{ code: 'Escape' }} />
+<Story name="Bare Enter" args={{ code: 'Enter' }} />

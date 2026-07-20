@@ -40,7 +40,8 @@ const KEY_CAP_GLYPHS: Partial<Record<KeyCapId, string>> = {
   Backspace: '⌫',
 };
 
-function formatKeyCapGlyph(code: KeyCapId): string {
+/** Глиф одиночной клавиши для визуальной подсказки ('Escape' → 'Esc', 'KeyK' → 'K'). */
+export function formatKeyCapGlyph(code: KeyCapId): string {
   if (code.startsWith('Key')) return code.slice(3);
   if (code.startsWith('Digit')) return code.slice(5);
   return KEY_CAP_GLYPHS[code] ?? code;
@@ -88,7 +89,8 @@ const ARIA_KEY_VALUES: Partial<Record<KeyCapId, string>> = {
   Backspace: 'Backspace',
 };
 
-function formatAriaKey(code: KeyCapId): string {
+/** ARIA-значение одиночной клавиши для `aria-keyshortcuts` ('Escape' → 'Escape', 'KeyK' → 'K'). */
+export function formatAriaKey(code: KeyCapId): string {
   // Буква заглавная — APG/WAI-ARIA 1.2 записывает non-modifier в верхнем
   // регистре ('Meta+Shift+K'); пунктуация — как есть ('Meta+,').
   if (code.startsWith('Key')) return code.slice(3);

@@ -2,6 +2,8 @@
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { Dictionary, SymbolLayoutId } from '@/interfaces/types';
+  import KeyHint from '@/components/ui/KeyHint.svelte';
+  import { formatAriaKey } from '@/lib/platform';
   import { inState } from '@/lib/state-utils';
 
   interface Props {
@@ -37,13 +39,25 @@
   <footer class="footer">
     <div class="actions">
       {#if state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
-        <button type="button" class="btn primary" onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}>
+        <button
+          type="button"
+          class="btn primary"
+          onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
+          aria-keyshortcuts={formatAriaKey('Enter')}
+        >
           {isSessionError ? dictionary.app.retry : dictionary.app.start_again}
+          <KeyHint code="Enter" />
         </button>
       {/if}
       {#if state.can({ type: 'RESUME' })}
-        <button type="button" class="btn success" onclick={() => send({ type: 'RESUME' })}>
+        <button
+          type="button"
+          class="btn success"
+          onclick={() => send({ type: 'RESUME' })}
+          aria-keyshortcuts={formatAriaKey('Escape')}
+        >
           {dictionary.app.resume}
+          <KeyHint code="Escape" />
         </button>
       {/if}
     </div>
@@ -76,6 +90,9 @@
   }
 
   .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
     border: 1px solid var(--color-border);
@@ -86,6 +103,16 @@
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.1s ease;
+  }
+
+  /* Подсказка на плотной цветной кнопке — без своей плашки: контур и текст
+     наследуются, иначе светлый бейдж спорит с заливкой кнопки. */
+  .btn.primary :global(.key-hint),
+  .btn.success :global(.key-hint) {
+    background: transparent;
+    border-color: currentColor;
+    color: inherit;
+    opacity: 0.85;
   }
 
   .btn:hover {
