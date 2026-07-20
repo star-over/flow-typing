@@ -129,6 +129,11 @@
     background: var(--color-surface-hover);
   }
 
+  .btn:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
+
   .btn.primary {
     background: var(--color-primary-background);
     color: var(--color-background);

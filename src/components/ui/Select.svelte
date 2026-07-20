@@ -61,9 +61,9 @@
     background-image: none;
   }
 
-  .select:focus {
-    outline: 2px solid var(--color-border);
-    outline-offset: 2px;
+  .select:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-border);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Mask-based стрелка: цвет тянется из токена и автоматически адаптируется к теме.

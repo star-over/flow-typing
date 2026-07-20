@@ -166,6 +166,11 @@
     opacity: 0.5;
   }
 
+  .text-input:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
+
   .hint {
     font-size: 0.75rem;
     color: var(--color-text-secondary);
@@ -184,6 +189,11 @@
 
   .btn:hover {
     background: var(--color-surface-hover);
+  }
+
+  .btn:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .danger-zone {
@@ -209,6 +219,11 @@
 
   .btn-danger:hover:not(:disabled) {
     background: var(--color-error-hover);
+  }
+
+  .btn-danger:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .btn-danger:disabled,

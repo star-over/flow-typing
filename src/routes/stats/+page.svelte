@@ -284,4 +284,9 @@
   .btn:hover {
     background: var(--color-surface-hover);
   }
+
+  .btn:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
 </style>

@@ -76,11 +76,21 @@
     background: var(--color-surface-hover);
   }
 
+  .answer:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
+
   .dismiss {
     color: var(--color-text-secondary);
     background: none;
     border: none;
     cursor: pointer;
+  }
+
+  .dismiss:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .thanks {

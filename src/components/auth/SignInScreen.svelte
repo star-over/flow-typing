@@ -101,7 +101,7 @@
   .sign-in-screen {
     background: var(--color-surface);
     padding: var(--spacing-8);
-    border-radius: var(--radius-md, 0.5rem);
+    border-radius: var(--radius-4);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
@@ -133,6 +133,11 @@
   .sign-in-screen__btn-google:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  .sign-in-screen__btn-google:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
   }
 
   /* Dev-инструмент (ADR 0012): сознательно вне theme-контракта — кнопка живёт

@@ -169,7 +169,7 @@
     <!-- ТЕКУЩИЙ кластер (живой, всегда виден): предъявляется лёгким scale+fade.
          Ключ на уровне группы — новый набор монтируется целиком, даже при смене пальца. -->
     {#key advanceKey}
-      <div class="cluster-group">
+      <div>
         {#each FINGER_IDS_FOR_RENDER as fingerId (fingerId)}
           {#if handsScene[fingerId].navigationRole === 'TARGET'}
             {@const keyboardScene = createKeyboardSceneForFinger({ fingerId, handsScene, fingerLayout, physicalLayout })}
@@ -214,7 +214,7 @@
     {#if outgoingHandsScene}
       {#key advanceKey}
         <div
-          class="cluster-group cluster-ghost"
+          class="cluster-ghost"
           class:reduced={reduceMotion}
           style:--cluster-ghost-duration="{CLUSTER_FADE_OUT_MS}ms"
         >

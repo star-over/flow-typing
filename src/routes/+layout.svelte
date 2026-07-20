@@ -287,6 +287,11 @@
     border-color: var(--color-text-primary);
   }
 
+  .app-error__action:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
+
   /* Header — slim top bar (sibling, не внутри центрирующего padding'а контента). */
   .main {
     flex: 1;

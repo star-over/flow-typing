@@ -62,4 +62,9 @@
   .keyboard-required__action:hover {
     border-color: var(--color-text-primary);
   }
+
+  .keyboard-required__action:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-text-primary);
+    outline-offset: var(--focus-ring-offset);
+  }
 </style>
