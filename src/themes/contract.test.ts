@@ -4,6 +4,7 @@ import { resolve, join } from 'node:path';
 
 import { THEMES } from './registry';
 import { ROLE_DICTIONARY } from './roles';
+import { parseRootTokens, parseRawDeclarations } from './parse-theme-css';
 
 /**
  * Контракт-тест двухслойной модели (ADR 0029, после растворения L3).
@@ -39,53 +40,6 @@ const LOCAL_VAR_EXCEPTIONS = new Set(['--keycap-unit', '--avatar-size']);
 const ROLE_SET = new Set<string>(ROLE_DICTIONARY);
 const REQUIRED_THEMES = ['sepia', 'light', 'dark', 'nord'] as const;
 const TEMPLATE_SELECTOR = ':root[data-theme="__TEMPLATE__"]';
-
-function stripComments(src: string): string {
-  // Убираем CSS-комментарии: их текст может содержать `имя: значение;` (пояснение
-  // к роли), и жадное сопоставление проглотило бы соседнюю реальную декларацию.
-  return src.replace(/\/\*[\s\S]*?\*\//g, '');
-}
-
-/** Тело блока `<selector> { ... }` (без внешних фигурных скобок), учитывая вложенность. */
-function selectorBody(src: string, selector: string, path: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const selectorRe = new RegExp(escaped + '\\s*\\{', 'g');
-  const match = selectorRe.exec(src);
-  if (!match) throw new Error(`Selector ${selector} { ... } not found in ${path}`);
-  const open = match.index + match[0].length - 1;
-  let depth = 1;
-  let i = open + 1;
-  while (depth > 0 && i < src.length) {
-    if (src[i] === '{') depth++;
-    else if (src[i] === '}') depth--;
-    i++;
-  }
-  return src.slice(open + 1, i - 1);
-}
-
-/** map `property → value` (последнее определение побеждает). */
-function parseRootTokens(path: string, selector: string): Record<string, string> {
-  const body = selectorBody(stripComments(readFileSync(path, 'utf-8')), selector, path);
-  const out: Record<string, string> = {};
-  const decl = /([a-zA-Z-][\w-]*)\s*:\s*([^;]+);/g;
-  for (const m of body.matchAll(decl)) {
-    const [, name, value] = m;
-    if (name && value) out[name] = value.trim();
-  }
-  return out;
-}
-
-/** dup-preserving: пары `[name, value]` в исходном порядке (для обнаружения дублей). */
-function parseRawDeclarations(path: string, selector: string): [string, string][] {
-  const body = selectorBody(stripComments(readFileSync(path, 'utf-8')), selector, path);
-  const out: [string, string][] = [];
-  const decl = /([a-zA-Z-][\w-]*)\s*:\s*([^;]+);/g;
-  for (const m of body.matchAll(decl)) {
-    const [, name, value] = m;
-    if (name && value) out.push([name, value.trim()]);
-  }
-  return out;
-}
 
 function themePath(id: string): string {
   return resolve(themesDir, `${id}.css`);
@@ -141,7 +95,7 @@ describe('L2 role dictionary — declaration', () => {
 
   for (const t of targets) {
     it(`'${t.id}' declares every role in ROLE_DICTIONARY`, () => {
-      const tokens = parseRootTokens(t.path, t.selector);
+      const tokens = parseRootTokens({ path: t.path, selector: t.selector });
       for (const role of ROLE_DICTIONARY) {
         expect(tokens, `'${t.id}' is missing role ${role}`).toHaveProperty(role);
       }
@@ -150,7 +104,7 @@ describe('L2 role dictionary — declaration', () => {
 
   it('every theme declares its registered color-scheme', () => {
     for (const t of THEMES) {
-      const tokens = parseRootTokens(themePath(t.id), themeSelector(t.id));
+      const tokens = parseRootTokens({ path: themePath(t.id), selector: themeSelector(t.id) });
       expect(tokens['color-scheme'], `'${t.id}' color-scheme`).toBe(t.colorScheme);
     }
   });
@@ -167,7 +121,7 @@ describe('layer discipline (real themes)', () => {
   const L2_FORM = /^(var\(|oklch\(from var\()/;
 
   for (const id of REQUIRED_THEMES) {
-    const tokens = parseRootTokens(themePath(id), themeSelector(id));
+    const tokens = parseRootTokens({ path: themePath(id), selector: themeSelector(id) });
 
     it(`'${id}': L1 core tokens carry no var() (also catches non-fully-stripped L3)`, () => {
       for (const [name, value] of Object.entries(tokens)) {
@@ -196,7 +150,7 @@ describe('themes: referenced --color-* roles are declared in the same theme', ()
 
   for (const t of THEMES) {
     it(`'${t.id}': every referenced --color-* is declared`, () => {
-      const tokens = parseRootTokens(themePath(t.id), themeSelector(t.id));
+      const tokens = parseRootTokens({ path: themePath(t.id), selector: themeSelector(t.id) });
       const declared = new Set(Object.keys(tokens).filter((k) => k.startsWith('--color-')));
       for (const value of Object.values(tokens)) {
         for (const m of value.matchAll(varColorRe)) {
@@ -213,7 +167,7 @@ describe('themes: referenced --color-* roles are declared in the same theme', ()
 describe('themes: no duplicate names, no var() cycles', () => {
   for (const id of REQUIRED_THEMES) {
     it(`'${id}': no duplicate custom-property names`, () => {
-      const decls = parseRawDeclarations(themePath(id), themeSelector(id));
+      const decls = parseRawDeclarations({ path: themePath(id), selector: themeSelector(id) });
       const seen = new Set<string>();
       const duplicates: string[] = [];
       for (const [name] of decls) {
@@ -225,7 +179,7 @@ describe('themes: no duplicate names, no var() cycles', () => {
     });
 
     it(`'${id}': no var() reference cycles`, () => {
-      const tokens = parseRootTokens(themePath(id), themeSelector(id));
+      const tokens = parseRootTokens({ path: themePath(id), selector: themeSelector(id) });
       const refRe = /var\(\s*(--[a-z0-9-]+)/g;
       const graph = new Map<string, string[]>();
       for (const [name, value] of Object.entries(tokens)) {
