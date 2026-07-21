@@ -7,21 +7,15 @@
  * Движение и цель красятся оттенком пальца-владельца (ADR 0028): на тёмном фоне
  * архитектура перевёрнута — цель это светлая заливка (L0.72) с тёмным символом.
  *
- * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
+ * ДВА СЛОЯ (ADR 0029; эталон структуры — sepia):
  *
  *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
  *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый
- *      цвет. Значения перенесены из прежнего dark 1:1, токены сгруппированы по смыслу (механика, без пересмотра
- *      значений) — отсюда её размер; сокращение — отдельная задача.
+ *      цвет. Палитра сведена к базам (ADR 0034): лестницы поверхностей и текста
+ *      выводятся в ролях, холодная ветка 280° сведена к --iris.
  *   2. РОЛИ — семантика, фиксированный словарь имён (73, общий для всех тем).
  *      Роль — маппинг на ядро или калькуляция от него либо от другой роли
  *      (`oklch(from …)`); новых абсолютов нет.
- *   3. КОНТРАКТ КОМПОНЕНТОВ — `var()` на роли + структурные литералы (геометрия:
- *      числа width/offset/blur/spread, `solid`/`dashed`, `inset`, единицы).
- *      Запрещён любой цветовой литерал (`oklch()`/`rgb()`/hex/именованные) —
- *      каждый цветовой слот только `var()` на роль; единственный whitelist —
- *      `transparent`. Слой совпадает с sepia дословно: различия тем живут
- *      в слоях 1–2.
  *
  * Правило границы: цвет заводится в ядре, смысл — в роли, компонент только
  * ссылается. Так тема перекрашивается из ядра, а не правкой 200 строк.
@@ -33,28 +27,17 @@
    * СЛОЙ 1 · ЯДРО — приватная палитра dark (только абсолютные значения)
    * ============================================================ */
 
-  /* Основа: тёмный сланец и светлый снег. */
-  --slate       : oklch(0.14 0 0);     /* фон */
-  --slate-surface: oklch(0.20 0 0);    /* поверхность */
-  --slate-hover : oklch(0.25 0 0);     /* hover поверхности */
-  --slate-border-base: oklch(0.30 0 0);     /* базовая граница */
-  --slate-border: oklch(0.35 0.01 280); /* граница аватара/меню */
-  --menu-fill   : oklch(0.18 0.01 280); /* выпуклое меню */
+  /* Основа: тёмный сланец, лестница поверхностей выводится в ролях. */
+  --slate: oklch(0.14 0 0);  /* фон */
 
-  --snow        : oklch(0.96 0 0);     /* основной текст */
-  --snow-soft   : oklch(0.72 0 0);     /* вторичный текст */
-  --snow-faint  : oklch(0.62 0 0);     /* приглушённый текст */
-  --on-dense-ink: oklch(0.15 0 0);     /* тёмный текст на светлой плотной заливке */
-  --cursor-ink: oklch(0.14 0 0);     /* тёмный текст на янтаре: каретка, CTA, курсор */
+  /* Снег — основа лестницы текста, ступени выводятся в ролях. */
+  --snow: oklch(0.96 0 0);  /* основной текст */
 
   /* Акценты — по одному на смысл. */
-  --amber      : oklch(0.72 0.16 70);   /* бренд: каретка логотипа, CTA, курсор */
-  --amber-hover: oklch(0.66 0.16 70);   /* hover CTA */
-  --clay       : oklch(0.66 0.15 32);   /* снос темпа ритма — мягкий красный, off-brand (решение 4) */
-  --green      : oklch(0.76 0.19 150);  /* успех */
-  --red        : oklch(0.70 0.21 25);   /* ошибка набора */
-  --red-deep   : oklch(0.65 0.20 20);   /* ошибка пальца */
-  --error-ink  : oklch(0.97 0 20);      /* текст на заливке ошибки */
+  --amber: oklch(0.72 0.16 70);   /* бренд: каретка логотипа, CTA, курсор */
+  --clay : oklch(0.66 0.15 32);   /* снос темпа ритма — мягкий красный, off-brand (решение 4) */
+  --green: oklch(0.76 0.19 150);  /* успех */
+  --red  : oklch(0.70 0.21 25);   /* ошибка набора */
 
   /* Пальцы — оттенки общие для всех тем (база sepia): большой тёплый, дальше
      холодный веер teal→синий→пурпур→фуксия. Средний h250 (синий) вне
@@ -65,37 +48,26 @@
   --finger-4: oklch(0.74 0.12 295);    /* безымянный — пурпур */
   --finger-5: oklch(0.70 0.16 340);    /* мизинец — фуксия */
 
-  /* База и покой пальца. */
-  --cream: oklch(0.30 0.02 75);        /* база пальца = неактивный */
-  --mist : oklch(0.25 0.02 260);       /* палец в покое */
+  /* База пальца: «неактивен» исторически совпадает с базой (тёплый cream);
+     покой пальца выводится в ролях — холодный близнец той же светлоты. */
+  --cream: oklch(0.30 0.02 75);   /* база пальца = неактивный */
 
-  /* Навигация: заливка цели по пальцу в слое ролей (светлая на тёмном + тёмный
-     символ); направляющая и тело бусины нейтральны (решения 6-7). */
-  --bead: oklch(0.88 0 0);  /* тело бусины — нейтральная (светлая на тёмном) */
+  /* Статусы символов в потоке — сдержанные, темнее акцентов. Correct/corrected/
+     many-errors выводятся из исходов (green/red) в ролях; честного источника
+     у steel и ochre нет — остаются в ядре. */
+  --steel: oklch(0.70 0.03 257);  /* pending — серо-синий */
+  --ochre: oklch(0.82 0.13 95);   /* один промах — золото-warning, разведён с брендом-янтарём h70 (ADR 0030) */
 
-  /* Статусы символов в потоке. */
-  --steel  : oklch(0.70 0.03 257);     /* pending — серо-синий */
-  --pine   : oklch(0.78 0.11 151);     /* correct — зелёный */
-  --brick  : oklch(0.75 0.15 10);      /* corrected — кирпичный */
-  --ochre  : oklch(0.82 0.13 95);      /* один промах — золото-warning, разведён с брендом-янтарём h70 (ADR 0030) */
-  --crimson: oklch(0.72 0.20 17);      /* много ошибок — глубокий красный */
+  /* Клавиши: метка и маркер — холодное navy. Тон и кромка групп выводятся из
+     оттенка пальца в слое ролей (эхо пальца — как в sepia). Группа 1 (большой
+     палец) нейтральна: тон и кромка выводятся от --slate в роли. */
+  --navy     : oklch(0.78 0.08 241);
+  --navy-deep: oklch(0.85 0.04 266);
 
-  /* Клавиши: метка и маркер — холодное navy; тона групп — приглушённое эхо
-     пальца под альфой 0.7, кромки плотнее. Группа 1 (большой палец)
-     нейтральна. */
-  --navy         : oklch(0.78 0.08 241);
-  --navy-deep    : oklch(0.85 0.04 266);
-  --keycap-tint-1: oklch(0.22 0 0 / 0.7);  /* нейтральный тон группы большого пальца */
-  --keycap-edge-1: oklch(0.40 0 0);        /* нейтральная кромка группы большого пальца */
-
-  /* Холодная ветка 280° — экран входа, меню, аватар, ссылки, инициалы. */
-  --link-ink      : oklch(0.70 0.08 280);
-  --link-ink-hover: oklch(0.85 0.1 280);
-  --avatar-fill   : oklch(0.35 0.04 280);
-  --avatar-ink    : oklch(0.92 0.05 280);
-
-  /* Нейтральный hover плотной primary-кнопки: видимое направление на светлой заливке. */
-  --primary-hover : oklch(0.88 0 0);
+  /* Холодная ветка 280° — экран входа, меню, аватар: hover плотной кнопки,
+     ссылки, инициалы, плашка аватара. Значение — прежний --avatar-fill,
+     остальные точки ветки выводятся от него в ролях (ADR 0034). */
+  --iris: oklch(0.35 0.04 280);
 
   /* ============================================================
    * СЛОЙ 2 · РОЛИ — семантика (словарь 73: маппинг на ядро или
@@ -104,31 +76,35 @@
 
   /* --- Поверхности: лестница сланца вниз --- */
   --color-background    : var(--slate);
-  --color-surface-raised: var(--menu-fill);   /* выпуклая: меню поверх фона */
-  --color-surface       : var(--slate-surface);
-  --color-surface-hover : var(--slate-hover);
-  --color-border        : var(--slate-border-base);
+  --color-surface-raised: oklch(from var(--iris) 0.18 0.01 h); /* выпуклая: меню поверх фона */
+  --color-surface       : oklch(from var(--slate) calc(l + 0.06) c h);
+  --color-surface-hover : oklch(from var(--slate) calc(l + 0.11) c h);
+  --color-border        : oklch(from var(--slate) calc(l + 0.16) c h);
 
   /* --- Текст: лестница снега вверх (primary — самые плотные) --- */
   --color-text-primary  : var(--snow);
-  --color-text-secondary: var(--snow-soft);
-  --color-text-muted    : var(--snow-faint);
+  --color-text-secondary: oklch(from var(--snow) calc(l - 0.24) c h);
+  --color-text-muted    : oklch(from var(--snow) calc(l - 0.34) c h);
 
   /* --- Тёмный текст/символ на плотной заливке (единая роль, ADR 0029) --- */
-  --color-on-dense: var(--on-dense-ink);
+  --color-on-dense: oklch(from var(--slate) calc(l + 0.01) c h);
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background: var(--color-text-primary);
-  --color-primary-hover     : var(--primary-hover);
+  /* --bead и --primary-hover несли одно и то же значение oklch(0.88 0 0) —
+     это не сведение, а устранение дубля: координаты не меняются. */
+  --color-primary-hover     : oklch(from var(--snow) calc(l - 0.08) c h);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 280°) --- */
-  --color-ink-strong: var(--avatar-ink);   /* был цвет инициалов аватара */
-  --color-link      : var(--link-ink);     /* была ссылка гостя в меню */
-  --color-link-hover: var(--link-ink-hover);
+  --color-ink-strong: oklch(from var(--iris) 0.92 0.05 h);   /* был цвет инициалов аватара */
+  --color-link      : oklch(from var(--iris) 0.70 0.08 h);   /* была ссылка гостя в меню */
+  --color-link-hover: oklch(from var(--iris) 0.85 0.1 h);
 
-  /* --- Плашки с акцентом (аватар, обвязка меню) --- */
-  --color-surface-accent: var(--avatar-fill);  /* была плашка аватара */
-  --color-border-accent : var(--slate-border); /* была граница user-menu */
+  /* --- Плашки с акцентом (аватар, обвязка меню) ---
+     Сводить --slate-border с --avatar-fill нельзя, хотя ΔE ≈ 0.03: они питают
+     защищённую пару (граница/плашка), сведение стёрло бы границу аватара. */
+  --color-surface-accent: var(--iris);                          /* была плашка аватара */
+  --color-border-accent : oklch(from var(--iris) 0.35 0.01 h);  /* была граница user-menu */
 
   /* --- Исходы --- */
   --color-success    : var(--green);
@@ -176,8 +152,8 @@
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
   --color-finger-inactive: var(--cream);      /* исторически = базе пальца */
-  --color-finger-idle    : var(--mist);
-  --color-finger-error   : var(--red-deep);
+  --color-finger-idle    : oklch(from var(--cream) calc(l - 0.05) c 260);  /* холодный близнец той же светлоты */
+  --color-finger-error   : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h - 5));  /* темнее и холоднее ошибки набора */
 
   /* --- Домен · тихая направляющая --- */
   /* Линия дом→цель и якоря сцены. Идентичность пальца несут маркеры движения
@@ -187,24 +163,26 @@
   /* Тело бегущей бусины нейтрально (решение 6, как sepia): идентичность пальца
      держат маркеры движения (след/ободок), не тело (блик/терминатор выводит
      компонент). */
-  --color-marker-core: var(--bead);
+  /* --bead и --primary-hover несли одно и то же значение oklch(0.88 0 0) —
+     дубль устранён, ядровое имя по роли снято, координаты не изменились. */
+  --color-marker-core: oklch(from var(--snow) calc(l - 0.08) c h);
 
   /* --- Домен · акцент бренда --- */
   /* Янтарь — знак бренда: каретка логотипа, CTA, курсор потока. Здесь же
      сошлись бывшие target-marker и landing-cta-hover. */
   --color-brand-accent      : var(--amber);
-  --color-brand-accent-hover: var(--amber-hover);
+  --color-brand-accent-hover: oklch(from var(--amber) calc(l - 0.06) c h);
 
   /* --- Домен · статусы символа в потоке --- */
   --color-symbol-pending    : var(--steel);
-  --color-symbol-correct    : var(--pine);
-  --color-symbol-corrected  : var(--brick);
+  --color-symbol-correct    : oklch(from var(--green) 0.78 0.11 calc(h + 1));
+  --color-symbol-corrected  : oklch(from var(--red) 0.75 0.15 calc(h - 15));
   --color-symbol-one-error  : var(--ochre);
-  --color-symbol-many-errors: var(--crimson);
+  --color-symbol-many-errors: oklch(from var(--red) 0.72 0.2 calc(h - 8));
 
   /* --- Домен · блок курсора --- */
   --color-cursor-background: var(--color-brand-accent);  /* курсор держится на янтаре бренда */
-  --color-cursor-foreground: var(--cursor-ink);          /* тёмное на янтаре — как каретка логотипа и CTA */
+  --color-cursor-foreground: var(--slate);               /* тёмное на янтаре — как каретка логотипа и CTA */
 
   /* --- Домен · клавиша, база --- */
   --color-keycap-label : var(--navy);
@@ -213,8 +191,8 @@
   /* --- Домен · группы клавиш (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) ---
      Тон клавиши — приглушённое эхо пальца под альфой 0.7, кромка плотнее;
      группа 1 нейтральна. */
-  --color-keycap-group-1-background: var(--keycap-tint-1);
-  --color-keycap-group-1-border    : var(--keycap-edge-1);
+  --color-keycap-group-1-background: oklch(from var(--slate) calc(l + 0.08) c h / 0.7);
+  --color-keycap-group-1-border    : oklch(from var(--slate) calc(l + 0.26) c h);
   --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.24 0.035 h / 0.7);
   --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.50 0.08 h);
   --color-keycap-group-3-background: oklch(from var(--color-finger-3) 0.24 0.035 h / 0.7);
@@ -235,6 +213,9 @@
   --color-keycap-correct-background: oklch(from var(--green) 0.68 0.11 h / 0.8);
   --color-keycap-correct-border    : oklch(from var(--green) calc(l - 0.01) c h);
   --color-keycap-error-background  : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h + 5) / 0.8);
-  --color-keycap-error-foreground  : var(--error-ink);
+  /* Было oklch(0.97 0 20) (--error-ink) — почти белый текст на заливке ошибки
+     отличался от --snow на ±0.01 l, визуально неразличимо (ΔE 0.01); сведено
+     к --snow, контраст к подложкам не просел (совпадает с --color-text-primary). */
+  --color-keycap-error-foreground  : var(--snow);
   --color-keycap-error-border      : oklch(from var(--red) calc(l + 0.02) calc(c - 0.04) calc(h - 5));
 }
