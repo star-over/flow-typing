@@ -10,21 +10,15 @@
  * безымянный пурпур h295, мизинец фуксия h340; светлоты/хрома подобраны под
  * фон Polar Night. Aurora остаётся семантике (успех/ошибка) и бренду.
  *
- * ТРИ СЛОЯ (ADR 0029; эталон структуры — sepia):
+ * ДВА СЛОЯ (ADR 0029; эталон структуры — sepia):
  *
  *   1. ЯДРО — приватная палитра темы. Имена и количество произвольны, значения
  *      ТОЛЬКО абсолютные. Это единственное место, где в теме появляется новый
- *      цвет. Значения перенесены из прежнего nord 1:1, токены сгруппированы по
- *      смыслу (механика, без пересмотра значений).
+ *      цвет. Палитра сведена к базам (ADR 0034): лестницы поверхностей (Polar
+ *      Night) и текста (Snow Storm) выводятся в ролях.
  *   2. РОЛИ — семантика, фиксированный словарь имён (73, общий для всех тем).
  *      Роль — маппинг на ядро или калькуляция от него либо от другой роли
  *      (`oklch(from …)`); новых абсолютов нет.
- *   3. КОНТРАКТ КОМПОНЕНТОВ — `var()` на роли + структурные литералы (геометрия:
- *      числа width/offset/blur/spread, `solid`/`dashed`, `inset`, единицы).
- *      Запрещён любой цветовой литерал (`oklch()`/`rgb()`/hex/именованные) —
- *      каждый цветовой слот только `var()` на роль; единственный whitelist —
- *      `transparent`. Слой совпадает с sepia дословно: различия тем живут
- *      в слоях 1–2.
  *
  * Правило границы: цвет заводится в ядре, смысл — в роли, компонент только
  * ссылается. Так тема перекрашивается из ядра, а не правкой 200 строк.
@@ -36,25 +30,16 @@
    * СЛОЙ 1 · ЯДРО — приватная палитра nord (только абсолютные значения)
    * ============================================================ */
 
-  /* Основа: Polar Night — лестница тёмных поверхностей вниз. */
-  --polar-night-1: oklch(0.32 0.02 254);  /* фон */
-  --polar-night-2: oklch(0.38 0.02 254);  /* поверхность */
-  --polar-night-3: oklch(0.44 0.02 254);  /* hover поверхности */
-  --polar-night-4: oklch(0.50 0.02 254);  /* базовая граница */
-  --menu-fill    : oklch(0.33 0.02 254);  /* выпуклое меню */
+  /* Основа: Polar Night — лестница тёмных поверхностей выводится в ролях. */
+  --polar-night: oklch(0.32 0.02 254);  /* фон */
 
-  /* Текст: Snow Storm — лестница светлых чернил вверх. */
-  --snow-storm-1: oklch(0.95 0.01 234);  /* основной текст */
-  --snow-storm-2: oklch(0.85 0.01 234);  /* вторичный текст */
-  --snow-storm-3: oklch(0.75 0.01 240);  /* приглушённый текст */
+  /* Текст: Snow Storm — лестница светлых чернил выводится в ролях. */
+  --snow-storm: oklch(0.95 0.01 234);  /* основной текст */
 
-  /* Акценты: Aurora — по одному на смысл. */
-  --aurora-red      : oklch(0.65 0.13 25);
-  --aurora-red-dim  : oklch(0.65 0.13 25 / 0.2);
-  --aurora-orange   : oklch(0.72 0.09 50);   /* бренд-акцент hover-веха */
-  --aurora-orange-hover: oklch(0.66 0.09 50);
-  --aurora-green    : oklch(0.78 0.07 130);
-  --aurora-green-dim: oklch(0.78 0.07 130 / 0.2);
+  /* Акценты: Aurora — по одному на смысл; dim/hover-ступени выводятся в ролях. */
+  --aurora-red   : oklch(0.65 0.13 25);
+  --aurora-orange: oklch(0.72 0.09 50);   /* бренд-акцент hover-веха */
+  --aurora-green : oklch(0.78 0.07 130);
 
   /* Пальцы — оттенки общие для всех тем (база sepia): большой тёплый, дальше
      холодный веер teal→синий→пурпур→фуксия. Средний h250 (синий) вне
@@ -76,30 +61,10 @@
      нейтральна (решение 7). */
   --bead: oklch(0.88 0 0);  /* тело бусины — нейтральная */
 
-  /* Курсор потока — янтарный бренд-акцент; foreground тёмный. */
-  --cursor-background: oklch(0.77 0.16 70);
-  --cursor-foreground: oklch(0.14 0 0);
-
-  /* Холодная ветка 254° — экран входа, меню, аватар, ссылки, инициалы. */
-  --primary-hover : oklch(0.88 0.01 234);
-  --link-ink      : oklch(0.75 0.06 254);
-  --link-ink-hover: oklch(0.88 0.08 250);
-  --avatar-fill   : oklch(0.45 0.04 254);
-  --avatar-ink    : oklch(0.94 0.02 234);
-  --on-dense-ink  : oklch(0.32 0.02 254);  /* тёмный текст на светлой плотной заливке */
-
-  /* Статусы символов в потоке. */
-  --symbol-pending: oklch(0.78 0.01 240);
-
-  /* Клавиши: метка и маркер. */
-  --keycap-label : oklch(0.87 0.01 240);
-  --keycap-marker: oklch(0.95 0.01 234);
-
-  /* Тона групп — приглушённое эхо пальца под альфой 0.7, кромки плотнее;
-     группа 1 нейтральна. */
-  --keycap-tint-1: oklch(0.40 0.02 254 / 0.7);  /* нейтральный тон группы большого пальца (холодный Polar Night) */
-  --keycap-edge-1: oklch(0.55 0.02 254);        /* нейтральная кромка группы большого пальца */
-
+  /* Курсор потока — честно ни из чего не выводится (свой акцент, не Aurora),
+     остаётся абсолютом; имя по содержимому. */
+  --amber: oklch(0.77 0.16 70);  /* янтарь бренда: курсор потока */
+  --ink  : oklch(0.14 0 0);      /* тёмные чернила на янтаре */
 
   /* ============================================================
    * СЛОЙ 2 · РОЛИ — семантика (словарь 73: маппинг на ядро или
@@ -107,40 +72,42 @@
    * ============================================================ */
 
   /* --- Поверхности: лестница Polar Night вниз --- */
-  --color-background    : var(--polar-night-1);
-  --color-surface-raised: var(--menu-fill); /* выпуклая: меню поверх фона */
-  --color-surface       : var(--polar-night-2);
-  --color-surface-hover : var(--polar-night-3);
-  --color-border        : var(--polar-night-4);
+  --color-background    : var(--polar-night);
+  --color-surface-raised: oklch(from var(--polar-night) calc(l + 0.01) c h); /* выпуклая: меню поверх фона */
+  --color-surface       : oklch(from var(--polar-night) calc(l + 0.06) c h);
+  --color-surface-hover : oklch(from var(--polar-night) calc(l + 0.12) c h);
+  --color-border        : oklch(from var(--polar-night) calc(l + 0.18) c h);
 
   /* --- Текст: лестница Snow Storm вверх (primary — самые плотные) --- */
-  --color-text-primary  : var(--snow-storm-1);
-  --color-text-secondary: var(--snow-storm-2);
-  --color-text-muted    : var(--snow-storm-3);
+  --color-text-primary  : var(--snow-storm);
+  --color-text-secondary: oklch(from var(--snow-storm) calc(l - 0.10) c h);
+  --color-text-muted    : oklch(from var(--snow-storm) calc(l - 0.20) c calc(h + 6));
 
   /* --- Тёмный текст/символ на плотной заливке (единая роль, ADR 0029) --- */
-  --color-on-dense: var(--on-dense-ink);
+  --color-on-dense: var(--polar-night);
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background: var(--color-text-primary);
-  --color-primary-hover     : var(--primary-hover);
+  --color-primary-hover     : oklch(from var(--snow-storm) calc(l - 0.07) c h);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 254°) --- */
-  --color-ink-strong: var(--avatar-ink);
-  --color-link      : var(--link-ink);
-  --color-link-hover: var(--link-ink-hover);
+  /* Было --avatar-ink oklch(0.94 0.02 234), ΔE 0.0141 с --snow-storm — свели:
+     контраст на --color-surface-accent 6.25:1, запас против порога 4.5. */
+  --color-ink-strong: var(--snow-storm);  /* совпадает с --color-text-primary */
+  --color-link      : oklch(from var(--polar-night) 0.75 0.06 h);
+  --color-link-hover: oklch(from var(--polar-night) 0.88 0.08 calc(h - 4));
 
   /* --- Плашки с акцентом (аватар, обвязка меню) --- */
-  --color-surface-accent: var(--avatar-fill);
-  --color-border-accent : var(--polar-night-4);  /* акцентная граница аватара/меню совпадает с базовой границей в nord */
+  --color-surface-accent: oklch(from var(--polar-night) 0.45 0.04 h);
+  --color-border-accent : oklch(from var(--polar-night) calc(l + 0.18) c h);  /* совпадает с базовой границей в nord */
 
   /* --- Исходы --- */
   --color-success    : var(--aurora-green);
   --color-success-hover: oklch(from var(--color-success) calc(l - 0.06) c h);  /* зеркало --color-error-hover */
-  --color-success-dim: var(--aurora-green-dim);
+  --color-success-dim: oklch(from var(--aurora-green) l c h / 0.2);
   --color-error      : var(--aurora-red);
   --color-error-hover: oklch(from var(--color-error) calc(l - 0.06) c h);
-  --color-error-dim  : var(--aurora-red-dim);
+  --color-error-dim  : oklch(from var(--aurora-red) l c h / 0.2);
 
   /* Ритм «вне зоны» (снос темпа): мягче ошибки набора, но виден. Свой мягкий
      красный, отвязан от бренда (решение 4, логика sepia). */
@@ -156,7 +123,7 @@
   --color-finger-3   : var(--finger-3);  /* средний */
   --color-finger-4   : var(--finger-4);  /* безымянный */
   --color-finger-5   : var(--finger-5);  /* мизинец */
-  --color-finger-base: var(--polar-night-4);
+  --color-finger-base: oklch(from var(--polar-night) calc(l + 0.18) c h);
 
   /* --- Домен · маршрут по пальцу (ADR 0028) ---
      Кольцо пути и маркеры — оттенок пальца на L0.70: читаются на клавишах
@@ -177,14 +144,14 @@
   --color-gap     : var(--color-background);
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
-  --color-finger-inactive: var(--polar-night-4);
-  --color-finger-idle    : var(--polar-night-3);
+  --color-finger-inactive: oklch(from var(--polar-night) calc(l + 0.18) c h);
+  --color-finger-idle    : oklch(from var(--polar-night) calc(l + 0.12) c h);
   --color-finger-error   : var(--aurora-red);
 
   /* --- Домен · тихая направляющая --- */
   /* Нейтральный серо-холодный (из Snow Storm, решение 7): молчит, не сливается
      с синим пальцем (frost-cyan h250 совпадал с ним по оттенку). */
-  --color-guide: oklch(from var(--snow-storm-1) 0.66 c h);
+  --color-guide: oklch(from var(--snow-storm) 0.66 c h);
 
   /* Тело бегущей бусины нейтрально (решение 6, как sepia): идентичность
      держат маркеры движения, не тело. */
@@ -192,26 +159,31 @@
 
   /* --- Домен · акцент бренда --- */
   --color-brand-accent      : var(--aurora-orange);
-  --color-brand-accent-hover: var(--aurora-orange-hover);
+  --color-brand-accent-hover: oklch(from var(--aurora-orange) calc(l - 0.06) c h);
 
   /* --- Домен · статусы символа в потоке --- */
-  --color-symbol-pending   : var(--symbol-pending);
-  --color-symbol-correct   : var(--aurora-green);
-  --color-symbol-corrected : var(--aurora-orange);
-  --color-symbol-one-error : var(--gold);
+  /* Было --symbol-pending oklch(0.78 0.01 240), ΔE 0.0300 с --color-text-muted —
+     свели: контраст к фону сцены (не composite) 6.34:1, запас против порога 4.5. */
+  --color-symbol-pending    : oklch(from var(--snow-storm) calc(l - 0.20) c calc(h + 6));  /* совпадает с --color-text-muted */
+  --color-symbol-correct    : var(--aurora-green);
+  --color-symbol-corrected  : var(--aurora-orange);
+  --color-symbol-one-error  : var(--gold);
   --color-symbol-many-errors: var(--aurora-red);
 
   /* --- Домен · блок курсора --- */
-  --color-cursor-background: var(--cursor-background);
-  --color-cursor-foreground: var(--cursor-foreground);
+  --color-cursor-background: var(--amber);
+  --color-cursor-foreground: var(--ink);
 
   /* --- Домен · клавиша, база --- */
-  --color-keycap-label : var(--keycap-label);
-  --color-keycap-marker: var(--keycap-marker);
+  /* Было --keycap-label oklch(0.87 0.01 240), ΔE 0.0200 с --color-text-secondary —
+     свели: метка лежит на заливке клавиши, контраст к keycap-group-N-background
+     (composite@background) 6.78–7.01:1, запас против порога 4.5 для обычного текста. */
+  --color-keycap-label : oklch(from var(--snow-storm) calc(l - 0.10) c h);  /* совпадает с --color-text-secondary */
+  --color-keycap-marker: var(--snow-storm);
 
   /* --- Домен · группы клавиш (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
-  --color-keycap-group-1-background: var(--keycap-tint-1);
-  --color-keycap-group-1-border    : var(--keycap-edge-1);
+  --color-keycap-group-1-background: oklch(from var(--polar-night) calc(l + 0.08) c h / 0.7);
+  --color-keycap-group-1-border    : oklch(from var(--polar-night) calc(l + 0.23) c h);
   --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.40 0.045 h / 0.7);
   --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.60 0.09 h);
   --color-keycap-group-3-background: oklch(from var(--color-finger-3) 0.40 0.045 h / 0.7);
@@ -229,6 +201,6 @@
   --color-keycap-correct-background: oklch(from var(--aurora-green) 0.70 0.14 h / 0.85);
   --color-keycap-correct-border    : var(--aurora-green);
   --color-keycap-error-background  : oklch(from var(--aurora-red) 0.62 0.17 h / 0.85);
-  --color-keycap-error-foreground  : oklch(from var(--snow-storm-1) 0.97 c h);
+  --color-keycap-error-foreground  : oklch(from var(--snow-storm) 0.97 c h);
   --color-keycap-error-border      : var(--aurora-red);
 }
