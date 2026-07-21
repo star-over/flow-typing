@@ -2,8 +2,8 @@
   import { getContext } from 'svelte';
   import { dictionary } from '@/lib/i18n';
   import { settings } from '@/lib/settings';
-  import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
+  import Button from '@/components/ui/Button.svelte';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import { formatSessionRow, type SessionsStore } from '@/lib/session-history/sessions-store.svelte';
   import { createProgressionStore } from '@/lib/repertoire/progression-store.svelte';
@@ -141,9 +141,9 @@
     {/if}
   {/if}
 
-  <button type="button" class="btn" onclick={() => goto(resolve('/'))}>
+  <Button variant="neutral" href={resolve('/')}>
     {$dictionary.settings.back_button}
-  </button>
+  </Button>
 </div>
 
 <style>
@@ -270,23 +270,5 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-2);
     color: var(--color-text-secondary);
-  }
-
-  .btn {
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-3);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text-primary);
-    cursor: pointer;
-  }
-
-  .btn:hover {
-    background: var(--color-surface-hover);
-  }
-
-  .btn:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
   }
 </style>
