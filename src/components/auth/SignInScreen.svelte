@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte';
+  import Button from '@/components/ui/Button.svelte';
   import { dictionary } from '@/lib/i18n';
   import type { AuthStore } from '@/lib/auth/auth-store.svelte';
   import type { OAuthProviderId } from '@/lib/auth/auth.types';
@@ -72,14 +73,13 @@
     Оговорка «провайдер = аккаунт» при одном провайдере бессмысленна → не
     рендерим (вернуть <p class="sign-in-screen__disclaimer"> вместе с провайдерами).
   -->
-  <button
-    type="button"
-    class="sign-in-screen__btn-google"
+  <Button
+    variant="primary"
     disabled={signingIn}
     onclick={() => handleSignIn('google')}
   >
     {signingIn ? $dictionary.sign_in.redirecting : $dictionary.sign_in.google}
-  </button>
+  </Button>
 
   {#if devLoginAvailable}
     <button
@@ -114,30 +114,6 @@
     color: var(--color-text-primary);
     font-size: var(--font-size-2xl);
     margin: 0;
-  }
-
-  .sign-in-screen__btn-google {
-    background: var(--color-primary-background);
-    color: var(--color-on-dense);
-    border: 1px solid var(--color-primary-border);
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-2);
-    cursor: pointer;
-    font-size: var(--font-size-md);
-  }
-
-  .sign-in-screen__btn-google:hover {
-    background: var(--color-primary-hover);
-  }
-
-  .sign-in-screen__btn-google:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .sign-in-screen__btn-google:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
   }
 
   /* Dev-инструмент (ADR 0012): сознательно вне theme-контракта — кнопка живёт
