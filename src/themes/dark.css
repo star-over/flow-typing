@@ -76,7 +76,7 @@
 
   /* --- Поверхности: лестница сланца вниз --- */
   --color-background    : var(--slate);
-  --color-surface-raised: oklch(from var(--slate) calc(l + 0.04) 0.01 280); /* выпуклая: меню поверх фона; лестница поверхностей — светлота от --slate, холодный тинт (хрома/оттенок) — литерал намеренно */
+  --color-surface-raised: oklch(from var(--slate) calc(l + 0.04) 0.01 280); /* выпуклая: меню поверх фона; лестница поверхностей — светлота от --slate, холодный оттенок (хрома/оттенок) — литерал намеренно */
   --color-surface       : oklch(from var(--slate) calc(l + 0.06) c h);
   --color-surface-hover : oklch(from var(--slate) calc(l + 0.11) c h);
   --color-border        : oklch(from var(--slate) calc(l + 0.16) c h);

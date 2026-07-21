@@ -28,7 +28,7 @@ import {
  * Список ID тем берётся с диска (`src/themes/*.css`, кроме `_template.css`),
  * а не из `THEMES` (`../themes/registry.ts`): этот модуль тянет за собой
  * `@/lib/settings` → `$app/environment` — виртуальный модуль SvelteKit,
- * которого нет вне сборки Vite, и который поэтому не резолвится при
+ * которого нет вне сборки Vite, и который поэтому невозможно загрузить при
  * нативном запуске TS через Node. Эквивалентность списка с `THEMES`
  * зафиксирована `contract.test.ts` («file list matches registry»).
  */

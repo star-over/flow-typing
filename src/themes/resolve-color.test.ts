@@ -131,7 +131,7 @@ describe('resolveTokens — грамматика тем', () => {
     ).toThrow();
   });
 
-  it('падает на лишнем токене после альфы', () => {
+  it('падает из-за лишнего токена после альфы', () => {
     expect(() =>
       resolveTokens({
         '--x': 'oklch(0.5 0.1 30)',
@@ -222,7 +222,7 @@ describe('deltaE — евклидово расстояние в OKLab', () => {
     expect(deltaE({ first, second })).toBeCloseTo(0.2, 6);
   });
 
-  it('при нулевой хроме сводится к разнице светлот, оттенок не влияет', () => {
+  it('при нулевой хроме сводится к разнице в светлоте, оттенок не влияет', () => {
     const first = { l: 0.98, c: 0, h: 0, alpha: 1 };
     const second = { l: 0.97, c: 0, h: 20, alpha: 1 };
     expect(deltaE({ first, second })).toBeCloseTo(0.01, 6);
