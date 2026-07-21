@@ -49,7 +49,7 @@
   --finger-5: oklch(0.70 0.16 340);    /* мизинец — фуксия */
 
   /* База пальца: «неактивен» исторически совпадает с базой (тёплый cream);
-     покой пальца выводится в ролях — холодный близнец той же светлоты. */
+     покой пальца выводится в ролях — холодный близнец на ступень темнее (calc(l - 0.05)). */
   --cream: oklch(0.30 0.02 75);   /* база пальца = неактивный */
 
   /* Статусы символов в потоке — сдержанные, темнее акцентов. Correct/corrected/
@@ -76,7 +76,7 @@
 
   /* --- Поверхности: лестница сланца вниз --- */
   --color-background    : var(--slate);
-  --color-surface-raised: oklch(from var(--iris) 0.18 0.01 h); /* выпуклая: меню поверх фона */
+  --color-surface-raised: oklch(from var(--slate) calc(l + 0.04) 0.01 280); /* выпуклая: меню поверх фона; лестница поверхностей — светлота от --slate, холодный тинт (хрома/оттенок) — литерал намеренно */
   --color-surface       : oklch(from var(--slate) calc(l + 0.06) c h);
   --color-surface-hover : oklch(from var(--slate) calc(l + 0.11) c h);
   --color-border        : oklch(from var(--slate) calc(l + 0.16) c h);
@@ -91,20 +91,20 @@
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background: var(--color-text-primary);
-  /* --bead и --primary-hover несли одно и то же значение oklch(0.88 0 0) —
-     это не сведение, а устранение дубля: координаты не меняются. */
+  /* Нейтральный hover плотной primary-кнопки: видимое направление на светлой
+     заливке — темнее базы. Совпадает с --color-marker-core. */
   --color-primary-hover     : oklch(from var(--snow) calc(l - 0.08) c h);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 280°) --- */
   --color-ink-strong: oklch(from var(--iris) 0.92 0.05 h);   /* был цвет инициалов аватара */
   --color-link      : oklch(from var(--iris) 0.70 0.08 h);   /* была ссылка гостя в меню */
-  --color-link-hover: oklch(from var(--iris) 0.85 0.1 h);
+  --color-link-hover: oklch(from var(--iris) 0.85 0.10 h);
 
   /* --- Плашки с акцентом (аватар, обвязка меню) ---
      Сводить --slate-border с --avatar-fill нельзя, хотя ΔE ≈ 0.03: они питают
      защищённую пару (граница/плашка), сведение стёрло бы границу аватара. */
   --color-surface-accent: var(--iris);                          /* была плашка аватара */
-  --color-border-accent : oklch(from var(--iris) 0.35 0.01 h);  /* была граница user-menu */
+  --color-border-accent : oklch(from var(--iris) l calc(c - 0.03) h);  /* была граница user-menu */
 
   /* --- Исходы --- */
   --color-success    : var(--green);
@@ -152,7 +152,7 @@
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
   --color-finger-inactive: var(--cream);      /* исторически = базе пальца */
-  --color-finger-idle    : oklch(from var(--cream) calc(l - 0.05) c 260);  /* холодный близнец той же светлоты */
+  --color-finger-idle    : oklch(from var(--cream) calc(l - 0.05) c 260);  /* холодный близнец, на ступень темнее базы */
   --color-finger-error   : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h - 5));  /* темнее и холоднее ошибки набора */
 
   /* --- Домен · тихая направляющая --- */
@@ -163,8 +163,6 @@
   /* Тело бегущей бусины нейтрально (решение 6, как sepia): идентичность пальца
      держат маркеры движения (след/ободок), не тело (блик/терминатор выводит
      компонент). */
-  /* --bead и --primary-hover несли одно и то же значение oklch(0.88 0 0) —
-     дубль устранён, ядровое имя по роли снято, координаты не изменились. */
   --color-marker-core: oklch(from var(--snow) calc(l - 0.08) c h);
 
   /* --- Домен · акцент бренда --- */
@@ -215,7 +213,11 @@
   --color-keycap-error-background  : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h + 5) / 0.8);
   /* Было oklch(0.97 0 20) (--error-ink) — почти белый текст на заливке ошибки
      отличался от --snow на ±0.01 l, визуально неразличимо (ΔE 0.01); сведено
-     к --snow, контраст к подложкам не просел (совпадает с --color-text-primary). */
+     к --snow. Реальная подложка метки — не плоская --color-error, а
+     полупрозрачная --color-keycap-error-background поверх --color-background
+     (`make theme-report THEME=dark`, колонка `keycap-error-background·composite@background`):
+     контраст просел с 4.68 до 4.54 при пороге 4.5 для обычного текста —
+     запас всего 0.04, известная граница. */
   --color-keycap-error-foreground  : var(--snow);
   --color-keycap-error-border      : oklch(from var(--red) calc(l + 0.02) calc(c - 0.04) calc(h - 5));
 }
