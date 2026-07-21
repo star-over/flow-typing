@@ -2,6 +2,7 @@
   import { resolve } from '$app/paths';
   import { env } from '$env/dynamic/public';
   import type { Dictionary } from '@/interfaces/types';
+  import Button from '@/components/ui/Button.svelte';
   import KeyHint from '@/components/ui/KeyHint.svelte';
   import { formatAriaTrigger, getPlatform } from '@/lib/platform';
   import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
@@ -37,10 +38,10 @@
     <div class="hero-copy">
       <h1 class="hero-title">{l.hero_title}</h1>
       <p class="tagline">{l.tagline}</p>
-      <a class="cta" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
+      <Button variant="accent" size="lg" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
         {dictionary.app.start_training}
         <KeyHint {...keyHintPropsForTrigger(trainingAction.trigger)} />
-      </a>
+      </Button>
     </div>
     <div class="hero-demo">
       <LandingHandsDemo label={l.demo_aria} />
@@ -91,10 +92,10 @@
   <section class="closing">
     <h2 class="closing-title">{l.closing_title}</h2>
     <p class="tagline">{l.closing_text}</p>
-    <a class="cta" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
+    <Button variant="accent" size="lg" href={resolve('/train')} aria-keyshortcuts={trainingAriaShortcut}>
       {dictionary.app.start_training}
       <KeyHint {...keyHintPropsForTrigger(trainingAction.trigger)} />
-    </a>
+    </Button>
   </section>
 
   <footer class="site-footer">
@@ -164,46 +165,6 @@
     color: var(--color-text-secondary);
     text-wrap: pretty;
     max-width: 34ch;
-  }
-
-  /* Primary-CTA: фирменный янтарь (как «T» в Wordmark), тёмный текст. */
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    padding: var(--spacing-3) var(--spacing-6);
-    border-radius: var(--radius-3);
-    background: var(--color-brand-accent);
-    color: var(--color-cursor-foreground);
-    border: 1px solid transparent;
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    text-decoration: none;
-    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
-      transform var(--motion-duration-fast) var(--motion-ease-standard);
-  }
-
-  /* Подсказка на плотной янтарной CTA — без своей плашки: контур и текст
-     наследуются от кнопки (как primary/success в FooterActions), иначе светлый
-     бейдж спорит с заливкой. */
-  .cta :global(.key-hint) {
-    background: transparent;
-    border-color: currentColor;
-    color: inherit;
-    opacity: 0.85;
-  }
-
-  .cta:hover {
-    background: var(--color-brand-accent-hover);
-  }
-
-  .cta:active {
-    transform: translateY(1px);
-  }
-
-  .cta:focus-visible {
-    outline: 2px solid var(--color-brand-accent);
-    outline-offset: 3px;
   }
 
   /* --- Shared section headings --- */
