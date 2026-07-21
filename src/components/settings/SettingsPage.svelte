@@ -1,5 +1,6 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
+  import Button from '@/components/ui/Button.svelte';
   import Select from '@/components/ui/Select.svelte';
   import TrainingSettingsSection from './TrainingSettingsSection.svelte';
   import type { Dictionary } from '@/interfaces/types';
@@ -89,34 +90,34 @@
   {#if onDeleteAccount !== null}
     <div class="danger-zone">
       {#if !confirming}
-        <button
+        <Button
+          variant="danger"
           type="button"
-          class="btn-danger"
           onclick={() => {
             confirming = true;
             errored = false;
           }}
         >
           {dictionary.settings.delete_account_button}
-        </button>
+        </Button>
       {:else}
         <p class="danger-warning">{dictionary.settings.delete_account_warning}</p>
         <div class="danger-actions">
-          <button type="button" class="btn-danger" disabled={deleting} onclick={confirmDelete}>
+          <Button variant="danger" type="button" disabled={deleting} onclick={confirmDelete}>
             {deleting
               ? dictionary.settings.delete_account_pending
               : dictionary.settings.delete_account_confirm}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="neutral"
             type="button"
-            class="btn btn-cancel"
             disabled={deleting}
             onclick={() => {
               confirming = false;
             }}
           >
             {dictionary.settings.delete_account_cancel}
-          </button>
+          </Button>
         </div>
       {/if}
       {#if errored}
@@ -176,26 +177,6 @@
     color: var(--color-text-secondary);
   }
 
-  .btn {
-    margin-top: var(--spacing-4);
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-3);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text-primary);
-    cursor: pointer;
-    align-self: flex-start;
-  }
-
-  .btn:hover {
-    background: var(--color-surface-hover);
-  }
-
-  .btn:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
-  }
-
   .danger-zone {
     margin-top: var(--spacing-6);
     padding-top: var(--spacing-6);
@@ -206,40 +187,9 @@
     align-items: flex-start;
   }
 
-  .btn-danger {
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-3);
-    border: 1px solid var(--color-error);
-    background: var(--color-error);
-    color: var(--color-on-dense);
-    cursor: pointer;
-    align-self: flex-start;
-    font: inherit;
-  }
-
-  .btn-danger:hover:not(:disabled) {
-    background: var(--color-error-hover);
-  }
-
-  .btn-danger:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
-  }
-
-  .btn-danger:disabled,
-  .btn-cancel:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
-
   .danger-actions {
     display: flex;
     gap: var(--spacing-3);
-  }
-
-  /* В danger-actions кнопки в один ряд — снимаем top-margin базовой .btn. */
-  .btn-cancel {
-    margin-top: 0;
   }
 
   .danger-warning {
