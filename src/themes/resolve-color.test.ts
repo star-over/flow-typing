@@ -129,6 +129,75 @@ describe('resolveTokens — грамматика тем', () => {
       }),
     ).toThrow();
   });
+
+  it('падает на лишнем токене после альфы', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) l c h / 0.5 0.7)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на двойном слэше альфы', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) l c h / 0.5 / 0.7)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на делении на ноль в calc (оттенок становится NaN)', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) calc(h / 0) c h)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на делении на ноль в calc (светлота становится Infinity)', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) calc(l / 0) c h)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на голом литерале Infinity в relative color', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) Infinity c h)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на шестнадцатеричном литерале (0x10)', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) 0x10 c h)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на экспоненциальном литерале (1e2)', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) 1e2 c h)',
+      }),
+    ).toThrow();
+  });
+
+  it('падает на неизвестном канале в calc', () => {
+    expect(() =>
+      resolveTokens({ '--x': 'oklch(0.5 0.1 30)', '--a': 'oklch(from var(--x) calc(a - 0.1) c h)' }),
+    ).toThrow(/a - 0.1/);
+  });
 });
 
 describe('formatOklch', () => {

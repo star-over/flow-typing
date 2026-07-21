@@ -8,7 +8,12 @@
  * одинаково неверный результат до и после правки и показало бы ложную зелень.
  */
 
-export type Oklch = { l: number; c: number; h: number; alpha: number };
+export interface Oklch {
+  l: number;
+  c: number;
+  h: number;
+  alpha: number;
+}
 
 /**
  * Округление до 6 знаков: снимает шум плавающей точки (0.93 - 0.01 = 0.9199999999999999).
@@ -36,6 +41,13 @@ const PLAIN_VAR = /^var\(\s*(--[a-z0-9-]+)\s*\)$/;
 const RELATIVE = /^oklch\(\s*from\s+var\(\s*(--[a-z0-9-]+)\s*\)\s+(.+?)\s*\)$/;
 /** `calc(l - 0.08)` / `calc(c * 2)` / `calc(h + 10)`. */
 const CALC = /^calc\(\s*([lch])\s*([+\-*/])\s*([\d.]+)\s*\)$/;
+/**
+ * Числовой литерал компонента relative color: только десятичная запись
+ * (`0.47`, `250`, ведущая точка `.90`). Явно исключает то, что `Number()`
+ * молча принимает — `Infinity`, экспоненту (`1e2`), шестнадцатеричную запись
+ * (`0x10`) — иначе они проходят в координату OKLCH необнаруженными.
+ */
+const DECIMAL_LITERAL = /^\d*\.?\d+$/;
 
 /**
  * Разбить список компонентов по пробелам верхнего уровня: `calc(...)` не режется,
@@ -90,8 +102,9 @@ function parseFiniteNumber({ text, context }: { text: string; context: string })
 function componentValue({ token, base }: { token: string; base: Oklch }): number {
   if (token === 'l' || token === 'c' || token === 'h') return channelOf({ channel: token, base });
 
-  const literal = Number(token);
-  if (token !== '' && !Number.isNaN(literal)) return literal;
+  if (DECIMAL_LITERAL.test(token)) {
+    return parseFiniteNumber({ text: token, context: `component: ${token}` });
+  }
 
   const calc = CALC.exec(token);
   if (!calc) throw new Error(`Unsupported component: ${token}`);
@@ -114,6 +127,86 @@ function componentValue({ token, base }: { token: string; base: Oklch }): number
   }
 }
 
+/**
+ * Гейт против ложной зелени: арифметика (`calc(h / 0)`, `calc(l / 0)`, голый
+ * `Infinity`) может дать нечисловой или бесконечный результат, который
+ * незаметно проходит через `round`/`normalizeHue` и доезжает до сравнения
+ * контраста — там `NaN`/`Infinity` в отношении не меньше 4.5 читается как
+ * пройдено. Проверяется в конце обеих ветвей разбора значения (абсолютной и
+ * выводимой), после того как все четыре координаты вычислены.
+ */
+function assertFiniteColor({ color, context }: { color: Oklch; context: string }): void {
+  if (
+    !Number.isFinite(color.l) ||
+    !Number.isFinite(color.c) ||
+    !Number.isFinite(color.h) ||
+    !Number.isFinite(color.alpha)
+  ) {
+    throw new Error(`Non-finite color in ${context}: ${JSON.stringify(color)}`);
+  }
+}
+
+/** `oklch(L C H [/ A])` — абсолютное значение ядрового токена. `undefined`, если `value` не в этой форме. */
+function resolveAbsoluteValue(value: string): Oklch | undefined {
+  const absolute = ABSOLUTE.exec(value);
+  if (!absolute) return undefined;
+
+  const [, lightness, chroma, hue, alpha] = absolute;
+  if (!lightness || !chroma || !hue) throw new Error(`Malformed oklch(): ${value}`);
+  const color: Oklch = {
+    l: round(parseFiniteNumber({ text: lightness, context: value })),
+    c: round(parseFiniteNumber({ text: chroma, context: value })),
+    h: round(normalizeHue(parseFiniteNumber({ text: hue, context: value }))),
+    alpha: alpha === undefined ? 1 : round(parseFiniteNumber({ text: alpha, context: value })),
+  };
+  assertFiniteColor({ color, context: value });
+  return color;
+}
+
+/** `oklch(from var(--x) ‹c1› ‹c2› ‹c3› [/ ‹a›])` — вывод от базы. `undefined`, если `value` не в этой форме. */
+function resolveRelativeValue({
+  value,
+  lookup,
+}: {
+  value: string;
+  lookup: (name: string) => Oklch;
+}): Oklch | undefined {
+  const relative = RELATIVE.exec(value);
+  if (!relative) return undefined;
+
+  const [, baseName, componentText] = relative;
+  if (!baseName || !componentText) throw new Error(`Malformed relative color: ${value}`);
+  const base = lookup(baseName);
+  const parts = splitComponents(componentText);
+  const slash = parts.indexOf('/');
+  const channels = slash === -1 ? parts : parts.slice(0, slash);
+  const alphaToken = slash === -1 ? undefined : parts[slash + 1];
+  const [first, second, third] = channels;
+  if (channels.length !== 3 || !first || !second || !third) {
+    throw new Error(`Expected three channels in: ${value}`);
+  }
+  if (slash !== -1 && alphaToken === undefined) {
+    throw new Error(`Empty alpha slot in: ${value}`);
+  }
+  // Ничего не должно остаться после токена альфы — ни ещё одного числа
+  // (`l c h / 0.5 0.7`), ни второго `/` (`l c h / 0.5 / 0.7`). Иначе хвост
+  // молча игнорируется, а альфа получается из первого попавшегося токена.
+  if (slash !== -1 && parts.length !== slash + 2) {
+    throw new Error(`Unexpected tokens after alpha in: ${value}`);
+  }
+  const color: Oklch = {
+    l: round(componentValue({ token: first, base })),
+    c: round(componentValue({ token: second, base })),
+    h: round(normalizeHue(componentValue({ token: third, base }))),
+    alpha:
+      alphaToken === undefined
+        ? base.alpha
+        : round(parseFiniteNumber({ text: alphaToken, context: value })),
+  };
+  assertFiniteColor({ color, context: value });
+  return color;
+}
+
 function resolveValue({
   value,
   lookup,
@@ -128,44 +221,11 @@ function resolveValue({
     return lookup(name);
   }
 
-  const absolute = ABSOLUTE.exec(value);
-  if (absolute) {
-    const [, lightness, chroma, hue, alpha] = absolute;
-    if (!lightness || !chroma || !hue) throw new Error(`Malformed oklch(): ${value}`);
-    return {
-      l: round(parseFiniteNumber({ text: lightness, context: value })),
-      c: round(parseFiniteNumber({ text: chroma, context: value })),
-      h: round(normalizeHue(parseFiniteNumber({ text: hue, context: value }))),
-      alpha: alpha === undefined ? 1 : round(parseFiniteNumber({ text: alpha, context: value })),
-    };
-  }
+  const absolute = resolveAbsoluteValue(value);
+  if (absolute) return absolute;
 
-  const relative = RELATIVE.exec(value);
-  if (relative) {
-    const [, baseName, componentText] = relative;
-    if (!baseName || !componentText) throw new Error(`Malformed relative color: ${value}`);
-    const base = lookup(baseName);
-    const parts = splitComponents(componentText);
-    const slash = parts.indexOf('/');
-    const channels = slash === -1 ? parts : parts.slice(0, slash);
-    const alphaToken = slash === -1 ? undefined : parts[slash + 1];
-    const [first, second, third] = channels;
-    if (channels.length !== 3 || !first || !second || !third) {
-      throw new Error(`Expected three channels in: ${value}`);
-    }
-    if (slash !== -1 && alphaToken === undefined) {
-      throw new Error(`Empty alpha slot in: ${value}`);
-    }
-    return {
-      l: round(componentValue({ token: first, base })),
-      c: round(componentValue({ token: second, base })),
-      h: round(normalizeHue(componentValue({ token: third, base }))),
-      alpha:
-        alphaToken === undefined
-          ? base.alpha
-          : round(parseFiniteNumber({ text: alphaToken, context: value })),
-    };
-  }
+  const relative = resolveRelativeValue({ value, lookup });
+  if (relative) return relative;
 
   throw new Error(`Unsupported value: ${value}`);
 }
@@ -203,6 +263,12 @@ export function formatOklch({ l, c, h, alpha }: Oklch): string {
   // ядровые токены дают разные значения `h` (0, 20, 250…). Снапшот сравнивает строки,
   // поэтому не канонизировать оттенок означало бы ложную красноту на цвете, который
   // фактически не изменился.
+  //
+  // Инвариант канонизации: она верна для цвета как отрисовываемого значения, но не
+  // как базы вывода. Если появится роль, выводящая хрому от ахроматичной базы
+  // (`oklch(from var(--achromatic) l calc(c + 0.05) h)`), смена оттенка базы не
+  // отразится в строке этой роли — но пока это всё равно ловится: у производной
+  // роли хрома больше нуля, и печатается уже её собственный, не обнулённый оттенок.
   const hue = c === 0 ? 0 : h;
   return alpha === 1 ? `oklch(${l} ${c} ${hue})` : `oklch(${l} ${c} ${hue} / ${alpha})`;
 }
@@ -252,15 +318,20 @@ function clampResidual(value: number): number {
 
 /**
  * OKLCH → линейный sRGB. 28 токенов проекта лежат вне охвата sRGB (расхождение
- * по яркости против браузера доходит до 0.025 — около 7% по коэффициенту
- * контраста, чего хватает, чтобы перевернуть решение на границе 4.5:1), так что
- * покомпонентное отсечение здесь недопустимо — оно расходится с тем, что рисует
- * браузер из `oklch(from …)`.
+ * по яркости против покомпонентного отсечения доходит до 0.025 — около 7% по
+ * коэффициенту контраста, чего хватает, чтобы перевернуть решение на границе
+ * 4.5:1), так что покомпонентное отсечение здесь недопустимо.
  *
  * Вместо этого — редукция хромы: если прямой перевод даёт канал вне [0, 1],
  * двоичным поиском уменьшаем хрому (светлоту и оттенок не трогаем) до
  * наибольшей, при которой все каналы попадают в охват, и лишь остаточную
  * погрешность плавающей точки зажимаем в [0, 1].
+ *
+ * Это ближе к тому, что рисует браузер, чем покомпонентное отсечение, но не
+ * эквивалент `css-gamut-map` из CSS Color 4: браузер сочетает редукцию хромы
+ * с локальным отсечением по порогу различимости 0.02. Остаточное расхождение
+ * с нашей редукцией доходит до 0.012 по яркости и до 3% по коэффициенту
+ * контраста — ни одно значение проекта сейчас не стоит у этой границы.
  */
 function toLinearSrgb(color: Oklch): { r: number; g: number; b: number } {
   const raw = rawLinearSrgb(color);
