@@ -75,9 +75,9 @@
   --navy     : oklch(0.39 0.08 241);  /* метка клавиши */
   --navy-deep: oklch(0.21 0.04 266);  /* маркер клавиши */
 
-  /* Холодная ветка 280° — экран входа, меню, аватар: кромка и hover плотной
-     кнопки, ссылки, инициалы. Значение — прежний --link-ink, остальные точки
-     ветки выводятся от него в ролях (ADR 0034). */
+  /* Холодная ветка 280° — экран входа, меню, аватар: hover плотной кнопки,
+     ссылки, инициалы, плашка аватара. Значение — прежний --link-ink, остальные
+     точки ветки выводятся от него в ролях (ADR 0034). */
   --iris: oklch(0.40 0.05 280);
 
 
@@ -107,7 +107,7 @@
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) ---
      Модель сводит фон к цвету primary-текста (на экране входа был холодный
-     oklch(20% 0.02 280) — принятая дельта); кромка и hover держат ветку 280° 1:1. */
+     oklch(20% 0.02 280) — принятая дельта); hover держит ветку 280° 1:1. */
   --color-primary-background: var(--color-text-primary);
   --color-primary-hover     : oklch(from var(--iris) 0.30 0.03 h);
 
@@ -118,7 +118,7 @@
 
   /* --- Плашки с акцентом (аватар, обвязка меню) --- */
   --color-surface-accent: oklch(from var(--iris) 0.90 0.03 h);  /* была плашка аватара */
-  --color-border-accent : oklch(from var(--paper) calc(l - 0.15) c h); /* была граница avatar/menu */
+  --color-border-accent : oklch(from var(--paper) calc(l - 0.15) c h); /* была граница avatar/menu; совпадает с color-keycap-group-1-border */
 
   /* --- Исходы --- */
   --color-success    : var(--green);
@@ -167,7 +167,7 @@
   /* --- Домен · состояния пальца (не-TARGET) --- */
   --color-finger-inactive: var(--cream);      /* исторически = базе пальца */
   --color-finger-idle    : oklch(from var(--cream) l c 260);  /* холодный близнец той же светлоты */
-  --color-finger-error   : oklch(from var(--red) calc(l - 0.04) calc(c - 0.01) calc(h - 5));
+  --color-finger-error   : oklch(from var(--red) calc(l - 0.04) calc(c - 0.01) calc(h - 5));  /* темнее и холоднее ошибки набора */
 
   /* --- Домен · тихая направляющая --- */
   /* Линия дом→цель и якоря сцены. Идентичность пальца несут маркеры движения
@@ -207,7 +207,7 @@
      кромка держит цвет. Хрома по охвату каждого оттенка (синий беднее —
      его кромка темнее, L0.80). Большой палец нейтрален. */
   --color-keycap-group-1-background: oklch(from var(--paper) calc(l - 0.05) c h / 0.7);
-  --color-keycap-group-1-border    : oklch(from var(--paper) calc(l - 0.15) c h);
+  --color-keycap-group-1-border    : oklch(from var(--paper) calc(l - 0.15) c h);  /* совпадает с color-border-accent */
   --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.93 0.028 h / 0.7);
   --color-keycap-group-2-border    : oklch(from var(--color-finger-2) 0.76 0.09 h);
   --color-keycap-group-3-background: oklch(from var(--color-finger-3) 0.93 0.028 h / 0.7);
