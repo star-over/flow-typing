@@ -63,13 +63,18 @@ const BACKDROPS = [
 ] as const;
 
 /**
- * Полупрозрачные заливки клавиш: метки и символы реально лежат на них, а не на
- * плоских ролях из `BACKDROPS`. В отчёт они попадают не сырыми (сравнение с
- * плотной ролью дало бы систематически оптимистичный контраст — см.
- * `relativeLuminance`), а уже наложенными на `--color-background` через
+ * Полупрозрачные подложки: метки/символы клавиш и символы потока реально лежат
+ * на них, а не на плоских ролях из `BACKDROPS`. В отчёт они попадают не сырыми
+ * (сравнение с плотной ролью дало бы систематически оптимистичный контраст —
+ * см. `relativeLuminance`), а уже наложенными на `--color-background` через
  * `compositeOver`; колонка помечается суффиксом `·composite@background`.
+ *
+ * `--color-success-dim` / `--color-error-dim` — тонировка всей строки потока
+ * (`FlowLine.svelte`) по последнему результату нажатия: устойчивое состояние,
+ * держится до следующего нажатия, а не мелькает. Символы потока, включая
+ * ожидающие, — дети этого элемента, то есть лежат на этой подложке.
  */
-const COMPOSITE_KEYCAP_BACKDROPS = [
+const COMPOSITE_BACKDROPS = [
   '--color-keycap-correct-background',
   '--color-keycap-error-background',
   '--color-keycap-group-1-background',
@@ -77,6 +82,8 @@ const COMPOSITE_KEYCAP_BACKDROPS = [
   '--color-keycap-group-3-background',
   '--color-keycap-group-4-background',
   '--color-keycap-group-5-background',
+  '--color-success-dim',
+  '--color-error-dim',
 ] as const;
 
 function fixed({ value, digits }: { value: number; digits: number }): string {
@@ -188,10 +195,11 @@ function printContrastSection({
 }): void {
   console.log('\n-- КОНТРАСТ РОЛЕЙ К ПОДЛОЖКАМ -----------------------------------');
   console.log(
-    '-- Колонки `·composite@background` — заливки клавиш (полупрозрачные) наложены на\n' +
-      '-- `--color-background` и посчитаны уже плотными. Это честно для меток на сцене\n' +
-      '-- фона; подложки поверх чего-то ещё (клавиша поверх пальца, поверх соседней роли\n' +
-      '-- с альфой) этот расчёт не покрывает — число для них не даётся.'
+    '-- Колонки `·composite@background` — заливки клавиш и тонировка строки потока\n' +
+      '-- (полупрозрачные) наложены на `--color-background` и посчитаны уже плотными.\n' +
+      '-- Это честно для меток/символов на сцене фона; подложки поверх чего-то ещё\n' +
+      '-- (клавиша поверх пальца, поверх соседней роли с альфой) этот расчёт не\n' +
+      '-- покрывает — число для них не даётся.'
   );
   const backdrops: { name: string; color: Oklch }[] = [];
   for (const name of BACKDROPS) {
@@ -200,7 +208,7 @@ function printContrastSection({
   }
   const background = resolved['--color-background'];
   if (background) {
-    for (const name of COMPOSITE_KEYCAP_BACKDROPS) {
+    for (const name of COMPOSITE_BACKDROPS) {
       const overlay = resolved[name];
       if (!overlay) continue;
       const composite = compositeOver({ overlay, backdrop: background });
