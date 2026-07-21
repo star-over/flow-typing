@@ -392,14 +392,38 @@ function linearSrgbToOklab({ r, g, b }: { r: number; g: number; b: number }): {
   };
 }
 
+/** Порог передаточной функции sRGB (IEC 61966-2-1) со стороны линейного значения. */
+const SRGB_LINEAR_THRESHOLD = 0.0031308;
+/** Тот же порог со стороны гамма-кодированного значения (12.92 * SRGB_LINEAR_THRESHOLD). */
+const SRGB_GAMMA_THRESHOLD = 0.04045;
+
+/** Линейный sRGB-канал → гамма-кодированный (то, что реально лежит в пикселе на экране). */
+function srgbEncode(value: number): number {
+  if (value <= SRGB_LINEAR_THRESHOLD) return value * 12.92;
+  return 1.055 * value ** (1 / 2.4) - 0.055;
+}
+
+/** Гамма-кодированный sRGB-канал → линейный (обратная передаточная функция). */
+function srgbDecode(value: number): number {
+  if (value <= SRGB_GAMMA_THRESHOLD) return value / 12.92;
+  return ((value + 0.055) / 1.055) ** 2.4;
+}
+
 /**
  * Наложить полупрозрачный цвет (`overlay`) на непрозрачную подложку (`backdrop`):
- * смешение — в линейном sRGB (единственное пространство, где альфа-blend физически
- * корректен), результат — плотный цвет (`alpha: 1`), обратно переведённый в OKLCH.
+ * результат — плотный цвет (`alpha: 1`), обратно переведённый в OKLCH.
  *
- * Смешивать в OKLCH или в гамма-кодированном sRGB нельзя: координаты этих
- * пространств нелинейны относительно интенсивности света, линейная интерполяция
- * в них не соответствует физическому наложению полупрозрачного слоя красок.
+ * Смешение — в гамма-кодированном sRGB, а не в линейном. Это сознательное
+ * отступление от физической корректности: линейная интерполяция интенсивности
+ * света — то, как смешивался бы реальный полупрозрачный слой краски. Но браузер
+ * `background-color` с альфой так не считает — композитинг CSS/Canvas выполняется
+ * прямо над гамма-кодированными байтами пикселя, без линеаризации (подтверждено
+ * экспериментом: Canvas 2D даёт ≈4.54 там, где линейное смешение предсказывает
+ * 3.776). Нас интересует не физически верный свет, а тот пиксель, который увидит
+ * пользователь — именно по нему WCAG считает коэффициент контраста. Поэтому:
+ * линейный sRGB → гамма-кодировать (`srgbEncode`) → смешать по альфе покомпонентно
+ * (подложка считается плотной) → декодировать обратно в линейный (`srgbDecode`) →
+ * и только из этого линейного значения выводить светлоту/хрому/оттенок результата.
  *
  * `backdrop.alpha` не участвует — вызывающая сторона обязана передать уже плотный
  * цвет (проверить это в общем виде здесь нельзя: `Oklch` не различает «плотный» и
@@ -409,11 +433,28 @@ export function compositeOver({ overlay, backdrop }: { overlay: Oklch; backdrop:
   const foreground = toLinearSrgb(overlay);
   const background = toLinearSrgb(backdrop);
   const alpha = overlay.alpha;
-  const blended = {
-    r: foreground.r * alpha + background.r * (1 - alpha),
-    g: foreground.g * alpha + background.g * (1 - alpha),
-    b: foreground.b * alpha + background.b * (1 - alpha),
+
+  const foregroundGamma = {
+    r: srgbEncode(foreground.r),
+    g: srgbEncode(foreground.g),
+    b: srgbEncode(foreground.b),
   };
+  const backgroundGamma = {
+    r: srgbEncode(background.r),
+    g: srgbEncode(background.g),
+    b: srgbEncode(background.b),
+  };
+  const blendedGamma = {
+    r: foregroundGamma.r * alpha + backgroundGamma.r * (1 - alpha),
+    g: foregroundGamma.g * alpha + backgroundGamma.g * (1 - alpha),
+    b: foregroundGamma.b * alpha + backgroundGamma.b * (1 - alpha),
+  };
+  const blended = {
+    r: srgbDecode(blendedGamma.r),
+    g: srgbDecode(blendedGamma.g),
+    b: srgbDecode(blendedGamma.b),
+  };
+
   const lab = linearSrgbToOklab(blended);
   const chroma = Math.hypot(lab.a, lab.b);
   const hue = chroma === 0 ? 0 : normalizeHue((Math.atan2(lab.b, lab.a) * 180) / Math.PI);

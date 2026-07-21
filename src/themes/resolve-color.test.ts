@@ -6,6 +6,7 @@ import {
   deltaE,
   contrastRatio,
   relativeLuminance,
+  compositeOver,
 } from './resolve-color';
 
 describe('resolveTokens — грамматика тем', () => {
@@ -290,5 +291,23 @@ describe('contrastRatio / relativeLuminance', () => {
     // Значение получено независимым расчётом по тем же формулам (см. комментарий выше) —
     // при попадании в охват обе стратегии (отсечение и редукция) дают идентичный результат.
     expect(relativeLuminance(inGamut)).toBeCloseTo(0.8028691785914531, 9);
+  });
+});
+
+describe('compositeOver — наложение в гамма-кодированном sRGB', () => {
+  it('заливка ошибки (0.8 альфы) поверх тёмного фона даёт контраст ≈4.54 к белому символу', () => {
+    // Контрольный случай из ролей `dark`: `--color-keycap-error-foreground` = oklch(0.96 0 0)
+    // поверх композита `oklch(0.65 0.2 30 / 0.8)` над `oklch(0.14 0 0)`. Значение посчитано
+    // вручную по тем же формулам (OKLCH → линейный sRGB → гамма-кодирование → alpha-blend →
+    // декодирование → OKLab) и независимо подтверждено экспериментом в браузере (Canvas 2D
+    // при наложении этой пары даёт то же ≈4.54 — линейное смешение вместо этого предсказало
+    // бы физически другой, но на экране не существующий пиксель с контрастом ≈3.776).
+    const overlay = { l: 0.65, c: 0.2, h: 30, alpha: 0.8 };
+    const backdrop = { l: 0.14, c: 0, h: 0, alpha: 1 };
+
+    const composite = compositeOver({ overlay, backdrop });
+    const foreground = { l: 0.96, c: 0, h: 0, alpha: 1 };
+
+    expect(contrastRatio({ first: foreground, second: composite })).toBeCloseTo(4.54, 1);
   });
 });
