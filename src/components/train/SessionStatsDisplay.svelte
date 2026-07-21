@@ -3,6 +3,7 @@
   import type { SessionStats } from '@/lib/stats-calculator';
   import type { Dictionary } from '@/interfaces/types';
   import { formatDurationShort } from '@/lib/timer-display';
+  import Card from '@/components/ui/Card.svelte';
 
   /** Одна точка траектории: точность прошлой сессии, старые → новые. */
   export interface AccuracyTrendPoint {
@@ -102,7 +103,7 @@
   const toggleInfo = (key: MetricKey) => (openInfo = openInfo === key ? null : key);
 </script>
 
-<section class="stats-display" aria-labelledby="session-stats-title">
+<Card as="section" padding="none" aria-labelledby="session-stats-title" style="width: 100%; max-width: 640px;">
   <h2 class="sr-only" id="session-stats-title">{t.title}</h2>
 
   <!-- ── Ярус 1: точность ── -->
@@ -268,17 +269,9 @@
          статистика доставалась только из выпадающего меню аватара. -->
     <a class="more" href={resolve('/stats')}>{t.more}</a>
   </div>
-</section>
+</Card>
 
 <style>
-  .stats-display {
-    width: 100%;
-    max-width: 640px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-4);
-  }
-
   /* ── Общий словарь ────────────────────────────────────────────────────────
    * ИДЁТ ПЕРВЫМ, до ярусных правил, и это не стилистика: `.value` и
    * `.hero-value` — одна специфичность, поэтому решает порядок в файле. Стоя
