@@ -99,5 +99,4 @@
     gap: var(--spacing-3);
     justify-content: center;
   }
-
 </style>

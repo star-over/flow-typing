@@ -26,7 +26,7 @@
   this={href ? 'a' : 'button'}
   {...rest}
   class="button {variant} {size}"
-  {href}
+  href={href || undefined}
   type={href ? undefined : type}
   disabled={href ? undefined : disabled}
 >
