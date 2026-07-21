@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Card from '@/components/ui/Card.svelte';
   import Button from '@/components/ui/Button.svelte';
   import type { Dictionary } from '@/interfaces/types';
   import type { SurveyAnswer } from '@/interfaces/survey';
@@ -16,7 +17,7 @@
   }
 </script>
 
-<section class="survey">
+<Card as="section" padding="sm" style="max-width: 28rem;">
   {#if phase === 'question'}
     <div class="row">
       <p class="question">{dictionary.survey.question}</p>
@@ -36,17 +37,9 @@
   {:else}
     <p class="thanks">{dictionary.survey.thanks}</p>
   {/if}
-</section>
+</Card>
 
 <style>
-  .survey {
-    max-width: 28rem;
-    padding: var(--spacing-4);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-4);
-  }
-
   .row {
     display: flex;
     align-items: center;
