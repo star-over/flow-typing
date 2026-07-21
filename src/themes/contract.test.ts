@@ -220,6 +220,45 @@ describe('themes: no duplicate names, no var() cycles', () => {
 });
 
 // ============================================================
+// ADR 0034: критерий честного вывода — запись `oklch(from var(…) …)`
+//   легальна, только если хотя бы один из трёх каналов реально наследуется
+//   (`l`/`c`/`h` либо `calc(l …)`/`calc(c …)`/`calc(h …)`), а не все три —
+//   числовые литералы (иначе это переименование абсолюта под маской вывода).
+// ============================================================
+describe('ADR 0034: honest role derivation', () => {
+  // Разбирает три канала (без альфы) значения `oklch(from var(--x) ‹c1› ‹c2› ‹c3› [/ ‹a›])`.
+  const CHANNEL = String.raw`(?:[lch]|calc\([lch]\s*[+\-*/]\s*[\d.]+\)|[\d.]+)`;
+  const RELATIVE_CHANNELS = new RegExp(
+    `^oklch\\(from var\\(\\s*--[a-z0-9-]+\\s*\\)\\s+(${CHANNEL})\\s+(${CHANNEL})\\s+(${CHANNEL})(?:\\s*/.*)?\\)$`
+  );
+  const LITERAL_CHANNEL = /^[\d.]+$/;
+
+  for (const id of REQUIRED_THEMES) {
+    it(`'${id}': every oklch(from var()) role inherits at least one channel`, () => {
+      const tokens = parseRootTokens({ path: themePath(id), selector: themeSelector(id) });
+      for (const [name, value] of Object.entries(tokens)) {
+        if (!name.startsWith('--color-')) continue;
+        if (!value.startsWith('oklch(from var(')) continue;
+
+        const match = RELATIVE_CHANNELS.exec(value);
+        if (!match) throw new Error(`${id}: role ${name} — не разобрать каналы вывода: ${value}`);
+        const [, first, second, third] = match;
+        if (!first || !second || !third) {
+          throw new Error(`${id}: role ${name} — не разобрать каналы вывода: ${value}`);
+        }
+
+        const allLiteral =
+          LITERAL_CHANNEL.test(first) && LITERAL_CHANNEL.test(second) && LITERAL_CHANNEL.test(third);
+        expect(
+          allLiteral,
+          `'${id}': role ${name} — все три канала oklch(from var()) числовые литералы, ни один не наследуется от базы (ADR 0034, критерий честного вывода): ${value}`
+        ).toBe(false);
+      }
+    });
+  }
+});
+
+// ============================================================
 // Компоненты: ссылаются только на валидные роли; не осталось L3-ссылок
 //   Скан src/**/*.svelte + src/app.css.
 // ============================================================
