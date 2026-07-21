@@ -21,10 +21,11 @@
  * Правило границы: цвет заводится в ядре, смысл — в роли, компонент только
  * ссылается. Так тема перекрашивается из ядра, а не правкой 200 строк.
  *
- * В `:root` в `src/app.css` цветов по-прежнему нет — там только primitives и
- * body-fallback (`--body-background` / `--body-color`) на тонкое окно до
- * inline-bootstrap-script; эти два литерала совпадают со значениями `light`
- * вручную, тестом это не связано.
+ * В `:root` в `src/app.css` цветов по-прежнему нет — там только primitives;
+ * `body` ссылается на роли (`--color-background` / `--color-text-primary`)
+ * напрямую, отдельного fallback на время до inline-bootstrap-script не нужно —
+ * синхронный head-скрипт (`src/app.html`) выставляет `data-theme` до первой
+ * инъекции CSS.
  */
 :root[data-theme="light"] {
   color-scheme: light;

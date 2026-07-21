@@ -211,13 +211,10 @@
   --color-keycap-correct-background: oklch(from var(--green) 0.68 0.11 h / 0.8);
   --color-keycap-correct-border    : oklch(from var(--green) calc(l - 0.01) c h);
   --color-keycap-error-background  : oklch(from var(--red) calc(l - 0.05) calc(c - 0.01) calc(h + 5) / 0.8);
-  /* Было oklch(0.97 0 20) (--error-ink) — почти белый текст на заливке ошибки
-     отличался от --snow на ±0.01 l, визуально неразличимо (ΔE 0.01); сведено
-     к --snow. Реальная подложка метки — не плоская --color-error, а
-     полупрозрачная --color-keycap-error-background поверх --color-background
-     (`make theme-report THEME=dark`, колонка `keycap-error-background·composite@background`):
-     контраст просел с 4.68 до 4.54 при пороге 4.5 для обычного текста —
-     запас всего 0.04, известная граница. */
-  --color-keycap-error-foreground  : var(--snow);
+  /* Прежнее значение oklch(0.97 0 20) (--error-ink) выводится точно из --snow
+     (0.96 + 0.01 = 0.97), хрома/оттенок наследуются — честный вывод по ADR 0034,
+     сведение не применяется. Контраст к композитной подложке
+     (`make theme-report THEME=dark`, `keycap-error-background·composite@background`) — 4.68. */
+  --color-keycap-error-foreground  : oklch(from var(--snow) calc(l + 0.01) c h);
   --color-keycap-error-border      : oklch(from var(--red) calc(l + 0.02) calc(c - 0.04) calc(h - 5));
 }

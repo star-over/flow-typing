@@ -29,7 +29,7 @@ exports[`разрешённые цвета ролей > каждая тема р
     "--color-keycap-correct-border": "oklch(0.75 0.19 150)",
     "--color-keycap-error-background": "oklch(0.65 0.2 30 / 0.8)",
     "--color-keycap-error-border": "oklch(0.72 0.17 20)",
-    "--color-keycap-error-foreground": "oklch(0.96 0 0)",
+    "--color-keycap-error-foreground": "oklch(0.97 0 0)",
     "--color-keycap-group-1-background": "oklch(0.22 0 0 / 0.7)",
     "--color-keycap-group-1-border": "oklch(0.4 0 0)",
     "--color-keycap-group-2-background": "oklch(0.24 0.035 200 / 0.7)",
