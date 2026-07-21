@@ -10,7 +10,15 @@
 
 export type Oklch = { l: number; c: number; h: number; alpha: number };
 
-/** Округление до 6 знаков: снимает шум плавающей точки (0.93 - 0.01 = 0.9199999999999999). */
+/**
+ * Округление до 6 знаков: снимает шум плавающей точки (0.93 - 0.01 = 0.9199999999999999).
+ *
+ * Намеренно НЕ зажимает светлоту и хрому в диапазон CSS ([0, 1] и c ≥ 0), хотя
+ * браузер их зажимает. Причина: при зажатии здесь две разные формулы, обе дающие
+ * светлоту ниже нуля, стали бы в снапшоте неотличимы друг от друга — это ложная
+ * зелень, а она опаснее ложной красноты. Ни один реальный токен проекта к этой
+ * границе не подходит.
+ */
 function round(value: number): number {
   return Math.round(value * 1e6) / 1e6;
 }
@@ -59,11 +67,24 @@ function splitComponents(source: string): string[] {
   return parts;
 }
 
-function channelOf({ channel, base }: { channel: string; base: Oklch }): number {
+function channelOf({ channel, base }: { channel: 'l' | 'c' | 'h'; base: Oklch }): number {
   if (channel === 'l') return base.l;
   if (channel === 'c') return base.c;
-  if (channel === 'h') return base.h;
-  throw new Error(`Unsupported channel: ${channel}`);
+  return base.h;
+}
+
+/** Регекс `CALC` допускает только один символ из `[lch]`; сузить строку без `as`-приведения. */
+function assertChannelName(value: string): asserts value is 'l' | 'c' | 'h' {
+  if (value !== 'l' && value !== 'c' && value !== 'h') {
+    throw new Error(`Unsupported channel: ${value}`);
+  }
+}
+
+/** Разобрать числовой литерал; бросает исключение с самим значением, если оно не конечно (например `.` или `0.5.5`). */
+function parseFiniteNumber({ text, context }: { text: string; context: string }): number {
+  const value = Number(text);
+  if (!Number.isFinite(value)) throw new Error(`Malformed number in ${context}: "${text}"`);
+  return value;
 }
 
 function componentValue({ token, base }: { token: string; base: Oklch }): number {
@@ -76,8 +97,9 @@ function componentValue({ token, base }: { token: string; base: Oklch }): number
   if (!calc) throw new Error(`Unsupported component: ${token}`);
   const [, channel, operator, operandText] = calc;
   if (!channel || !operator || !operandText) throw new Error(`Malformed calc: ${token}`);
+  assertChannelName(channel);
   const left = channelOf({ channel, base });
-  const operand = Number(operandText);
+  const operand = parseFiniteNumber({ text: operandText, context: `calc(): ${token}` });
   switch (operator) {
     case '+':
       return left + operand;
@@ -111,10 +133,10 @@ function resolveValue({
     const [, lightness, chroma, hue, alpha] = absolute;
     if (!lightness || !chroma || !hue) throw new Error(`Malformed oklch(): ${value}`);
     return {
-      l: round(Number(lightness)),
-      c: round(Number(chroma)),
-      h: round(normalizeHue(Number(hue))),
-      alpha: alpha === undefined ? 1 : round(Number(alpha)),
+      l: round(parseFiniteNumber({ text: lightness, context: value })),
+      c: round(parseFiniteNumber({ text: chroma, context: value })),
+      h: round(normalizeHue(parseFiniteNumber({ text: hue, context: value }))),
+      alpha: alpha === undefined ? 1 : round(parseFiniteNumber({ text: alpha, context: value })),
     };
   }
 
@@ -131,11 +153,17 @@ function resolveValue({
     if (channels.length !== 3 || !first || !second || !third) {
       throw new Error(`Expected three channels in: ${value}`);
     }
+    if (slash !== -1 && alphaToken === undefined) {
+      throw new Error(`Empty alpha slot in: ${value}`);
+    }
     return {
       l: round(componentValue({ token: first, base })),
       c: round(componentValue({ token: second, base })),
       h: round(normalizeHue(componentValue({ token: third, base }))),
-      alpha: alphaToken === undefined ? base.alpha : round(Number(alphaToken)),
+      alpha:
+        alphaToken === undefined
+          ? base.alpha
+          : round(parseFiniteNumber({ text: alphaToken, context: value })),
     };
   }
 
@@ -171,7 +199,12 @@ export function resolveTokens(tokens: Record<string, string>): Record<string, Ok
 }
 
 export function formatOklch({ l, c, h, alpha }: Oklch): string {
-  return alpha === 1 ? `oklch(${l} ${c} ${h})` : `oklch(${l} ${c} ${h} / ${alpha})`;
+  // При нулевой хроме цвет ахроматичен — оттенок не влияет на отрисовку, но разные
+  // ядровые токены дают разные значения `h` (0, 20, 250…). Снапшот сравнивает строки,
+  // поэтому не канонизировать оттенок означало бы ложную красноту на цвете, который
+  // фактически не изменился.
+  const hue = c === 0 ? 0 : h;
+  return alpha === 1 ? `oklch(${l} ${c} ${hue})` : `oklch(${l} ${c} ${hue} / ${alpha})`;
 }
 
 function toLab({ l, c, h }: Oklch): { l: number; a: number; b: number } {
@@ -186,12 +219,11 @@ export function deltaE({ first, second }: { first: Oklch; second: Oklch }): numb
   return Math.hypot(one.l - two.l, one.a - two.a, one.b - two.b);
 }
 
-/**
- * OKLCH → линейный sRGB с отсечением в [0, 1]. Отсечение грубее реального
- * gamut mapping браузера, но для оценки контраста этого достаточно: значения
- * тем и так подобраны в охвате.
- */
-function toLinearSrgb(color: Oklch): { r: number; g: number; b: number } {
+const GAMUT_TOLERANCE = 1e-6;
+const CHROMA_SEARCH_ITERATIONS = 20;
+
+/** OKLCH → линейный sRGB без ограничения диапазона (может выходить за [0, 1]). */
+function rawLinearSrgb(color: Oklch): { r: number; g: number; b: number } {
   const { l: lightness, a, b: blue } = toLab(color);
 
   const lRoot = lightness + 0.3963377774 * a + 0.2158037573 * blue;
@@ -202,15 +234,65 @@ function toLinearSrgb(color: Oklch): { r: number; g: number; b: number } {
   const medium = mRoot ** 3;
   const short = sRoot ** 3;
 
-  const clamp = (value: number) => Math.min(1, Math.max(0, value));
   return {
-    r: clamp(4.0767416621 * long - 3.3077115913 * medium + 0.2309699292 * short),
-    g: clamp(-1.2684380046 * long + 2.6097574011 * medium - 0.3413193965 * short),
-    b: clamp(-0.0041960863 * long - 0.7034186147 * medium + 1.707614701 * short),
+    r: 4.0767416621 * long - 3.3077115913 * medium + 0.2309699292 * short,
+    g: -1.2684380046 * long + 2.6097574011 * medium - 0.3413193965 * short,
+    b: -0.0041960863 * long - 0.7034186147 * medium + 1.707614701 * short,
   };
 }
 
-/** Относительная яркость WCAG. Альфа игнорируется — цвет считается плотным. */
+function isInGamut({ r, g, b }: { r: number; g: number; b: number }): boolean {
+  const withinRange = (value: number) => value >= -GAMUT_TOLERANCE && value <= 1 + GAMUT_TOLERANCE;
+  return withinRange(r) && withinRange(g) && withinRange(b);
+}
+
+function clampResidual(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+/**
+ * OKLCH → линейный sRGB. 28 токенов проекта лежат вне охвата sRGB (расхождение
+ * по яркости против браузера доходит до 0.025 — около 7% по коэффициенту
+ * контраста, чего хватает, чтобы перевернуть решение на границе 4.5:1), так что
+ * покомпонентное отсечение здесь недопустимо — оно расходится с тем, что рисует
+ * браузер из `oklch(from …)`.
+ *
+ * Вместо этого — редукция хромы: если прямой перевод даёт канал вне [0, 1],
+ * двоичным поиском уменьшаем хрому (светлоту и оттенок не трогаем) до
+ * наибольшей, при которой все каналы попадают в охват, и лишь остаточную
+ * погрешность плавающей точки зажимаем в [0, 1].
+ */
+function toLinearSrgb(color: Oklch): { r: number; g: number; b: number } {
+  const raw = rawLinearSrgb(color);
+  if (isInGamut(raw)) {
+    return { r: clampResidual(raw.r), g: clampResidual(raw.g), b: clampResidual(raw.b) };
+  }
+
+  let lowChroma = 0;
+  let highChroma = color.c;
+  let bestFit = rawLinearSrgb({ l: color.l, c: lowChroma, h: color.h, alpha: color.alpha });
+
+  for (let iteration = 0; iteration < CHROMA_SEARCH_ITERATIONS; iteration++) {
+    const midChroma = (lowChroma + highChroma) / 2;
+    const candidate = rawLinearSrgb({ l: color.l, c: midChroma, h: color.h, alpha: color.alpha });
+    if (isInGamut(candidate)) {
+      lowChroma = midChroma;
+      bestFit = candidate;
+    } else {
+      highChroma = midChroma;
+    }
+  }
+
+  return { r: clampResidual(bestFit.r), g: clampResidual(bestFit.g), b: clampResidual(bestFit.b) };
+}
+
+/**
+ * Относительная яркость WCAG. Альфа игнорируется — цвет считается плотным.
+ * Поэтому для ролей с альфой меньше единицы (суффикс `-dim`, тона групп клавиш)
+ * полученный контраст систематически оптимистичен: реальная роль полупрозрачна
+ * и смешивается с фоном под собой. Опираться на это значение как на единственный
+ * гейт для таких ролей нельзя — нужно считать контраст после наложения на фон.
+ */
 export function relativeLuminance(color: Oklch): number {
   const { r, g, b } = toLinearSrgb(color);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;

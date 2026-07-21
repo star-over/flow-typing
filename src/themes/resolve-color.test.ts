@@ -108,6 +108,27 @@ describe('resolveTokens — грамматика тем', () => {
   it('падает на неподдержанном значении', () => {
     expect(() => resolveTokens({ '--a': 'rgb(1 2 3)' })).toThrow(/rgb\(1 2 3\)/);
   });
+
+  it('падает на битом числе светлоты (одна точка)', () => {
+    expect(() => resolveTokens({ '--a': 'oklch(. 0 0)' })).toThrow(/\./);
+  });
+
+  it('падает на битом числе с двумя точками', () => {
+    expect(() => resolveTokens({ '--a': 'oklch(0.5.5 0 0)' })).toThrow(/0\.5\.5/);
+  });
+
+  it('падает на битой альфе', () => {
+    expect(() => resolveTokens({ '--a': 'oklch(0.5 0 0 / .)' })).toThrow(/\./);
+  });
+
+  it('падает на пустом слоте альфы в relative color', () => {
+    expect(() =>
+      resolveTokens({
+        '--x': 'oklch(0.5 0.1 30)',
+        '--a': 'oklch(from var(--x) l c h /)',
+      }),
+    ).toThrow();
+  });
 });
 
 describe('formatOklch', () => {
@@ -117,6 +138,10 @@ describe('formatOklch', () => {
 
   it('печатает альфу, когда она меньше 1', () => {
     expect(formatOklch({ l: 0.93, c: 0.04, h: 80, alpha: 0.16 })).toBe('oklch(0.93 0.04 80 / 0.16)');
+  });
+
+  it('канонизирует оттенок в 0 при нулевой хроме', () => {
+    expect(formatOklch({ l: 0.97, c: 0, h: 20, alpha: 1 })).toBe('oklch(0.97 0 0)');
   });
 });
 
@@ -159,5 +184,42 @@ describe('contrastRatio / relativeLuminance', () => {
     const first = { l: 0.93, c: 0.04, h: 80, alpha: 1 };
     const second = { l: 0.3, c: 0.04, h: 60, alpha: 1 };
     expect(contrastRatio({ first, second })).toBeCloseTo(contrastRatio({ first: second, second: first }), 12);
+  });
+
+  it('для цвета вне охвата sRGB редуцирует хрому вместо покомпонентного отсечения', () => {
+    // oklch(0.55 0.4 250) вне охвата: канал b (синий) сильно превышает 1.
+    // Наивное покомпонентное отсечение и редукция хромы дают разную яркость.
+    const outOfGamut = { l: 0.55, c: 0.4, h: 250, alpha: 1 };
+
+    const raw = (() => {
+      const radians = (outOfGamut.h * Math.PI) / 180;
+      const a = outOfGamut.c * Math.cos(radians);
+      const b = outOfGamut.c * Math.sin(radians);
+      const lRoot = outOfGamut.l + 0.3963377774 * a + 0.2158037573 * b;
+      const mRoot = outOfGamut.l - 0.1055613458 * a - 0.0638541728 * b;
+      const sRoot = outOfGamut.l - 0.0894841775 * a - 1.291485548 * b;
+      const long = lRoot ** 3;
+      const medium = mRoot ** 3;
+      const short = sRoot ** 3;
+      return {
+        r: 4.0767416621 * long - 3.3077115913 * medium + 0.2309699292 * short,
+        g: -1.2684380046 * long + 2.6097574011 * medium - 0.3413193965 * short,
+        b: -0.0041960863 * long - 0.7034186147 * medium + 1.707614701 * short,
+      };
+    })();
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const naiveLuminance = 0.2126 * clamp(raw.r) + 0.7152 * clamp(raw.g) + 0.0722 * clamp(raw.b);
+
+    const actual = relativeLuminance(outOfGamut);
+    expect(actual).toBeGreaterThanOrEqual(0);
+    expect(actual).toBeLessThanOrEqual(1);
+    expect(actual).not.toBeCloseTo(naiveLuminance, 3);
+  });
+
+  it('для цвета внутри охвата sRGB редукция хромы не меняет яркость', () => {
+    const inGamut = { l: 0.93, c: 0.04, h: 80, alpha: 1 };
+    // Значение получено независимым расчётом по тем же формулам (см. комментарий выше) —
+    // при попадании в охват обе стратегии (отсечение и редукция) дают идентичный результат.
+    expect(relativeLuminance(inGamut)).toBeCloseTo(0.8028691785914531, 9);
   });
 });
