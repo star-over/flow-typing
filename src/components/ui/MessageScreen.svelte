@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Button from './Button.svelte';
+
   /**
    * Экран-сообщение: центрированная колонка с заголовком, пояснением и одним
    * действием. Доменно-нейтральный лист — знает только про переданные строки,
@@ -33,9 +35,7 @@
   {#if note !== undefined}
     <p class="message-screen__note">{note}</p>
   {/if}
-  <button type="button" class="message-screen__action" onclick={onAction}>
-    {actionLabel}
-  </button>
+  <Button variant="ghost" onclick={onAction}>{actionLabel}</Button>
 </div>
 
 <style>
@@ -62,28 +62,5 @@
   .message-screen__note {
     color: var(--color-text-secondary);
     font-variant-numeric: tabular-nums;
-  }
-
-  /* Ghost-кнопка: контур на прозрачном фоне — тихий хром (DESIGN.md).
-     Единственное действие экрана, поэтому заливка не нужна. */
-  .message-screen__action {
-    margin-top: var(--spacing-2);
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-3);
-    border: 1px solid var(--color-text-secondary);
-    background: transparent;
-    color: var(--color-text-primary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-  }
-
-  .message-screen__action:hover {
-    border-color: var(--color-text-primary);
-  }
-
-  .message-screen__action:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
   }
 </style>
