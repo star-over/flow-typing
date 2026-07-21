@@ -2,6 +2,7 @@
   import { settings, updateSettings } from '@/lib/settings';
   import Button from '@/components/ui/Button.svelte';
   import Select from '@/components/ui/Select.svelte';
+  import Field from '@/components/ui/Field.svelte';
   import TrainingSettingsSection from './TrainingSettingsSection.svelte';
   import type { Dictionary } from '@/interfaces/types';
   import { setTheme, THEMES, type ThemeSetting } from '@/themes/registry';
@@ -63,8 +64,7 @@
   <h2>{dictionary.settings.title}</h2>
 
   {#if accountName !== null}
-    <label class="field">
-      <span class="label-text">{dictionary.settings.display_name_label}</span>
+    <Field label={dictionary.settings.display_name_label} hint={dictionary.settings.display_name_description}>
       <input
         class="text-input"
         type="text"
@@ -72,18 +72,16 @@
         placeholder={accountName || dictionary.settings.display_name_placeholder}
         oninput={(e) => updateSettings({ displayName: e.currentTarget.value })}
       />
-      <span class="hint">{dictionary.settings.display_name_description}</span>
-    </label>
+    </Field>
   {/if}
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.theme_label}</span>
+  <Field label={dictionary.settings.theme_label}>
     <Select
       value={$settings.theme}
       options={themeOptions}
       onChange={(v) => setTheme(v as ThemeSetting)}
     />
-  </label>
+  </Field>
 
   <TrainingSettingsSection {dictionary} />
 
@@ -142,17 +140,6 @@
     width: 100%;
   }
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-
-  .label-text {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-  }
-
   .text-input {
     padding: var(--spacing-2) var(--spacing-4);
     border-radius: var(--radius-3);
@@ -170,11 +157,6 @@
   .text-input:focus-visible {
     outline: var(--focus-ring-width) solid var(--color-text-primary);
     outline-offset: var(--focus-ring-offset);
-  }
-
-  .hint {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
   }
 
   .danger-zone {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { settings, updateSettings } from '@/lib/settings';
   import Select from '@/components/ui/Select.svelte';
+  import Field from '@/components/ui/Field.svelte';
   import SessionDurationSelector from './SessionDurationSelector.svelte';
   import { getCompatibleSymbolLayoutsForTextLanguage } from '@/lib/layouts';
   import type {
@@ -58,55 +59,45 @@
 <div class="training-section">
   <h3 class="section-heading">{dictionary.settings.training_group}</h3>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.text_language_label}</span>
+  <Field label={dictionary.settings.text_language_label} hint={dictionary.settings.text_language_description}>
     <Select
       value={$settings.textLanguage}
       options={textLanguages}
       onChange={(v) => updateSettings({ textLanguage: v as TextLanguage })}
     />
-    <span class="hint">{dictionary.settings.text_language_description}</span>
-  </label>
+  </Field>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.symbol_layout_label}</span>
+  <Field label={dictionary.settings.symbol_layout_label} hint={dictionary.settings.symbol_layout_description}>
     <Select
       value={$settings.symbolLayoutId}
       options={layoutOptions}
       onChange={(v) => updateSettings({ symbolLayoutId: v as SymbolLayoutId })}
     />
-    <span class="hint">{dictionary.settings.symbol_layout_description}</span>
-  </label>
+  </Field>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.finger_layout_label}</span>
+  <Field label={dictionary.settings.finger_layout_label} hint={dictionary.settings.finger_layout_description}>
     <Select
       value={$settings.fingerLayoutId}
       options={fingerLayouts}
       onChange={(v) => updateSettings({ fingerLayoutId: v as FingerLayoutId })}
     />
-    <span class="hint">{dictionary.settings.finger_layout_description}</span>
-  </label>
+  </Field>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.cursor_type_label}</span>
+  <Field label={dictionary.settings.cursor_type_label} hint={dictionary.settings.cursor_type_description}>
     <Select
       value={$settings.cursorType}
       options={cursorTypes}
       onChange={(v) => updateSettings({ cursorType: v as FlowLineCursorType })}
     />
-    <span class="hint">{dictionary.settings.cursor_type_description}</span>
-  </label>
+  </Field>
 
-  <label class="field">
-    <span class="label-text">{dictionary.settings.rhythm_channel_label}</span>
+  <Field label={dictionary.settings.rhythm_channel_label} hint={dictionary.settings.rhythm_channel_description}>
     <Select
       value={$settings.rhythmChannelEnabled ? 'on' : 'off'}
       options={rhythmChannelOptions}
       onChange={(v) => updateSettings({ rhythmChannelEnabled: v === 'on' })}
     />
-    <span class="hint">{dictionary.settings.rhythm_channel_description}</span>
-  </label>
+  </Field>
 
   <SessionDurationSelector
     label={dictionary.settings.session_duration_label}
@@ -126,22 +117,6 @@
   .section-heading {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-text-secondary);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-
-  .label-text {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-  }
-
-  .hint {
-    font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
   }
 </style>
