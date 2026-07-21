@@ -15,7 +15,14 @@ import { resolve } from 'node:path';
 
 import { ROLE_DICTIONARY } from '../themes/roles.ts';
 import { parseRootTokens } from '../themes/parse-theme-css.ts';
-import { resolveTokens, formatOklch, deltaE, contrastRatio, type Oklch } from '../themes/resolve-color.ts';
+import {
+  resolveTokens,
+  formatOklch,
+  deltaE,
+  contrastRatio,
+  compositeOver,
+  type Oklch,
+} from '../themes/resolve-color.ts';
 
 /**
  * Список ID тем берётся с диска (`src/themes/*.css`, кроме `_template.css`),
@@ -37,7 +44,7 @@ function listThemeIds(): string[] {
 /** Порог сведения близких значений (спек: ΔE ≤ 0.05). */
 const COLLAPSE_THRESHOLD = 0.05;
 
-/** Роли-подложки: к ним считается контраст (спек, правило контраста). */
+/** Роли-подложки: к ним считается контраст (спек, правило контраста). Все плотные (alpha 1). */
 const BACKDROPS = [
   '--color-background',
   '--color-surface',
@@ -53,6 +60,23 @@ const BACKDROPS = [
   '--color-target-4',
   '--color-target-5',
   '--color-cursor-background',
+] as const;
+
+/**
+ * Полупрозрачные заливки клавиш: метки и символы реально лежат на них, а не на
+ * плоских ролях из `BACKDROPS`. В отчёт они попадают не сырыми (сравнение с
+ * плотной ролью дало бы систематически оптимистичный контраст — см.
+ * `relativeLuminance`), а уже наложенными на `--color-background` через
+ * `compositeOver`; колонка помечается суффиксом `·composite@background`.
+ */
+const COMPOSITE_KEYCAP_BACKDROPS = [
+  '--color-keycap-correct-background',
+  '--color-keycap-error-background',
+  '--color-keycap-group-1-background',
+  '--color-keycap-group-2-background',
+  '--color-keycap-group-3-background',
+  '--color-keycap-group-4-background',
+  '--color-keycap-group-5-background',
 ] as const;
 
 function fixed({ value, digits }: { value: number; digits: number }): string {
@@ -163,10 +187,25 @@ function printContrastSection({
   resolved: Record<string, Oklch>;
 }): void {
   console.log('\n-- КОНТРАСТ РОЛЕЙ К ПОДЛОЖКАМ -----------------------------------');
+  console.log(
+    '-- Колонки `·composite@background` — заливки клавиш (полупрозрачные) наложены на\n' +
+      '-- `--color-background` и посчитаны уже плотными. Это честно для меток на сцене\n' +
+      '-- фона; подложки поверх чего-то ещё (клавиша поверх пальца, поверх соседней роли\n' +
+      '-- с альфой) этот расчёт не покрывает — число для них не даётся.'
+  );
   const backdrops: { name: string; color: Oklch }[] = [];
   for (const name of BACKDROPS) {
     const color = resolved[name];
     if (color) backdrops.push({ name, color });
+  }
+  const background = resolved['--color-background'];
+  if (background) {
+    for (const name of COMPOSITE_KEYCAP_BACKDROPS) {
+      const overlay = resolved[name];
+      if (!overlay) continue;
+      const composite = compositeOver({ overlay, backdrop: background });
+      backdrops.push({ name: `${name}·composite@background`, color: composite });
+    }
   }
   for (const roleName of roleNames) {
     const color = resolved[roleName];

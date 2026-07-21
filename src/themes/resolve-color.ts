@@ -374,3 +374,48 @@ export function contrastRatio({ first, second }: { first: Oklch; second: Oklch }
   const two = relativeLuminance(second);
   return (Math.max(one, two) + 0.05) / (Math.min(one, two) + 0.05);
 }
+
+/** Обратная матрица OKLab: линейный sRGB → OKLab (используется только внутри `compositeOver`). */
+function linearSrgbToOklab({ r, g, b }: { r: number; g: number; b: number }): {
+  l: number;
+  a: number;
+  b: number;
+} {
+  const lRoot = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const mRoot = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const sRoot = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+
+  return {
+    l: 0.2104542553 * lRoot + 0.793617785 * mRoot - 0.0040720468 * sRoot,
+    a: 1.9779984951 * lRoot - 2.428592205 * mRoot + 0.4505937099 * sRoot,
+    b: 0.0259040371 * lRoot + 0.7827717662 * mRoot - 0.808675766 * sRoot,
+  };
+}
+
+/**
+ * Наложить полупрозрачный цвет (`overlay`) на непрозрачную подложку (`backdrop`):
+ * смешение — в линейном sRGB (единственное пространство, где альфа-blend физически
+ * корректен), результат — плотный цвет (`alpha: 1`), обратно переведённый в OKLCH.
+ *
+ * Смешивать в OKLCH или в гамма-кодированном sRGB нельзя: координаты этих
+ * пространств нелинейны относительно интенсивности света, линейная интерполяция
+ * в них не соответствует физическому наложению полупрозрачного слоя красок.
+ *
+ * `backdrop.alpha` не участвует — вызывающая сторона обязана передать уже плотный
+ * цвет (проверить это в общем виде здесь нельзя: `Oklch` не различает «плотный» и
+ * «случайно alpha=1»).
+ */
+export function compositeOver({ overlay, backdrop }: { overlay: Oklch; backdrop: Oklch }): Oklch {
+  const foreground = toLinearSrgb(overlay);
+  const background = toLinearSrgb(backdrop);
+  const alpha = overlay.alpha;
+  const blended = {
+    r: foreground.r * alpha + background.r * (1 - alpha),
+    g: foreground.g * alpha + background.g * (1 - alpha),
+    b: foreground.b * alpha + background.b * (1 - alpha),
+  };
+  const lab = linearSrgbToOklab(blended);
+  const chroma = Math.hypot(lab.a, lab.b);
+  const hue = chroma === 0 ? 0 : normalizeHue((Math.atan2(lab.b, lab.a) * 180) / Math.PI);
+  return { l: round(lab.l), c: round(chroma), h: round(hue), alpha: 1 };
+}
