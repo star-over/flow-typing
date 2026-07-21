@@ -81,7 +81,6 @@
   --cursor-foreground: oklch(0.14 0 0);
 
   /* Холодная ветка 254° — экран входа, меню, аватар, ссылки, инициалы. */
-  --primary-border: oklch(0.70 0.02 254);
   --primary-hover : oklch(0.88 0.01 234);
   --link-ink      : oklch(0.75 0.06 254);
   --link-ink-hover: oklch(0.88 0.08 250);
@@ -124,7 +123,6 @@
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background: var(--color-text-primary);
-  --color-primary-border    : var(--primary-border);
   --color-primary-hover     : var(--primary-hover);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 254°) --- */

@@ -97,7 +97,6 @@
      кнопки, ссылки, инициалы. Отдельно — почти белый текст на заливке ошибки:
      от --paper-raised отличается на ±0.01 l, но держится 1:1 с прежним
      значением (унификация с on-dense — осознанный следующий шаг, не механика). */
-  --primary-border: oklch(0.15 0.02 280);
   --primary-hover : oklch(0.30 0.03 280);
   --link-ink      : oklch(0.40 0.05 280);
   --link-ink-hover: oklch(0.30 0.1 280);
@@ -134,7 +133,6 @@
      Модель сводит фон к цвету primary-текста (на экране входа был холодный
      oklch(20% 0.02 280) — принятая дельта); кромка и hover держат ветку 280° 1:1. */
   --color-primary-background: var(--color-text-primary);
-  --color-primary-border    : var(--primary-border);
   --color-primary-hover     : var(--primary-hover);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 280°) --- */

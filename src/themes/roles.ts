@@ -45,7 +45,6 @@ export const ROLE_DICTIONARY = [
   '--color-marker-core',
   '--color-on-dense',
   '--color-primary-background',
-  '--color-primary-border',
   '--color-primary-hover',
   '--color-rhythm-outside',
   '--color-rhythm-outside-dim',

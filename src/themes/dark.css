@@ -89,7 +89,6 @@
   --keycap-edge-1: oklch(0.40 0 0);        /* нейтральная кромка группы большого пальца */
 
   /* Холодная ветка 280° — экран входа, меню, аватар, ссылки, инициалы. */
-  --primary-border: oklch(0.70 0.01 280);
   --link-ink      : oklch(0.70 0.08 280);
   --link-ink-hover: oklch(0.85 0.1 280);
   --avatar-fill   : oklch(0.35 0.04 280);
@@ -120,7 +119,6 @@
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background: var(--color-text-primary);
-  --color-primary-border    : var(--primary-border);
   --color-primary-hover     : var(--primary-hover);
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 280°) --- */

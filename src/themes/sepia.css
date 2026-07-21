@@ -89,7 +89,6 @@
 
   /* --- Плотная заливка (primary-кнопка, кнопки провайдеров) --- */
   --color-primary-background    : var(--ink);
-  --color-primary-border: oklch(from var(--ink) calc(l - 0.05) c h);
   --color-primary-hover : oklch(from var(--ink) calc(l + 0.12) c h);
 
   /* --- Чернила с акцентом: ссылки и инициалы (хрома вдвое против текста) --- */
