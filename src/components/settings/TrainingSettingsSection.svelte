@@ -57,7 +57,7 @@
 </script>
 
 <div class="training-section">
-  <h3 class="section-heading">{dictionary.settings.training_group}</h3>
+  <h3 class="section-title">{dictionary.settings.training_group}</h3>
 
   <Field label={dictionary.settings.text_language_label} hint={dictionary.settings.text_language_description}>
     <Select
@@ -114,7 +114,7 @@
     gap: var(--spacing-4);
   }
 
-  .section-heading {
+  .section-title {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-secondary);
