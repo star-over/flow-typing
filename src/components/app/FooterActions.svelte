@@ -2,6 +2,7 @@
   import type { StateFrom } from 'xstate';
   import type { appMachine, AppEvent } from '@/machines/app.machine';
   import type { Dictionary, SymbolLayoutId } from '@/interfaces/types';
+  import Button from '@/components/ui/Button.svelte';
   import KeyHint from '@/components/ui/KeyHint.svelte';
   import { formatAriaTrigger, getPlatform } from '@/lib/platform';
   import { getUserAction, keyHintPropsForTrigger } from '@/lib/user-actions/user-actions';
@@ -49,26 +50,26 @@
   <footer class="footer">
     <div class="actions">
       {#if state.can({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
-        <button
+        <Button
           type="button"
-          class="btn primary"
+          variant="primary"
           onclick={() => send({ type: 'START_TRAINING', symbolLayoutId, durationSeconds })}
           aria-keyshortcuts={restartAriaShortcut}
         >
           {isSessionError ? dictionary.app.retry : dictionary.app.start_again}
           <KeyHint {...keyHintPropsForTrigger(restartAction.trigger)} />
-        </button>
+        </Button>
       {/if}
       {#if state.can({ type: 'RESUME' })}
-        <button
+        <Button
           type="button"
-          class="btn success"
+          variant="success"
           onclick={() => send({ type: 'RESUME' })}
           aria-keyshortcuts={resumeAriaShortcut}
         >
           {dictionary.app.resume}
           <KeyHint {...keyHintPropsForTrigger(resumeAction.trigger)} />
-        </button>
+        </Button>
       {/if}
     </div>
   </footer>
@@ -97,63 +98,6 @@
     flex-wrap: wrap;
     gap: var(--spacing-3);
     justify-content: center;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    padding: var(--spacing-2) var(--spacing-4);
-    border-radius: var(--radius-3);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text-primary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    transition: background-color var(--motion-duration-fast) ease;
-  }
-
-  /* Подсказка на плотной цветной кнопке — без своей плашки: контур и текст
-     наследуются, иначе светлый бейдж спорит с заливкой кнопки. */
-  .btn.primary :global(.key-hint),
-  .btn.success :global(.key-hint) {
-    background: transparent;
-    border-color: currentColor;
-    color: inherit;
-    opacity: 0.85;
-  }
-
-  .btn:hover {
-    background: var(--color-surface-hover);
-  }
-
-  .btn:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-text-primary);
-    outline-offset: var(--focus-ring-offset);
-  }
-
-  .btn.primary {
-    background: var(--color-primary-background);
-    color: var(--color-background);
-    border: 1px solid var(--color-primary-background);
-  }
-
-  .btn.primary:hover {
-    background: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
-  }
-
-  .btn.success {
-    background: var(--color-success);
-    color: var(--color-background);
-    border: 1px solid var(--color-success);
-  }
-
-  .btn.success:hover {
-    background: var(--color-success-hover);
-    border-color: var(--color-success-hover);
   }
 
 </style>

@@ -1,5 +1,15 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import type { HTMLButtonAttributes } from 'svelte/elements';
+
+  interface ButtonProps extends Omit<HTMLButtonAttributes, 'type' | 'disabled' | 'class'> {
+    variant?: 'neutral' | 'primary' | 'success' | 'danger' | 'ghost' | 'accent';
+    size?: 'md' | 'lg';
+    href?: string;
+    type?: 'button' | 'submit';
+    disabled?: boolean;
+    children: Snippet;
+  }
 
   const {
     variant = 'neutral',
@@ -9,14 +19,7 @@
     disabled = false,
     children,
     ...rest
-  }: {
-    variant?: 'neutral' | 'primary' | 'success' | 'danger' | 'ghost' | 'accent';
-    size?: 'md' | 'lg';
-    href?: string;
-    type?: 'button' | 'submit';
-    disabled?: boolean;
-    children: Snippet;
-  } = $props();
+  }: ButtonProps = $props();
 </script>
 
 <svelte:element
