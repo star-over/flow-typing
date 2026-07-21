@@ -10,6 +10,7 @@ SHELL := /bin/bash
 .PHONY: all help install sync clean dev build preview check test coverage lint lint-fix \
         spell knip storybook storybook-build check-all \
         corpus-process build-corpus import-corpus rebuild-selection-index ladder-report \
+        theme-report \
         next-batch reinstall-gemini-cli convex
 
 all: help
@@ -195,6 +196,12 @@ rebuild-selection-index:
 # Контентный радар: распределение корпуса по ступеням лестницы.
 ladder-report:
 	@npx convex run selectionIndex:ladderReport '{"symbolLayoutId":"$(LAYOUT)"}'
+
+# Отчёт по теме: разрешённые координаты ролей, близкие пары ядра (ΔE ≤ 0.05)
+# и контраст ролей к подложкам. Инструмент сведения ядра тем.
+# Одна тема: make theme-report THEME=light
+theme-report:
+	@node src/scripts/theme-report.ts $(THEME)
 
 # Дымовой вызов выдачи порции (этап 1: фильтр по openedSteps + случайный выбор).
 # Контракт в символах (ADR 0006): бюджет считает клиент, сервер про cpm не знает.
