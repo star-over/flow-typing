@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Card from '@/components/ui/Card.svelte';
   import type { RepertoireSnapshot } from '@/lib/repertoire/repertoire-store.svelte';
   import type { Dictionary } from '@/interfaces/types';
 
@@ -30,11 +31,11 @@
 </script>
 
 {#if isGuest}
-  <div class="repertoire-progress guest">
+  <Card padding="md" style="width: 100%; max-width: 640px;">
     <p class="guest-invite">{t.guest_invite}</p>
-  </div>
+  </Card>
 {:else if snapshot !== null}
-  <div class="repertoire-progress">
+  <Card padding="md" style="width: 100%; max-width: 640px;">
     <h3 class="title">{t.title}</h3>
 
     <div class="meta">
@@ -75,19 +76,10 @@
         {/if}
       {/if}
     </div>
-  </div>
+  </Card>
 {/if}
 
 <style>
-  .repertoire-progress {
-    width: 100%;
-    max-width: 640px;
-    padding: var(--spacing-6);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-4);
-  }
-
   .title {
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-bold);
