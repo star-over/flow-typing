@@ -92,14 +92,14 @@
 
   /* --- Чернила с акцентом: ссылки и инициалы (ветка 254°) --- */
   /* Было --avatar-ink oklch(0.94 0.02 234), ΔE 0.0141 с --snow-storm — свели:
-     контраст на --color-surface-accent 6.25:1, запас против порога 4.5. */
+     контраст на --color-surface-accent 6.25 → 6.43 при пороге 4.5 (стало лучше). */
   --color-ink-strong: var(--snow-storm);  /* совпадает с --color-text-primary */
   --color-link      : oklch(from var(--polar-night) 0.75 0.06 h);
   --color-link-hover: oklch(from var(--polar-night) 0.88 0.08 calc(h - 4));
 
   /* --- Плашки с акцентом (аватар, обвязка меню) --- */
   --color-surface-accent: oklch(from var(--polar-night) 0.45 0.04 h);
-  --color-border-accent : oklch(from var(--polar-night) calc(l + 0.18) c h);  /* совпадает с базовой границей в nord */
+  --color-border-accent : oklch(from var(--polar-night) calc(l + 0.18) c h);  /* совпадает с --color-border */
 
   /* --- Исходы --- */
   --color-success    : var(--aurora-green);
@@ -123,7 +123,7 @@
   --color-finger-3   : var(--finger-3);  /* средний */
   --color-finger-4   : var(--finger-4);  /* безымянный */
   --color-finger-5   : var(--finger-5);  /* мизинец */
-  --color-finger-base: oklch(from var(--polar-night) calc(l + 0.18) c h);
+  --color-finger-base: oklch(from var(--polar-night) calc(l + 0.18) c h);  /* совпадает с --color-border */
 
   /* --- Домен · маршрут по пальцу (ADR 0028) ---
      Кольцо пути и маркеры — оттенок пальца на L0.70: читаются на клавишах
@@ -144,8 +144,8 @@
   --color-gap     : var(--color-background);
 
   /* --- Домен · состояния пальца (не-TARGET) --- */
-  --color-finger-inactive: oklch(from var(--polar-night) calc(l + 0.18) c h);
-  --color-finger-idle    : oklch(from var(--polar-night) calc(l + 0.12) c h);
+  --color-finger-inactive: oklch(from var(--polar-night) calc(l + 0.18) c h);  /* совпадает с --color-border */
+  --color-finger-idle    : oklch(from var(--polar-night) calc(l + 0.12) c h);  /* совпадает с --color-surface-hover */
   --color-finger-error   : var(--aurora-red);
 
   /* --- Домен · тихая направляющая --- */
@@ -162,9 +162,14 @@
   --color-brand-accent-hover: oklch(from var(--aurora-orange) calc(l - 0.06) c h);
 
   /* --- Домен · статусы символа в потоке --- */
-  /* Было --symbol-pending oklch(0.78 0.01 240), ΔE 0.0300 с --color-text-muted —
-     свели: контраст к фону сцены (не composite) 6.34:1, запас против порога 4.5. */
-  --color-symbol-pending    : oklch(from var(--snow-storm) calc(l - 0.20) c calc(h + 6));  /* совпадает с --color-text-muted */
+  /* Было --symbol-pending oklch(0.78 0.01 240), ΔE 0.0300 с --color-text-muted.
+     Сведение отклонено: реальная подложка символа — не фон сцены, а тонированная
+     строка потока (`--color-error-dim` поверх `--color-background`,
+     `make theme-report THEME=nord`, колонка `error-dim·composite@background`) —
+     контраст 4.97 → 4.47 при пороге 4.5, порог пересечён вниз. Значение выведено
+     из --snow-storm буквально (l и h+6 из прежнего абсолюта), поэтому цвет не
+     сдвинулся ни на йоту — а именованный core-токен всё равно исчез. */
+  --color-symbol-pending    : oklch(from var(--snow-storm) 0.78 c calc(h + 6));
   --color-symbol-correct    : var(--aurora-green);
   --color-symbol-corrected  : var(--aurora-orange);
   --color-symbol-one-error  : var(--gold);
@@ -177,11 +182,14 @@
   /* --- Домен · клавиша, база --- */
   /* Было --keycap-label oklch(0.87 0.01 240), ΔE 0.0200 с --color-text-secondary —
      свели: метка лежит на заливке клавиши, контраст к keycap-group-N-background
-     (composite@background) 6.78–7.01:1, запас против порога 4.5 для обычного текста. */
+     (composite@background) 6.86–7.01 → 6.36–6.58 при пороге 4.5 для обычного текста. */
   --color-keycap-label : oklch(from var(--snow-storm) calc(l - 0.10) c h);  /* совпадает с --color-text-secondary */
-  --color-keycap-marker: var(--snow-storm);
+  --color-keycap-marker: var(--snow-storm);  /* совпадает с --color-text-primary */
 
-  /* --- Домен · группы клавиш (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) --- */
+  /* --- Домен · группы клавиш (номер группы = номер пальца: 1 = большой … 5 = мизинец, L/R зеркальны) ---
+     Тона групп — приглушённое эхо пальца под альфой 0.7, кромки плотнее;
+     группа 1 нейтральна (холодный Polar Night — нейтральный тон и кромка
+     группы большого пальца). */
   --color-keycap-group-1-background: oklch(from var(--polar-night) calc(l + 0.08) c h / 0.7);
   --color-keycap-group-1-border    : oklch(from var(--polar-night) calc(l + 0.23) c h);
   --color-keycap-group-2-background: oklch(from var(--color-finger-2) 0.40 0.045 h / 0.7);

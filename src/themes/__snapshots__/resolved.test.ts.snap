@@ -216,7 +216,7 @@ exports[`разрешённые цвета ролей > каждая тема р
     "--color-symbol-corrected": "oklch(0.72 0.09 50)",
     "--color-symbol-many-errors": "oklch(0.65 0.13 25)",
     "--color-symbol-one-error": "oklch(0.88 0.13 105)",
-    "--color-symbol-pending": "oklch(0.75 0.01 240)",
+    "--color-symbol-pending": "oklch(0.78 0.01 240)",
     "--color-target-1": "oklch(0.8 0.13 72)",
     "--color-target-2": "oklch(0.8 0.12 200)",
     "--color-target-3": "oklch(0.8 0.1 250)",
