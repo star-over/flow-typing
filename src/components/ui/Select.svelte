@@ -77,7 +77,8 @@
     width: 12px;
     height: 12px;
     background: var(--color-text-secondary);
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='12' height='12'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+    mask-image: var(--icon-chevron-down);
+    mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
     pointer-events: none;

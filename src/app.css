@@ -148,6 +148,12 @@
   --focus-ring-width : 2px;
   --focus-ring-offset: 2px;
 
+  /* --- Icons (mask-источник; цвет/размер задаёт потребитель) --- */
+  /* Шеврон «вниз» для нативных <select> (Select, LanguageSwitcher). SVG без
+   * встроенных width/height — размер даёт потребитель через mask-size: contain,
+   * цвет — через свой background/currentColor. */
+  --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+
   /* Тему ставит синхронный head-скрипт (src/app.html) ДО инъекции CSS-link —
    * data-theme установлен к первому применению стилей, окна без темы нет.
    * Поэтому body ссылается на роли напрямую, fallback-литералы не нужны. */
