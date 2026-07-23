@@ -23,7 +23,7 @@
 - **TypeScript** strict; типы Svelte — `svelte-check`.
 - **XState** — вся бизнес-логика, `src/machines/`.
 - **Vitest** + **Storybook** (`@storybook/sveltekit` + svelte-csf).
-- **CSS без фреймворков**: `src/app.css` держит только primitives (typography/radius/spacing/shadow/motion); цвета и декорация компонентов живут в темах — компонент ссылается на роли `--color-*` напрямую (двухслойная модель ядро + роли, ADR 0029; см. `src/themes/CLAUDE.md` и `docs/06`). **Никаких Tailwind, shadcn, CSS-in-JS, PostCSS-плагинов.**
+- **Стиль — Tailwind v4 + shadcn-svelte на хроме, bespoke на домене** (ADR 0035, поправляет 0033; переход в работе). Tailwind разрешён во всём `src/**`. Хром-примитивы `ui/` строятся на компонентах shadcn-svelte (Bits UI); доменная визуализация движения (`hands-scene/`, `key-cap/`, `flow-line/`, `rhythm-channel/`) остаётся своим CSS под гейтами ролей. `src/app.css` держит primitives (typography/radius/spacing/shadow/motion) и токен-мост. Две-словарная модель токенов: домен-роли `--role-*` — единственная истина под контракт-тестом (двухслойная модель ядро + роли, ADR 0029/0034), словарь имён-ключей shadcn — их проекция для утилит Tailwind через `@theme inline`. Инвариант: файлы тем импортируются в `app.css` **до** `tailwindcss` (иначе темы молча выпадают из сборки). Детали — `src/themes/CLAUDE.md`, `docs/06`. Без CSS-in-JS.
 - Хранение настроек — `localStorage` через собственный Svelte writable store.
 
 ## Commands

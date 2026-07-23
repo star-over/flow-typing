@@ -6,7 +6,7 @@
 
 **Architecture:** Один доменно-нейтральный компонент с закрытым контрактом (только пропсы, без `{#snippet}`) владеет разметкой и стилями экрана-сообщения. Три вызывающих места передают только данные. CSS-правила `.app-error*`, `.error-page*`, `.keyboard-required*` исчезают вместе с копиями.
 
-**Tech Stack:** SvelteKit + Svelte 5 (runes), TypeScript strict, CSS без фреймворков, Storybook (`@storybook/addon-svelte-csf`).
+**Tech Stack:** SvelteKit + Svelte 5 (runes), TypeScript strict, Tailwind v4 + shadcn-svelte на хроме (ADR 0035), Storybook (`@storybook/addon-svelte-csf`).
 
 Спек: `docs/superpowers/specs/2026-07-21-message-screen-design.md`.
 

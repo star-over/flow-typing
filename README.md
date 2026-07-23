@@ -16,7 +16,7 @@
 *   **Язык:** [TypeScript](https://www.typescriptlang.org/) (strict), `svelte-check` для типов
 *   **Библиотека UI:** [Svelte (runes)](https://svelte.dev/)
 *   **Управление состоянием:** [XState](https://xstate.js.org/) — вся бизнес-логика (`src/machines/`)
-*   **Стилизация:** CSS без фреймворков. `src/app.css` — только primitives (typography/radius/spacing/shadow/motion); цвета и декорации компонентов живут в темах (`src/themes/<id>.css`) как роли `--color-*`, на которые компонент ссылается напрямую (двухслойная модель, ADR 0029). Подробности — `docs/06-component-contracts-and-themes.md`.
+*   **Стилизация:** Tailwind v4 + shadcn-svelte (Bits UI) на слое хрома, bespoke CSS на доменной визуализации (ADR 0035). `src/app.css` — primitives (typography/radius/spacing/shadow/motion) и токен-мост; цвета компонентов живут в темах (`src/themes/<id>.css`) как роли `--role-*` (двухслойная модель, ADR 0029/0034), проецируемые в утилиты Tailwind. Подробности — `docs/06-component-contracts-and-themes.md`.
 *   **Тестирование:** [Vitest](https://vitest.dev/)
 *   **Разработка компонентов:** [Storybook](https://storybook.js.org/) (`@storybook/sveltekit` + svelte-csf)
 *   **Проверка линтером:** [ESLint](https://eslint.org/)
